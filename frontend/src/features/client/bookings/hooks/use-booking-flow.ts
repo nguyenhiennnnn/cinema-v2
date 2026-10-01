@@ -1,0 +1,247 @@
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { toast } from "@/components/ui/toast";
+import { ShowtimeSeatStatus, PaymentMethod, BookingStatus } from "@/types/enum";
+import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
+import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";
+import { useAuthUser, useIsAuthenticated } from "@/stores/auth-store";
+import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
+import {
+  useBookingDetail,
+  useCancelBooking,
+  useCheckout,
+  useHoldSeats,
+} from "./use-bookings";
+import type { HoldBookingResponse, PricedSeat } from "../types";
+
+export type BookingStep = "select" | "payment";
+
+export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
+  const isResumeMode = !!resumeBookingId && resumeBookingId > 0;
+
+  const [step, setStep] = useState<BookingStep>(
+    isResumeMode ? "payment" : "select",
+  );
+  const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(
+    new Set(),
+  );
+  const [comboQuantities, setComboQuantities] = useState<
+    Record<number, number>
+  >({});
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethod.VNPay,
+  );
+  const [freshHoldResult, setFreshHoldResult] =
+    useState<HoldBookingResponse | null>(null);
+
+  const authUser = useAuthUser();
+  const isAuthenticated = useIsAuthenticated();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const openAlertDialog = useAlertDialogOpen();
+  const [customerName, setCustomerName] = useState(authUser?.fullName ?? "");
+  const [customerPhone, setCustomerPhone] = useState("");
+
+  const promptLogin = (description: string) => {
+    const redirectTo = encodeURIComponent(`${location.pathname}${location.search}`);
+    openAlertDialog({
+      title: "Yêu cầu đăng nhập",
+      description,
+      confirmText: "Đăng nhập ngay",
+      cancelText: "Để sau",
+      onConfirm: () => {
+        navigate(`/auth/login?redirect=${redirectTo}`);
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (authUser?.fullName && !customerName) {
+      setCustomerName(authUser.fullName);
+    }
+  }, [authUser?.fullName, customerName]);
+
+  const showtimeSeats = useShowtimeSeats(showtimeId);
+
+  const resumeBookingQuery = useBookingDetail(
+    isResumeMode ? resumeBookingId! : 0,
+  );
+
+  const resumeInvalidReason = useMemo<
+    "not-pending" | "expired" | "load-error" | null
+  >(() => {
+    if (!isResumeMode) return null;
+    if (resumeBookingQuery.isError) return "load-error";
+    const booking = resumeBookingQuery.data;
+    if (!booking) return null;
+    if (booking.status !== BookingStatus.Pending || !booking.holdExpiresAt)
+      return "not-pending";
+    if (new Date(booking.holdExpiresAt).getTime() <= Date.now())
+      return "expired";
+    return null;
+  }, [isResumeMode, resumeBookingQuery.isError, resumeBookingQuery.data]);
+
+  const holdResult: HoldBookingResponse | null = useMemo(() => {
+    if (!isResumeMode) return freshHoldResult;
+    const booking = resumeBookingQuery.data;
+    if (!booking || !booking.holdExpiresAt || resumeInvalidReason) return null;
+    return {
+      bookingId: booking.bookingId,
+      bookingCode: booking.bookingCode,
+      status: booking.status,
+      totalAmount: booking.totalAmount,
+      discountAmount: booking.discountAmount,
+      finalAmount: booking.finalAmount,
+      expiresAt: booking.holdExpiresAt,
+    };
+  }, [
+    isResumeMode,
+    freshHoldResult,
+    resumeBookingQuery.data,
+    resumeInvalidReason,
+  ]);
+
+  const resumedSeats: PricedSeat[] = resumeBookingQuery.data?.seats ?? [];
+
+  const seatStatusMap = useRealtimeSeatMap({
+    showtimeId,
+    initialSeats: showtimeSeats.data?.seats,
+    ownBookingId: holdResult?.bookingId ?? null,
+    onHoldExpired: () => {
+      toast.add({
+        title: "Thời gian giữ ghế đã hết hạn, vui lòng chọn lại.",
+        type: "warning",
+      });
+      if (!isResumeMode) resetToSelection();
+    },
+  });
+
+  const holdSeatsMutation = useHoldSeats();
+  const checkoutMutation = useCheckout(holdResult?.bookingId ?? 0);
+  const cancelBookingMutation = useCancelBooking();
+
+  const selectedSeatsInfo = useMemo(
+    () =>
+      (showtimeSeats.data?.seats ?? []).filter((s) =>
+        selectedSeatIds.has(s.showtimeSeatId),
+      ),
+    [showtimeSeats.data, selectedSeatIds],
+  );
+
+  const combosPayload = useMemo(
+    () =>
+      Object.entries(comboQuantities)
+        .filter(([, qty]) => qty > 0)
+        .map(([comboId, quantity]) => ({ comboId: Number(comboId), quantity })),
+    [comboQuantities],
+  );
+
+  const toggleSeat = (showtimeSeatId: number) => {
+    const status = seatStatusMap.get(showtimeSeatId);
+    if (status && status !== ShowtimeSeatStatus.Available) return;
+
+    setSelectedSeatIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(showtimeSeatId)) next.delete(showtimeSeatId);
+      else next.add(showtimeSeatId);
+      return next;
+    });
+  };
+
+  const setComboQuantity = (comboId: number, quantity: number) => {
+    setComboQuantities((prev) => ({ ...prev, [comboId]: quantity }));
+  };
+
+  const canHold =
+    selectedSeatIds.size > 0 &&
+    (!isAuthenticated || customerName.trim().length > 0);
+
+  const holdAndContinue = async () => {
+    if (!isAuthenticated) {
+      promptLogin(
+        "Bạn cần đăng nhập tài khoản để thực hiện đặt vé và giữ ghế. Bạn có muốn đăng nhập ngay không?",
+      );
+      return;
+    }
+
+    await holdSeatsMutation.mutateAsync(
+      {
+        showtimeId,
+        seatIds: Array.from(selectedSeatIds),
+        combos: combosPayload.length > 0 ? combosPayload : undefined,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+      },
+      {
+        onSuccess: (res) => {
+          setFreshHoldResult(res.data);
+          setStep("payment");
+        },
+      },
+    );
+  };
+
+  const resetToSelection = () => {
+    setStep("select");
+    setSelectedSeatIds(new Set());
+    setFreshHoldResult(null);
+  };
+
+  const cancelHold = async () => {
+    if (!holdResult) return;
+    try {
+      await cancelBookingMutation.mutateAsync(holdResult.bookingId);
+    } finally {
+      if (!isResumeMode) resetToSelection();
+    }
+  };
+
+  const submitPayment = async () => {
+    if (!holdResult) return;
+
+    if (!isAuthenticated) {
+      promptLogin(
+        "Bạn cần đăng nhập tài khoản để thực hiện thanh toán. Bạn có muốn đăng nhập ngay không?",
+      );
+      return;
+    }
+
+    await checkoutMutation.mutateAsync(
+      { paymentMethod },
+      {
+        onSuccess: (res) => {
+          window.location.href = res.data.paymentUrl;
+        },
+      },
+    );
+  };
+
+  return {
+    step,
+    isResumeMode,
+    isResumeLoading: isResumeMode && resumeBookingQuery.isLoading,
+    resumeInvalidReason,
+    showtimeSeats,
+    seatStatusMap,
+    selectedSeatIds,
+    selectedSeatsInfo: isResumeMode ? resumedSeats : selectedSeatsInfo,
+    toggleSeat,
+    comboQuantities,
+    setComboQuantity,
+    isAuthenticated,
+    customerName,
+    setCustomerName,
+    customerPhone,
+    setCustomerPhone,
+    paymentMethod,
+    setPaymentMethod,
+    canHold,
+    holdAndContinue,
+    isHolding: holdSeatsMutation.isPending,
+    holdResult,
+    cancelHold,
+    isCancelling: cancelBookingMutation.isPending,
+    submitPayment,
+    isSubmittingPayment: checkoutMutation.isPending,
+  };
+}

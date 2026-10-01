@@ -1,0 +1,143 @@
+name: cinema
+
+# Moi truong PHAT TRIEN: hot-reload cho ca BE (dotnet watch) va FE (Vite HMR).
+# Copy .env.example thanh .env truoc khi chay: `docker compose up --build -d`
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cinema-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-CinemaDb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-CinemaDb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - cinema-net
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: cinema-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      RunMigrationsOnStartup: ${RUN_MIGRATIONS_ON_STARTUP:-true}
+
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-CinemaDb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
+
+      Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGIN:-http://localhost:5173}
+      App__ApiBaseUrl: ${API_BASE_URL:-http://localhost:8080}
+
+      Jwt__Secret: ${JWT_SECRET:?JWT_SECRET is required — set it in .env}
+      Jwt__Issuer: ${JWT_ISSUER:-Cinema}
+      Jwt__Audience: ${JWT_AUDIENCE:-Cinema.Client}
+      Jwt__AccessTokenExpirationSeconds: ${JWT_ACCESS_TOKEN_EXPIRATION_SECONDS:-3600}
+      Jwt__RefreshTokenExpirationDays: ${JWT_REFRESH_TOKEN_EXPIRATION_DAYS:-30}
+
+      Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME:-}
+      Cloudinary__ApiKey: ${CLOUDINARY_API_KEY:-}
+      Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET:-}
+
+      Email__SmtpHost: ${SMTP_HOST:-}
+      Email__SmtpPort: ${SMTP_PORT:-587}
+      Email__SmtpUser: ${SMTP_USER:-}
+      Email__SmtpPassword: ${SMTP_PASSWORD:-}
+      Email__FromAddress: ${SMTP_FROM_ADDRESS:-no-reply@cinema.local}
+      Email__FromName: ${SMTP_FROM_NAME:-Cinema}
+
+      VnPay__TmnCode: ${VNPAY_TMN_CODE:-}
+      VnPay__HashSecret: ${VNPAY_HASH_SECRET:-}
+      VnPay__BaseUrl: ${VNPAY_BASE_URL:-https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+      VnPay__ReturnUrl: ${VNPAY_RETURN_URL:-http://localhost:5173/booking/result}
+      VnPay__IpnUrl: ${VNPAY_IPN_URL:-http://localhost:8080/api/v1/payments/vnpay/ipn}
+      VnPay__ApiUrl: ${VNPAY_API_URL:-https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+
+      Momo__PartnerCode: ${MOMO_PARTNER_CODE:-}
+      Momo__AccessKey: ${MOMO_ACCESS_KEY:-}
+      Momo__SecretKey: ${MOMO_SECRET_KEY:-}
+      Momo__Endpoint: ${MOMO_ENDPOINT:-https://test-payment.momo.vn/v2/gateway/api/create}
+      Momo__ReturnUrl: ${MOMO_RETURN_URL:-http://localhost:5173/booking/result}
+      Momo__IpnUrl: ${MOMO_IPN_URL:-http://localhost:8080/api/v1/payments/momo/ipn}
+      Momo__RefundEndpoint: ${MOMO_REFUND_ENDPOINT:-https://test-payment.momo.vn/v2/gateway/api/refund}
+
+      Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
+      Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY:-}
+      Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
+      Stripe__ReturnUrl: ${STRIPE_RETURN_URL:-http://localhost:5173/booking/result}
+      Stripe__Currency: ${STRIPE_CURRENCY:-vnd}
+
+      Gemini__ApiKey: ${GEMINI_API_KEY:-}
+      Gemini__Model: ${GEMINI_MODEL:-gemini-2.5-flash}
+
+      Google__ClientId: ${GOOGLE_CLIENT_ID:-}
+      Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      # Bind-mount toan bo source de dotnet watch hot-reload theo thay doi tren host.
+      - ./backend:/src
+      - /src/Cinema.Api/bin
+      - /src/Cinema.Api/obj
+      - /src/Cinema.Application/bin
+      - /src/Cinema.Application/obj
+      - /src/Cinema.Domain/bin
+      - /src/Cinema.Domain/obj
+      - /src/Cinema.Infrastructure/bin
+      - /src/Cinema.Infrastructure/obj
+      - /src/Cinema.Shared/bin
+      - /src/Cinema.Shared/obj
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - cinema-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: cinema-frontend
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+    environment:
+      # Vite doc truc tiep bien VITE_* tu process env luc dev server chay.
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/api/v1}
+      VITE_SIGNALR_HUB_URL: ${VITE_SIGNALR_HUB_URL:-http://localhost:8080/hubs/showtimes}
+      VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    volumes:
+      - ./frontend:/app
+      # Anonymous volume: giu node_modules cua container (da npm ci trong image),
+      # khong bi bind-mount ./frontend:/app cua host de len (host thuong khong co node_modules).
+      - /app/node_modules
+    restart: unless-stopped
+    networks:
+      - cinema-net
+
+networks:
+  cinema-net:
+    driver: bridge
+
+volumes:
+  postgres-data:

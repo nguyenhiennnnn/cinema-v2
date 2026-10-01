@@ -1,0 +1,99 @@
+import { useState } from "react";
+import { Star, Clock, Languages, CalendarDays, PlayCircle, Ticket } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AgeRatingBadge } from "@/components/common/status-badge";
+import { TrailerDialog } from "@/features/client/movies/components/trailer-dialog";
+import { formatDuration } from "@/lib/cinema-format";
+import { formatDate } from "@/lib/formatters";
+import type { MovieDetailDto } from "@/features/client/movies/types";
+
+interface MovieHeroProps {
+  movie: MovieDetailDto;
+}
+
+export const MovieHero = ({ movie }: MovieHeroProps) => {
+  const [trailerOpen, setTrailerOpen] = useState(false);
+
+  return (
+    <div className="relative overflow-hidden border border-border bg-card">
+      {movie.posterUrl && (
+        <div className="absolute inset-0">
+          <img src={movie.posterUrl} alt="" className="h-full w-full scale-110 object-cover opacity-15 blur-2xl" />
+          <div className="absolute inset-0 bg-linear-to-t from-card via-card/85 to-card/50" />
+        </div>
+      )}
+
+      <div className="relative flex flex-col gap-6 p-5 sm:flex-row sm:p-8">
+        <div className="mx-auto aspect-2/3 w-40 shrink-0 overflow-hidden border border-border sm:mx-0 sm:w-56">
+          {movie.posterUrl ? (
+            <img src={movie.posterUrl} alt={movie.title} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+              <Ticket className="size-10" />
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col justify-end">
+          <div className="flex flex-wrap items-center gap-2">
+            <AgeRatingBadge code={movie.ageRating?.code} />
+            {movie.genres.map((g) => (
+              <span key={g.genreId} className="border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
+                {g.name}
+              </span>
+            ))}
+          </div>
+
+          <h1 className="mt-3 font-heading text-3xl leading-[0.98] font-semibold tracking-tight text-foreground uppercase md:text-5xl">{movie.title}</h1>
+          {movie.originalTitle && <p className="mt-1 text-sm text-muted-foreground">{movie.originalTitle}</p>}
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Clock className="size-4" />
+              {formatDuration(movie.durationMinutes)}
+            </span>
+            {movie.language && (
+              <span className="flex items-center gap-1.5">
+                <Languages className="size-4" />
+                {movie.language.name}
+              </span>
+            )}
+            {movie.releaseDate && (
+              <span className="flex items-center gap-1.5">
+                <CalendarDays className="size-4" />
+                {formatDate(movie.releaseDate)}
+              </span>
+            )}
+            {movie.averageRating > 0 && (
+              <span className="flex items-center gap-1.5 font-semibold text-accent">
+                <Star className="size-4 fill-accent text-accent" />
+                {movie.averageRating.toFixed(1)}/5.0
+              </span>
+            )}
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button
+              size="lg"
+              className="clip-corner tracking-wide uppercase"
+              onClick={() => document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              <Ticket className="size-4" />
+              <span>Mua vé ngay</span>
+            </Button>
+            {movie.trailerUrl && (
+              <Button variant="outline" size="lg" onClick={() => setTrailerOpen(true)}>
+                <PlayCircle className="size-4" />
+                <span>Xem Trailer</span>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {movie.trailerUrl && (
+        <TrailerDialog open={trailerOpen} onOpenChange={setTrailerOpen} trailerUrl={movie.trailerUrl} title={movie.title} />
+      )}
+    </div>
+  );
+}

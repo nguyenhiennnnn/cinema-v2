@@ -1,0 +1,86 @@
+# ─── Secrets / env ────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example
+!**/.env.example
+
+# ─── .NET / C# ────────────────────────────────────────────────
+backend/**/appsettings.Local.json
+!backend/**/appsettings.Local.json.example
+backend/bin/
+backend/obj/
+backend/**/bin/
+backend/**/obj/
+
+# Visual Studio artifacts
+backend/**/.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.csproj.user
+
+# Publish output
+backend/publish/
+backend/out/
+
+# Rider
+.idea/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+backend/.nuget/
+
+# ─── Node / Frontend ──────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# Vite cache
+frontend/.vite/
+
+# Playwright E2E output 
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/.last-run.json
+
+# k6 Load test output
+load-tests/results/*
+!load-tests/results/.gitkeep
+
+# TypeScript build info
+frontend/tsconfig.tsbuildinfo
+frontend/**/*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Docker ───────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ─── OS / Editor ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VSCode — giu settings + extensions, bo workspaceStorage
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# ─── Misc ─────────────────────────────────────────────────────
+*.swp
+*.swo
+*.bak
+*.tmp
+*.orig

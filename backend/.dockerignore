@@ -1,0 +1,34 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+publish/
+
+# Tests — khong can thiet cho runtime image, giam build context + tranh cache-bust
+tests/
+
+# IDE / OS
+**/.vs/
+**/.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+**/*.log
+
+# Secrets / local overrides — khong duoc bake vao image
+appsettings.Local.json
+**/appsettings.Local.json
+.env
+.env.*
+
+# Git / docs
+.git/
+.gitignore
+*.md
+
+# Docker
+Dockerfile
+.dockerignore

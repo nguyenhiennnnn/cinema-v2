@@ -1,0 +1,69 @@
+import type { MovieStatus } from "@/types/enum";
+
+// ── Admin movie list ──────────────────────────────────────────────────────────
+// AdminMovieListFilter matches backend record exactly:
+// record AdminMovieListFilter(string? Search, string? Status, int? DirectorId, int? LanguageId, int? AgeRatingId, int? GenreId)
+
+export interface AdminMovieListParams {
+  search?: string;
+  status?: MovieStatus;
+  directorId?: number;
+  languageId?: number;
+  ageRatingId?: number;
+  genreId?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminMovieListItemDto {
+  movieId: number;
+  title: string;
+  posterUrl?: string | null;
+  status: MovieStatus;
+  releaseDate?: string | null;
+  directorName?: string | null;
+  languageName?: string | null;
+}
+
+// ── Upsert movie ──────────────────────────────────────────────────────────────
+
+export interface MovieCastItemRequest {
+  actorId: number;
+  characterName?: string | null;
+}
+
+export interface UpsertMovieRequest {
+  title: string;
+  originalTitle?: string | null;
+  description?: string | null;
+  directorId?: number | null;
+  durationMinutes: number;
+  releaseDate?: string | null;
+  languageId?: number | null;
+  subtitle?: string | null;
+  ageRatingId?: number | null;
+  posterUrl?: string | null;
+  trailerUrl?: string | null;
+  status: string;
+  genreIds: number[];
+  cast: MovieCastItemRequest[];
+}
+
+export interface DeleteMovieResponse {
+  movieId: number;
+  deleted: boolean;
+  softDeleted: boolean;
+}
+
+// ── Re-export client movie types ──────────────────────────────────────────────
+
+export type {
+  MovieListParams,
+  MovieListItemDto,
+  MovieDetailDto,
+  ReviewListParams,
+  ReviewDto,
+  CreateReviewRequest,
+  CanReviewResponse,
+  DeleteReviewResponse,
+} from "@/features/client/movies/types";

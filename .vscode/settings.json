@@ -1,0 +1,8 @@
+{
+  // Treat appsettings*.json as JSONC de cho phep comment //
+  "files.associations": {
+    "appsettings*.json": "jsonc"
+  },
+  "dotnet.defaultSolution": "backend/Cinema.sln",
+  "omnisharp.defaultLaunchSolution": "backend/Cinema.sln"
+}

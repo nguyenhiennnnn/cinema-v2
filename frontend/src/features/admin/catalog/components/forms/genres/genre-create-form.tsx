@@ -1,0 +1,74 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+import { toast } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
+import { FieldGroup } from "@/components/ui/field";
+import { FormInputField } from "@/components/common/form/form-input-field";
+
+import { useAdminCreateGenre } from "../../../hooks/use-admin-genre";
+
+const genreFormSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Vui lòng nhập tên thể loại.")
+    .max(100, "Tên thể loại tối đa 100 ký tự."),
+});
+
+type GenreFormValues = z.infer<typeof genreFormSchema>;
+
+interface GenreCreateFormProps {
+  onSuccess: () => void;
+}
+
+export const GenreCreateForm = ({ onSuccess }: GenreCreateFormProps) => {
+  const createGenre = useAdminCreateGenre();
+
+  const form = useForm<GenreFormValues>({
+    resolver: zodResolver(genreFormSchema),
+    defaultValues: { name: "" },
+  });
+
+  const onSubmit = async (values: GenreFormValues) => {
+    await createGenre.mutateAsync(values, {
+      onSuccess: () => {
+        toast.add({ title: "Đã thêm thể loại mới.", type: "success" });
+        onSuccess();
+      }
+    });
+  };
+
+  return (
+    <form
+      id="genre-create-form"
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-4"
+    >
+      <FieldGroup>
+        <FormInputField
+          name="name"
+          control={form.control}
+          label="Tên thể loại"
+          placeholder="Hành động, Kinh dị, Hoạt hình..."
+          autoFocus
+          autoComplete="off"
+        />
+      </FieldGroup>
+
+      <div className="flex justify-end gap-2 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onSuccess}
+          disabled={createGenre.isPending}
+        >
+          Hủy
+        </Button>
+        <Button type="submit" disabled={createGenre.isPending}>
+          {createGenre.isPending ? "Đang lưu..." : "Thêm thể loại"}
+        </Button>
+      </div>
+    </form>
+  );
+};

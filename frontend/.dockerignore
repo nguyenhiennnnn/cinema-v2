@@ -1,0 +1,30 @@
+node_modules
+dist
+dist-ssr
+build
+
+# Tests — khong can cho build production
+e2e/
+playwright-report/
+test-results/
+
+# Env / secrets — truyen qua build-arg / environment trong docker-compose, khong bake
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Git / docs
+.git/
+.gitignore
+*.md
+
+# Docker
+Dockerfile
+.dockerignore

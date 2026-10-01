@@ -1,0 +1,346 @@
+using Cinema.Application.BackgroundJobs;
+using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
+using Cinema.Domain.Entities;
+using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
+using Cinema.Shared.Exceptions;
+using Hangfire;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+namespace Cinema.Application.Services.Payments;
+
+public class PaymentService(
+    IAppDbContext db,
+    IBookingService bookingService,
+    IEnumerable<IPaymentGateway> paymentGateways,
+    IBackgroundJobClient backgroundJobClient,
+    ILogger<PaymentService> logger
+) : IPaymentService
+{
+    public async Task<VnPayIpnResult> ProcessVnPayIpnAsync(
+        IReadOnlyDictionary<string, string> parameters,
+        CancellationToken cancellationToken
+    )
+    {
+        var gateway = paymentGateways.FirstOrDefault(g => g.MethodName == PaymentMethodNames.VnPay);
+        if (gateway is null)
+        {
+            logger.LogWarning("PaymentWebhookReceived VNPay nhưng gateway chưa đăng ký trong DI.");
+            return new VnPayIpnResult("99", "Gateway not configured");
+        }
+
+        var callback = gateway.VerifyCallback(parameters);
+        logger.LogInformation(
+            "PaymentWebhookReceived Method VNPay TxnRef {TxnRef} ResponseCode {Code}",
+            callback.TransactionId,
+            callback.GatewayResponseCode
+        );
+
+        if (!callback.SignatureValid)
+        {
+            logger.LogWarning(
+                "PaymentWebhookReceived VNPay chữ ký không hợp lệ — TxnRef {TxnRef}",
+                callback.TransactionId
+            );
+            return new VnPayIpnResult("97", "Invalid signature");
+        }
+
+        var payment = await db.Payments.FirstOrDefaultAsync(
+            p => p.TransactionId == callback.TransactionId,
+            cancellationToken
+        );
+        if (payment is null)
+            return new VnPayIpnResult("01", "Order not found");
+
+        if (payment.Status is PaymentStatus.Success or PaymentStatus.Failed)
+        {
+            logger.LogInformation(
+                "PaymentAlreadyProcessed PaymentId {PaymentId} Status {Status}",
+                payment.PaymentId,
+                payment.Status
+            );
+            return new VnPayIpnResult("00", "Confirm Success");
+        }
+
+        if (Math.Abs(payment.Amount - callback.Amount) > 0.01m)
+        {
+            logger.LogWarning(
+                "PaymentWebhookReceived VNPay sai số tiền — PaymentId {PaymentId} Expected {Expected} Got {Got}",
+                payment.PaymentId,
+                payment.Amount,
+                callback.Amount
+            );
+            return new VnPayIpnResult("04", "Invalid amount");
+        }
+
+        await ApplyPaymentResultAsync(
+            payment.PaymentId,
+            callback.IsSuccess,
+            callback.GatewayResponseCode,
+            callback.GatewayTransactionId,
+            cancellationToken
+        );
+        return new VnPayIpnResult("00", "Confirm Success");
+    }
+
+    public async Task<MomoIpnResult> ProcessMomoIpnAsync(
+        IReadOnlyDictionary<string, string> parameters,
+        CancellationToken cancellationToken
+    )
+    {
+        var gateway = paymentGateways.FirstOrDefault(g => g.MethodName == PaymentMethodNames.Momo);
+        if (gateway is null)
+        {
+            logger.LogWarning("PaymentWebhookReceived MoMo nhưng gateway chưa đăng ký trong DI.");
+            return new MomoIpnResult(99, "Gateway not configured");
+        }
+
+        var callback = gateway.VerifyCallback(parameters);
+        logger.LogInformation(
+            "PaymentWebhookReceived Method Momo OrderId {OrderId} ResultCode {Code}",
+            callback.TransactionId,
+            callback.GatewayResponseCode
+        );
+
+        if (!callback.SignatureValid)
+        {
+            logger.LogWarning(
+                "PaymentWebhookReceived MoMo chữ ký không hợp lệ — OrderId {OrderId}",
+                callback.TransactionId
+            );
+            return new MomoIpnResult(97, "Invalid signature");
+        }
+
+        var payment = await db.Payments.FirstOrDefaultAsync(
+            p => p.TransactionId == callback.TransactionId,
+            cancellationToken
+        );
+        if (payment is null)
+            return new MomoIpnResult(1, "Order not found");
+
+        if (payment.Status is PaymentStatus.Success or PaymentStatus.Failed)
+        {
+            logger.LogInformation(
+                "PaymentAlreadyProcessed PaymentId {PaymentId} Status {Status}",
+                payment.PaymentId,
+                payment.Status
+            );
+            return new MomoIpnResult(0, "success");
+        }
+
+        if (Math.Abs(payment.Amount - callback.Amount) > 0.01m)
+            return new MomoIpnResult(4, "Invalid amount");
+
+        await ApplyPaymentResultAsync(
+            payment.PaymentId,
+            callback.IsSuccess,
+            callback.GatewayResponseCode,
+            callback.GatewayTransactionId,
+            cancellationToken
+        );
+        return new MomoIpnResult(0, "success");
+    }
+
+    public async Task<StripeWebhookResult> ProcessStripeWebhookAsync(
+        string jsonPayload,
+        string? stripeSignature,
+        CancellationToken cancellationToken
+    )
+    {
+        var gateway = paymentGateways.FirstOrDefault(g =>
+            g.MethodName == PaymentMethodNames.Stripe
+        );
+        if (gateway is null)
+        {
+            logger.LogWarning("PaymentWebhookReceived Stripe nhưng gateway chưa đăng ký trong DI.");
+            return new StripeWebhookResult(false, "Gateway not configured");
+        }
+
+        var callback = gateway.VerifyWebhook(jsonPayload, stripeSignature);
+        logger.LogInformation(
+            "PaymentWebhookReceived Method Stripe TxnRef {TxnRef} Success {IsSuccess}",
+            callback.TransactionId,
+            callback.IsSuccess
+        );
+
+        if (!callback.SignatureValid)
+        {
+            logger.LogWarning("PaymentWebhookReceived Stripe chữ ký không hợp lệ.");
+            return new StripeWebhookResult(false, "Invalid signature");
+        }
+
+        if (string.IsNullOrEmpty(callback.TransactionId))
+        {
+            return new StripeWebhookResult(true, "Event ignored");
+        }
+
+        var payment = await db.Payments.FirstOrDefaultAsync(
+            p => p.TransactionId == callback.TransactionId,
+            cancellationToken
+        );
+        if (payment is null)
+        {
+            logger.LogWarning(
+                "PaymentWebhookReceived Stripe Payment not found TxnRef {TxnRef}",
+                callback.TransactionId
+            );
+            return new StripeWebhookResult(false, "Payment not found");
+        }
+
+        if (payment.Status is PaymentStatus.Success or PaymentStatus.Failed)
+        {
+            logger.LogInformation(
+                "PaymentAlreadyProcessed PaymentId {PaymentId} Status {Status}",
+                payment.PaymentId,
+                payment.Status
+            );
+            return new StripeWebhookResult(true, "Payment already processed");
+        }
+
+        await ApplyPaymentResultAsync(
+            payment.PaymentId,
+            callback.IsSuccess,
+            callback.GatewayResponseCode,
+            callback.GatewayTransactionId,
+            cancellationToken
+        );
+        return new StripeWebhookResult(true, "Payment processed successfully");
+    }
+
+    private async Task ApplyPaymentResultAsync(
+        int paymentId,
+        bool isSuccess,
+        string gatewayResponseCode,
+        string? gatewayTransactionId,
+        CancellationToken cancellationToken
+    )
+    {
+        var payment = await db.Payments.FirstAsync(
+            p => p.PaymentId == paymentId,
+            cancellationToken
+        );
+
+        payment.GatewayResponseCode = gatewayResponseCode;
+        payment.Status = isSuccess ? PaymentStatus.Success : PaymentStatus.Failed;
+        if (isSuccess)
+        {
+            payment.PaidAt = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(gatewayTransactionId))
+                payment.GatewayTransactionId = gatewayTransactionId;
+        }
+        await db.SaveChangesAsync(cancellationToken);
+
+        if (isSuccess)
+        {
+            try
+            {
+                await bookingService.ConfirmBookingAndGenerateTicketsAsync(
+                    payment.BookingId,
+                    cancellationToken
+                );
+                logger.LogInformation(
+                    "PaymentVerified PaymentId {PaymentId} BookingId {BookingId}",
+                    payment.PaymentId,
+                    payment.BookingId
+                );
+            }
+            catch (SeatsNoLongerHeldException)
+            {
+                await HandleSeatsExpiredAfterPaymentAsync(payment, cancellationToken);
+            }
+        }
+        else
+        {
+            await bookingService.ProcessPaymentFailureAsync(payment.BookingId, cancellationToken);
+            logger.LogInformation(
+                "PaymentFailed PaymentId {PaymentId} BookingId {BookingId}",
+                payment.PaymentId,
+                payment.BookingId
+            );
+        }
+    }
+
+    private async Task HandleSeatsExpiredAfterPaymentAsync(
+        Payment payment,
+        CancellationToken cancellationToken
+    )
+    {
+        logger.LogCritical(
+            "SeatsExpiredAfterPayment PaymentId {PaymentId} BookingId {BookingId} Amount {Amount} — đang thử hoàn tiền tự động.",
+            payment.PaymentId,
+            payment.BookingId,
+            payment.Amount
+        );
+
+        var gateway = paymentGateways.FirstOrDefault(g =>
+            g.MethodName == payment.PaymentMethod.ToString()
+        );
+
+        RefundResult? refundResult = null;
+        if (gateway is not null && payment.TransactionId is not null)
+        {
+            try
+            {
+                refundResult = await gateway.RefundAsync(
+                    new RefundRequest(
+                        payment.TransactionId,
+                        payment.Amount,
+                        $"Hoàn tiền tự động - ghế hết hạn giữ - Payment {payment.PaymentId}",
+                        payment.PaidAt ?? payment.CreatedAt,
+                        GatewayTransactionId: payment.GatewayTransactionId
+                    ),
+                    cancellationToken
+                );
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "AutoRefundFailed PaymentId {PaymentId} — lỗi khi gọi gateway hoàn tiền.",
+                    payment.PaymentId
+                );
+            }
+        }
+
+        var autoRefunded = refundResult is { Success: true };
+        if (autoRefunded)
+        {
+            payment.Status = PaymentStatus.Refunded;
+            payment.RefundedAmount = payment.Amount;
+            payment.RefundedAt = DateTime.UtcNow;
+            payment.RefundTransactionId = refundResult!.RefundTransactionId;
+            await db.SaveChangesAsync(cancellationToken);
+            logger.LogInformation(
+                "AutoRefundSucceeded PaymentId {PaymentId} BookingId {BookingId}",
+                payment.PaymentId,
+                payment.BookingId
+            );
+        }
+
+        var settings = await db.CinemaSettings.FirstOrDefaultAsync(
+            s => s.Id == 1,
+            cancellationToken
+        );
+        if (!string.IsNullOrWhiteSpace(settings?.Email))
+        {
+            var html = EmailTemplates.SeatsExpiredAfterPayment(
+                autoRefunded,
+                payment.BookingId,
+                payment.PaymentId,
+                payment.Amount
+            );
+            backgroundJobClient.Enqueue<SendEmailJob>(j =>
+                j.RunAsync(
+                    settings.Email!,
+                    autoRefunded
+                        ? $"[Cinema] Đã tự động hoàn tiền — Booking #{payment.BookingId}"
+                        : $"[Cinema] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{payment.BookingId}",
+                    html,
+                    CancellationToken.None
+                )
+            );
+        }
+    }
+}
