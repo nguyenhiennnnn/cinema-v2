@@ -29,8 +29,28 @@ RUN dotnet publish Cinema.Api/Cinema.Api.csproj \
     -o /app/publish \
     --no-restore
 
+# ───────────────────────── Stage: dev ─────────────────────────
+# Dung cho docker-compose.yml (development). Ke thua lop "restore" (da co goi NuGet
+# trong ~/.nuget/packages) roi chay `dotnet watch`. Source code thuc te duoc bind-mount
+# tu host (xem docker-compose.yml), nen COPY o day chi la fallback khi chua mount.
+FROM restore AS dev
+WORKDIR /src
+
+ENV ASPNETCORE_ENVIRONMENT=Development \
+    ASPNETCORE_URLS=http://+:8080 \
+    DOTNET_USE_POLLING_FILE_WATCHER=true \
+    DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true \
+    DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+COPY . .
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "watch", "--project", "Cinema.Api", "run", "--no-launch-profile", "--non-interactive"]
+
 # ───────────────────────── Stage: production ─────────────────────────
 # Anh huong nho: chi chua runtime, khong chua SDK hay source code.
+# Dat o cuoi cung de lenh docker build mac dinh tren Render se build stage nay.
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}-alpine AS production
 WORKDIR /app
 
@@ -50,21 +70,3 @@ ENV ASPNETCORE_URLS=http://+:8080 \
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Cinema.Api.dll"]
 
-# ───────────────────────── Stage: dev ─────────────────────────
-# Dung cho docker-compose.yml (development). Ke thua lop "restore" (da co goi NuGet
-# trong ~/.nuget/packages) roi chay `dotnet watch`. Source code thuc te duoc bind-mount
-# tu host (xem docker-compose.yml), nen COPY o day chi la fallback khi chua mount.
-FROM restore AS dev
-WORKDIR /src
-
-ENV ASPNETCORE_ENVIRONMENT=Development \
-    ASPNETCORE_URLS=http://+:8080 \
-    DOTNET_USE_POLLING_FILE_WATCHER=true \
-    DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true \
-    DOTNET_CLI_TELEMETRY_OPTOUT=1
-
-COPY . .
-
-EXPOSE 8080
-
-ENTRYPOINT ["dotnet", "watch", "--project", "Cinema.Api", "run", "--no-launch-profile", "--non-interactive"]
