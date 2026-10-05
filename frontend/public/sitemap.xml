@@ -1,44 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Trang chủ -->
   <url>
-    <loc>https://REPLACE_WITH_YOUR_DOMAIN/</loc>
+    <loc>https://cinema-v2-jade.vercel.app/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- Danh sách phim -->
   <url>
-    <loc>https://REPLACE_WITH_YOUR_DOMAIN/movies</loc>
+    <loc>https://cinema-v2-jade.vercel.app/movies</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Lịch chiếu -->
   <url>
-    <loc>https://REPLACE_WITH_YOUR_DOMAIN/schedule</loc>
+    <loc>https://cinema-v2-jade.vercel.app/schedule</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Membership -->
   <url>
-    <loc>https://REPLACE_WITH_YOUR_DOMAIN/membership</loc>
+    <loc>https://cinema-v2-jade.vercel.app/membership</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
-
-  <!--
-    Lưu ý: Các trang phim chi tiết (/movies/:id) nên được generate
-    động từ API và thêm vào đây. Bạn có thể dùng script build-sitemap.ts
-    để tự động fetch danh sách phim và generate sitemap khi deploy.
-
-    Ví dụ:
-    <url>
-      <loc>https://REPLACE_WITH_YOUR_DOMAIN/movies/1</loc>
-      <lastmod>2024-01-01</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.7</priority>
-    </url>
-  -->
 </urlset>

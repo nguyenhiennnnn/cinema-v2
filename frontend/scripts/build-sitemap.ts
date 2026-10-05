@@ -1,14 +1,3 @@
-/**
- * Script generate sitemap.xml động từ API.
- * Chạy script này sau khi build để tạo sitemap với đầy đủ URL phim.
- *
- * Cách dùng:
- *   npx tsx scripts/build-sitemap.ts
- *
- * Hoặc tích hợp vào package.json:
- *   "build": "tsc -b && vite build && npx tsx scripts/build-sitemap.ts"
- */
-
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,7 +5,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ====== CẤU HÌNH ======
-const SITE_URL = process.env.VITE_SITE_URL ?? "https://REPLACE_WITH_YOUR_DOMAIN";
+const SITE_URL = process.env.VITE_SITE_URL ?? "https://cinema-v2-jade.vercel.app";
 const API_BASE_URL =
   process.env.VITE_API_BASE_URL ?? "https://REPLACE_API_BASE_URL/api/v1";
 const OUTPUT_PATH = path.resolve(__dirname, "../public/sitemap.xml");
