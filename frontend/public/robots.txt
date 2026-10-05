@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Không index trang admin và auth
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /account/
+Disallow: /booking/
+
+# Sitemap
+Sitemap: https://REPLACE_WITH_YOUR_DOMAIN/sitemap.xml

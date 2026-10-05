@@ -4,6 +4,7 @@ import { NuqsAdapter } from "nuqs/adapters/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionInitializer } from "./session-initializer";
 import { ThemeProvider } from "./theme-provider";
+import { HelmetProvider } from "react-helmet-async";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -11,16 +12,18 @@ interface AppProvidersProps {
 
 export const AppProviders = ({ children }: AppProvidersProps) => {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <QueryClientProvider client={queryClient}>
-        <NuqsAdapter>
-          <TooltipProvider>
-            <SessionInitializer />
-            {children}
-          </TooltipProvider>
-        </NuqsAdapter>
-        {/* {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />} */}
-      </QueryClientProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <QueryClientProvider client={queryClient}>
+          <NuqsAdapter>
+            <TooltipProvider>
+              <SessionInitializer />
+              {children}
+            </TooltipProvider>
+          </NuqsAdapter>
+          {/* {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />} */}
+        </QueryClientProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 };

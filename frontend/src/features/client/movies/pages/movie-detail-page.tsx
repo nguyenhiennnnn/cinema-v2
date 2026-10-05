@@ -6,6 +6,7 @@ import { MovieReviews } from "@/features/client/movies/components/movie-reviews"
 import { ExpandableText } from "@/components/common/expandable-text";
 import { useMovieDetail } from "@/features/client/movies/hooks/use-movies";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Seo } from "@/components/common/seo";
 
 const MovieDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,8 +23,41 @@ const MovieDetailPage = () => {
     );
   }
 
+  const movieStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    name: movie.title,
+    description: movie.description,
+    image: movie.posterUrl,
+    director: movie.director
+      ? { "@type": "Person", name: movie.director.fullName }
+      : undefined,
+    actor: movie.cast.map((member) => ({
+      "@type": "Person",
+      name: member.fullName,
+      ...(member.characterName ? { characterName: member.characterName } : {}),
+    })),
+    genre: movie.genres.map((g) => g.name),
+    duration: movie.durationMinutes
+      ? `PT${movie.durationMinutes}M`
+      : undefined,
+  };
+
+  const seoDescription = movie.description
+    ? movie.description.slice(0, 160)
+    : `Xem thông tin và đặt vé phim ${movie.title} tại Cinema. Chọn suất chiếu, ghế ngồi và thanh toán online nhanh chóng.`;
+
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
+      <Seo
+        title={movie.title}
+        description={seoDescription}
+        canonical={`/movies/${movie.movieId}`}
+        ogImage={movie.posterUrl ?? undefined}
+        ogType="article"
+        structuredData={movieStructuredData}
+      />
+
       <MovieHero movie={movie} />
 
       <div className="grid gap-10 lg:grid-cols-3">

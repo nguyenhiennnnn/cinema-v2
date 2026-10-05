@@ -3,10 +3,34 @@ import { MovieSection } from "@/features/client/home/components/movie-section";
 import { ComboCarousel } from "@/features/client/home/components/combo-carousel";
 import { CinemaExperienceSection } from "@/features/client/home/components/cinema-experience-section";
 import { MovieStatus } from "@/types/enum";
+import { Seo } from "@/components/common/seo";
+
+const homeStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Cinema",
+  url: import.meta.env.VITE_SITE_URL ?? "",
+  description:
+    "Đặt vé xem phim nhanh chóng: chọn phim, suất chiếu, chọn ghế và thanh toán online chỉ trong vài phút.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${import.meta.env.VITE_SITE_URL ?? ""}/movies?search={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
 
 const HomePage = () => {
   return (
     <div>
+      <Seo
+        title="Đặt vé xem phim trực tuyến"
+        description="Đặt vé xem phim nhanh chóng: chọn phim, suất chiếu, chọn ghế và thanh toán online chỉ trong vài phút tại Cinema."
+        canonical="/"
+        structuredData={homeStructuredData}
+      />
       <HeroCarousel />
 
       <div className="mx-auto max-w-7xl space-y-14 px-4 pb-14 sm:px-6 lg:px-8">

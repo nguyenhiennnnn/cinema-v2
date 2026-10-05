@@ -4,6 +4,7 @@ import { TierCard } from "../components/tier-card";
 import { TierCompareTable } from "../components/tier-compare-table";
 import { MembershipFaq } from "../components/membership-faq";
 import { useMembershipTiers } from "../../catalog/hooks/use-catalog";
+import { Seo } from "@/components/common/seo";
 
 const MembershipPage = () => {
   const { data: tiers, isLoading, isError } = useMembershipTiers();
@@ -14,6 +15,11 @@ const MembershipPage = () => {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+      <Seo
+        title="Chương trình thành viên Cinema Rewards"
+        description="Tích điểm mỗi lần đặt vé và nhận quyền lợi độc quyền theo hạng thành viên Cinema Rewards: Bronze, Silver, Gold, Platinum."
+        canonical="/membership"
+      />
       <section className="mb-10 rounded-2xl border border-border/60 bg-linear-to-br from-primary/10 via-card to-card p-6 text-center md:p-10">
         <Badge variant="outline" className="mb-3 border-accent/50 text-accent">
           Cinema Rewards
