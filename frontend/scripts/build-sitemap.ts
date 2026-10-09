@@ -18,7 +18,7 @@ interface MovieItem {
 }
 
 interface ApiResponse {
-  success: boolean;
+  success: boolean; 
   data: {
     items: MovieItem[];
     hasMore: boolean;
