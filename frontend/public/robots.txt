@@ -8,4 +8,4 @@ Disallow: /account/
 Disallow: /booking/
 
 # Sitemap
-Sitemap: https://cinema-v2-jade.vercel.app/sitemap.xml
+Sitemap: https://cinema-nu-ten.vercel.app/sitemap.xml
