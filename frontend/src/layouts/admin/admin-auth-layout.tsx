@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router";
-import { BrandMark } from "@/components/common/brand-mark";
+import { BrandMark } from "@/components/common/brand-mark"; 
 
 const AdminAuthLayout = () => {
   return (
