@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router";
-import { Clapperboard } from "lucide-react";
+import { BrandMark } from "@/components/common/brand-mark";
 
 const AdminAuthLayout = () => {
   return (
@@ -18,15 +18,10 @@ const AdminAuthLayout = () => {
 
       <div className="flex w-full max-w-sm flex-col items-center gap-5">
         <Link to="/" className="flex items-center gap-2">
-          <Clapperboard className="size-6 text-white" />
-          <div>
-            <span className="font-heading text-lg font-bold text-white">
-              Cinema Admin
-            </span>
-            <p className="text-[10px] tracking-widest text-white/60 uppercase">
-              Admin Portal
-            </p>
-          </div>
+          <BrandMark />
+          <span className="font-heading text-lg font-bold text-primary-foreground">
+            Cinema
+          </span>
         </Link>
 
         <div className="w-full rounded-2xl border-t-4 border-sidebar-primary bg-card p-6 shadow-lg sm:p-8">
