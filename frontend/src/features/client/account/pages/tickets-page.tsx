@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Ticket as TicketIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import { InfiniteScrollTrigger } from "@/components/common/infinite-scroll-trigger";
 import { TicketCard } from "@/features/client/account/components/ticket-card";
@@ -52,7 +53,25 @@ const AccountTicketsPage = () => {
 
       <div className="mt-5 space-y-3">
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Đang tải...</p>
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className="size-12 shrink-0 rounded-lg" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-28" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="space-y-2 text-right">
+                  <Skeleton className="ml-auto h-5 w-20" />
+                  <Skeleton className="ml-auto h-4 w-16" />
+                </div>
+                <Skeleton className="h-8 w-24 rounded-md" />
+              </div>
+            </div>
+          ))
         ) : bookings.length === 0 ? (
           <EmptyState icon={TicketIcon} title="Chưa có vé nào" description="Hãy đặt vé để bắt đầu trải nghiệm điện ảnh." />
         ) : (
