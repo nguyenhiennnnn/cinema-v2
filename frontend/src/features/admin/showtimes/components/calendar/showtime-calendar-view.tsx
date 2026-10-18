@@ -83,10 +83,7 @@ export const ShowtimeCalendarView = ({
       </div>
 
       {calendar.isLoading && (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-48 w-full" />
-        </div>
+        <Skeleton className="h-64 w-full rounded-xl" />
       )}
 
       {!calendar.isLoading && days.length === 0 && (

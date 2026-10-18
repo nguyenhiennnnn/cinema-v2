@@ -30,11 +30,7 @@ export const CounterShowtimePicker = ({ date, onDateChange, onPickShowtime }: Co
       </div>
 
       {schedule.isLoading && (
-        <div className="grid gap-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
-          ))}
-        </div>
+        <Skeleton className="h-64 w-full rounded-xl" />
       )}
 
       {!schedule.isLoading && (schedule.data?.movies.length ?? 0) === 0 && (

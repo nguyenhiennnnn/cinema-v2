@@ -13,13 +13,7 @@ export const PaymentDetailView = ({ paymentId }: PaymentDetailViewProps) => {
   const detail = useAdminPaymentDetail(paymentId);
 
   if (detail.isLoading || !detail.data) {
-    return (
-      <div className="space-y-3">
-        <Skeleton className="h-5 w-full rounded-md" />
-        <Skeleton className="h-5 w-full rounded-md" />
-        <Skeleton className="h-5 w-2/3 rounded-md" />
-      </div>
-    );
+    return <Skeleton className="h-48 w-full rounded-xl" />;
   }
 
   const p = detail.data;

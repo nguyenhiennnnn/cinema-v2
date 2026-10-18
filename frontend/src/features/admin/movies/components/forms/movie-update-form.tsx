@@ -138,22 +138,7 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
   };
 
   if (movieDetail.isLoading) {
-    return (
-      <div className="space-y-4 py-4">
-        <Skeleton className="h-44 w-full rounded-lg" />
-        <Skeleton className="h-10 w-full rounded-md" />
-        <Skeleton className="h-10 w-full rounded-md" />
-        <Skeleton className="h-24 w-full rounded-md" />
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-10 w-full rounded-md" />
-          <Skeleton className="h-10 w-full rounded-md" />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-10 w-full rounded-md" />
-          <Skeleton className="h-10 w-full rounded-md" />
-        </div>
-      </div>
-    );
+    return <Skeleton className="h-64 w-full rounded-xl" />;
   }
 
   return (

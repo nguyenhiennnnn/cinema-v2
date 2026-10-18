@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import type { LucideIcon } from "lucide-react";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export interface CatalogCardProps {
@@ -41,7 +41,7 @@ export const CatalogCard = ({
         </div>
         <div className="text-right">
           {isLoading ? (
-            <div className="ml-auto h-7 w-10 animate-pulse bg-muted" />
+            <Skeleton className="ml-auto h-7 w-10" />
           ) : (
             <span className="font-heading text-2xl font-semibold tabular text-foreground">
               {count ?? 0}

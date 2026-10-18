@@ -41,20 +41,6 @@ const StatCard = ({ label, value, icon: Icon, hint, trend }: StatItem) => {
   );
 }
 
-const StatCardSkeleton = () => {
-  return (
-    <Card className="gap-2 border-l-2 border-l-border py-4">
-      <CardContent className="flex items-start justify-between gap-3 px-4">
-        <div className="w-full space-y-2">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-7 w-28" />
-          <Skeleton className="h-3 w-16" />
-        </div>
-        <Skeleton className="size-9 shrink-0" />
-      </CardContent>
-    </Card>
-  );
-}
 
 interface DashboardStatCardsProps {
   summary: DashboardSummaryDto | undefined;
@@ -66,7 +52,7 @@ export const DashboardStatCards = ({ summary, isLoading }: DashboardStatCardsPro
     return (
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <StatCardSkeleton key={i} />
+          <Skeleton key={i} className="h-24 w-full rounded-xl" />
         ))}
       </div>
     );

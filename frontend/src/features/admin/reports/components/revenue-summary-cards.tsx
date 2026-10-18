@@ -23,7 +23,7 @@ export const RevenueSummaryCards = ({ summary, isLoading }: RevenueSummaryCardsP
             <div>
               <p className="text-eyebrow">{item.label}</p>
               {isLoading ? (
-                <Skeleton className="mt-1.5 h-7 w-32" />
+                <Skeleton className="mt-1.5 h-7 w-full" />
               ) : (
                 <p className="mt-1.5 text-2xl font-semibold tabular-nums text-foreground">{item.value}</p>
               )}

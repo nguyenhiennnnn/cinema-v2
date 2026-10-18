@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MessageSquareText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import { InfiniteScrollTrigger } from "@/components/common/infinite-scroll-trigger";
 import { ReviewForm } from "@/features/client/movies/components/review-form";
@@ -49,7 +50,7 @@ export const MovieReviews = ({ movieId }: MovieReviewsProps) => {
 
       <div className="mt-6">
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Đang tải đánh giá...</p>
+          <Skeleton className="h-32 w-full rounded-xl" />
         ) : reviews.length === 0 ? (
           <EmptyState icon={MessageSquareText} title="Chưa có đánh giá nào" description="Hãy là người đầu tiên chia sẻ cảm nhận về bộ phim này." />
         ) : (

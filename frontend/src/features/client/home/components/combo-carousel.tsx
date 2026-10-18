@@ -1,4 +1,5 @@
 import { Popcorn } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/formatters";
 import { useActiveCombos } from "@/features/client/combos/hooks/use-combos";
 
@@ -13,7 +14,7 @@ export const ComboCarousel = () => {
 
       <div className="mt-5 flex gap-4 overflow-x-auto pb-2">
         {isLoading
-          ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-56 w-48 shrink-0 animate-pulse rounded-xl bg-muted" />)
+          ? <Skeleton className="h-56 w-full rounded-xl" />
           : combos!.map((combo) => (
             <div key={combo.comboId} className="flex w-48 shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card">
               <div className="flex aspect-square items-center justify-center bg-muted">

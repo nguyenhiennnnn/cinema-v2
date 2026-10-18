@@ -54,23 +54,7 @@ const AccountTicketsPage = () => {
       <div className="mt-5 space-y-3">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <Skeleton className="size-12 shrink-0 rounded-lg" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-40" />
-                  <Skeleton className="h-3 w-28" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="space-y-2 text-right">
-                  <Skeleton className="ml-auto h-5 w-20" />
-                  <Skeleton className="ml-auto h-4 w-16" />
-                </div>
-                <Skeleton className="h-8 w-24 rounded-md" />
-              </div>
-            </div>
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
           ))
         ) : bookings.length === 0 ? (
           <EmptyState icon={TicketIcon} title="Chưa có vé nào" description="Hãy đặt vé để bắt đầu trải nghiệm điện ảnh." />

@@ -21,11 +21,7 @@ const AdminBookingDetailPage = () => {
     return (
       <div>
         <PageHeader title="Chi tiết đơn đặt vé" description="" />
-        <div className="space-y-3">
-          <Skeleton className="h-6 w-1/3 rounded-md" />
-          <Skeleton className="h-32 w-full rounded-xl" />
-          <Skeleton className="h-32 w-full rounded-xl" />
-        </div>
+        <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
   }

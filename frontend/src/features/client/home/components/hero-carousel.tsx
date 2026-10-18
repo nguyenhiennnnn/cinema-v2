@@ -20,20 +20,7 @@ export const HeroCarousel = () => {
   }, [movies.length]);
 
   if (isLoading) {
-    return (
-      <div className="relative h-[70vh] min-h-105 w-full overflow-hidden bg-muted">
-        <Skeleton className="absolute inset-0 rounded-none" />
-        <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end gap-3 px-4 pb-14 sm:px-6 lg:px-8">
-          <Skeleton className="h-3 w-44 bg-foreground/10" />
-          <Skeleton className="h-11 w-72 bg-foreground/10 sm:h-16 sm:w-[26rem]" />
-          <Skeleton className="h-4 w-56 bg-foreground/10" />
-          <div className="mt-3 flex gap-3">
-            <Skeleton className="h-10 w-36 bg-foreground/10" />
-            <Skeleton className="h-10 w-36 bg-foreground/10" />
-          </div>
-        </div>
-      </div>
-    );
+    return <Skeleton className="h-[70vh] min-h-105 w-full rounded-none" />;
   }
 
   if (movies.length === 0) return null;
