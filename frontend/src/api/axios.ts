@@ -135,14 +135,18 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         const refreshStatus = (refreshError as AxiosError)?.response?.status;
-        if (refreshStatus === 401 || refreshStatus === 403) {
+        const hasResponse = (refreshError as AxiosError)?.response != null;
+
+        if (!hasResponse || refreshStatus === 401 || refreshStatus === 403) {
+          // Không có response (network/timeout) hoặc token thực sự hết hạn → logout
           logDevError(refreshError, "Token Refresh — phiên đăng nhập hết hạn");
           useAuthStore.getState().logout();
           redirectToLogin();
         } else {
+          // Lỗi server tạm thời (5xx) → giữ session, không logout
           logDevError(
             refreshError,
-            "Token Refresh — lỗi tạm thời, giữ session",
+            "Token Refresh — lỗi server tạm thời, giữ session",
           );
         }
 

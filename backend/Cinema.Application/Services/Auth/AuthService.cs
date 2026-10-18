@@ -243,6 +243,7 @@ public class AuthService(
             user = await db
                 .Users.Include(u => u.Role)
                 .Include(u => u.Employee)
+                .Include(u => u.CustomerProfile!).ThenInclude(cp => cp.Tier)
                 .FirstAsync(u => u.UserId == user.UserId, cancellationToken);
 
             logger.LogInformation("GoogleUserRegistered UserId {UserId}", user.UserId);

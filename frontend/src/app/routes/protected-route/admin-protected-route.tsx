@@ -1,8 +1,7 @@
-﻿import { Outlet, Navigate } from "react-router";
+import { Outlet, Navigate } from "react-router";
 import { useAuthStore } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
 import { AuthLoadingGuard } from "./auth-loading-guard";
-import ForbiddenPage from "@/pages/forbidden-page";
 
 export const AdminProtectedRoute = () => {
   const { isInitialized, isAuthenticated, user } = useAuthStore();
@@ -14,7 +13,7 @@ export const AdminProtectedRoute = () => {
   }
 
   if (user?.role !== Role.Admin && user?.role !== Role.Employee) {
-    return <ForbiddenPage />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
@@ -35,7 +34,7 @@ export const AdminOnlyRoute = () => {
   }
 
   if (user?.role !== Role.Admin) {
-    return <ForbiddenPage />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
