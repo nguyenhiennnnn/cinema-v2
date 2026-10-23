@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router";
+﻿import { useNavigate, useParams } from "react-router";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -69,7 +69,7 @@ const AdminBookingDetailPage = () => {
                 <Badge
                   key={`${s.seatRow}${s.seatNumber}`}
                   variant="outline"
-                  className="font-mono"
+                  className="tabular-nums"
                 >
                   {s.seatRow}{s.seatNumber} · {formatCurrency(s.price)}
                 </Badge>
@@ -99,7 +99,7 @@ const AdminBookingDetailPage = () => {
               <div className="space-y-2">
                 {b.tickets.map((t) => (
                   <div key={t.ticketId} className="flex items-center justify-between text-sm">
-                    <span className="font-mono text-foreground">
+                    <span className="tabular-nums text-foreground">
                       #{t.ticketId} · {t.seatRow}{t.seatNumber}
                     </span>
                     {t.isCheckedIn ? (

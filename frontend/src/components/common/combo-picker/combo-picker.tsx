@@ -23,7 +23,7 @@ export const ComboPicker = ({ combos, quantities, onChange, isLoading }: ComboPi
     return (
       <div className="@container grid grid-cols-1 gap-3 @sm:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-20 w-full rounded-xl" />
+          <Skeleton key={i} className="h-20 w-full" />
         ))}
       </div>
     );
@@ -31,7 +31,7 @@ export const ComboPicker = ({ combos, quantities, onChange, isLoading }: ComboPi
 
   if (!combos || combos.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-8 text-muted-foreground">
+      <div className="flex flex-col items-center gap-2 border border-dashed border-border py-8 text-muted-foreground">
         <PackageOpen className="size-6" />
         <p className="text-sm">Hiện chưa có combo nào đang bán.</p>
       </div>
@@ -44,9 +44,9 @@ export const ComboPicker = ({ combos, quantities, onChange, isLoading }: ComboPi
         {combos.map((combo) => (
           <div
             key={combo.comboId}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
+            className="flex items-center gap-3 border border-border bg-card p-3"
           >
-            <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+            <div className="size-14 shrink-0 overflow-hidden bg-muted">
               {combo.imageUrl ? (
                 <img src={combo.imageUrl} alt={combo.name} className="h-full w-full object-cover" />
               ) : (

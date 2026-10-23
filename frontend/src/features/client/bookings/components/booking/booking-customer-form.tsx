@@ -17,7 +17,7 @@ export const BookingCustomerForm = ({
   isAuthenticated,
 }: BookingCustomerFormProps) => {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
+    <div className="flex flex-col gap-3 border border-border bg-card p-4">
       <h3 className="font-heading text-sm font-semibold text-foreground">Thông tin nhận vé</h3>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="booking-customer-name">

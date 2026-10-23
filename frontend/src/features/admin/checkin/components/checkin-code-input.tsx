@@ -27,7 +27,7 @@ export const CheckinCodeInput = forwardRef<HTMLInputElement, CheckinCodeInputPro
             }
           }}
           placeholder="Quét hoặc nhập mã QR vé"
-          className="h-12 pl-9 text-base font-mono tracking-wide"
+          className="h-12 pl-9 text-base tabular-nums tracking-wide"
         />
       </div>
     );

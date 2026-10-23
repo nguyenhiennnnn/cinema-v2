@@ -9,8 +9,8 @@ interface ScheduleMovieRowProps {
 
 export const ScheduleMovieRow = ({ movie }: ScheduleMovieRowProps) => {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-border/60 bg-card p-4 sm:flex-row">
-      <Link to={`/movies/${movie.movieId}`} className="mx-auto aspect-2/3 w-28 shrink-0 overflow-hidden rounded-lg bg-muted sm:mx-0">
+    <div className="flex flex-col gap-4 border border-border/60 bg-card p-4 sm:flex-row">
+      <Link to={`/movies/${movie.movieId}`} className="mx-auto aspect-2/3 w-28 shrink-0 overflow-hidden bg-muted sm:mx-0">
         {movie.moviePosterUrl ? (
           <img src={movie.moviePosterUrl} alt={movie.movieTitle} className="h-full w-full object-cover" />
         ) : (

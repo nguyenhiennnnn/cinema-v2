@@ -1,84 +1,83 @@
-| Perfo"i| Perfo"m| Perfo"p| Perfo"o| Perfo"r| Perfo"t| Perfo" | Perfo"| Perfo"{| Perfo" | Perfo"| Perfo"H| Perfo"e| Perfo"l| Perfo"m| Perfo"e| Perfo"t| Perfo" | Perfo"| Perfo"}| Perfo" | Perfo"| Perfo"f| Perfo"r| Perfo"o| Perfo"m| Perfo" | Perfo"| Perfo""| Perfo"r| Perfo"e| Perfo"a| Perfo"c| Perfo"t| Perfo"-| Perfo"h| Perfo"e| Perfo"l| Perfo"m| Perfo"e| Perfo"t| Perfo"-| Perfo"a| Perfo"s| Perfo"y| Perfo"n| Perfo"c| Perfo""| Perfo";| Perfo"
-| Perfo"
-| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"S| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"N| Perfo"A| Perfo"M| Perfo"E| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo""| Perfo"P| Perfo"e| Perfo"r| Perfo"f| Perfo"o| Perfo""| Perfo";| Perfo"
-| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"D| Perfo"E| Perfo"F| Perfo"A| Perfo"U| Perfo"L| Perfo"T| Perfo"_| Perfo"T| Perfo"I| Perfo"T| Perfo"L| Perfo"E| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo""| Perfo"P| Perfo"e| Perfo"r| Perfo"f| Perfo"o| Perfo" | Perfo"| Perfo"ó| Perfo" | Perfo"| Perfo"ƒ| Perfo"ê| Perfo"·| Perfo"∫| Perfo"∑| Perfo"t| Perfo" | Perfo"| Perfo"v| Perfo"√| Perfo"©| Perfo" | Perfo"| Perfo"x| Perfo"e| Perfo"m| Perfo" | Perfo"| Perfo"p| Perfo"h| Perfo"i| Perfo"m| Perfo" | Perfo"| Perfo"t| Perfo"r| Perfo"·| Perfo"ª| Perfo"±| Perfo"c| Perfo" | Perfo"| Perfo"t| Perfo"u| Perfo"y| Perfo"·| Perfo"∫| Perfo"ø| Perfo"n| Perfo""| Perfo";| Perfo"
-| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"D| Perfo"E| Perfo"F| Perfo"A| Perfo"U| Perfo"L| Perfo"T| Perfo"_| Perfo"D| Perfo"E| Perfo"S| Perfo"C| Perfo"R| Perfo"I| Perfo"P| Perfo"T| Perfo"I| Perfo"O| Perfo"N| Perfo" | Perfo"| Perfo"=| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo""| Perfo"ƒ| Perfo"ê| Perfo"·| Perfo"∫| Perfo"∑| Perfo"t| Perfo" | Perfo"| Perfo"v| Perfo"√| Perfo"©| Perfo" | Perfo"| Perfo"x| Perfo"e| Perfo"m| Perfo" | Perfo"| Perfo"p| Perfo"h| Perfo"i| Perfo"m| Perfo" | Perfo"| Perfo"n| Perfo"h| Perfo"a| Perfo"n| Perfo"h| Perfo" | Perfo"| Perfo"c| Perfo"h| Perfo"√| Perfo"≥| Perfo"n| Perfo"g| Perfo":| Perfo" | Perfo"| Perfo"c| Perfo"h| Perfo"·| Perfo"ª| Perfo"ç| Perfo"n| Perfo" | Perfo"| Perfo"p| Perfo"h| Perfo"i| Perfo"m| Perfo",| Perfo" | Perfo"| Perfo"s| Perfo"u| Perfo"·| Perfo"∫| Perfo"•| Perfo"t| Perfo" | Perfo"| Perfo"c| Perfo"h| Perfo"i| Perfo"·| Perfo"∫| Perfo"ø| Perfo"u| Perfo",| Perfo" | Perfo"| Perfo"c| Perfo"h| Perfo"·| Perfo"ª| Perfo"ç| Perfo"n| Perfo" | Perfo"| Perfo"g| Perfo"h| Perfo"·| Perfo"∫| Perfo"ø| Perfo" | Perfo"| Perfo"v| Perfo"√| Perfo"†| Perfo" | Perfo"| Perfo"t| Perfo"h| Perfo"a| Perfo"n| Perfo"h| Perfo" | Perfo"| Perfo"t| Perfo"o| Perfo"√| Perfo"°| Perfo"n| Perfo" | Perfo"| Perfo"o| Perfo"n| Perfo"l| Perfo"i| Perfo"n| Perfo"e| Perfo" | Perfo"| Perfo"c| Perfo"h| Perfo"·| Perfo"ª| Perfo"â| Perfo" | Perfo"| Perfo"t| Perfo"r| Perfo"o| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"v| Perfo"√| Perfo"†| Perfo"i| Perfo" | Perfo"| Perfo"p| Perfo"h| Perfo"√| Perfo"∫| Perfo"t| Perfo".| Perfo""| Perfo";| Perfo"
-| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"D| Perfo"E| Perfo"F| Perfo"A| Perfo"U| Perfo"L| Perfo"T| Perfo"_| Perfo"O| Perfo"G| Perfo"_| Perfo"I| Perfo"M| Perfo"A| Perfo"G| Perfo"E| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo""| Perfo"/| Perfo"f| Perfo"a| Perfo"v| Perfo"i| Perfo"c| Perfo"o| Perfo"n| Perfo".| Perfo"s| Perfo"v| Perfo"g| Perfo""| Perfo";| Perfo"
-| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"S| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"U| Perfo"R| Perfo"L| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo"i| Perfo"m| Perfo"p| Perfo"o| Perfo"r| Perfo"t| Perfo".| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo".| Perfo"e| Perfo"n| Perfo"v| Perfo".| Perfo"V| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"S| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"U| Perfo"R| Perfo"L| Perfo" | Perfo"| Perfo"?| Perfo"?| Perfo" | Perfo"| Perfo""| Perfo""| Perfo";| Perfo"
-| Perfo"
-| Perfo"i| Perfo"n| Perfo"t| Perfo"e| Perfo"r| Perfo"f| Perfo"a| Perfo"c| Perfo"e| Perfo" | Perfo"| Perfo"S| Perfo"e| Perfo"o| Perfo"P| Perfo"r| Perfo"o| Perfo"p| Perfo"s| Perfo" | Perfo"| Perfo"{| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"/| Perfo"*| Perfo"*| Perfo" | Perfo"| Perfo"T| Perfo"i| Perfo"√| Perfo"™| Perfo"u| Perfo" | Perfo"| Perfo"ƒ| Perfo"ë| Perfo"·| Perfo"ª| Perfo"Å| Perfo" | Perfo"| Perfo"t| Perfo"r| Perfo"a| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"(| Perfo"s| Perfo"·| Perfo"∫| Perfo"Ω| Perfo" | Perfo"| Perfo"ƒ| Perfo"ë| Perfo"∆| Perfo"∞| Perfo"·| Perfo"ª| Perfo"£| Perfo"c| Perfo" | Perfo"| Perfo"t| Perfo"h| Perfo"√| Perfo"™| Perfo"m| Perfo" | Perfo"| Perfo""| Perfo" | Perfo"| Perfo"|| Perfo" | Perfo"| Perfo"C| Perfo"i| Perfo"n| Perfo"e| Perfo"m| Perfo"a| Perfo""| Perfo" | Perfo"| Perfo"t| Perfo"·| Perfo"ª| Perfo"±| Perfo" | Perfo"| Perfo"ƒ| Perfo"ë| Perfo"·| Perfo"ª| Perfo"ô| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"n| Perfo"·| Perfo"∫| Perfo"ø| Perfo"u| Perfo" | Perfo"| Perfo"k| Perfo"h| Perfo"√| Perfo"¥| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"c| Perfo"√| Perfo"≥| Perfo")| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo"?| Perfo":| Perfo" | Perfo"| Perfo"s| Perfo"t| Perfo"r| Perfo"i| Perfo"n| Perfo"g| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"/| Perfo"*| Perfo"*| Perfo" | Perfo"| Perfo"M| Perfo"√| Perfo"¥| Perfo" | Perfo"| Perfo"t| Perfo"·| Perfo"∫| Perfo"£| Perfo" | Perfo"| Perfo"t| Perfo"r| Perfo"a| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo"?| Perfo":| Perfo" | Perfo"| Perfo"s| Perfo"t| Perfo"r| Perfo"i| Perfo"n| Perfo"g| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"/| Perfo"*| Perfo"*| Perfo" | Perfo"| Perfo"U| Perfo"R| Perfo"L| Perfo" | Perfo"| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo" | Perfo"| Perfo"c| Perfo"·| Perfo"ª| Perfo"ß| Perfo"a| Perfo" | Perfo"| Perfo"t| Perfo"r| Perfo"a| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"?| Perfo":| Perfo" | Perfo"| Perfo"s| Perfo"t| Perfo"r| Perfo"i| Perfo"n| Perfo"g| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"/| Perfo"*| Perfo"*| Perfo" | Perfo"| Perfo"U| Perfo"R| Perfo"L| Perfo" | Perfo"| Perfo"·| Perfo"∫| Perfo"£| Perfo"n| Perfo"h| Perfo" | Perfo"| Perfo"O| Perfo"p| Perfo"e| Perfo"n| Perfo" | Perfo"| Perfo"G| Perfo"r| Perfo"a| Perfo"p| Perfo"h| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo"?| Perfo":| Perfo" | Perfo"| Perfo"s| Perfo"t| Perfo"r| Perfo"i| Perfo"n| Perfo"g| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"/| Perfo"*| Perfo"*| Perfo" | Perfo"| Perfo"L| Perfo"o| Perfo"·| Perfo"∫| Perfo"°| Perfo"i| Perfo" | Perfo"| Perfo"O| Perfo"p| Perfo"e| Perfo"n| Perfo" | Perfo"| Perfo"G| Perfo"r| Perfo"a| Perfo"p| Perfo"h| Perfo":| Perfo" | Perfo"| Perfo"w| Perfo"e| Perfo"b| Perfo"s| Perfo"i| Perfo"t| Perfo"e| Perfo" | Perfo"| Perfo"|| Perfo" | Perfo"| Perfo"a| Perfo"r| Perfo"t| Perfo"i| Perfo"c| Perfo"l| Perfo"e| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"o| Perfo"g| Perfo"T| Perfo"y| Perfo"p| Perfo"e| Perfo"?| Perfo":| Perfo" | Perfo"| Perfo""| Perfo"w| Perfo"e| Perfo"b| Perfo"s| Perfo"i| Perfo"t| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"|| Perfo" | Perfo"| Perfo""| Perfo"a| Perfo"r| Perfo"t| Perfo"i| Perfo"c| Perfo"l| Perfo"e| Perfo""| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"/| Perfo"*| Perfo"*| Perfo" | Perfo"| Perfo"K| Perfo"h| Perfo"√| Perfo"¥| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"i| Perfo"n| Perfo"d| Perfo"e| Perfo"x| Perfo" | Perfo"| Perfo"t| Perfo"r| Perfo"a| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"n| Perfo"√| Perfo"†| Perfo"y| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"n| Perfo"o| Perfo"I| Perfo"n| Perfo"d| Perfo"e| Perfo"x| Perfo"?| Perfo":| Perfo" | Perfo"| Perfo"b| Perfo"o| Perfo"o| Perfo"l| Perfo"e| Perfo"a| Perfo"n| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"/| Perfo"*| Perfo"*| Perfo" | Perfo"| Perfo"J| Perfo"S| Perfo"O| Perfo"N| Perfo"-| Perfo"L| Perfo"D| Perfo" | Perfo"| Perfo"S| Perfo"t| Perfo"r| Perfo"u| Perfo"c| Perfo"t| Perfo"u| Perfo"r| Perfo"e| Perfo"d| Perfo" | Perfo"| Perfo"D| Perfo"a| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"s| Perfo"t| Perfo"r| Perfo"u| Perfo"c| Perfo"t| Perfo"u| Perfo"r| Perfo"e| Perfo"d| Perfo"D| Perfo"a| Perfo"t| Perfo"a| Perfo"?| Perfo":| Perfo" | Perfo"| Perfo"o| Perfo"b| Perfo"j| Perfo"e| Perfo"c| Perfo"t| Perfo";| Perfo"
-| Perfo"}| Perfo"
-| Perfo"
-| Perfo"/| Perfo"*| Perfo"*| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo"C| Perfo"o| Perfo"m| Perfo"p| Perfo"o| Perfo"n| Perfo"e| Perfo"n| Perfo"t| Perfo" | Perfo"| Perfo"S| Perfo"E| Perfo"O| Perfo" | Perfo"| Perfo"d| Perfo"√| Perfo"π| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"r| Perfo"e| Perfo"a| Perfo"c| Perfo"t| Perfo"-| Perfo"h| Perfo"e| Perfo"l| Perfo"m| Perfo"e| Perfo"t| Perfo"-| Perfo"a| Perfo"s| Perfo"y| Perfo"n| Perfo"c| Perfo" | Perfo"| Perfo"ƒ| Perfo"ë| Perfo"·| Perfo"ª| Perfo"É| Perfo" | Perfo"| Perfo"i| Perfo"n| Perfo"j| Perfo"e| Perfo"c| Perfo"t| Perfo" | Perfo"| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"t| Perfo"a| Perfo"g| Perfo"s| Perfo" | Perfo"| Perfo"v| Perfo"√| Perfo"†| Perfo"o| Perfo" | Perfo"| Perfo"<| Perfo"h| Perfo"e| Perfo"a| Perfo"d| Perfo">| Perfo".| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo"S| Perfo"·| Perfo"ª| Perfo"≠| Perfo" | Perfo"| Perfo"d| Perfo"·| Perfo"ª| Perfo"•| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"t| Perfo"r| Perfo"o| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"t| Perfo"·| Perfo"ª| Perfo"´| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"p| Perfo"a| Perfo"g| Perfo"e| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"m| Perfo"p| Perfo"o| Perfo"n| Perfo"e| Perfo"n| Perfo"t| Perfo" | Perfo"| Perfo"ƒ| Perfo"ë| Perfo"·| Perfo"ª| Perfo"É| Perfo" | Perfo"| Perfo"t| Perfo"u| Perfo"·| Perfo"ª| Perfo"≥| Perfo" | Perfo"| Perfo"c| Perfo"h| Perfo"·| Perfo"ª| Perfo"â| Perfo"n| Perfo"h| Perfo" | Perfo"| Perfo"S| Perfo"E| Perfo"O| Perfo" | Perfo"| Perfo"p| Perfo"e| Perfo"r| Perfo"-| Perfo"p| Perfo"a| Perfo"g| Perfo"e| Perfo".| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo"@| Perfo"e| Perfo"x| Perfo"a| Perfo"m| Perfo"p| Perfo"l| Perfo"e| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo"<| Perfo"S| Perfo"e| Perfo"o| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo"=| Perfo""| Perfo"D| Perfo"a| Perfo"n| Perfo"h| Perfo" | Perfo"| Perfo"s| Perfo"√| Perfo"°| Perfo"c| Perfo"h| Perfo" | Perfo"| Perfo"p| Perfo"h| Perfo"i| Perfo"m| Perfo""| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo"=| Perfo""| Perfo"K| Perfo"h| Perfo"√| Perfo"°| Perfo"m| Perfo" | Perfo"| Perfo"p| Perfo"h| Perfo"√| Perfo"°| Perfo" | Perfo"| Perfo"t| Perfo"·| Perfo"∫| Perfo"•| Perfo"t| Perfo" | Perfo"| Perfo"c| Perfo"·| Perfo"∫| Perfo"£| Perfo" | Perfo"| Perfo"p| Perfo"h| Perfo"i| Perfo"m| Perfo" | Perfo"| Perfo"ƒ| Perfo"ë| Perfo"a| Perfo"n| Perfo"g| Perfo" | Perfo"| Perfo"v| Perfo"√| Perfo"†| Perfo" | Perfo"| Perfo"s| Perfo"·| Perfo"∫| Perfo"Ø| Perfo"p| Perfo" | Perfo"| Perfo"c| Perfo"h| Perfo"i| Perfo"·| Perfo"∫| Perfo"ø| Perfo"u| Perfo" | Perfo"| Perfo"t| Perfo"·| Perfo"∫| Perfo"°| Perfo"i| Perfo" | Perfo"| Perfo"r| Perfo"·| Perfo"∫| Perfo"°| Perfo"p| Perfo".| Perfo""| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"=| Perfo""| Perfo"/| Perfo"m| Perfo"o| Perfo"v| Perfo"i| Perfo"e| Perfo"s| Perfo""| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"
-| Perfo"e| Perfo"x| Perfo"p| Perfo"o| Perfo"r| Perfo"t| Perfo" | Perfo"| Perfo"f| Perfo"u| Perfo"n| Perfo"c| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo" | Perfo"| Perfo"S| Perfo"e| Perfo"o| Perfo"(| Perfo"{| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo",| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo"D| Perfo"E| Perfo"F| Perfo"A| Perfo"U| Perfo"L| Perfo"T| Perfo"_| Perfo"D| Perfo"E| Perfo"S| Perfo"C| Perfo"R| Perfo"I| Perfo"P| Perfo"T| Perfo"I| Perfo"O| Perfo"N| Perfo",| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo",| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo"D| Perfo"E| Perfo"F| Perfo"A| Perfo"U| Perfo"L| Perfo"T| Perfo"_| Perfo"O| Perfo"G| Perfo"_| Perfo"I| Perfo"M| Perfo"A| Perfo"G| Perfo"E| Perfo",| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"o| Perfo"g| Perfo"T| Perfo"y| Perfo"p| Perfo"e| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo""| Perfo"w| Perfo"e| Perfo"b| Perfo"s| Perfo"i| Perfo"t| Perfo"e| Perfo""| Perfo",| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"n| Perfo"o| Perfo"I| Perfo"n| Perfo"d| Perfo"e| Perfo"x| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo"f| Perfo"a| Perfo"l| Perfo"s| Perfo"e| Perfo",| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"s| Perfo"t| Perfo"r| Perfo"u| Perfo"c| Perfo"t| Perfo"u| Perfo"r| Perfo"e| Perfo"d| Perfo"D| Perfo"a| Perfo"t| Perfo"a| Perfo",| Perfo"
-| Perfo"}| Perfo":| Perfo" | Perfo"| Perfo"S| Perfo"e| Perfo"o| Perfo"P| Perfo"r| Perfo"o| Perfo"p| Perfo"s| Perfo")| Perfo" | Perfo"| Perfo"{| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"p| Perfo"a| Perfo"g| Perfo"e| Perfo"T| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo" | Perfo"| Perfo"?| Perfo" | Perfo"| Perfo"`| Perfo"$| Perfo"{| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo"}| Perfo" | Perfo"| Perfo"|| Perfo" | Perfo"| Perfo"$| Perfo"{| Perfo"S| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"N| Perfo"A| Perfo"M| Perfo"E| Perfo"}| Perfo"`| Perfo" | Perfo"| Perfo":| Perfo" | Perfo"| Perfo"D| Perfo"E| Perfo"F| Perfo"A| Perfo"U| Perfo"L| Perfo"T| Perfo"_| Perfo"T| Perfo"I| Perfo"T| Perfo"L| Perfo"E| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"U| Perfo"r| Perfo"l| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo" | Perfo"| Perfo"?| Perfo" | Perfo"| Perfo"`| Perfo"$| Perfo"{| Perfo"S| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"U| Perfo"R| Perfo"L| Perfo"}| Perfo"$| Perfo"{| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"}| Perfo"`| Perfo" | Perfo"| Perfo":| Perfo" | Perfo"| Perfo"u| Perfo"n| Perfo"d| Perfo"e| Perfo"f| Perfo"i| Perfo"n| Perfo"e| Perfo"d| Perfo";| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"s| Perfo"t| Perfo" | Perfo"| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo"U| Perfo"r| Perfo"l| Perfo" | Perfo"| Perfo"=| Perfo" | Perfo"| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo".| Perfo"s| Perfo"t| Perfo"a| Perfo"r| Perfo"t| Perfo"s| Perfo"W| Perfo"i| Perfo"t| Perfo"h| Perfo"(| Perfo""| Perfo"h| Perfo"t| Perfo"t| Perfo"p| Perfo""| Perfo")| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"?| Perfo" | Perfo"| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo":| Perfo" | Perfo"| Perfo"`| Perfo"$| Perfo"{| Perfo"S| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"U| Perfo"R| Perfo"L| Perfo"}| Perfo"$| Perfo"{| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo"}| Perfo"`| Perfo";| Perfo"
-| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"r| Perfo"e| Perfo"t| Perfo"u| Perfo"r| Perfo"n| Perfo" | Perfo"| Perfo"(| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"H| Perfo"e| Perfo"l| Perfo"m| Perfo"e| Perfo"t| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"/| Perfo"*| Perfo" | Perfo"| Perfo"P| Perfo"r| Perfo"i| Perfo"m| Perfo"a| Perfo"r| Perfo"y| Perfo" | Perfo"| Perfo"M| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo">| Perfo"{| Perfo"p| Perfo"a| Perfo"g| Perfo"e| Perfo"T| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo"}| Perfo"<| Perfo"/| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"n| Perfo"a| Perfo"m| Perfo"e| Perfo"=| Perfo""| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"n| Perfo"o| Perfo"I| Perfo"n| Perfo"d| Perfo"e| Perfo"x| Perfo" | Perfo"| Perfo"&| Perfo"&| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"n| Perfo"a| Perfo"m| Perfo"e| Perfo"=| Perfo""| Perfo"r| Perfo"o| Perfo"b| Perfo"o| Perfo"t| Perfo"s| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo""| Perfo"n| Perfo"o| Perfo"i| Perfo"n| Perfo"d| Perfo"e| Perfo"x| Perfo",| Perfo" | Perfo"| Perfo"n| Perfo"o| Perfo"f| Perfo"o| Perfo"l| Perfo"l| Perfo"o| Perfo"w| Perfo""| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"U| Perfo"r| Perfo"l| Perfo" | Perfo"| Perfo"&| Perfo"&| Perfo" | Perfo"| Perfo"<| Perfo"l| Perfo"i| Perfo"n| Perfo"k| Perfo" | Perfo"| Perfo"r| Perfo"e| Perfo"l| Perfo"=| Perfo""| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo""| Perfo" | Perfo"| Perfo"h| Perfo"r| Perfo"e| Perfo"f| Perfo"=| Perfo"{| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"U| Perfo"r| Perfo"l| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"}| Perfo"
-| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"/| Perfo"*| Perfo" | Perfo"| Perfo"O| Perfo"p| Perfo"e| Perfo"n| Perfo" | Perfo"| Perfo"G| Perfo"r| Perfo"a| Perfo"p| Perfo"h| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"p| Perfo"r| Perfo"o| Perfo"p| Perfo"e| Perfo"r| Perfo"t| Perfo"y| Perfo"=| Perfo""| Perfo"o| Perfo"g| Perfo":| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"p| Perfo"a| Perfo"g| Perfo"e| Perfo"T| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"p| Perfo"r| Perfo"o| Perfo"p| Perfo"e| Perfo"r| Perfo"t| Perfo"y| Perfo"=| Perfo""| Perfo"o| Perfo"g| Perfo":| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"p| Perfo"r| Perfo"o| Perfo"p| Perfo"e| Perfo"r| Perfo"t| Perfo"y| Perfo"=| Perfo""| Perfo"o| Perfo"g| Perfo":| Perfo"t| Perfo"y| Perfo"p| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"o| Perfo"g| Perfo"T| Perfo"y| Perfo"p| Perfo"e| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"p| Perfo"r| Perfo"o| Perfo"p| Perfo"e| Perfo"r| Perfo"t| Perfo"y| Perfo"=| Perfo""| Perfo"o| Perfo"g| Perfo":| Perfo"i| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo"U| Perfo"r| Perfo"l| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"U| Perfo"r| Perfo"l| Perfo" | Perfo"| Perfo"&| Perfo"&| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"p| Perfo"r| Perfo"o| Perfo"p| Perfo"e| Perfo"r| Perfo"t| Perfo"y| Perfo"=| Perfo""| Perfo"o| Perfo"g| Perfo":| Perfo"u| Perfo"r| Perfo"l| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"c| Perfo"a| Perfo"n| Perfo"o| Perfo"n| Perfo"i| Perfo"c| Perfo"a| Perfo"l| Perfo"U| Perfo"r| Perfo"l| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"p| Perfo"r| Perfo"o| Perfo"p| Perfo"e| Perfo"r| Perfo"t| Perfo"y| Perfo"=| Perfo""| Perfo"o| Perfo"g| Perfo":| Perfo"s| Perfo"i| Perfo"t| Perfo"e| Perfo"_| Perfo"n| Perfo"a| Perfo"m| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"S| Perfo"I| Perfo"T| Perfo"E| Perfo"_| Perfo"N| Perfo"A| Perfo"M| Perfo"E| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"/| Perfo"*| Perfo" | Perfo"| Perfo"T| Perfo"w| Perfo"i| Perfo"t| Perfo"t| Perfo"e| Perfo"r| Perfo" | Perfo"| Perfo"C| Perfo"a| Perfo"r| Perfo"d| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"n| Perfo"a| Perfo"m| Perfo"e| Perfo"=| Perfo""| Perfo"t| Perfo"w| Perfo"i| Perfo"t| Perfo"t| Perfo"e| Perfo"r| Perfo":| Perfo"c| Perfo"a| Perfo"r| Perfo"d| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo""| Perfo"s| Perfo"u| Perfo"m| Perfo"m| Perfo"a| Perfo"r| Perfo"y| Perfo"_| Perfo"l| Perfo"a| Perfo"r| Perfo"g| Perfo"e| Perfo"_| Perfo"i| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"n| Perfo"a| Perfo"m| Perfo"e| Perfo"=| Perfo""| Perfo"t| Perfo"w| Perfo"i| Perfo"t| Perfo"t| Perfo"e| Perfo"r| Perfo":| Perfo"t| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"p| Perfo"a| Perfo"g| Perfo"e| Perfo"T| Perfo"i| Perfo"t| Perfo"l| Perfo"e| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"n| Perfo"a| Perfo"m| Perfo"e| Perfo"=| Perfo""| Perfo"t| Perfo"w| Perfo"i| Perfo"t| Perfo"t| Perfo"e| Perfo"r| Perfo":| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"d| Perfo"e| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"m| Perfo"e| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"n| Perfo"a| Perfo"m| Perfo"e| Perfo"=| Perfo""| Perfo"t| Perfo"w| Perfo"i| Perfo"t| Perfo"t| Perfo"e| Perfo"r| Perfo":| Perfo"i| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo""| Perfo" | Perfo"| Perfo"c| Perfo"o| Perfo"n| Perfo"t| Perfo"e| Perfo"n| Perfo"t| Perfo"=| Perfo"{| Perfo"o| Perfo"g| Perfo"I| Perfo"m| Perfo"a| Perfo"g| Perfo"e| Perfo"U| Perfo"r| Perfo"l| Perfo"}| Perfo" | Perfo"| Perfo"/| Perfo">| Perfo"
-| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"/| Perfo"*| Perfo" | Perfo"| Perfo"J| Perfo"S| Perfo"O| Perfo"N| Perfo"-| Perfo"L| Perfo"D| Perfo" | Perfo"| Perfo"S| Perfo"t| Perfo"r| Perfo"u| Perfo"c| Perfo"t| Perfo"u| Perfo"r| Perfo"e| Perfo"d| Perfo" | Perfo"| Perfo"D| Perfo"a| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"*| Perfo"/| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"s| Perfo"t| Perfo"r| Perfo"u| Perfo"c| Perfo"t| Perfo"u| Perfo"r| Perfo"e| Perfo"d| Perfo"D| Perfo"a| Perfo"t| Perfo"a| Perfo" | Perfo"| Perfo"&| Perfo"&| Perfo" | Perfo"| Perfo"(| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo" | Perfo"| Perfo"t| Perfo"y| Perfo"p| Perfo"e| Perfo"=| Perfo""| Perfo"a| Perfo"p| Perfo"p| Perfo"l| Perfo"i| Perfo"c| Perfo"a| Perfo"t| Perfo"i| Perfo"o| Perfo"n| Perfo"/| Perfo"l| Perfo"d| Perfo"+| Perfo"j| Perfo"s| Perfo"o| Perfo"n| Perfo""| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"{| Perfo"J| Perfo"S| Perfo"O| Perfo"N| Perfo".| Perfo"s| Perfo"t| Perfo"r| Perfo"i| Perfo"n| Perfo"g| Perfo"i| Perfo"f| Perfo"y| Perfo"(| Perfo"s| Perfo"t| Perfo"r| Perfo"u| Perfo"c| Perfo"t| Perfo"u| Perfo"r| Perfo"e| Perfo"d| Perfo"D| Perfo"a| Perfo"t| Perfo"a| Perfo")| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"/| Perfo"s| Perfo"c| Perfo"r| Perfo"i| Perfo"p| Perfo"t| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo")| Perfo"}| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo" | Perfo"| Perfo"<| Perfo"/| Perfo"H| Perfo"e| Perfo"l| Perfo"m| Perfo"e| Perfo"t| Perfo">| Perfo"
-| Perfo" | Perfo"| Perfo" | Perfo"| Perfo")| Perfo";| Perfo"
-| Perfo"}| Perfo"
-| Perfo"
+Ôªøimport { Helmet } from "react-helmet-async";
+
+const SITE_NAME = "Perfo";
+const DEFAULT_TITLE = "Perfo ‚Äî ‚îÄ√â√ü‚ïë‚ïñt v‚îú‚åê xem phim tr√ü‚ïó‚ñíc tuy√ü‚ïë‚îên";
+const DEFAULT_DESCRIPTION =
+  "‚îÄ√â√ü‚ïë‚ïñt v‚îú‚åê xem phim nhanh ch‚îú‚îÇng: ch√ü‚ïó√¨n phim, su√ü‚ïë√ët chi√ü‚ïë‚îêu, ch√ü‚ïó√¨n gh√ü‚ïë‚îê v‚îú√° thanh to‚îú√≠n online ch√ü‚ïó√´ trong v‚îú√°i ph‚îú‚ïët.";
+const DEFAULT_OG_IMAGE = "/favicon.svg";
+const SITE_URL = import.meta.env.VITE_SITE_URL ?? "";
+
+interface SeoProps {
+  /** Ti‚îú¬¨u ‚îÄ√¶√ü‚ïó√º trang (s√ü‚ïë‚ïú ‚îÄ√¶‚ïû‚ñë√ü‚ïó√∫c th‚îú¬¨m " | Perfo" t√ü‚ïó‚ñí ‚îÄ√¶√ü‚ïó√ñng n√ü‚ïë‚îêu kh‚îú‚î§ng c‚îú‚îÇ) */
+  title?: string;
+  /** M‚îú‚î§ t√ü‚ïë√∫ trang */
+  description?: string;
+  /** URL canonical c√ü‚ïó¬∫a trang */
+  canonical?: string;
+  /** URL √ü‚ïë√∫nh Open Graph */
+  ogImage?: string;
+  /** Lo√ü‚ïë√≠i Open Graph: website | article */
+  ogType?: "website" | "article";
+  /** Kh‚îú‚î§ng index trang n‚îú√°y */
+  noIndex?: boolean;
+  /** JSON-LD Structured Data */
+  structuredData?: object;
+}
+
+/**
+ * Component SEO d‚îú‚ï£ng react-helmet-async ‚îÄ√¶√ü‚ïó√¢ inject meta tags v‚îú√°o <head>.
+ * S√ü‚ïó¬° d√ü‚ïó√ëng trong t√ü‚ïó¬Ωng page component ‚îÄ√¶√ü‚ïó√¢ tu√ü‚ïó‚îÇ ch√ü‚ïó√´nh SEO per-page.
+ *
+ * @example
+ * <Seo
+ *   title="Danh s‚îú√≠ch phim"
+ *   description="Kh‚îú√≠m ph‚îú√≠ t√ü‚ïë√ët c√ü‚ïë√∫ phim ‚îÄ√¶ang v‚îú√° s√ü‚ïë¬ªp chi√ü‚ïë‚îêu t√ü‚ïë√≠i r√ü‚ïë√≠p."
+ *   canonical="/movies"
+ * />
+ */
+export function Seo({
+  title,
+  description = DEFAULT_DESCRIPTION,
+  canonical,
+  ogImage = DEFAULT_OG_IMAGE,
+  ogType = "website",
+  noIndex = false,
+  structuredData,
+}: SeoProps) {
+  const pageTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
+  const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
+  const ogImageUrl = ogImage.startsWith("http")
+    ? ogImage
+    : `${SITE_URL}${ogImage}`;
+
+  return (
+    <Helmet>
+      {/* Primary Meta */}
+      <title>{pageTitle}</title>
+      <meta name="description" content={description} />
+      {noIndex && <meta name="robots" content="noindex, nofollow" />}
+      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+      {/* Open Graph */}
+      <meta property="og:title" content={pageTitle} />
+      <meta property="og:description" content={description} />
+      <meta property="og:type" content={ogType} />
+      <meta property="og:image" content={ogImageUrl} />
+      {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+      <meta property="og:site_name" content={SITE_NAME} />
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={ogImageUrl} />
+
+      {/* JSON-LD Structured Data */}
+      {structuredData && (
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      )}
+    </Helmet>
+  );
+}

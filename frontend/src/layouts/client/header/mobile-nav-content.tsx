@@ -18,7 +18,7 @@ export const MobileNavContent = ({ onNavigate }: MobileNavContent) => {
           key={item.to}
           to={item.to}
           onClick={onNavigate}
-          className="rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted transition-colors"
+          className="px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted transition-colors"
         >
           {item.label}
         </NavLink>

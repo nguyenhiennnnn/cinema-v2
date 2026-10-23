@@ -53,7 +53,7 @@ export const CheckinResultCard = ({ status, result, errorMessage }: CheckinResul
         <Armchair className="size-4 text-muted-foreground" />
         <span>
           Ghế{" "}
-          <Badge variant="secondary" className="ml-1 font-mono">
+          <Badge variant="secondary" className="ml-1 tabular-nums">
             {result.seatRow}
             {result.seatNumber}
           </Badge>

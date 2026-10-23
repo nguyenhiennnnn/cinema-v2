@@ -51,7 +51,7 @@ const SchedulePage = () => {
 
       <div className="mt-6 space-y-4">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-40 w-full rounded-xl" />)
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-40 w-full" />)
         ) : movies.length === 0 ? (
           <EmptyState icon={CalendarX} title="Không có suất chiếu" description="Không có phim nào chiếu vào ngày đã chọn." />
         ) : (

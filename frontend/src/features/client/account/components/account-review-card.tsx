@@ -32,7 +32,7 @@ export const AccountReviewCard = ({ review }: AccountReviewCardProps) => {
   return (
     <div className="border border-border bg-card p-4">
       <div className="flex gap-3">
-        <Link to={`/movies/${review.movieId}`} className="aspect-2/3 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+        <Link to={`/movies/${review.movieId}`} className="aspect-2/3 w-16 shrink-0 overflow-hidden bg-muted">
           {review.moviePosterUrl ? (
             <img src={review.moviePosterUrl} alt={review.movieTitle} className="h-full w-full object-cover" />
           ) : (

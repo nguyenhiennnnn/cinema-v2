@@ -1,4 +1,4 @@
-import { createColumnHelper } from "@tanstack/react-table";
+﻿import { createColumnHelper } from "@tanstack/react-table";
 import { Eye, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export const createBookingColumns = ({ onViewDetail }: BookingColumnsOptions) =>
     columnHelper.accessor("bookingCode", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Mã đơn" />,
       cell: ({ row }) => (
-        <span className="font-mono font-medium tracking-wider text-foreground">
+        <span className="tabular-nums font-medium tracking-wider text-foreground">
           {row.original.bookingCode}
         </span>
       ),

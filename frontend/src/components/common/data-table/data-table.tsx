@@ -91,7 +91,7 @@ export const DataTable = <TData extends RowData>({
         />
       )}
 
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -15,7 +15,7 @@ export const ComboQuantityStepper = ({ value, onChange, max = 20, className }: C
         type="button"
         disabled={value <= 0}
         onClick={() => onChange(Math.max(0, value - 1))}
-        className="flex size-7 items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex size-7 items-center justify-center border border-border bg-card text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
       >
         <Minus className="size-3.5" />
       </button>
@@ -24,7 +24,7 @@ export const ComboQuantityStepper = ({ value, onChange, max = 20, className }: C
         type="button"
         disabled={value >= max}
         onClick={() => onChange(Math.min(max, value + 1))}
-        className="flex size-7 items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex size-7 items-center justify-center border border-border bg-card text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
       >
         <Plus className="size-3.5" />
       </button>

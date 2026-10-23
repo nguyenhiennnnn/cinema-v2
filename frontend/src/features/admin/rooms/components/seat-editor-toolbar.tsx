@@ -211,7 +211,7 @@ export const SeatEditorToolbar = ({
                   type="button"
                   onClick={() => onBrushChange({ type: "seatType", seatTypeId: st.seatTypeId })}
                   className={cn(
-                    "rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                    "border px-3 py-1.5 text-xs font-medium transition-all",
                     isSeatTypeBrush(st.seatTypeId)
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-border bg-card text-foreground hover:bg-muted",

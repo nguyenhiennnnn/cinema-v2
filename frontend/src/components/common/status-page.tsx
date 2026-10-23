@@ -25,21 +25,21 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-16">
       <Link to="/" className="mb-10 flex items-center gap-2">
         <BrandMark className="size-8" />
-        <span className="font-heading text-xl leading-none font-semibold tracking-tight text-foreground uppercase">
+        <span className="font-heading text-xl leading-none font-semibold tracking-tight text-foreground">
           Cinema
         </span>
       </Link>
 
-      <div className="w-full max-w-md overflow-hidden border border-border bg-card shadow-md">
+      <div className="w-full max-w-md overflow-hidden border border-border bg-card">
         <div className="flex flex-col items-center gap-2 bg-primary px-6 py-8 text-primary-foreground">
           <Icon className="size-8" />
           <p className="font-heading text-6xl leading-none font-bold tracking-tight tabular">{code}</p>
         </div>
 
-        <div className="ticket-notch perforation" />
+        <div className="notch-x perf-h" />
 
         <div className="flex flex-col items-center gap-2 px-6 py-6 text-center">
-          <h1 className="font-heading text-lg font-semibold tracking-tight text-foreground uppercase">{title}</h1>
+          <h1 className="font-heading text-lg font-semibold tracking-tight text-foreground">{title}</h1>
           <p className="max-w-xs text-sm text-muted-foreground">{description}</p>
         </div>
 
@@ -71,7 +71,7 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
         )}
       </div>
 
-      <p className="mt-6 font-mono text-xs tracking-widest text-muted-foreground/70 uppercase">
+      <p className="mt-6 text-xs tracking-widest text-muted-foreground/70">
         Perfo · Mã lỗi {code}
       </p>
     </div>

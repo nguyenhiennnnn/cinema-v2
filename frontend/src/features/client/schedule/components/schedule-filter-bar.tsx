@@ -17,7 +17,7 @@ export const ScheduleFilterBar = ({ formats, activeFormat, onFormatChange }: Sch
         className={cn(
           "border px-4 py-1.5 text-sm font-medium transition-colors",
           activeFormat === null
-            ? "border-primary bg-primary text-primary-foreground shadow-sm"
+            ? "border-primary bg-primary text-primary-foreground"
             : "border-border bg-secondary text-secondary-foreground hover:border-primary/50 hover:bg-muted",
         )}
       >
@@ -31,7 +31,7 @@ export const ScheduleFilterBar = ({ formats, activeFormat, onFormatChange }: Sch
           className={cn(
             "border px-4 py-1.5 text-sm font-medium transition-colors",
             activeFormat === format
-              ? "border-primary bg-primary text-primary-foreground shadow-sm"
+              ? "border-primary bg-primary text-primary-foreground"
               : "border-border bg-secondary text-secondary-foreground hover:border-primary/50 hover:bg-muted",
           )}
         >

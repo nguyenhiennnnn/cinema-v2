@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Clock, HandCoins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ export const CounterCheckoutPanel = ({ hold, onConfirm, isSubmitting }: CounterC
   return (
     <div className="flex flex-col gap-4 border border-border bg-card p-4">
       <div className="flex items-center justify-between">
-        <p className="font-mono text-sm font-bold tracking-wider text-foreground">
+        <p className="tabular-nums text-sm font-bold tracking-wider text-foreground">
           {hold.bookingCode}
         </p>
         <div className="flex items-center gap-1.5 text-xs font-medium text-warning">

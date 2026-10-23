@@ -57,7 +57,7 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
 
   return (
     <form id="employee-update-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <div className="rounded-md border bg-muted/40 p-3 space-y-0.5">
+      <div className="border bg-muted/40 p-3 space-y-0.5">
         <p className="text-sm font-medium">{employee.fullName}</p>
         <p className="text-xs text-muted-foreground">{employee.email}</p>
       </div>

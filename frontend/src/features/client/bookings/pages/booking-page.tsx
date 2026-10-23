@@ -1,4 +1,4 @@
-import { Link, useParams, useSearchParams } from "react-router";
+﻿import { Link, useParams, useSearchParams } from "react-router";
 import { AlertTriangle } from "lucide-react";
 
 import { useBookingFlow } from "../hooks/use-booking-flow";
@@ -76,7 +76,7 @@ const BookingPage = () => {
           {flow.isResumeMode && (
             <p className="mx-auto w-full max-w-lg text-center text-xs text-muted-foreground">
               Đang tiếp tục thanh toán cho booking{" "}
-              <span className="font-mono font-medium text-foreground">
+              <span className="tabular-nums font-medium text-foreground">
                 {flow.holdResult.bookingCode}
               </span>
             </p>

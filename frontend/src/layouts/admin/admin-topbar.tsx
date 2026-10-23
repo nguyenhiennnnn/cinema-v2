@@ -28,7 +28,7 @@ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
         <TooltipContent>Thu gọn / mở rộng menu</TooltipContent>
       </Tooltip>
 
-      <span className="hidden text-xs tracking-wide text-muted-foreground uppercase md:block">
+      <span className="hidden text-xs tracking-wide text-muted-foreground md:block">
         Quản trị hệ thống
       </span>
 
