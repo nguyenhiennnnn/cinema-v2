@@ -10,7 +10,7 @@ const AuthLayout = () => {
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/55 to-black/80" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/25 via-black/55 to-black/80" />
 
       <div className="relative z-10 flex w-full max-w-sm flex-col items-center gap-5">
         <Link to="/" className="flex items-center gap-2">
