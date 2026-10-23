@@ -93,7 +93,7 @@ const AdminSettingsPage = () => {
     return (
       <div>
         <PageHeader title="Cấu hình rạp" description="Thông tin chung, giờ hoạt động và chính sách." />
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full " />
       </div>
     );
   }

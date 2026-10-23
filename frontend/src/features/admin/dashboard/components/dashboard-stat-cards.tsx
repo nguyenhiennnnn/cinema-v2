@@ -18,7 +18,7 @@ const StatCard = ({ label, value, icon: Icon, hint, trend }: StatItem) => {
     <Card className="gap-2 border-l-2 border-l-primary py-4">
       <CardContent className="flex items-start justify-between gap-3 px-4">
         <div className="min-w-0">
-          <p className="text-eyebrow">{label}</p>
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
           <p className="mt-1.5 font-heading text-2xl font-semibold tabular text-foreground">{value}</p>
           {hint && (
             <p
@@ -52,7 +52,7 @@ export const DashboardStatCards = ({ summary, isLoading }: DashboardStatCardsPro
     return (
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          <Skeleton key={i} className="h-24 w-full " />
         ))}
       </div>
     );

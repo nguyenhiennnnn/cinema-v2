@@ -115,7 +115,7 @@ export const SeatEditorGrid = ({
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="border border-border bg-card p-4">
       <CinemaScreen />
       <SeatGrid
         rowLabels={rowLabels}

@@ -22,7 +22,7 @@ export function TopMoviesReportTable({ movies, isLoading }: TopMoviesReportTable
         {isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full rounded-md" />
+              <Skeleton key={i} className="h-10 w-full" />
             ))}
           </div>
         ) : !movies || movies.length === 0 ? (

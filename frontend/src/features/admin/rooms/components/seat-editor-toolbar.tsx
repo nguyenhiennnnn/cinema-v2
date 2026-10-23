@@ -120,7 +120,7 @@ export const SeatEditorToolbar = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4">
+    <div className="flex flex-col gap-4 border border-border bg-card p-4">
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="rows-input">Số hàng</Label>
@@ -225,7 +225,7 @@ export const SeatEditorToolbar = ({
                 type="button"
                 onClick={() => onBrushChange({ type: "pairCouple" })}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                  "flex items-center gap-1.5 border px-3 py-1.5 text-xs font-medium transition-all",
                   brush.type === "pairCouple"
                     ? "border-couple bg-couple/15 text-couple"
                     : "border-border bg-card text-foreground hover:bg-muted",
@@ -239,7 +239,7 @@ export const SeatEditorToolbar = ({
                 type="button"
                 onClick={() => onBrushChange({ type: "toggleAisle" })}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                  "flex items-center gap-1.5 border px-3 py-1.5 text-xs font-medium transition-all",
                   brush.type === "toggleAisle"
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-card text-foreground hover:bg-muted",
@@ -253,7 +253,7 @@ export const SeatEditorToolbar = ({
                 type="button"
                 onClick={() => onBrushChange({ type: "toggleActive" })}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                  "flex items-center gap-1.5 border px-3 py-1.5 text-xs font-medium transition-all",
                   brush.type === "toggleActive"
                     ? "border-destructive bg-destructive/10 text-destructive"
                     : "border-border bg-card text-foreground hover:bg-muted",
@@ -269,7 +269,7 @@ export const SeatEditorToolbar = ({
                 type="button"
                 onClick={onToggleSelectionMode}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                  "flex items-center gap-1.5 border px-3 py-1.5 text-xs font-medium transition-all",
                   selectionMode
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-card text-foreground hover:bg-muted",
@@ -283,7 +283,7 @@ export const SeatEditorToolbar = ({
                 type="button"
                 onClick={isPickingCopySource || copySourceRow ? onCancelCopyRow : onStartCopyRow}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                  "flex items-center gap-1.5 border px-3 py-1.5 text-xs font-medium transition-all",
                   isPickingCopySource || copySourceRow
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-card text-foreground hover:bg-muted",
@@ -301,7 +301,7 @@ export const SeatEditorToolbar = ({
           </div>
 
           {selectionMode && (
-            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 border border-primary/30 bg-primary/5 px-3 py-2 text-xs">
               <BoxSelect className="size-3.5 text-primary" />
               <span className="font-medium text-primary">
                 {selectedCount > 0
@@ -331,7 +331,7 @@ export const SeatEditorToolbar = ({
           )}
 
           {(isPickingCopySource || copySourceRow) && (
-            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 border border-accent/40 bg-accent/10 px-3 py-2 text-xs">
               <ClipboardPaste className="size-3.5" />
               <span className="font-medium">
                 {isPickingCopySource

@@ -106,7 +106,7 @@ export const MediaUploader = ({
       />
 
       {previewUrl ? (
-        <div className="relative overflow-hidden rounded-lg border border-border bg-muted">
+        <div className="relative overflow-hidden border border-border bg-muted">
           {kind === "image" ? (
             imageError ? (
               <div className="flex h-40 flex-col items-center justify-center gap-2 p-4 text-center text-muted-foreground">
@@ -160,7 +160,7 @@ export const MediaUploader = ({
             handleFiles(e.dataTransfer.files);
           }}
           className={cn(
-            "flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-8 text-center transition-colors cursor-pointer",
+            "flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border p-8 text-center transition-colors cursor-pointer",
             isDragging && "border-primary bg-accent/10",
           )}
         >

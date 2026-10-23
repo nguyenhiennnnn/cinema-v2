@@ -29,7 +29,7 @@ export const ReportsFilterBar = ({
   onReset,
 }: ReportsFilterBarProps) => {
   return (
-    <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-3">
+    <div className="flex flex-wrap items-end gap-3 border border-border bg-card p-3">
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-foreground leading-none">
           Từ ngày

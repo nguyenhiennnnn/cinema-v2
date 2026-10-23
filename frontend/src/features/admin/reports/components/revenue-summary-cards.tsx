@@ -21,14 +21,14 @@ export const RevenueSummaryCards = ({ summary, isLoading }: RevenueSummaryCardsP
         <Card key={item.label} className="gap-2 py-4">
           <CardContent className="flex items-center justify-between gap-3 px-4">
             <div>
-              <p className="text-eyebrow">{item.label}</p>
+              <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
               {isLoading ? (
                 <Skeleton className="mt-1.5 h-7 w-full" />
               ) : (
                 <p className="mt-1.5 text-2xl font-semibold tabular-nums text-foreground">{item.value}</p>
               )}
             </div>
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex size-9 shrink-0 items-center justify-center bg-primary/10 text-primary">
               <item.icon className="size-4.5" />
             </div>
           </CardContent>

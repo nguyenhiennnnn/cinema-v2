@@ -31,7 +31,7 @@ export const TopMoviesCard = ({ movies, isLoading }: TopMoviesCardProps) => {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <Skeleton className="h-65 w-full rounded-lg" />
+          <Skeleton className="h-65 w-full" />
         ) : data.length === 0 ? (
           <EmptyState icon={Trophy} title="Chưa có dữ liệu" description="Chưa có phim nào bán vé trong khoảng này." />
         ) : (

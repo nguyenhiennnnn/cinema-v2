@@ -30,11 +30,11 @@ export const CounterShowtimePicker = ({ date, onDateChange, onPickShowtime }: Co
       </div>
 
       {schedule.isLoading && (
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full " />
       )}
 
       {!schedule.isLoading && (schedule.data?.movies.length ?? 0) === 0 && (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-12 text-muted-foreground">
+        <div className="flex flex-col items-center gap-2 border border-dashed border-border py-12 text-muted-foreground">
           <Film className="size-6" />
           <p className="text-sm">Không có suất chiếu nào trong ngày này.</p>
         </div>
@@ -42,13 +42,13 @@ export const CounterShowtimePicker = ({ date, onDateChange, onPickShowtime }: Co
 
       <div className="flex flex-col gap-4">
         {schedule.data?.movies.map((movie) => (
-          <div key={movie.movieId} className="rounded-xl border border-border bg-card p-4">
+          <div key={movie.movieId} className="border border-border bg-card p-4">
             <div className="mb-3 flex items-center gap-3">
               {movie.moviePosterUrl && (
                 <img
                   src={movie.moviePosterUrl}
                   alt={movie.movieTitle}
-                  className="h-16 w-11 rounded-md object-cover"
+                  className="h-16 w-11 object-cover"
                 />
               )}
               <h3 className="font-heading text-base font-medium text-foreground">
@@ -62,7 +62,7 @@ export const CounterShowtimePicker = ({ date, onDateChange, onPickShowtime }: Co
                   type="button"
                   disabled={st.availableSeats <= 0 || st.status !== ShowtimeStatus.Scheduled}
                   onClick={() => onPickShowtime(st.showtimeId)}
-                  className="flex flex-col items-start rounded-lg border border-border/80 bg-card px-3 py-2 text-left text-xs font-medium transition-all hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-col items-start border border-border/80 bg-card px-3 py-2 text-left text-xs font-medium transition-all hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <span>
                     {formatShowtimeRange(st.startTime, st.endTime)}

@@ -13,7 +13,7 @@ export const SeatEditorValidationPanel = ({ issues, onClose }: SeatEditorValidat
   const warnings = issues.filter((i) => i.level === "warning");
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
+    <div className="flex flex-col gap-3 border border-border bg-card p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold">
           {issues.length === 0 ? (
@@ -41,7 +41,7 @@ export const SeatEditorValidationPanel = ({ issues, onClose }: SeatEditorValidat
             <li
               key={idx}
               className={cn(
-                "flex items-start gap-2 rounded-lg border px-3 py-2 text-xs",
+                "flex items-start gap-2 border px-3 py-2 text-xs",
                 issue.level === "error"
                   ? "border-destructive/40 bg-destructive/5 text-destructive"
                   : "border-warning/40 bg-warning/5 text-warning",

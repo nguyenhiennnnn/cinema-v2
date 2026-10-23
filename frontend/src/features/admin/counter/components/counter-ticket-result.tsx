@@ -16,7 +16,7 @@ interface CounterTicketResultProps {
 
 export const CounterTicketResult = ({ isLoading, booking, checkout, onNewSale }: CounterTicketResultProps) => {
   return (
-    <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 text-center">
+    <div className="flex flex-col items-center gap-4 border border-border bg-card p-6 text-center">
       <CheckCircle2 className="size-10 text-success" />
       <div>
         <p className="font-heading text-lg font-semibold text-foreground">Thanh toán thành công</p>
@@ -24,13 +24,13 @@ export const CounterTicketResult = ({ isLoading, booking, checkout, onNewSale }:
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-40 w-full max-w-sm rounded-xl" />
+        <Skeleton className="h-40 w-full max-w-sm " />
       ) : (
         <div className="grid w-full max-w-sm grid-cols-2 gap-3">
           {booking?.tickets?.map((ticket) => (
             <div
               key={ticket.ticketId}
-              className="flex flex-col items-center gap-2 rounded-lg border border-border bg-background p-3"
+              className="flex flex-col items-center gap-2 border border-border bg-background p-3"
             >
               <img src={ticket.qrCodeImage} alt={`Vé ${ticket.seatRow}${ticket.seatNumber}`} className="size-24" />
               <p className="text-xs font-semibold">

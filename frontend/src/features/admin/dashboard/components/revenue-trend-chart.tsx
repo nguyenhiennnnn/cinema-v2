@@ -35,7 +35,7 @@ export const RevenueTrendChart = ({ data, isLoading }: RevenueTrendChartProps) =
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <Skeleton className="h-70 w-full rounded-lg" />
+          <Skeleton className="h-70 w-full" />
         ) : !data || data.length === 0 ? (
           <EmptyState
             icon={TrendingUp}

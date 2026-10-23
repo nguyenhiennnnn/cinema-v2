@@ -36,7 +36,7 @@ export const RevenueReportChart = ({ items, isLoading }: RevenueReportChartProps
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <Skeleton className="h-80 w-full rounded-lg" />
+          <Skeleton className="h-80 w-full" />
         ) : !items || items.length === 0 ? (
           <EmptyState
             icon={TrendingUp}

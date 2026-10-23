@@ -20,7 +20,7 @@ export const CounterSeatPanel = ({
   onToggleSeat,
 }: CounterSeatPanelProps) => {
   if (isLoading || !data) {
-    return <Skeleton className="h-96 w-full rounded-xl" />;
+    return <Skeleton className="h-96 w-full " />;
   }
 
   return (

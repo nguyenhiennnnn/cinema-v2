@@ -13,7 +13,7 @@ interface CheckinResultCardProps {
 export const CheckinResultCard = ({ status, result, errorMessage }: CheckinResultCardProps) => {
   if (status === "idle") {
     return (
-      <div className="flex h-full min-h-55 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border text-muted-foreground">
+      <div className="flex h-full min-h-55 flex-col items-center justify-center gap-2 border border-dashed border-border text-muted-foreground">
         <Film className="size-8" />
         <p className="text-sm">Chưa có vé nào được soát</p>
       </div>
@@ -22,7 +22,7 @@ export const CheckinResultCard = ({ status, result, errorMessage }: CheckinResul
 
   if (status === "error") {
     return (
-      <div className="flex h-full min-h-55 flex-col items-center justify-center gap-3 rounded-xl border border-destructive/40 bg-destructive/5 px-4 text-center">
+      <div className="flex h-full min-h-55 flex-col items-center justify-center gap-3 border border-destructive/40 bg-destructive/5 px-4 text-center">
         <XCircle className="size-10 text-destructive" />
         <p className="font-heading text-lg font-semibold text-destructive">Soát vé thất bại</p>
         <p className="text-sm text-muted-foreground">
@@ -35,7 +35,7 @@ export const CheckinResultCard = ({ status, result, errorMessage }: CheckinResul
   if (!result) return null;
 
   return (
-    <div className="flex h-full min-h-55 flex-col gap-3 rounded-xl border border-success/40 bg-success/5 p-4">
+    <div className="flex h-full min-h-55 flex-col gap-3 border border-success/40 bg-success/5 p-4">
       <div className="flex items-center gap-2">
         <CheckCircle2 className="size-8 text-success" />
         <div>

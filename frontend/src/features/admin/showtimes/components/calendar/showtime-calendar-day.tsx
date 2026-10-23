@@ -45,14 +45,14 @@ export const ShowtimeCalendarDay = ({
 
   if (rooms.length === 0) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+      <div className="flex h-40 items-center justify-center border border-dashed text-sm text-muted-foreground">
         Không có suất chiếu nào trong ngày {day.date}.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border">
+    <div className="overflow-x-auto border">
       <div className="min-w-225">
         <div className="flex border-b bg-muted/40">
           <div className="w-32 shrink-0 border-r px-3 py-2 text-xs font-medium text-muted-foreground">

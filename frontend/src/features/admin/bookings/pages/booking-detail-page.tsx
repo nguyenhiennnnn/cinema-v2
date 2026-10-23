@@ -21,7 +21,7 @@ const AdminBookingDetailPage = () => {
     return (
       <div>
         <PageHeader title="Chi tiết đơn đặt vé" description="" />
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full " />
       </div>
     );
   }
@@ -43,14 +43,14 @@ const AdminBookingDetailPage = () => {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2 space-y-4">
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="border border-border bg-card p-4">
             <h3 className="font-heading text-base font-medium text-foreground mb-3">Phim & Suất chiếu</h3>
             <div className="flex items-center gap-3">
               {b.movie.posterUrl && (
                 <img
                   src={b.movie.posterUrl}
                   alt={b.movie.title}
-                  className="h-20 w-14 rounded-md object-cover"
+                  className="h-20 w-14 object-cover"
                 />
               )}
               <div>
@@ -62,7 +62,7 @@ const AdminBookingDetailPage = () => {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="border border-border bg-card p-4">
             <h3 className="font-heading text-base font-medium text-foreground mb-3">Ghế đã chọn</h3>
             <div className="flex flex-wrap gap-2">
               {b.seats.map((s) => (
@@ -78,7 +78,7 @@ const AdminBookingDetailPage = () => {
           </div>
 
           {b.combos.length > 0 && (
-            <div className="rounded-xl border border-border bg-card p-4">
+            <div className="border border-border bg-card p-4">
               <h3 className="font-heading text-base font-medium text-foreground mb-3">Combo bắp nước</h3>
               <div className="space-y-2">
                 {b.combos.map((c, i) => (
@@ -94,7 +94,7 @@ const AdminBookingDetailPage = () => {
           )}
 
           {b.tickets && b.tickets.length > 0 && (
-            <div className="rounded-xl border border-border bg-card p-4">
+            <div className="border border-border bg-card p-4">
               <h3 className="font-heading text-base font-medium text-foreground mb-3">Vé</h3>
               <div className="space-y-2">
                 {b.tickets.map((t) => (
@@ -119,7 +119,7 @@ const AdminBookingDetailPage = () => {
             </div>
           )}
 
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="border border-border bg-card p-4">
             <h3 className="font-heading text-base font-medium text-foreground mb-3">Thanh toán</h3>
             <div className="space-y-2">
               {b.payments.map((p) => (
@@ -153,7 +153,7 @@ const AdminBookingDetailPage = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="border border-border bg-card p-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-muted-foreground">Trạng thái</span>
               <BookingStatusBadge status={b.status} />
@@ -177,7 +177,7 @@ const AdminBookingDetailPage = () => {
           </div>
 
           {b.createdByEmployee && (
-            <div className="rounded-xl border border-border bg-card p-4 text-sm">
+            <div className="border border-border bg-card p-4 text-sm">
               <span className="text-muted-foreground">Nhân viên tạo đơn</span>
               <p className="font-medium text-foreground mt-1">{b.createdByEmployee.fullName}</p>
             </div>

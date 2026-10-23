@@ -41,7 +41,7 @@ export const createComboColumns = ({ onEdit, onToggle }: ComboColumnsOptions) =>
       ),
       cell: ({ row }) => (
         <div className="flex items-center gap-2.5">
-          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted">
             {row.original.imageUrl ? (
               <img
                 src={row.original.imageUrl}

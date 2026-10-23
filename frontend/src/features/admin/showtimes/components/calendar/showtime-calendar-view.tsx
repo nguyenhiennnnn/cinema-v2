@@ -83,11 +83,11 @@ export const ShowtimeCalendarView = ({
       </div>
 
       {calendar.isLoading && (
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full " />
       )}
 
       {!calendar.isLoading && days.length === 0 && (
-        <div className="flex h-40 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+        <div className="flex h-40 items-center justify-center border border-dashed text-sm text-muted-foreground">
           Không có suất chiếu nào trong khoảng thời gian đã chọn.
         </div>
       )}

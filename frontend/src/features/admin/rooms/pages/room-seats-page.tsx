@@ -197,12 +197,12 @@ const SeatEditorLoader = ({ room }: { room: AdminRoomDto }) => {
   const seatTypes = useAdminSeatTypes();
 
   if (roomSeats.isLoading || seatTypes.isLoading) {
-    return <Skeleton className="h-96 w-full rounded-xl" />;
+    return <Skeleton className="h-96 w-full " />;
   }
 
   if (roomSeats.isError) {
     return (
-      <p className="rounded-xl border border-dashed border-destructive/40 py-10 text-center text-sm text-destructive">
+      <p className="border border-dashed border-destructive/40 py-10 text-center text-sm text-destructive">
         Không tải được sơ đồ ghế hiện tại, vui lòng thử tải lại trang.
       </p>
     );
@@ -227,9 +227,9 @@ const AdminRoomSeatsPage = () => {
       />
 
       {room.isLoading ? (
-        <Skeleton className="h-96 w-full rounded-xl" />
+        <Skeleton className="h-96 w-full " />
       ) : !room.data ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16 text-center">
+        <div className="flex flex-col items-center gap-3 border border-dashed border-border py-16 text-center">
           <p className="text-sm text-muted-foreground">Không tìm thấy phòng chiếu này.</p>
           <Button onClick={() => navigate("/admin/rooms")}>
             <ArrowLeft className="size-4" />

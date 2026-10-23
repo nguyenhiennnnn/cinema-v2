@@ -138,7 +138,7 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
   };
 
   if (movieDetail.isLoading) {
-    return <Skeleton className="h-64 w-full rounded-xl" />;
+    return <Skeleton className="h-64 w-full " />;
   }
 
   return (
@@ -363,7 +363,7 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
                         <input
                           {...field}
                           placeholder="Vai diễn"
-                          className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                          className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                         />
                       )}
                     />

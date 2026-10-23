@@ -46,7 +46,7 @@ export const ShowtimeCalendarItem = ({
       )} • ${occupancyLabel} • ${formatCurrency(showtime.basePrice)}`}
       style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
       className={cn(
-        "absolute top-1 flex h-[calc(100%-0.5rem)] flex-col justify-center overflow-hidden rounded-md border px-2 py-1 text-left text-xs leading-tight transition-colors",
+        "absolute top-1 flex h-[calc(100%-0.5rem)] flex-col justify-center overflow-hidden border px-2 py-1 text-left text-xs leading-tight transition-colors",
         statusStyles[showtime.status] ?? statusStyles[ShowtimeStatus.Scheduled],
       )}
     >

@@ -41,7 +41,7 @@ export const createMovieColumns = ({ onEdit, onDelete, canManage = true }: Movie
           <img
             src={row.original.posterUrl || "/placeholders/movie-poster.png"}
             alt={row.original.title}
-            className="h-14 w-10 shrink-0 rounded-md border border-border object-cover"
+            className="h-14 w-10 shrink-0 border border-border object-cover"
           />
           <span className="font-medium text-foreground line-clamp-2">
             {row.original.title}
