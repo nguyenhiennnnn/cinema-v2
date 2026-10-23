@@ -10,13 +10,13 @@ export const ComboCarousel = () => {
 
   return (
     <section>
-      <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground uppercase md:text-3xl">Combo bắp nước bán chạy</h2>
+      <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Combo bắp nước bán chạy</h2>
 
       <div className="mt-5 flex gap-4 overflow-x-auto pb-2">
         {isLoading
-          ? <Skeleton className="h-56 w-full rounded-xl" />
+          ? <Skeleton className="h-56 w-full " />
           : combos!.map((combo) => (
-            <div key={combo.comboId} className="flex w-48 shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card">
+            <div key={combo.comboId} className="flex w-48 shrink-0 flex-col overflow-hidden border border-border bg-card">
               <div className="flex aspect-square items-center justify-center bg-muted">
                 {combo.imageUrl ? (
                   <img src={combo.imageUrl} alt={combo.name} className="w-full aspect-2/3 object-cover" />

@@ -23,7 +23,7 @@ const MoviesPage = () => {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <Seo
         title="Danh sách phim"
-        description="Khám phá tất cả các bộ phim đang và sắp chiếu tại rạp Cinema. Lọc theo thể loại, ngôn ngữ và nhiều tiêu chí khác."
+        description="Khám phá tất cả các bộ phim đang và sắp chiếu tại Perfo. Lọc theo thể loại, ngôn ngữ và nhiều tiêu chí khác."
         canonical="/movies"
       />
       <div className="mb-6">

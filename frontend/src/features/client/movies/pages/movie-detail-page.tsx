@@ -17,8 +17,8 @@ const MovieDetailPage = () => {
   if (isLoading || !movie) {
     return (
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-        <Skeleton className="h-96 w-full rounded-2xl" />
-        <Skeleton className="h-40 w-full rounded-2xl" />
+        <Skeleton className="h-96 w-full" />
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
@@ -45,7 +45,7 @@ const MovieDetailPage = () => {
 
   const seoDescription = movie.description
     ? movie.description.slice(0, 160)
-    : `Xem thông tin và đặt vé phim ${movie.title} tại Cinema. Chọn suất chiếu, ghế ngồi và thanh toán online nhanh chóng.`;
+    : `Xem thông tin và đặt vé phim ${movie.title} tại Perfo. Chọn suất chiếu, ghế ngồi và thanh toán online nhanh chóng.`;
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
@@ -64,7 +64,7 @@ const MovieDetailPage = () => {
         <div className="space-y-8 lg:col-span-2">
           {movie.description && (
             <div>
-              <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground uppercase md:text-3xl">Nội dung phim</h2>
+              <h2 className="t-h2 text-foreground">Nội dung phim</h2>
               <ExpandableText text={movie.description} className="mt-3" />
             </div>
           )}

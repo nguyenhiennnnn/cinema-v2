@@ -64,7 +64,7 @@ export const ShowtimeGroupList = ({ showtimes, className }: ShowtimeGroupListPro
     <div className={cn("space-y-4", className)}>
       {groups.map(([format, items]) => (
         <div key={format} className="flex flex-col gap-2.5 sm:flex-row sm:items-start">
-          <span className="w-32 shrink-0 text-eyebrow pt-2 text-foreground">{format}</span>
+          <span className="w-32 shrink-0 pt-2 text-[13px] font-medium text-muted-foreground">{format}</span>
           <div className="flex flex-wrap gap-2">
             {items.map((item) => {
               const soldOut = item.availableSeats === 0;

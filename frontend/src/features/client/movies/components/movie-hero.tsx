@@ -15,20 +15,20 @@ export const MovieHero = ({ movie }: MovieHeroProps) => {
   const [trailerOpen, setTrailerOpen] = useState(false);
 
   return (
-    <div className="relative overflow-hidden border border-border bg-card">
+    <div className="relative overflow-hidden bg-card cut-md">
       {movie.posterUrl && (
-        <div className="absolute inset-0">
-          <img src={movie.posterUrl} alt="" className="h-full w-full scale-110 object-cover opacity-15 blur-2xl" />
-          <div className="absolute inset-0 bg-linear-to-t from-card via-card/85 to-card/50" />
+        <div className="absolute inset-0 overflow-hidden">
+          <img src={movie.posterUrl} alt="" className="h-full w-full scale-110 object-cover opacity-10" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--color-card) 30%, color-mix(in oklch, var(--color-card) 80%, transparent) 70%, color-mix(in oklch, var(--color-card) 50%, transparent) 100%)" }} />
         </div>
       )}
 
       <div className="relative flex flex-col gap-6 p-5 sm:flex-row sm:p-8">
-        <div className="mx-auto aspect-2/3 w-40 shrink-0 overflow-hidden border border-border sm:mx-0 sm:w-56">
+        <div className="mx-auto aspect-2/3 w-40 shrink-0 overflow-hidden cut-md sm:mx-0 sm:w-56">
           {movie.posterUrl ? (
             <img src={movie.posterUrl} alt={movie.title} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+            <div className="flex h-full w-full items-center justify-center bg-secondary text-muted-foreground">
               <Ticket className="size-10" />
             </div>
           )}
@@ -38,13 +38,13 @@ export const MovieHero = ({ movie }: MovieHeroProps) => {
           <div className="flex flex-wrap items-center gap-2">
             <AgeRatingBadge code={movie.ageRating?.code} />
             {movie.genres.map((g) => (
-              <span key={g.genreId} className="border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
+              <span key={g.genreId} className="cut-xs border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                 {g.name}
               </span>
             ))}
           </div>
 
-          <h1 className="mt-3 font-heading text-3xl leading-[0.98] font-semibold tracking-tight text-foreground uppercase md:text-5xl">{movie.title}</h1>
+          <h1 className="mt-3 t-h1 text-foreground">{movie.title}</h1>
           {movie.originalTitle && <p className="mt-1 text-sm text-muted-foreground">{movie.originalTitle}</p>}
 
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
@@ -75,16 +75,15 @@ export const MovieHero = ({ movie }: MovieHeroProps) => {
           <div className="mt-6 flex flex-wrap gap-3">
             <Button
               size="lg"
-              className="clip-corner tracking-wide uppercase"
               onClick={() => document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" })}
             >
               <Ticket className="size-4" />
-              <span>Mua vé ngay</span>
+              <span>Đặt vé</span>
             </Button>
             {movie.trailerUrl && (
               <Button variant="outline" size="lg" onClick={() => setTrailerOpen(true)}>
                 <PlayCircle className="size-4" />
-                <span>Xem Trailer</span>
+                <span>Xem trailer</span>
               </Button>
             )}
           </div>

@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Clock, Star, Ticket } from "lucide-react";
+import { Clock, Star } from "lucide-react";
 import { AgeRatingBadge } from "@/components/common/status-badge";
 import { formatDuration } from "@/lib/cinema-format";
 import { cn } from "@/lib/utils";
@@ -16,33 +16,33 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden border border-border bg-card transition-colors duration-200 hover:border-primary",
+        "group relative flex flex-col overflow-hidden cut-md bg-card transition-colors duration-150",
         className,
       )}
     >
-      <div className="relative aspect-2/3 w-full overflow-hidden bg-muted">
+      <Link to={href} className="relative block aspect-2/3 w-full overflow-hidden bg-muted" aria-label={movie.title}>
         {movie.posterUrl ? (
           <img
             src={movie.posterUrl}
             alt={movie.title}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-            <Ticket className="size-8" />
+            <span className="t-code text-2xl">?</span>
           </div>
         )}
 
-        {/* Scrim: chỉ để đảm bảo chữ/badge đọc được trên ảnh, không phải trang trí */}
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/85 via-black/5 to-transparent" />
+        {/* Scrim tối nhẹ để badge đọc được */}
+        <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%)" }} />
 
-        <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5">
+        <div className="pointer-events-none absolute top-2 left-2 flex flex-wrap items-center gap-1">
           <AgeRatingBadge code={movie.ageRating?.code} onImage className="text-[10px]" />
-          {movie.genres.slice(0, 2).map((genre) => (
+          {movie.genres.slice(0, 1).map((genre) => (
             <span
               key={genre}
-              className="rounded-sm border border-white/10 bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm"
+              className="cut-xs border border-white/15 bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white/90"
             >
               {genre}
             </span>
@@ -50,29 +50,20 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
         </div>
 
         {movie.averageRating > 0 && (
-          <div className="pointer-events-none absolute top-2.5 right-2.5 flex items-center gap-1 rounded-sm border border-white/10 bg-black/60 px-1.5 py-0.5 text-xs font-semibold text-accent backdrop-blur-sm">
+          <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 cut-xs border border-white/15 bg-black/60 px-1.5 py-0.5 text-xs font-semibold text-accent">
             <Star className="size-3 fill-accent text-accent" />
-            <span className="tabular">{movie.averageRating.toFixed(1)}</span>
+            <span className="tabular-nums">{movie.averageRating.toFixed(1)}</span>
           </div>
         )}
 
-        <div className="pointer-events-none absolute bottom-2.5 left-2.5 flex items-center gap-1 text-xs font-medium text-white/90">
-          <Clock className="size-3.5" />
-          <span className="tabular">{formatDuration(movie.durationMinutes)}</span>
+        <div className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 text-xs text-white/80">
+          <Clock className="size-3" />
+          <span className="tabular-nums">{formatDuration(movie.durationMinutes)}</span>
         </div>
+      </Link>
 
-        <Link
-          to={href}
-          className="clip-corner absolute inset-x-3 bottom-3 z-10 translate-y-2 bg-primary py-2 text-center text-xs font-semibold tracking-wide text-primary-foreground uppercase opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-primary/90"
-        >
-          Mua vé
-        </Link>
-
-        <Link to={href} className="absolute inset-0" aria-label={movie.title} />
-      </div>
-
-      <div className="p-3.5">
-        <h3 className="font-heading text-sm font-semibold text-foreground line-clamp-1 transition-colors group-hover:text-primary">
+      <div className="p-3">
+        <h3 className="t-h3 text-sm text-foreground line-clamp-2 group-hover:underline">
           <Link to={href}>{movie.title}</Link>
         </h3>
         <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{movie.genres.join(", ")}</p>

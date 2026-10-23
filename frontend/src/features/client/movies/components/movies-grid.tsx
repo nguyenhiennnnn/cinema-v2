@@ -16,7 +16,7 @@ interface MoviesGridProps {
 
 export const MoviesGrid = ({ movies, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage, onResetFilters }: MoviesGridProps) => {
   if (isLoading) {
-    return <Skeleton className="h-80 w-full rounded-xl" />;
+    return <Skeleton className="h-80 w-full" />;
   }
 
   if (movies.length === 0) {

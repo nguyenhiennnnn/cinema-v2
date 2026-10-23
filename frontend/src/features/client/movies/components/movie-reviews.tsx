@@ -27,7 +27,7 @@ export const MovieReviews = ({ movieId }: MovieReviewsProps) => {
 
   return (
     <div>
-      <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground uppercase md:text-3xl">Đánh giá & Bình luận</h2>
+      <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Đánh giá & Bình luận</h2>
 
       {user && canReviewData?.canReview && !editingId && (
         <div className="mt-4">
@@ -50,7 +50,7 @@ export const MovieReviews = ({ movieId }: MovieReviewsProps) => {
 
       <div className="mt-6">
         {isLoading ? (
-          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="h-32 w-full " />
         ) : reviews.length === 0 ? (
           <EmptyState icon={MessageSquareText} title="Chưa có đánh giá nào" description="Hãy là người đầu tiên chia sẻ cảm nhận về bộ phim này." />
         ) : (

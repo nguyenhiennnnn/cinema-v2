@@ -8,7 +8,7 @@ import { Seo } from "@/components/common/seo";
 const homeStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "Cinema",
+  name: "Perfo",
   url: import.meta.env.VITE_SITE_URL ?? "",
   description:
     "Đặt vé xem phim nhanh chóng: chọn phim, suất chiếu, chọn ghế và thanh toán online chỉ trong vài phút.",
@@ -26,8 +26,8 @@ const HomePage = () => {
   return (
     <div>
       <Seo
-        title="Đặt vé xem phim trực tuyến"
-        description="Đặt vé xem phim nhanh chóng: chọn phim, suất chiếu, chọn ghế và thanh toán online chỉ trong vài phút tại Cinema."
+        title="Lịch chiếu và đặt vé — Perfo"
+        description="Perfo — đặt vé xem phim trực tuyến, chọn ghế realtime, nhận vé điện tử ngay."
         canonical="/"
         structuredData={homeStructuredData}
       />

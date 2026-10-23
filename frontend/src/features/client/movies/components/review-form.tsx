@@ -18,7 +18,7 @@ export const ReviewForm = ({ initialRating = 0, initialComment = "", isSubmittin
   const [comment, setComment] = useState(initialComment);
 
   return (
-    <div className="rounded-xl border border-border/60 bg-card p-4">
+    <div className="border border-border/60 bg-card p-4">
       <p className="text-sm font-medium text-foreground">Đánh giá của bạn</p>
       <RatingStars value={rating} onChange={setRating} className="mt-2" />
       <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Chia sẻ cảm nhận của bạn về bộ phim..." className="mt-3" rows={3} />

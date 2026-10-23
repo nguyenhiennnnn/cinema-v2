@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ChevronRight, Film } from "lucide-react";
+import { Film } from "lucide-react";
 import { MovieCard } from "@/features/client/movies/components/movie-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
@@ -20,21 +20,18 @@ export const MovieSection = ({ title, status, viewAllHref, emptyMessage }: Movie
   return (
     <section className="mt-10">
       <div className="flex items-end justify-between gap-3 border-b border-border pb-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground uppercase md:text-3xl">
-          {title}
-        </h2>
+        <h2 className="t-h2 text-foreground">{title}</h2>
         <Link
           to={viewAllHref}
-          className="flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline"
+          className="shrink-0 text-sm font-medium text-primary hover:underline"
         >
           Xem tất cả
-          <ChevronRight className="size-4" />
         </Link>
       </div>
 
       <div className="mt-5">
         {isLoading ? (
-          <Skeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full" />
         ) : movies.length === 0 ? (
           <EmptyState icon={Film} title={emptyMessage} />
         ) : (

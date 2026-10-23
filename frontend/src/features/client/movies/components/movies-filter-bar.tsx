@@ -50,7 +50,7 @@ export const MoviesFilterBar = ({ params, setParams }: MoviesFilterBarProps) => 
               className={cn(
                 "border px-4 py-1.5 text-sm font-medium transition-colors",
                 params.status === tab.value
-                  ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-secondary text-secondary-foreground hover:border-primary/50 hover:bg-muted",
               )}
             >
