@@ -6,15 +6,15 @@ interface PerfoTicketProps {
   movieTitle: string;
   /** Suất chiếu: e.g. "19:45 · 24/10/2026" */
   showtime: string;
-  /** Phòng chiếu: e.g. "P03" */
+  /** Phòng chiếu: e.g. "3D Experience Hall 03" */
   room: string;
-  /** Ghế: e.g. "H12" hoặc "H12, H13" */
+  /** Ghế: e.g. "A4" hoặc "H12, H13" */
   seat: string;
-  /** Tổng tiền: e.g. "120.000 ₫" */
+  /** Tổng tiền: e.g. "95.000 VNĐ" */
   totalAmount: string;
-  /** Mã vé: e.g. "PV-0042-H12" */
+  /** Mã vé: e.g. "BK20261023XGJZ-A4" */
   ticketCode: string;
-  /** QR value để generate mã QR */
+  /** QR value: data URL image hoặc raw text */
   qrValue: string;
   /** Đã được soát vé chưa */
   isCheckedIn?: boolean;
@@ -23,13 +23,18 @@ interface PerfoTicketProps {
 }
 
 /**
- * Perfo Ticket — React component dựng từ perfo-ticket-template.svg.
+ * Perfo Ticket — React component chuẩn nhận diện Perfo từ perfo-ticket-template.svg.
  *
- * Layout 920×380 gốc được giữ nguyên tỷ lệ qua viewBox.
- * - Nửa trái (thân vé cream): tên phim, suất chiếu, phòng, ghế, tổng tiền.
- * - Đường perforation (lỗ kim đục) dọc giữa.
- * - Nửa phải (cuống đỏ Perfo): mã QR, mã vé, hướng dẫn soát.
- * - Khi isCheckedIn=true: dải chéo "ĐÃ SOÁT" màu mờ phủ lên.
+ * Layout 920×380:
+ * - Nửa trái (thân vé cream):
+ *   + Hàng trên: Brand Logo & Wordmark Perfo.
+ *   + PHIM: Tên phim to đậm, rõ ràng.
+ *   + Cột trái: SUẤT CHIẾU & PHÒNG xếp dọc riêng biệt (chứa thoải mái tên phòng dài).
+ *   + Cột phải: Khối GHẾ nổi bật riêng biệt trong khung vé phụ màu ấm Perfo.
+ *   + Dưới: Đường phân cách đục lỗ & TỔNG TIỀN đỏ Perfo.
+ * - Nửa phải (cuống đỏ Perfo):
+ *   + QR code quét vé chuẩn tâm, mã vé định danh & hướng dẫn.
+ *   + Overlay "ĐÃ SOÁT VÉ" khi isCheckedIn=true.
  */
 export const PerfoTicket = ({
   movieTitle,
@@ -42,18 +47,19 @@ export const PerfoTicket = ({
   isCheckedIn = false,
   className,
 }: PerfoTicketProps) => {
-  // truncate long movie title
-  const title = movieTitle.length > 22 ? movieTitle.slice(0, 21) + "…" : movieTitle;
+  // Tránh tràn tên phim quá dài
+  const title = movieTitle.length > 25 ? movieTitle.slice(0, 24) + "…" : movieTitle;
+  const isImageQr = qrValue.startsWith("data:image") || qrValue.startsWith("http");
 
   return (
-    <div className={cn("w-full max-w-3xl", className)}>
+    <div className={cn("w-full max-w-3xl select-none", className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 920 380"
         width="100%"
         role="img"
-        aria-label={`Vé điện tử Perfo — ${movieTitle}`}
-        className="block"
+        aria-label={`Vé điện tử Perfo — ${movieTitle} — Ghế ${seat}`}
+        className="block drop-shadow-sm"
       >
         {/* === Defs === */}
         <defs>
@@ -66,7 +72,7 @@ export const PerfoTicket = ({
         </defs>
 
         {/* === Thân vé tổng thể === */}
-        {/* Cream background */}
+        {/* Cream background (#FFFDFB) */}
         <path
           d="M18 10H618A22 22 0 0 0 662 10H902A8 8 0 0 1 910 18V362A8 8 0 0 1 902 370H662A22 22 0 0 0 618 370H18A8 8 0 0 1 10 362V18A8 8 0 0 1 18 10Z"
           fill="#FFFDFB"
@@ -74,20 +80,20 @@ export const PerfoTicket = ({
           strokeOpacity="0.18"
           strokeWidth="2"
         />
-        {/* Red stub overlay */}
+        {/* Red stub overlay (#970013) */}
         <path
           d="M18 10H618A22 22 0 0 0 662 10H902A8 8 0 0 1 910 18V362A8 8 0 0 1 902 370H662A22 22 0 0 0 618 370H18A8 8 0 0 1 10 362V18A8 8 0 0 1 18 10Z"
           fill="#970013"
           clipPath="url(#stub-clip)"
         />
 
-        {/* === Perforation dots === */}
+        {/* === Perforation dots dọc ranh giới cuống vé === */}
         {[40, 64, 88, 112, 136, 160, 184, 208, 232, 256, 280, 304, 328].map((cy) => (
           <circle key={cy} cx="640" cy={cy} r="3.5" fill="#B97F12" />
         ))}
 
-        {/* === Logo BrandMark (mini ticket icon) === */}
-        <g transform="translate(46.8 28.8) scale(0.8)">
+        {/* === Logo BrandMark Perfo === */}
+        <g transform="translate(46.8 26) scale(0.75)">
           <path
             d="M6 14H35A5 5 0 0 0 45 14H58A2 2 0 0 1 60 16V48A2 2 0 0 1 58 50H45A5 5 0 0 0 35 50H6A2 2 0 0 1 4 48V16A2 2 0 0 1 6 14Z"
             fill="#970013"
@@ -110,7 +116,7 @@ export const PerfoTicket = ({
         </g>
 
         {/* === "PERFO" wordmark === */}
-        <g transform="translate(106 40) scale(0.6)">
+        <g transform="translate(100 36) scale(0.55)">
           <g clipPath="url(#wordmark-clip)" fill="none" stroke="#170C09" strokeWidth="9" strokeLinejoin="miter" strokeMiterlimit="10">
             <path transform="translate(0 0)" d="M4.5 48V4.5H23L27.5 9V24L23 28.5H4.5" />
             <path transform="translate(38 0)" d="M27.5 4.5H4.5V43.5H27.5M4.5 24H23" />
@@ -121,108 +127,117 @@ export const PerfoTicket = ({
           <circle cx="168" cy="24" r="4.2" fill="#970013" />
         </g>
 
-        {/* === Nội dung thân vé (trái) === */}
-        {/* Label PHIM */}
+        {/* === THÔNG TIN PHIM === */}
         <text
-          x="50" y="118"
+          x="50" y="105"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
-          fontSize="12" fontWeight="500" fill="#60524B"
+          fontSize="11" fontWeight="600" fill="#60524B"
           letterSpacing="2.5"
         >
           PHIM
         </text>
-        {/* Tên phim */}
         <text
-          x="50" y="158"
+          x="50" y="140"
           fontFamily="'Archivo Variable', 'Arial Narrow', Impact, sans-serif"
-          fontSize="38" fontWeight="700" fill="#170C09"
-          letterSpacing="0.5"
+          fontSize="32" fontWeight="700" fill="#170C09"
+          letterSpacing="0.3"
         >
           {title}
         </text>
 
-        {/* Label SUẤT CHIẾU */}
+        {/* === CỘT THÔNG TIN: SUẤT CHIẾU & PHÒNG (x=50 đến x=440) === */}
+        {/* SUẤT CHIẾU */}
         <text
-          x="50" y="210"
+          x="50" y="176"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
-          fontSize="12" fontWeight="500" fill="#60524B"
+          fontSize="11" fontWeight="600" fill="#60524B"
           letterSpacing="2.5"
         >
           SUẤT CHIẾU
         </text>
-        {/* Giờ chiếu */}
         <text
-          x="50" y="250"
+          x="50" y="204"
           fontFamily="'Archivo Variable', 'Arial Narrow', Impact, sans-serif"
-          fontSize="30" fontWeight="600" fill="#170C09"
+          fontSize="20" fontWeight="600" fill="#170C09"
         >
           {showtime}
         </text>
 
-        {/* Label PHÒNG */}
+        {/* PHÒNG CHIẾU (nằm riêng dòng dưới suất chiếu, rộng rãi không va chạm) */}
         <text
-          x="330" y="210"
+          x="50" y="234"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
-          fontSize="12" fontWeight="500" fill="#60524B"
+          fontSize="11" fontWeight="600" fill="#60524B"
           letterSpacing="2.5"
         >
           PHÒNG
         </text>
         <text
-          x="330" y="250"
+          x="50" y="262"
           fontFamily="'Archivo Variable', 'Arial Narrow', Impact, sans-serif"
-          fontSize="30" fontWeight="600" fill="#170C09"
+          fontSize={room.length > 22 ? "17" : "20"} fontWeight="600" fill="#170C09"
         >
           {room}
         </text>
 
-        {/* Label GHẾ */}
+        {/* === CỘT GHẾ: Khối riêng biệt (x=465 đến x=605) === */}
+        <rect
+          x="465" y="160"
+          width="140" height="106"
+          rx="4"
+          fill="#F5EFE6"
+          stroke="#170C09"
+          strokeOpacity="0.12"
+          strokeWidth="1.5"
+        />
         <text
-          x="450" y="210"
+          x="535" y="186"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
-          fontSize="12" fontWeight="500" fill="#60524B"
-          letterSpacing="2.5"
+          fontSize="11" fontWeight="700" fill="#60524B"
+          textAnchor="middle" letterSpacing="2.5"
         >
           GHẾ
         </text>
         <text
-          x="450" y="250"
+          x="535" y="236"
           fontFamily="'Archivo Variable', 'Arial Narrow', Impact, sans-serif"
-          fontSize="30" fontWeight="600" fill="#170C09"
+          fontSize={seat.length > 6 ? "20" : seat.length > 3 ? "28" : "38"}
+          fontWeight="800"
+          fill="#970013"
+          textAnchor="middle"
         >
           {seat}
         </text>
 
-        {/* Dashed divider */}
+        {/* === Phân cách nét đứt === */}
         <path
-          d="M50 278H590"
+          d="M50 286H605"
           stroke="#170C09"
-          strokeOpacity="0.2"
-          strokeDasharray="2 6"
+          strokeOpacity="0.18"
+          strokeDasharray="3 5"
           strokeWidth="2"
           strokeLinecap="round"
         />
 
-        {/* Label TỔNG TIỀN */}
+        {/* === TỔNG TIỀN === */}
         <text
-          x="50" y="325"
+          x="50" y="328"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
-          fontSize="12" fontWeight="500" fill="#60524B"
+          fontSize="11" fontWeight="600" fill="#60524B"
           letterSpacing="2.5"
         >
           TỔNG TIỀN
         </text>
-        {/* Amount */}
         <text
-          x="180" y="330"
+          x="160" y="332"
           fontFamily="'Archivo Variable', 'Arial Narrow', Impact, sans-serif"
-          fontSize="34" fontWeight="600" fill="#970013"
+          fontSize="30" fontWeight="700" fill="#970013"
         >
           {totalAmount}
         </text>
 
-        {/* === QR Code (cuống đỏ) — embedded via foreignObject === */}
-        <foreignObject x="671" y="50" width="208" height="208">
+        {/* === CUỐNG VÉ ĐỎ: QR CODE & MÃ VÉ (x=640 đến x=920, tâm x=780) === */}
+        <foreignObject x="676" y="46" width="208" height="208">
           <div
             // @ts-expect-error xmlns needed for SVG foreignObject
             xmlns="http://www.w3.org/1999/xhtml"
@@ -233,34 +248,46 @@ export const PerfoTicket = ({
               alignItems: "center",
               justifyContent: "center",
               background: "#F9F5F0",
-              padding: "8px",
+              padding: "10px",
+              boxSizing: "border-box",
             }}
           >
-            <QRCodeSVG
-              value={qrValue}
-              size={188}
-              bgColor="#F9F5F0"
-              fgColor="#170C09"
-              level="M"
-            />
+            {isImageQr ? (
+              <img
+                src={qrValue}
+                alt={`Mã QR vé ${ticketCode}`}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            ) : (
+              <QRCodeSVG
+                value={qrValue}
+                size={188}
+                bgColor="#F9F5F0"
+                fgColor="#170C09"
+                level="M"
+              />
+            )}
           </div>
         </foreignObject>
 
-        {/* Ticket code */}
+        {/* Mã vé */}
         <text
-          x="775" y="292"
+          x="780" y="290"
           fontFamily="'Archivo Variable', 'Arial Narrow', monospace"
-          fontSize="18" fontWeight="600" fill="#F9F5F0"
-          textAnchor="middle" letterSpacing="1.5"
+          fontSize={ticketCode.length > 18 ? "13" : ticketCode.length > 14 ? "15" : "17"}
+          fontWeight="700"
+          fill="#F9F5F0"
+          textAnchor="middle"
+          letterSpacing="1"
         >
           {ticketCode}
         </text>
         {/* Hướng dẫn */}
         <text
-          x="775" y="320"
+          x="780" y="318"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
           fontSize="12" fontWeight="400" fill="#F9F5F0"
-          textAnchor="middle" opacity="0.75"
+          textAnchor="middle" opacity="0.8"
         >
           Quét mã tại quầy để vào rạp
         </text>
