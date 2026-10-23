@@ -278,7 +278,6 @@
    Utility classes — Perfo design system
    ============================================================ */
 @layer utilities {
-
   /* --- Cut corners (clip-path) --- */
   .cut-xs,
   .cut-sm,
@@ -293,10 +292,18 @@
       0 var(--cut)
     );
   }
-  .cut-xs  { --cut: var(--cut-xs); }
-  .cut-sm  { --cut: var(--cut-sm); }
-  .cut-md  { --cut: var(--cut-md); }
-  .cut-lg  { --cut: var(--cut-lg); }
+  .cut-xs {
+    --cut: var(--cut-xs);
+  }
+  .cut-sm {
+    --cut: var(--cut-sm);
+  }
+  .cut-md {
+    --cut: var(--cut-md);
+  }
+  .cut-lg {
+    --cut: var(--cut-lg);
+  }
 
   /* Mirrored cut (top-right + bottom-left) */
   .cut-flip {
@@ -369,7 +376,9 @@
     transform: translate(16px, 8px) rotate(4deg);
   }
   @media (prefers-reduced-motion: reduce) {
-    .tear-stub { transition: none; }
+    .tear-stub {
+      transition: none;
+    }
   }
 
   /* --- Typography scale --- */
