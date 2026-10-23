@@ -39,7 +39,7 @@ export const ClientHeader = () => {
           </Button>
         </div>
       </div>
-      <div className="sprocket-rule" />
+      
     </header>
   );
 };

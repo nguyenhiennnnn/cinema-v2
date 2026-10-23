@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
-import { BrandMark } from "@/components/common/brand-mark";
+import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 
 const FOOTER_CATEGORIES = [
   { label: "Phim đang chiếu", to: "/movies?status=now-showing" },
@@ -19,27 +19,25 @@ const FOOTER_POLICIES = [
 export const ClientFooter = () => {
   return (
     <footer className="w-full bg-card text-card-foreground">
-      <div className="sprocket-rule" />
+      <div className="perf-h" />
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 md:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <BrandMark className="size-8" />
-            <span className="font-heading text-xl leading-none font-semibold tracking-tight text-foreground uppercase">
-              Cinema
-            </span>
+            <BrandMark className="size-8 shrink-0" />
+            <BrandWordmark className="h-5 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground">
-            Trải nghiệm điện ảnh với âm thanh và hình ảnh chuẩn quốc tế.
+            Đặt vé xem phim nhanh, chọn ghế realtime, nhận vé điện tử ngay.
           </p>
           <div className="flex items-center gap-3 text-muted-foreground">
-            <FaFacebook className="size-4 hover:text-primary" />
-            <FaYoutube className="size-4 hover:text-primary" />
-            <FaInstagram className="size-4 hover:text-primary" />
+            <FaFacebook className="size-4 hover:text-primary cursor-pointer" />
+            <FaYoutube className="size-4 hover:text-primary cursor-pointer" />
+            <FaInstagram className="size-4 hover:text-primary cursor-pointer" />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <h3 className="text-eyebrow">Danh mục</h3>
+          <p className="text-[13px] font-medium text-foreground">Danh mục</p>
           {FOOTER_CATEGORIES.map((item) => (
             <Link
               key={item.label}
@@ -52,7 +50,7 @@ export const ClientFooter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h3 className="text-eyebrow">Chính sách</h3>
+          <p className="text-[13px] font-medium text-foreground">Chính sách</p>
           {FOOTER_POLICIES.map((item) => (
             <Link
               key={item.label}
@@ -65,19 +63,17 @@ export const ClientFooter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h3 className="text-eyebrow">Chăm sóc khách hàng</h3>
-          <p className="text-sm text-muted-foreground">
-            Hotline: 1900 xxxx (8h - 22h)
-          </p>
-          <p className="text-sm text-muted-foreground">Email: cskh@cinema.vn</p>
-          <p className="mt-2 font-mono text-sm font-medium tracking-wide text-foreground">
-            VNPay · MoMo · Visa · Mastercard
+          <p className="text-[13px] font-medium text-foreground">Chăm sóc khách hàng</p>
+          <p className="text-sm text-muted-foreground">Hotline: 1900 xxxx (8h–22h)</p>
+          <p className="text-sm text-muted-foreground">Email: cskh@perfo.vn</p>
+          <p className="mt-2 text-sm font-medium text-foreground">
+            VNPay, MoMo, Visa, Mastercard
           </p>
         </div>
       </div>
-      <div className="perforation" />
+      <div className="perf-h" />
       <div className="px-4 py-4 text-center text-xs text-muted-foreground">
-        © 2026 Cinema System. Toàn bộ bản quyền thuộc về Cinema Project.
+        © 2026 Perfo. Toàn bộ bản quyền thuộc về Perfo Project.
       </div>
     </footer>
   );

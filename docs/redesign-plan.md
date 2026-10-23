@@ -221,3 +221,4 @@
 - Font Archivo Variable và Be Vietnam Pro đã được cài và import — **không cần sửa**.
 - Playwright e2e: 7 spec files trong `frontend/e2e/`.
 - Backend solution: `backend/Cinema.sln` (namespace giữ nguyên `Cinema.*`).
+

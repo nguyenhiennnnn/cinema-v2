@@ -19,7 +19,7 @@ import {
   Layers,
   Settings,
 } from "lucide-react";
-import { BrandMark } from "@/components/common/brand-mark";
+import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const NAV_GROUPS = [
@@ -147,25 +147,17 @@ export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
       )}
     >
       <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-        <BrandMark />
+        <BrandMark className="size-7 shrink-0" />
         {!collapsed && (
-          <div className="min-w-0">
-            <p className="truncate font-heading text-sm font-semibold tracking-wide text-sidebar-foreground uppercase">
-              Cinema Admin
-            </p>
-            <p className="truncate font-mono text-[10px] tracking-wider text-sidebar-foreground/40 uppercase">
-              Control Room
-            </p>
-          </div>
+          <BrandWordmark className="h-4 w-auto" />
         )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-3">
-        {visibleGroups.map((group, gi) => (
-          <div key={group.label} className="mb-3">
+      <nav className="flex-1 overflow-y-auto py-3">
+        {visibleGroups.map((group) => (
+          <div key={group.label} className="mb-2">
             {!collapsed && (
-              <p className="flex items-baseline gap-1.5 px-3 pb-1 font-mono text-[10px] font-medium tracking-wider text-sidebar-foreground/35 uppercase">
-                <span>{String(gi + 1).padStart(2, "0")}</span>
+              <p className="px-4 pb-1 pt-2 text-[13px] text-sidebar-foreground/50">
                 {group.label}
               </p>
             )}
@@ -178,17 +170,17 @@ export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
                   title={collapsed ? label : undefined}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-2.5 border-l-2 border-transparent px-3 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:border-sidebar-foreground/30 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                      "flex w-full items-center gap-2.5 px-4 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
                       isActive &&
-                      "border-sidebar-primary bg-sidebar-accent text-sidebar-foreground",
-                      collapsed && "justify-center",
+                      "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
+                      collapsed && "justify-center px-0",
                     )
                   }
                 >
                   <Icon className="size-4 shrink-0" />
                   {!collapsed && <span className="truncate">{label}</span>}
                 </NavLink>
-              )
+              );
 
               if (!collapsed) return link;
 
@@ -214,7 +206,7 @@ export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
             <p className="truncate text-xs font-medium text-sidebar-foreground">
               {user?.fullName}
             </p>
-            <p className="truncate font-mono text-[10px] tracking-wide text-sidebar-foreground/40 uppercase">
+            <p className="truncate text-[10px] text-sidebar-foreground/40">
               {user?.role}
             </p>
           </div>
