@@ -335,8 +335,8 @@ public class PaymentService(
                 j.RunAsync(
                     settings.Email!,
                     autoRefunded
-                        ? $"[Cinema] Đã tự động hoàn tiền — Booking #{payment.BookingId}"
-                        : $"[Cinema] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{payment.BookingId}",
+                        ? $"[Perfo] Đã tự động hoàn tiền — Booking #{payment.BookingId}"
+                        : $"[Perfo] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{payment.BookingId}",
                     html,
                     CancellationToken.None
                 )

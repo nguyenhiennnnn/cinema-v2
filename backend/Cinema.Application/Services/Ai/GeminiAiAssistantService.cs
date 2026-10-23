@@ -118,7 +118,7 @@ public class GeminiAiAssistantService(
             s => s.Id == 1,
             cancellationToken
         );
-        var cinemaName = settings?.Name ?? "Cinema System";
+        var cinemaName = settings?.Name ?? "Perfo";
         var address = settings?.Address ?? "Chưa cập nhật";
         var phone = settings?.Phone ?? "Chưa cập nhật";
         var opening = settings?.OpeningTime?.ToString("HH:mm") ?? "08:00";

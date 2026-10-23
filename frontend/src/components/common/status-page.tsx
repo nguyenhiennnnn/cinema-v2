@@ -72,7 +72,7 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
       </div>
 
       <p className="mt-6 font-mono text-xs tracking-widest text-muted-foreground/70 uppercase">
-        Cinema System · Mã lỗi {code}
+        Perfo · Mã lỗi {code}
       </p>
     </div>
   );

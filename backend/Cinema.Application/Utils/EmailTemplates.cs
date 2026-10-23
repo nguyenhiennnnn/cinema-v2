@@ -26,7 +26,7 @@ public static class EmailTemplates
     private const string FontFamily = "'Geist', 'Segoe UI', Helvetica, Arial, sans-serif";
     private const string FontHeading = "'Oswald', 'Arial Narrow', Arial, sans-serif";
 
-    private const string BrandName = "CINEMA";
+    private const string BrandName = "PERFO";
 
     private static string Layout(string preheader, string bodyHtml)
     {
