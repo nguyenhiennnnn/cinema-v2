@@ -3,11 +3,11 @@ import { Copy, Ticket as TicketIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { BookingStatusBadge, PaymentMethodBadge, PaymentStatusBadge } from "@/components/common/status-badge";
-import { TicketQrCard } from "@/features/client/account/components/ticket-qr-card";
+import { PerfoTicket } from "@/components/common/perfo-ticket";
 import { useBookingDetail, useCancelBooking } from "@/features/client/bookings/hooks/use-bookings";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 import { useCountdown } from "@/hooks/use-countdown";
-import { formatCurrency, formatDateTime } from "@/lib/formatters";
+import { formatCurrency, formatDate, formatDateTime, formatTime } from "@/lib/formatters";
 import { BookingStatus } from "@/types/enum";
 import { useNow } from "@/hooks/use-now";
 import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
@@ -170,9 +170,19 @@ const AccountTicketDetailPage = () => {
 
       <div>
         <h2 className="font-heading text-base font-semibold text-foreground">Vé điện tử & Mã QR</h2>
-        <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="mt-3 flex flex-col gap-4">
           {booking.tickets.map((ticket) => (
-            <TicketQrCard key={ticket.ticketId} ticket={ticket} />
+            <PerfoTicket
+              key={ticket.ticketId}
+              movieTitle={booking.movie.title}
+              showtime={`${formatTime(booking.showtime.startTime)} · ${formatDate(booking.showtime.startTime)}`}
+              room={booking.showtime.roomName}
+              seat={`${ticket.seatRow}${ticket.seatNumber}`}
+              totalAmount={formatCurrency(booking.finalAmount)}
+              ticketCode={`${booking.bookingCode}-${ticket.seatRow}${ticket.seatNumber}`}
+              qrValue={ticket.qrCodeImage}
+              isCheckedIn={ticket.isCheckedIn}
+            />
           ))}
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { CheckCircle2, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency } from "@/lib/formatters";
+import { PerfoTicket } from "@/components/common/perfo-ticket";
+import { formatCurrency, formatDate, formatTime } from "@/lib/formatters";
 import type {
   AdminBookingDetailDto,
   CounterCheckoutResponse,
@@ -15,8 +16,15 @@ interface CounterTicketResultProps {
 }
 
 export const CounterTicketResult = ({ isLoading, booking, checkout, onNewSale }: CounterTicketResultProps) => {
+  const seats = booking?.seats?.map((s) => `${s.seatRow}${s.seatNumber}`).join(", ") ?? "";
+  const showtime = booking?.showtime
+    ? `${formatTime(booking.showtime.startTime)} · ${formatDate(booking.showtime.startTime)}`
+    : "";
+  const room = booking?.showtime?.roomName ?? "";
+  const total = booking ? formatCurrency(booking.finalAmount) : "";
+
   return (
-    <div className="flex flex-col items-center gap-4 border border-border bg-card p-6 text-center">
+    <div className="flex flex-col items-center gap-6 border border-border bg-card p-6 text-center">
       <CheckCircle2 className="size-10 text-success" />
       <div>
         <p className="font-heading text-lg font-semibold text-foreground">Thanh toán thành công</p>
@@ -24,23 +32,35 @@ export const CounterTicketResult = ({ isLoading, booking, checkout, onNewSale }:
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-40 w-full max-w-sm " />
-      ) : (
-        <div className="grid w-full max-w-sm grid-cols-2 gap-3">
-          {booking?.tickets?.map((ticket) => (
-            <div
+        <Skeleton className="h-48 w-full max-w-3xl" />
+      ) : booking && booking.tickets && booking.tickets.length > 0 ? (
+        <div className="flex w-full max-w-3xl flex-col gap-4">
+          {booking.tickets.map((ticket) => (
+            <PerfoTicket
               key={ticket.ticketId}
-              className="flex flex-col items-center gap-2 border border-border bg-background p-3"
-            >
-              <img src={ticket.qrCodeImage} alt={`Vé ${ticket.seatRow}${ticket.seatNumber}`} className="size-24" />
-              <p className="text-xs font-semibold">
-                Ghế {ticket.seatRow}
-                {ticket.seatNumber}
-              </p>
-            </div>
+              movieTitle={booking.movie?.title ?? ""}
+              showtime={showtime}
+              room={room}
+              seat={`${ticket.seatRow}${ticket.seatNumber}`}
+              totalAmount={total}
+              ticketCode={`${booking.bookingCode}-${ticket.seatRow}${ticket.seatNumber}`}
+              qrValue={ticket.qrCodeImage}
+              isCheckedIn={ticket.isCheckedIn}
+            />
           ))}
         </div>
-      )}
+      ) : booking ? (
+        /* Fallback khi chưa có ticket objects */
+        <PerfoTicket
+          movieTitle={booking.movie?.title ?? ""}
+          showtime={showtime}
+          room={room}
+          seat={seats}
+          totalAmount={total}
+          ticketCode={booking.bookingCode}
+          qrValue={booking.bookingCode}
+        />
+      ) : null}
 
       <Button onClick={onNewSale}>
         <PlusCircle className="size-4" />
@@ -48,4 +68,4 @@ export const CounterTicketResult = ({ isLoading, booking, checkout, onNewSale }:
       </Button>
     </div>
   );
-}
+};
