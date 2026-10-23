@@ -1,3 +1,5 @@
+﻿@import "tailwindcss";
+@import "tw-animate-css";
 @import "@fontsource-variable/archivo/wdth.css";
 @import "@fontsource/be-vietnam-pro/400.css";
 @import "@fontsource/be-vietnam-pro/500.css";
@@ -286,4 +288,11 @@
   .seat[data-type="couple"] {
     width: 60px;
   }
+
+  /* ---- Alias class cũ: TẠM, xóa ở Pha 6 ---- */
+  .ticket-notch { --y: 50%; mask: radial-gradient(circle var(--notch) at 0 var(--y), #0000 calc(var(--notch) - 0.5px), #000 var(--notch)) left / 51% 100% no-repeat, radial-gradient(circle var(--notch) at 100% var(--y), #0000 calc(var(--notch) - 0.5px), #000 var(--notch)) right / 51% 100% no-repeat; }
+  .perforation { height: 4px; color: var(--muted-foreground); background: radial-gradient(circle, currentColor 1.4px, #0000 1.8px) 0 0 / 10px 4px repeat-x; }
+  .sprocket-rule { height: 4px; color: var(--muted-foreground); background: radial-gradient(circle, currentColor 1.4px, #0000 1.8px) 0 0 / 10px 4px repeat-x; }
+  .clip-corner { --cut: var(--cut-md); clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)); }
+  .text-eyebrow { font-size: 0.8125rem; color: var(--muted-foreground); font-weight: 500; }
 }
