@@ -1,4 +1,4 @@
-﻿import * as React from "react"
+import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 import type { TooltipValueType } from "recharts"
 
@@ -189,7 +189,7 @@ function ChartTooltipContent({
   return (
     <div
       className={cn(
-        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs",
+        "grid min-w-32 items-start gap-1.5 cut-xs border border-border bg-background px-2.5 py-1.5 text-xs",
         className
       )}
     >

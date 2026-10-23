@@ -99,7 +99,7 @@ const ConfirmEmailPage = () => {
         </p>
 
         {resendSuccess ? (
-          <p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">
+          <p className="cut-sm bg-success/10 px-3 py-2 text-sm text-success">
             Nếu email tồn tại và chưa xác thực, liên kết mới đã được gửi.
           </p>
         ) : (

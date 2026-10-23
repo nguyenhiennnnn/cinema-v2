@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import type { DashboardShowtimeItemDto } from "../types";
@@ -41,8 +41,8 @@ export const TodayShowtimesCard = ({ showtimes, isLoading }: TodayShowtimesCardP
                     {s.bookedSeats}/{s.totalSeats}
                   </span>
                 </div>
-                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${percent}%` }} />
+                <div className="mt-2 h-1.5 w-full overflow-hidden bg-muted">
+                  <div className="h-full bg-primary transition-all" style={{ width: `${percent}%` }} />
                 </div>
               </div>
             );

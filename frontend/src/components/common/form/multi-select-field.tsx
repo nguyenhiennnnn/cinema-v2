@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Check, ChevronsUpDown, Loader2, X } from "lucide-react";
@@ -121,7 +121,7 @@ export const MultiSelectField = <T,>({
                   <span
                     role="button"
                     tabIndex={-1}
-                    className="rounded-full p-0.5 hover:bg-muted-foreground/20"
+                    className="cut-xs p-0.5 hover:bg-muted-foreground/20"
                     onClick={(e) => {
                       e.stopPropagation();
                       remove(optionValue);

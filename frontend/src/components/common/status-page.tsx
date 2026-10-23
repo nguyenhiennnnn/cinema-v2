@@ -1,6 +1,6 @@
-import type { LucideIcon } from "lucide-react";
+﻿import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
-import { BrandMark } from "@/components/common/brand-mark";
+import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -24,10 +24,8 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-16">
       <Link to="/" className="mb-10 flex items-center gap-2">
-        <BrandMark className="size-8" />
-        <span className="font-heading text-xl leading-none font-semibold tracking-tight text-foreground">
-          Cinema
-        </span>
+        <BrandMark className="size-8 shrink-0" />
+        <BrandWordmark className="h-5 w-auto" />
       </Link>
 
       <div className="w-full max-w-md overflow-hidden border border-border bg-card">

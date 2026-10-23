@@ -141,7 +141,7 @@ export const RegisterForm = () => {
       />
 
       {error && Object.keys(getFieldErrors(error)).length === 0 && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {getDisplayMessage(error)}
         </p>
       )}

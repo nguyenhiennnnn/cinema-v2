@@ -112,7 +112,7 @@ export const LoginForm = () => {
       />
 
       {error && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {extractApiError(error).message}
         </p>
       )}

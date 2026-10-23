@@ -1,4 +1,4 @@
-import { MembershipTierBadge } from "@/components/common/status-badge";
+﻿import { MembershipTierBadge } from "@/components/common/status-badge";
 import { formatCurrency, formatPoints } from "@/lib/formatters";
 import type { UserProfileDto } from "@/features/client/account/types";
 
@@ -30,8 +30,8 @@ export const ProfileStatsCard = ({ profile }: ProfileStatsCardProps) => {
 
       {profile.nextTier && (
         <div className="mt-4">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+          <div className="h-2 w-full overflow-hidden bg-muted">
+            <div className="h-full bg-primary" style={{ width: `${progress}%` }} />
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
             Cần thêm {formatPoints(profile.nextTier.pointsNeeded)} điểm để đạt hạng {profile.nextTier.tierName}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { CalendarX } from "lucide-react";
 import { DateStrip } from "@/components/common/date-strip";
 import { EmptyState } from "@/components/common/empty-state";
@@ -35,7 +35,7 @@ const SchedulePage = () => {
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <Seo
         title="Lịch chiếu phim"
-        description="Tra cứu lịch chiếu toàn bộ phim tại rạp Cinema theo từng ngày. Chọn suất chiếu yêu thích và đặt vé ngay."
+        description="Tra cứu lịch chiếu toàn bộ phim tại rạp Perfo theo từng ngày. Chọn suất chiếu yêu thích và đặt vé ngay."
         canonical="/schedule"
       />
       <div className="mb-6">

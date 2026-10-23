@@ -48,7 +48,7 @@ export const AdminLoginForm = () => {
         label="Email quản trị"
         type="email"
         autoComplete="email"
-        placeholder="admin@cinema.vn"
+        placeholder="admin@perfo.vn"
       />
 
       <FormInputField
@@ -61,7 +61,7 @@ export const AdminLoginForm = () => {
       />
 
       {error && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {extractApiError(error).message}
         </p>
       )}
