@@ -76,7 +76,7 @@ export const DateTimePickerField = ({
             disabled={disabled}
             data-empty={!selected}
             className={cn(
-              "w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 data-[empty=true]:text-muted-foreground dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
+              "h-10 w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 data-[empty=true]:text-muted-foreground dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
               className,
             )}
           />

@@ -29,7 +29,7 @@ export const DateFilterPicker = ({
             variant="outline"
             data-empty={!selected}
             className={cn(
-              "justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
+              "h-10 justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
               className,
             )}
           />
