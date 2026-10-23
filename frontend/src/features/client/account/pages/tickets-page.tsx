@@ -42,7 +42,7 @@ const AccountTicketsPage = () => {
             className={cn(
               "border px-3.5 py-1.5 text-sm font-medium transition-colors",
               status === tab.value
-                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-secondary text-secondary-foreground hover:border-primary/50 hover:bg-muted",
             )}
           >
@@ -54,7 +54,7 @@ const AccountTicketsPage = () => {
       <div className="mt-5 space-y-3">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <Skeleton key={i} className="h-24 w-full " />
           ))
         ) : bookings.length === 0 ? (
           <EmptyState icon={TicketIcon} title="Chưa có vé nào" description="Hãy đặt vé để bắt đầu trải nghiệm điện ảnh." />

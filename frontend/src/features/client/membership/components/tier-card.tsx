@@ -15,13 +15,13 @@ export const TierCard = ({ tier, index }: TierCardProps) => {
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card p-5 transition-colors",
+        "group relative flex flex-col overflow-hidden border border-border bg-card p-5 transition-colors",
         visual.ring,
       )}
     >
       <div
         className={cn(
-          "mb-4 flex size-11 items-center justify-center rounded-lg bg-muted",
+          "mb-4 flex size-11 items-center justify-center bg-muted",
           visual.accent,
         )}
       >

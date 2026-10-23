@@ -25,15 +25,15 @@ export const TicketCard = ({ booking, onCancel }: TicketCardProps) => {
     new Date(booking.startTime).getTime() - now > cancelDeadlineHours * 60 * 60 * 1000;
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+        <div className="flex size-12 shrink-0 items-center justify-center bg-muted">
           <TicketIcon className="size-5" />
         </div>
         <div>
           <p className="font-heading text-sm font-semibold text-foreground">{booking.movieTitle}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">{formatDateTime(booking.startTime)}</p>
-          <p className="mt-0.5 font-mono text-xs tracking-wider text-muted-foreground">{booking.bookingCode}</p>
+          <p className="mt-0.5 text-xs tracking-wider tabular-nums text-muted-foreground">{booking.bookingCode}</p>
         </div>
       </div>
 
@@ -45,7 +45,7 @@ export const TicketCard = ({ booking, onCancel }: TicketCardProps) => {
         <div className="flex flex-col gap-2">
           <Link
             to={`/account/tickets/${booking.bookingId}`}
-            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+            className="inline-flex items-center justify-center gap-1.5 border border-border bg-muted px-2 py-0.5 text-xs font-medium"
           >
             <QrCode className="size-3.5" />
             Chi tiết & QR

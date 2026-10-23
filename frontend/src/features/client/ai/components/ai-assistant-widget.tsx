@@ -23,7 +23,7 @@ const GREETING: AiMessage = {
   id: "greeting",
   role: "assistant",
   content:
-    "Chào bạn 👋 Mình là **Trợ lý Cinema**, có thể giúp bạn tìm phim, lịch chiếu, ưu đãi... Bạn cần hỗ trợ gì ạ?",
+    "Chào bạn! Mình là **Trợ lý Perfo**, có thể giúp bạn tìm phim, lịch chiếu, ưu đãi... Bạn cần hỗ trợ gì ạ?",
 };
 
 export const AiAssistantWidget = () => {
@@ -72,22 +72,22 @@ export const AiAssistantWidget = () => {
       {/* Panel */}
       <div
         className={cn(
-          "fixed bottom-24 right-4 z-50 flex w-95 max-w-[calc(100vw-2rem)] origin-bottom-right flex-col overflow-hidden rounded-xl border border-border bg-card shadow-lg transition-all duration-200 sm:right-6",
+          "fixed bottom-24 right-4 z-50 flex w-95 max-w-[calc(100vw-2rem)] origin-bottom-right flex-col overflow-hidden border border-border bg-card transition-all duration-200 sm:right-6",
           open
             ? "h-140 max-h-[calc(100vh-8rem)] scale-100 opacity-100"
             : "pointer-events-none h-0 scale-95 opacity-0",
         )}
       >
-        {/* Header (cuống vé) */}
+        {/* Header */}
         <div className="flex items-center justify-between gap-2 bg-primary px-4 py-3 text-primary-foreground">
           <div className="flex items-center gap-2.5">
             <div className="flex size-9 shrink-0 items-center justify-center border border-primary-foreground/30 bg-primary-foreground/10">
               <Sparkles className="size-4" />
             </div>
             <div>
-              <p className="font-heading text-sm font-semibold uppercase tracking-tight">Trợ lý Cinema</p>
+              <p className="font-heading text-sm font-semibold tracking-tight">Trợ lý Perfo</p>
               <p className="flex items-center gap-1 text-xs text-primary-foreground/70">
-                <span className="size-1.5 rounded-full bg-success" />
+                <span className="size-1.5 inline-block bg-success" />
                 Luôn sẵn sàng hỗ trợ
               </p>
             </div>
@@ -101,7 +101,7 @@ export const AiAssistantWidget = () => {
             <X className="size-4" />
           </button>
         </div>
-        <div className="ticket-notch perforation shrink-0" style={{ "--notch-bg": "var(--card)" } as CSSProperties} />
+        <div className="notch-x perf-h shrink-0" style={{ "--notch-bg": "var(--card)" } as CSSProperties} />
 
         {/* Messages */}
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
@@ -117,7 +117,7 @@ export const AiAssistantWidget = () => {
                   key={s}
                   type="button"
                   onClick={() => handleSend(s)}
-                  className="rounded-full border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   {s}
                 </button>
@@ -133,7 +133,7 @@ export const AiAssistantWidget = () => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="clip-corner fixed bottom-6 right-4 z-50 flex size-14 items-center justify-center border border-primary bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary/90 sm:right-6"
+        className="cut-md fixed bottom-6 right-4 z-50 flex size-14 items-center justify-center border border-primary bg-primary text-primary-foreground transition-colors hover:bg-primary/90 sm:right-6"
         aria-label={open ? "Đóng trợ lý AI" : "Mở trợ lý AI"}
       >
         {open ? <X className="size-6" /> : <Sparkles className="size-6" />}

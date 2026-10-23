@@ -16,7 +16,7 @@ const AccountReviewsPage = () => {
       <div className="mt-5 space-y-3">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <Skeleton key={i} className="h-24 w-full " />
           ))
         ) : reviews.length === 0 ? (
           <EmptyState icon={Star} title="Bạn chưa có đánh giá nào" description="Hãy chia sẻ cảm nhận sau khi xem phim tại rạp." />

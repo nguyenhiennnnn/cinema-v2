@@ -30,7 +30,7 @@ export const AccountReviewCard = ({ review }: AccountReviewCardProps) => {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="border border-border bg-card p-4">
       <div className="flex gap-3">
         <Link to={`/movies/${review.movieId}`} className="aspect-2/3 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
           {review.moviePosterUrl ? (

@@ -26,8 +26,8 @@ const AccountTicketDetailPage = () => {
   if (isLoading || !booking) {
     return (
       <div className="mx-auto max-w-4xl space-y-4 px-4 py-8">
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full " />
+        <Skeleton className="h-64 w-full " />
       </div>
     );
   }
@@ -56,10 +56,10 @@ const AccountTicketDetailPage = () => {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card p-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-lg font-bold tracking-wider text-foreground">{booking.bookingCode}</span>
+            <span className="text-lg font-bold tracking-wider tabular-nums text-foreground">{booking.bookingCode}</span>
             <button onClick={() => navigator.clipboard.writeText(booking.bookingCode)} className="text-muted-foreground hover:text-foreground">
               <Copy className="size-4" />
             </button>
@@ -70,7 +70,7 @@ const AccountTicketDetailPage = () => {
       </div>
 
       {isPending && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border border-warning/40 bg-warning/10 p-4">
           <div>
             <p className="text-sm font-medium text-foreground">
               {canResumePayment
@@ -97,8 +97,8 @@ const AccountTicketDetailPage = () => {
         </div>
       )}
 
-      <div className="flex gap-4 rounded-xl border border-border bg-card p-4">
-        <div className="aspect-2/3 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">
+      <div className="flex gap-4 border border-border bg-card p-4">
+        <div className="aspect-2/3 w-24 shrink-0 overflow-hidden bg-muted">
           {booking.movie.posterUrl ? (
             <img src={booking.movie.posterUrl} alt={booking.movie.title} className="h-full w-full object-cover" />
           ) : (
@@ -114,7 +114,7 @@ const AccountTicketDetailPage = () => {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="border border-border bg-card p-4">
         <h2 className="font-heading text-base font-semibold text-foreground">Ghế & Combo</h2>
         <div className="mt-3 space-y-1.5 text-sm">
           {booking.seats.map((seat, i) => (
@@ -154,7 +154,7 @@ const AccountTicketDetailPage = () => {
       </div>
 
       {booking.payments.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="border border-border bg-card p-4">
           <h2 className="font-heading text-base font-semibold text-foreground">Thanh toán</h2>
           <div className="mt-3 space-y-2">
             {booking.payments.map((payment) => (

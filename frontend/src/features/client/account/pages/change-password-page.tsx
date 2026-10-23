@@ -62,7 +62,7 @@ const ChangePasswordPage = () => {
     <div className="max-w-md">
       <h1 className="font-heading text-xl font-semibold text-foreground">Đổi mật khẩu</h1>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5 rounded-xl border border-border bg-card p-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5 border border-border bg-card p-5">
         <FieldGroup className="space-y-4">
           <FormInputField
             name="currentPassword"

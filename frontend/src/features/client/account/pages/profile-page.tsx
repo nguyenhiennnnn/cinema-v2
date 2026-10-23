@@ -72,8 +72,8 @@ const AccountProfilePage = () => {
   if (isLoading || !profile) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-40 w-full rounded-xl" />
-        <Skeleton className="h-72 w-full rounded-xl" />
+        <Skeleton className="h-40 w-full " />
+        <Skeleton className="h-72 w-full " />
       </div>
     );
   }
@@ -82,7 +82,7 @@ const AccountProfilePage = () => {
     <div className="space-y-6">
       <ProfileStatsCard profile={profile} />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="rounded-xl border border-border bg-card p-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="border border-border bg-card p-5">
         <h2 className="font-heading text-lg font-semibold text-foreground">Thông tin cá nhân</h2>
 
         <div className="mt-5 flex items-center gap-4">
@@ -130,7 +130,7 @@ const AccountProfilePage = () => {
             <FieldLabel>Email</FieldLabel>
             <div className="flex items-center gap-2">
               <Input value={profile.email} disabled className="flex-1" />
-              <span className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+              <span className="flex items-center gap-1 cut-xs bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
                 <BadgeCheck className="size-3.5" />
                 Đã xác thực
               </span>
