@@ -14,7 +14,7 @@ interface BookingPaymentMethodProps {
 
 export const BookingPaymentMethod = ({ value, onChange }: BookingPaymentMethodProps) => {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
+    <div className="flex flex-col gap-3 border border-border bg-card p-4">
       <h3 className="font-heading text-sm font-semibold text-foreground">Phương thức thanh toán</h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {ONLINE_PAYMENT_METHODS.map((method) => (
@@ -23,7 +23,7 @@ export const BookingPaymentMethod = ({ value, onChange }: BookingPaymentMethodPr
             type="button"
             onClick={() => onChange(method.value)}
             className={cn(
-              "rounded-lg border px-4 py-3 text-sm font-medium transition-all",
+              "border px-4 py-3 text-sm font-medium transition-all",
               value === method.value
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-card text-foreground hover:bg-muted",

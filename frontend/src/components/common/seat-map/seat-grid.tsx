@@ -34,7 +34,7 @@ export const SeatGrid = ({
                 onClick={() => onRowLabelClick(rowLabel)}
                 title={rowLabelTitle?.(rowLabel)}
                 className={cn(
-                  "w-5 shrink-0 rounded-sm text-center text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                  "w-5 shrink-0 text-center text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                   rowLabelClassName?.(rowLabel),
                 )}
               >

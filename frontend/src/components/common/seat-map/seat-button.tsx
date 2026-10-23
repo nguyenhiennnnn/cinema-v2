@@ -61,7 +61,7 @@ export const SeatButton = ({
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       className={cn(
-        "flex h-8 w-full items-center justify-center rounded-sm border text-[11px] font-medium tabular transition-colors",
+        "flex h-8 w-full items-center justify-center border text-[11px] font-medium tabular transition-colors",
         state === "aisle" ? EDITABLE_AISLE_CLASS : KIND_CLASS[kind],
         STATE_OVERRIDE_CLASS[state],
         className,

@@ -40,7 +40,7 @@ const BookingResultPage = () => {
       {!bookingId ? (
         <p className="text-sm text-muted-foreground">Thiếu thông tin đơn đặt vé.</p>
       ) : bookingDetail.isLoading ? (
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full " />
       ) : !bookingDetail.data ? (
         <div className="flex flex-col items-center gap-3">
           <p className="text-sm text-muted-foreground">Không tìm thấy đơn đặt vé này.</p>

@@ -65,7 +65,7 @@ export const SelectableSeatMap = ({
   const { rowLabels, cellAt } = useSeatGridModel({ rowsCount: rows, cols, cells });
 
   return (
-    <div className={cn("rounded-xl border border-border bg-card p-4", className)}>
+    <div className={cn("border border-border bg-card p-4", className)}>
       <CinemaScreen />
       <SeatGrid
         rowLabels={rowLabels}

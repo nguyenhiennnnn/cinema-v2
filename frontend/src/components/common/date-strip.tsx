@@ -37,7 +37,7 @@ export const DateStrip = ({ value, onChange, daysCount = 14, className }: DateSt
                 : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-muted",
             )}
           >
-            <span className="text-[10px] font-semibold tracking-wide uppercase opacity-70">{formatWeekdayShort(date)}</span>
+            <span className="text-[10px] font-semibold tracking-wide opacity-70">{formatWeekdayShort(date)}</span>
             <span className="font-heading text-base font-semibold tabular">{formatDayMonth(date)}</span>
           </button>
         );

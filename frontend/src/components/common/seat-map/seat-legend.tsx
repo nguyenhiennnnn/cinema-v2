@@ -22,7 +22,7 @@ export const CinemaScreen = () => {
   return (
     <div className="mb-10 flex w-full flex-col items-center">
       <div className="h-2 w-3/4 max-w-xl border-t-2 border-primary/80 [clip-path:polygon(2%_0,98%_0,100%_100%,0_100%)]" />
-      <p className="mt-2.5 text-eyebrow">Màn hình</p>
+      <p className="mt-2.5 text-xs text-muted-foreground">Màn hình</p>
     </div>
   );
 };

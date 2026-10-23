@@ -47,7 +47,7 @@ export const BookingSelectionStep = ({
   const activeCombos = useActiveCombos();
 
   if (isLoading || !data) {
-    return <Skeleton className="h-96 w-full rounded-xl" />;
+    return <Skeleton className="h-96 w-full " />;
   }
 
   const selectedSeats = data.seats.filter((s) => selectedIds.has(s.showtimeSeatId));
@@ -65,7 +65,7 @@ export const BookingSelectionStep = ({
           onToggle={(seat) => onToggleSeat(seat.showtimeSeatId)}
         />
 
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="border border-border bg-card p-4">
           <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Chọn combo (tuỳ chọn)</h3>
           <ComboPicker
             combos={activeCombos.data}
