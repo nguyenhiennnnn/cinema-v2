@@ -175,7 +175,7 @@ const AccountTicketDetailPage = () => {
             <PerfoTicket
               key={ticket.ticketId}
               movieTitle={booking.movie.title}
-              showtime={`${formatTime(booking.showtime.startTime)} · ${formatDate(booking.showtime.startTime)}`}
+              showtime={`${formatTime(booking.showtime.startTime)}, ${formatDate(booking.showtime.startTime)}`}
               room={booking.showtime.roomName}
               seat={`${ticket.seatRow}${ticket.seatNumber}`}
               totalAmount={formatCurrency(booking.finalAmount)}

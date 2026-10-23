@@ -19,7 +19,7 @@ export const BookingResultStatus = ({ status, bookingCode }: BookingResultStatus
       </h1>
       <p className="max-w-md text-sm text-muted-foreground">{config.description}</p>
       <p className="text-xs tracking-wide text-muted-foreground tabular">
-        Mã đặt vé · {bookingCode}
+        Mã đặt vé: {bookingCode}
       </p>
     </div>
   );

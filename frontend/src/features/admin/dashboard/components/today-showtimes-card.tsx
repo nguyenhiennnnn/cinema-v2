@@ -1,4 +1,4 @@
-﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import type { DashboardShowtimeItemDto } from "../types";
@@ -29,12 +29,12 @@ export const TodayShowtimesCard = ({ showtimes, isLoading }: TodayShowtimesCardP
           showtimes.map((s) => {
             const percent = s.totalSeats > 0 ? Math.round((s.bookedSeats / s.totalSeats) * 100) : 0;
             return (
-              <div key={s.showtimeId} className="border border-border p-3">
+              <div key={s.showtimeId} className="cut-sm bg-secondary/50 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{s.movieTitle}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatShowtimeHour(s.startTime)} · Phòng {s.roomName}
+                      {formatShowtimeHour(s.startTime)}, Phòng {s.roomName}
                     </p>
                   </div>
                   <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground">

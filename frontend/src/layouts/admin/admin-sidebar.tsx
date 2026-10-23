@@ -157,7 +157,7 @@ export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
         {visibleGroups.map((group) => (
           <div key={group.label} className="mb-2">
             {!collapsed && (
-              <p className="px-4 pb-1 pt-2 text-[13px] text-sidebar-foreground/50">
+              <p className="px-4 pb-1 pt-2 text-[13px] font-medium text-sidebar-foreground/60">
                 {group.label}
               </p>
             )}
@@ -170,7 +170,7 @@ export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
                   title={collapsed ? label : undefined}
                   className={({ isActive }) =>
                     cn(
-                      "flex w-full items-center gap-2.5 px-4 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                      "flex w-full items-center gap-2.5 px-4 py-2 text-[15px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
                       isActive &&
                       "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
                       collapsed && "justify-center px-0",

@@ -64,7 +64,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         // Default variant (Perfo cut-xs ticket segment)
         "group-data-[variant=default]/tabs-list:h-8 group-data-[variant=default]/tabs-list:cut-xs group-data-[variant=default]/tabs-list:px-3.5 group-data-[variant=default]/tabs-list:py-1.5",
         "group-data-[variant=default]/tabs-list:hover:text-foreground group-data-[variant=default]/tabs-list:hover:bg-background/40",
-        "group-data-[variant=default]/tabs-list:data-active:bg-card group-data-[variant=default]/tabs-list:data-active:text-foreground group-data-[variant=default]/tabs-list:data-active:border group-data-[variant=default]/tabs-list:data-active:border-border/80 group-data-[variant=default]/tabs-list:data-active:shadow-xs",
+        "group-data-[variant=default]/tabs-list:data-active:bg-card group-data-[variant=default]/tabs-list:data-active:text-foreground group-data-[variant=default]/tabs-list:data-active:border group-data-[variant=default]/tabs-list:data-active:border-border/80",
         // Line variant (Perfo clean underline with primary accent)
         "group-data-[variant=line]/tabs-list:border-b-2 group-data-[variant=line]/tabs-list:border-transparent group-data-[variant=line]/tabs-list:px-3.5 group-data-[variant=line]/tabs-list:pt-1.5 group-data-[variant=line]/tabs-list:pb-2.5 group-data-[variant=line]/tabs-list:-mb-px",
         "group-data-[variant=line]/tabs-list:hover:text-foreground group-data-[variant=line]/tabs-list:hover:border-border",

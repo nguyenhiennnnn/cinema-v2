@@ -62,13 +62,13 @@ export const CounterShowtimePicker = ({ date, onDateChange, onPickShowtime }: Co
                   type="button"
                   disabled={st.availableSeats <= 0 || st.status !== ShowtimeStatus.Scheduled}
                   onClick={() => onPickShowtime(st.showtimeId)}
-                  className="flex flex-col items-start border border-border/80 bg-card px-3 py-2 text-left text-xs font-medium transition-all hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-col items-start cut-sm bg-secondary px-3 py-2 text-left text-xs font-medium transition-all hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <span>
                     {formatShowtimeRange(st.startTime, st.endTime)}
                   </span>
                   <span className="text-muted-foreground">
-                    P.{st.roomName} · {st.availableSeats}/{st.totalSeats} ghế trống
+                    P.{st.roomName}, {st.availableSeats}/{st.totalSeats} ghế trống
                   </span>
                   <span className="font-semibold text-primary">{formatCurrency(st.basePrice)}</span>
                 </button>

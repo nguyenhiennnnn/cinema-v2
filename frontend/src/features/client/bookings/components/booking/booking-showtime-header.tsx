@@ -19,7 +19,7 @@ export const BookingShowtimeHeader = ({
         {data.movieTitle}
       </h1>
       <p className="text-sm text-muted-foreground">
-        Phòng {data.roomName} · {formatDateTime(data.startTime)}
+        Phòng {data.roomName}, {formatDateTime(data.startTime)}
       </p>
     </div>
   );

@@ -9,8 +9,8 @@ interface ScheduleMovieRowProps {
 
 export const ScheduleMovieRow = ({ movie }: ScheduleMovieRowProps) => {
   return (
-    <div className="flex flex-col gap-4 border border-border/60 bg-card p-4 sm:flex-row">
-      <Link to={`/movies/${movie.movieId}`} className="mx-auto aspect-2/3 w-28 shrink-0 overflow-hidden bg-muted sm:mx-0">
+    <div className="flex flex-col gap-4 cut-md bg-card p-5 sm:flex-row">
+      <Link to={`/movies/${movie.movieId}`} className="mx-auto aspect-2/3 w-28 shrink-0 overflow-hidden cut-sm bg-muted sm:mx-0">
         {movie.moviePosterUrl ? (
           <img src={movie.moviePosterUrl} alt={movie.movieTitle} className="h-full w-full object-cover" />
         ) : (
@@ -21,7 +21,7 @@ export const ScheduleMovieRow = ({ movie }: ScheduleMovieRowProps) => {
       </Link>
 
       <div className="flex-1">
-        <Link to={`/movies/${movie.movieId}`} className="font-heading text-base font-semibold text-foreground hover:text-primary md:text-lg">
+        <Link to={`/movies/${movie.movieId}`} className="t-h3 text-base text-foreground hover:underline md:text-lg">
           {movie.movieTitle}
         </Link>
 
@@ -33,4 +33,4 @@ export const ScheduleMovieRow = ({ movie }: ScheduleMovieRowProps) => {
       </div>
     </div>
   );
-}
+};

@@ -58,7 +58,7 @@ export const AvatarUpload = ({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploadMutation.isPending}
-          className="absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm hover:bg-muted disabled:opacity-50"
+          className="absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted disabled:opacity-50"
         >
           <Camera className="size-3.5" />
         </button>

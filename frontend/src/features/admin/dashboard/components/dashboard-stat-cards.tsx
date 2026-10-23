@@ -13,17 +13,17 @@ interface StatItem {
   trend?: "up" | "down" | "neutral";
 }
 
-const StatCard = ({ label, value, icon: Icon, hint, trend }: StatItem) => {
+const StatCard = ({ label, value, hint, trend }: StatItem) => {
   return (
-    <Card className="gap-2 border-l-2 border-l-primary py-4">
-      <CardContent className="flex items-start justify-between gap-3 px-4">
+    <Card className="py-4">
+      <CardContent className="px-4">
         <div className="min-w-0">
-          <p className="text-xs font-medium text-muted-foreground">{label}</p>
-          <p className="mt-1.5 font-heading text-2xl font-semibold tabular text-foreground">{value}</p>
+          <p className="t-numeral text-2xl font-bold tracking-tight text-foreground md:text-3xl">{value}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{label}</p>
           {hint && (
             <p
               className={cn(
-                "mt-1 text-xs font-medium",
+                "mt-2 text-xs font-medium",
                 trend === "up" && "text-success",
                 trend === "down" && "text-destructive",
                 trend === "neutral" && "text-muted-foreground",
@@ -33,14 +33,10 @@ const StatCard = ({ label, value, icon: Icon, hint, trend }: StatItem) => {
             </p>
           )}
         </div>
-        <div className="flex size-9 shrink-0 items-center justify-center border border-border bg-muted text-primary">
-          <Icon className="size-4.5" />
-        </div>
       </CardContent>
     </Card>
   );
-}
-
+};
 
 interface DashboardStatCardsProps {
   summary: DashboardSummaryDto | undefined;
@@ -52,7 +48,7 @@ export const DashboardStatCards = ({ summary, isLoading }: DashboardStatCardsPro
     return (
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 w-full " />
+          <Skeleton key={i} className="h-24 w-full" />
         ))}
       </div>
     );
@@ -93,4 +89,4 @@ export const DashboardStatCards = ({ summary, isLoading }: DashboardStatCardsPro
       ))}
     </div>
   );
-}
+};

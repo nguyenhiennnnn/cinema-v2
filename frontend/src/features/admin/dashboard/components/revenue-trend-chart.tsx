@@ -71,8 +71,8 @@ export const RevenueTrendChart = ({ data, isLoading }: RevenueTrendChartProps) =
                 }
               />
               <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey="ticketRevenue" stackId="revenue" fill="var(--color-ticketRevenue)" radius={[0, 0, 4, 4]} />
-              <Bar dataKey="comboRevenue" stackId="revenue" fill="var(--color-comboRevenue)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="ticketRevenue" stackId="revenue" fill="var(--color-ticketRevenue)" radius={0} />
+              <Bar dataKey="comboRevenue" stackId="revenue" fill="var(--color-comboRevenue)" radius={0} />
             </BarChart>
           </ChartContainer>
         )}

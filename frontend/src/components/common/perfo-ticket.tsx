@@ -2,40 +2,17 @@ import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
 
 interface PerfoTicketProps {
-  /** Tên phim */
   movieTitle: string;
-  /** Suất chiếu: e.g. "19:45 · 24/10/2026" */
   showtime: string;
-  /** Phòng chiếu: e.g. "3D Experience Hall 03" */
   room: string;
-  /** Ghế: e.g. "A4" hoặc "H12, H13" */
   seat: string;
-  /** Tổng tiền: e.g. "95.000 VNĐ" */
   totalAmount: string;
-  /** Mã vé: e.g. "BK20261023XGJZ-A4" */
   ticketCode: string;
-  /** QR value: data URL image hoặc raw text */
   qrValue: string;
-  /** Đã được soát vé chưa */
   isCheckedIn?: boolean;
-  /** Extra class cho wrapper */
   className?: string;
 }
 
-/**
- * Perfo Ticket — React component chuẩn nhận diện Perfo từ perfo-ticket-template.svg.
- *
- * Layout 920×380:
- * - Nửa trái (thân vé cream):
- *   + Hàng trên: Brand Logo & Wordmark Perfo.
- *   + PHIM: Tên phim to đậm, rõ ràng.
- *   + Cột trái: SUẤT CHIẾU & PHÒNG xếp dọc riêng biệt (chứa thoải mái tên phòng dài).
- *   + Cột phải: Khối GHẾ nổi bật riêng biệt trong khung vé phụ màu ấm Perfo.
- *   + Dưới: Đường phân cách đục lỗ & TỔNG TIỀN đỏ Perfo.
- * - Nửa phải (cuống đỏ Perfo):
- *   + QR code quét vé chuẩn tâm, mã vé định danh & hướng dẫn.
- *   + Overlay "ĐÃ SOÁT VÉ" khi isCheckedIn=true.
- */
 export const PerfoTicket = ({
   movieTitle,
   showtime,
@@ -59,9 +36,8 @@ export const PerfoTicket = ({
         width="100%"
         role="img"
         aria-label={`Vé điện tử Perfo — ${movieTitle} — Ghế ${seat}`}
-        className="block drop-shadow-sm"
+        className="block"
       >
-        {/* === Defs === */}
         <defs>
           <clipPath id="stub-clip">
             <rect x="640" width="280" height="380" />
@@ -71,8 +47,6 @@ export const PerfoTicket = ({
           </clipPath>
         </defs>
 
-        {/* === Thân vé tổng thể === */}
-        {/* Cream background (#FFFDFB) */}
         <path
           d="M18 10H618A22 22 0 0 0 662 10H902A8 8 0 0 1 910 18V362A8 8 0 0 1 902 370H662A22 22 0 0 0 618 370H18A8 8 0 0 1 10 362V18A8 8 0 0 1 18 10Z"
           fill="#FFFDFB"
@@ -80,19 +54,16 @@ export const PerfoTicket = ({
           strokeOpacity="0.18"
           strokeWidth="2"
         />
-        {/* Red stub overlay (#970013) */}
         <path
           d="M18 10H618A22 22 0 0 0 662 10H902A8 8 0 0 1 910 18V362A8 8 0 0 1 902 370H662A22 22 0 0 0 618 370H18A8 8 0 0 1 10 362V18A8 8 0 0 1 18 10Z"
           fill="#970013"
           clipPath="url(#stub-clip)"
         />
 
-        {/* === Perforation dots dọc ranh giới cuống vé === */}
         {[40, 64, 88, 112, 136, 160, 184, 208, 232, 256, 280, 304, 328].map((cy) => (
           <circle key={cy} cx="640" cy={cy} r="3.5" fill="#B97F12" />
         ))}
 
-        {/* === Logo BrandMark Perfo === */}
         <g transform="translate(46.8 26) scale(0.75)">
           <path
             d="M6 14H35A5 5 0 0 0 45 14H58A2 2 0 0 1 60 16V48A2 2 0 0 1 58 50H45A5 5 0 0 0 35 50H6A2 2 0 0 1 4 48V16A2 2 0 0 1 6 14Z"
@@ -115,7 +86,6 @@ export const PerfoTicket = ({
           />
         </g>
 
-        {/* === "PERFO" wordmark === */}
         <g transform="translate(100 36) scale(0.55)">
           <g clipPath="url(#wordmark-clip)" fill="none" stroke="#170C09" strokeWidth="9" strokeLinejoin="miter" strokeMiterlimit="10">
             <path transform="translate(0 0)" d="M4.5 48V4.5H23L27.5 9V24L23 28.5H4.5" />
@@ -127,7 +97,6 @@ export const PerfoTicket = ({
           <circle cx="168" cy="24" r="4.2" fill="#970013" />
         </g>
 
-        {/* === THÔNG TIN PHIM === */}
         <text
           x="50" y="105"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
@@ -145,8 +114,6 @@ export const PerfoTicket = ({
           {title}
         </text>
 
-        {/* === CỘT THÔNG TIN: SUẤT CHIẾU & PHÒNG (x=50 đến x=440) === */}
-        {/* SUẤT CHIẾU */}
         <text
           x="50" y="176"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
@@ -163,7 +130,6 @@ export const PerfoTicket = ({
           {showtime}
         </text>
 
-        {/* PHÒNG CHIẾU (nằm riêng dòng dưới suất chiếu, rộng rãi không va chạm) */}
         <text
           x="50" y="234"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
@@ -180,7 +146,6 @@ export const PerfoTicket = ({
           {room}
         </text>
 
-        {/* === CỘT GHẾ: Khối riêng biệt (x=465 đến x=605) === */}
         <rect
           x="465" y="160"
           width="140" height="106"
@@ -209,7 +174,6 @@ export const PerfoTicket = ({
           {seat}
         </text>
 
-        {/* === Phân cách nét đứt === */}
         <path
           d="M50 286H605"
           stroke="#170C09"
@@ -219,7 +183,6 @@ export const PerfoTicket = ({
           strokeLinecap="round"
         />
 
-        {/* === TỔNG TIỀN === */}
         <text
           x="50" y="328"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
@@ -236,7 +199,6 @@ export const PerfoTicket = ({
           {totalAmount}
         </text>
 
-        {/* === CUỐNG VÉ ĐỎ: QR CODE & MÃ VÉ (x=640 đến x=920, tâm x=780) === */}
         <foreignObject x="676" y="46" width="208" height="208">
           <div
             // @ts-expect-error xmlns needed for SVG foreignObject
@@ -270,7 +232,6 @@ export const PerfoTicket = ({
           </div>
         </foreignObject>
 
-        {/* Mã vé */}
         <text
           x="780" y="290"
           fontFamily="'Archivo Variable', 'Arial Narrow', monospace"
@@ -282,7 +243,6 @@ export const PerfoTicket = ({
         >
           {ticketCode}
         </text>
-        {/* Hướng dẫn */}
         <text
           x="780" y="318"
           fontFamily="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif"
@@ -292,7 +252,6 @@ export const PerfoTicket = ({
           Quét mã tại quầy để vào rạp
         </text>
 
-        {/* === Overlay "ĐÃ SOÁT VÉ" khi isCheckedIn === */}
         {isCheckedIn && (
           <g>
             <rect x="10" y="10" width="630" height="360" fill="#170C09" fillOpacity="0.55" />

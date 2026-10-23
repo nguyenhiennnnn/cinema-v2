@@ -1,4 +1,4 @@
-﻿import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { buttonVariants } from "@/components/ui/button";
@@ -69,8 +69,8 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
         )}
       </div>
 
-      <p className="mt-6 text-xs tracking-widest text-muted-foreground/70">
-        Perfo · Mã lỗi {code}
+      <p className="mt-6 text-xs text-muted-foreground">
+        Perfo (mã lỗi {code})
       </p>
     </div>
   );

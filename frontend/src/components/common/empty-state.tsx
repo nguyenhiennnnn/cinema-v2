@@ -13,8 +13,8 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ icon: Icon, title, description, actionLabel, onAction, className }: EmptyStateProps) => {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3 border border-dashed border-border bg-card/50 px-6 py-16 text-center", className)}>
-      <div className="flex size-14 items-center justify-center cut-sm bg-secondary text-muted-foreground">
+    <div className={cn("flex flex-col items-center justify-center gap-3 cut-md bg-card px-6 py-14 text-center", className)}>
+      <div className="flex size-12 items-center justify-center cut-sm bg-secondary text-muted-foreground">
         <Icon className="size-6" />
       </div>
       <div className="space-y-1">
@@ -28,4 +28,4 @@ export const EmptyState = ({ icon: Icon, title, description, actionLabel, onActi
       )}
     </div>
   );
-}
+};

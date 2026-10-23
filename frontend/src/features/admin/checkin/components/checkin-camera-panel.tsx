@@ -23,11 +23,11 @@ export const CheckinCameraPanel = ({ active, onToggle, onDetect }: CheckinCamera
         )}
         {active && (
           <div className="pointer-events-none absolute inset-6 border-2 border-primary/70">
-            <div className="absolute left-0 top-0 h-6 w-6 rounded-tl-lg border-l-4 border-t-4 border-accent" />
-            <div className="absolute right-0 top-0 h-6 w-6 rounded-tr-lg border-r-4 border-t-4 border-accent" />
-            <div className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-lg border-b-4 border-l-4 border-accent" />
-            <div className="absolute bottom-0 right-0 h-6 w-6 rounded-br-lg border-b-4 border-r-4 border-accent" />
-            <div className="absolute inset-x-0 top-0 h-0.5 animate-pulse bg-primary shadow-[0_0_10px_2px]" />
+            <div className="absolute left-0 top-0 h-6 w-6 border-l-4 border-t-4 border-accent" />
+            <div className="absolute right-0 top-0 h-6 w-6 border-r-4 border-t-4 border-accent" />
+            <div className="absolute bottom-0 left-0 h-6 w-6 border-b-4 border-l-4 border-accent" />
+            <div className="absolute bottom-0 right-0 h-6 w-6 border-b-4 border-r-4 border-accent" />
+            <div className="absolute inset-x-0 top-0 h-0.5 animate-pulse bg-primary" />
           </div>
         )}
       </div>

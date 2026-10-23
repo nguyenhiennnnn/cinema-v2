@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { toDateKey, formatDayMonth, formatWeekdayShort } from "@/lib/cinema-format";
+import { toDateKey, formatWeekdayShort } from "@/lib/cinema-format";
 
 interface DateStripProps {
   value: string;
@@ -20,28 +20,42 @@ export const DateStrip = ({ value, onChange, daysCount = 14, className }: DateSt
     });
   }, [daysCount]);
 
+  const todayKey = toDateKey(new Date());
+
   return (
-    <div className={cn("flex gap-2 overflow-x-auto pb-2", className)}>
+    <div className={cn("flex gap-2 overflow-x-auto pb-2 scrollbar-none", className)}>
       {days.map((date) => {
         const key = toDateKey(date);
         const active = key === value;
+        const isToday = key === todayKey;
+        const dayNum = date.getDate();
+        const weekday = formatWeekdayShort(date).toLowerCase();
+
         return (
           <button
             key={key}
             type="button"
             onClick={() => onChange(key)}
             className={cn(
-              "flex min-w-16 shrink-0 flex-col items-center gap-0.5 border px-3 py-2 transition-colors",
+              "flex w-14 shrink-0 flex-col items-center justify-center py-2.5 cut-sm transition-colors cursor-pointer outline-none select-none",
               active
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-muted",
+                ? "bg-primary text-primary-foreground"
+                : "bg-card text-foreground hover:bg-muted",
+              !active && isToday && "border-b-2 border-primary",
             )}
           >
-            <span className="text-[10px] font-semibold tracking-wide opacity-70">{formatWeekdayShort(date)}</span>
-            <span className="font-heading text-base font-semibold tabular">{formatDayMonth(date)}</span>
+            <span className="t-numeral text-[28px] font-extrabold leading-none">{dayNum}</span>
+            <span
+              className={cn(
+                "mt-1 text-[13px] font-medium leading-tight",
+                active ? "text-primary-foreground/90" : "text-muted-foreground",
+              )}
+            >
+              {weekday}
+            </span>
           </button>
         );
       })}
     </div>
   );
-}
+};

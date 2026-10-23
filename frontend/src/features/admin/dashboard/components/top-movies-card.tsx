@@ -41,7 +41,7 @@ export const TopMoviesCard = ({ movies, isLoading }: TopMoviesCardProps) => {
               <XAxis type="number" hide />
               <YAxis dataKey="label" type="category" tickLine={false} axisLine={false} width={110} />
               <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-              <Bar dataKey="ticketsSold" fill="var(--color-ticketsSold)" radius={4} />
+              <Bar dataKey="ticketsSold" fill="var(--color-ticketsSold)" radius={0} />
             </BarChart>
           </ChartContainer>
         )}

@@ -4,7 +4,7 @@ import type { BookingDetailDto } from "../../types";
 
 export const BookingResultTickets = ({ booking }: { booking: BookingDetailDto }) => {
   const seats = booking.seats.map((s) => `${s.seatRow}${s.seatNumber}`).join(", ");
-  const showtime = `${formatTime(booking.showtime.startTime)} · ${formatDate(booking.showtime.startTime)}`;
+  const showtime = `${formatTime(booking.showtime.startTime)}, ${formatDate(booking.showtime.startTime)}`;
   const room = booking.showtime.roomName;
   const total = formatCurrency(booking.finalAmount);
 

@@ -1,4 +1,4 @@
-﻿import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +43,7 @@ const AdminBookingDetailPage = () => {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2 space-y-4">
-          <div className="border border-border bg-card p-4">
+          <div className="cut-md bg-card p-4">
             <h3 className="font-heading text-base font-medium text-foreground mb-3">Phim & Suất chiếu</h3>
             <div className="flex items-center gap-3">
               {b.movie.posterUrl && (
@@ -56,13 +56,13 @@ const AdminBookingDetailPage = () => {
               <div>
                 <p className="font-medium text-foreground">{b.movie.title}</p>
                 <p className="text-sm text-muted-foreground">
-                  {formatDate(b.showtime.startTime)} · Phòng {b.showtime.roomName}
+                  {formatDate(b.showtime.startTime)}, Phòng {b.showtime.roomName}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="border border-border bg-card p-4">
+          <div className="cut-md bg-card p-4">
             <h3 className="font-heading text-base font-medium text-foreground mb-3">Ghế đã chọn</h3>
             <div className="flex flex-wrap gap-2">
               {b.seats.map((s) => (
@@ -71,14 +71,14 @@ const AdminBookingDetailPage = () => {
                   variant="outline"
                   className="tabular-nums"
                 >
-                  {s.seatRow}{s.seatNumber} · {formatCurrency(s.price)}
+                  {s.seatRow}{s.seatNumber}, {formatCurrency(s.price)}
                 </Badge>
               ))}
             </div>
           </div>
 
           {b.combos.length > 0 && (
-            <div className="border border-border bg-card p-4">
+            <div className="cut-md bg-card p-4">
               <h3 className="font-heading text-base font-medium text-foreground mb-3">Combo bắp nước</h3>
               <div className="space-y-2">
                 {b.combos.map((c, i) => (
@@ -94,13 +94,13 @@ const AdminBookingDetailPage = () => {
           )}
 
           {b.tickets && b.tickets.length > 0 && (
-            <div className="border border-border bg-card p-4">
+            <div className="cut-md bg-card p-4">
               <h3 className="font-heading text-base font-medium text-foreground mb-3">Vé</h3>
               <div className="space-y-2">
                 {b.tickets.map((t) => (
                   <div key={t.ticketId} className="flex items-center justify-between text-sm">
                     <span className="tabular-nums text-foreground">
-                      #{t.ticketId} · {t.seatRow}{t.seatNumber}
+                      #{t.ticketId}, {t.seatRow}{t.seatNumber}
                     </span>
                     {t.isCheckedIn ? (
                       <span className="flex items-center gap-1 text-primary">
@@ -119,7 +119,7 @@ const AdminBookingDetailPage = () => {
             </div>
           )}
 
-          <div className="border border-border bg-card p-4">
+          <div className="cut-md bg-card p-4">
             <h3 className="font-heading text-base font-medium text-foreground mb-3">Thanh toán</h3>
             <div className="space-y-2">
               {b.payments.map((p) => (
@@ -153,7 +153,7 @@ const AdminBookingDetailPage = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="border border-border bg-card p-4">
+          <div className="cut-md bg-card p-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-muted-foreground">Trạng thái</span>
               <BookingStatusBadge status={b.status} />
@@ -177,7 +177,7 @@ const AdminBookingDetailPage = () => {
           </div>
 
           {b.createdByEmployee && (
-            <div className="border border-border bg-card p-4 text-sm">
+            <div className="cut-md bg-card p-4 text-sm">
               <span className="text-muted-foreground">Nhân viên tạo đơn</span>
               <p className="font-medium text-foreground mt-1">{b.createdByEmployee.fullName}</p>
             </div>

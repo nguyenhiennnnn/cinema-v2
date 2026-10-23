@@ -180,22 +180,22 @@ const showtimeStatusMap: Record<
 
 const bookingStatusMap: Record<
   BookingStatus,
-  { label: string; variant: BadgeVariant; className?: string }
+  { label: string; variant: BadgeVariant; icon?: LucideIcon; className?: string }
 > = {
-  [BookingStatus.Pending]: { label: "Chờ thanh toán", variant: "warning" },
-  [BookingStatus.Confirmed]: { label: "Đã xác nhận", variant: "success" },
-  [BookingStatus.Cancelled]: { label: "Đã huỷ", variant: "destructive" },
-  [BookingStatus.Expired]: { label: "Hết hạn giữ vé", variant: "outline" },
+  [BookingStatus.Pending]: { label: "Chờ thanh toán", variant: "warning", icon: Clock },
+  [BookingStatus.Confirmed]: { label: "Đã xác nhận", variant: "success", icon: CheckCircle2 },
+  [BookingStatus.Cancelled]: { label: "Đã huỷ", variant: "destructive", icon: XCircle },
+  [BookingStatus.Expired]: { label: "Hết hạn giữ vé", variant: "outline", icon: XCircle },
 };
 
 const paymentStatusMap: Record<
   PaymentStatus,
-  { label: string; variant: BadgeVariant; className?: string }
+  { label: string; variant: BadgeVariant; icon?: LucideIcon; className?: string }
 > = {
-  [PaymentStatus.Pending]: { label: "Chờ xử lý", variant: "warning" },
-  [PaymentStatus.Success]: { label: "Thành công", variant: "success" },
-  [PaymentStatus.Failed]: { label: "Thất bại", variant: "destructive" },
-  [PaymentStatus.Refunded]: { label: "Đã hoàn tiền", variant: "outline" },
+  [PaymentStatus.Pending]: { label: "Chờ xử lý", variant: "warning", icon: Clock },
+  [PaymentStatus.Success]: { label: "Đã thanh toán", variant: "success", icon: CheckCircle2 },
+  [PaymentStatus.Failed]: { label: "Thất bại", variant: "destructive", icon: XCircle },
+  [PaymentStatus.Refunded]: { label: "Đã hoàn tiền", variant: "outline", icon: XCircle },
 };
 
 const showtimeSeatStatusMap: Record<
@@ -281,8 +281,10 @@ export const BookingStatusBadge = ({
     label: status,
     variant: "outline",
   };
+  const Icon = item.icon;
   return (
     <Badge variant={item.variant} className={cn(item.className, className)}>
+      {Icon && <Icon className="size-3" />}
       {item.label}
     </Badge>
   );
@@ -299,8 +301,10 @@ export const PaymentStatusBadge = ({
     label: status,
     variant: "outline",
   };
+  const Icon = item.icon;
   return (
     <Badge variant={item.variant} className={cn(item.className, className)}>
+      {Icon && <Icon className="size-3" />}
       {item.label}
     </Badge>
   );
@@ -416,16 +420,19 @@ export const AgeRatingBadge = ({
   const config = ageRatingConfigMap[normalized] ?? defaultAgeRatingConfig;
 
   return (
-    <Badge
-      variant={config.variant}
+    <span
       className={cn(
-        onImage && "cut-xs border-white/10 bg-black/60",
-        config.className,
+        "inline-flex h-7 min-w-7 shrink-0 items-center justify-center cut-xs px-1.5 font-heading text-xs font-bold leading-none select-none",
+        config.variant === "success" && "bg-success text-success-foreground",
+        config.variant === "warning" && "bg-warning text-warning-foreground",
+        config.variant === "destructive" && "bg-destructive text-destructive-foreground",
+        config.variant === "outline" && "bg-secondary text-secondary-foreground",
+        onImage && "border border-white/20",
         className,
       )}
     >
       {code}
-    </Badge>
+    </span>
   );
 };
 

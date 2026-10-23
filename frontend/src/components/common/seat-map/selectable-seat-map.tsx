@@ -65,8 +65,22 @@ export const SelectableSeatMap = ({
   const { rowLabels, cellAt } = useSeatGridModel({ rowsCount: rows, cols, cells });
 
   return (
-    <div className={cn("border border-border bg-card p-4", className)}>
+    <div className={cn("cut-lg bg-card p-6", className)}>
+      <div className="mb-6">
+        <SeatLegend
+          items={[
+            { label: "Trống", state: "available", type: "standard" },
+            { label: "VIP", state: "available", type: "vip" },
+            { label: "Ghế đôi", state: "available", type: "couple" },
+            { label: "Đang chọn", state: "selected", type: "standard" },
+            { label: "Đang giữ", state: "held", type: "standard" },
+            { label: "Đã bán", state: "booked", type: "standard" },
+          ]}
+        />
+      </div>
+
       <CinemaScreen />
+
       <SeatGrid
         rowLabels={rowLabels}
         cols={cols}
@@ -100,23 +114,11 @@ export const SelectableSeatMap = ({
                   price: cell.price ?? 0,
                 })
               }
-              title={`${cell.seatRow}${cell.seatNumber} · ${cell.seatTypeName ?? ""}`}
+              title={`${cell.seatRow}${cell.seatNumber}, ${cell.seatTypeName ?? ""}`}
             />
           );
         }}
       />
-      <div className="mt-6">
-        <SeatLegend
-          items={[
-            { label: "Trống", className: "bg-secondary border-border" },
-            { label: "VIP", className: "bg-vip/15 border-vip/50" },
-            { label: "Ghế đôi", className: "bg-couple/12 border-couple/45" },
-            { label: "Đang chọn", className: "bg-primary border-primary" },
-            { label: "Đang giữ", className: "bg-held/20 border-held" },
-            { label: "Đã bán", className: "bg-muted/40 border-transparent" },
-          ]}
-        />
-      </div>
     </div>
   );
-}
+};

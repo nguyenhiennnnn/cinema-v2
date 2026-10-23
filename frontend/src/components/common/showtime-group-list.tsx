@@ -64,8 +64,8 @@ export const ShowtimeGroupList = ({ showtimes, className }: ShowtimeGroupListPro
     <div className={cn("space-y-4", className)}>
       {groups.map(([format, items]) => (
         <div key={format} className="flex flex-col gap-2.5 sm:flex-row sm:items-start">
-          <span className="w-32 shrink-0 pt-2 text-[13px] font-medium text-muted-foreground">{format}</span>
-          <div className="flex flex-wrap gap-2">
+          <span className="w-24 shrink-0 pt-2 text-[13px] font-semibold text-muted-foreground">{format}</span>
+          <div className="flex flex-wrap gap-2.5">
             {items.map((item) => {
               const soldOut = item.availableSeats === 0;
               return (
@@ -76,17 +76,19 @@ export const ShowtimeGroupList = ({ showtimes, className }: ShowtimeGroupListPro
                   disabled={soldOut}
                   onClick={() => handleBooking(item.showtimeId)}
                   className={cn(
-                    "border border-border bg-card px-3 py-2 text-left text-xs font-medium transition-colors hover:border-primary hover:text-primary",
-                    soldOut && "cursor-not-allowed opacity-40 hover:border-border hover:text-foreground",
+                    "flex flex-col gap-0.5 cut-sm bg-card px-3.5 py-2 text-left transition-colors cursor-pointer hover:bg-muted outline-none",
+                    soldOut && "cursor-not-allowed opacity-40 hover:bg-card",
                   )}
                 >
-                  <span className="block font-heading text-sm font-semibold tabular">
+                  <span className="t-numeral text-base font-bold text-foreground">
                     {formatShowtimeRange(item.startTime, item.endTime)}
                   </span>
-                  <span className="text-muted-foreground">
-                    P.{item.roomName} · {item.availableSeats}/{item.totalSeats} ghế trống
+                  <span className="text-xs text-muted-foreground">
+                    Phòng {item.roomName}, còn {item.availableSeats}/{item.totalSeats} ghế
                   </span>
-                  <span className="font-semibold text-primary"> · {formatCurrency(item.basePrice)}</span>
+                  <span className="t-numeral text-xs font-semibold text-primary">
+                    {formatCurrency(item.basePrice)}
+                  </span>
                 </button>
               );
             })}
@@ -95,4 +97,4 @@ export const ShowtimeGroupList = ({ showtimes, className }: ShowtimeGroupListPro
       ))}
     </div>
   );
-}
+};

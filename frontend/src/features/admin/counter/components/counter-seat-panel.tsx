@@ -26,7 +26,7 @@ export const CounterSeatPanel = ({
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-muted-foreground">
-        {data.movieTitle} · Phòng {data.roomName} · {formatDateTime(data.startTime)}
+        {data.movieTitle}, Phòng {data.roomName}, {formatDateTime(data.startTime)}
       </p>
       <SelectableSeatMap
         rows={data.rows}

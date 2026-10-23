@@ -29,7 +29,7 @@ export const HeaderUserMenu = ({ user }: HeaderUserMenuProps) => {
   return (
     <>
       <Badge variant="outline" className="hidden border-accent text-accent sm:flex">
-        {user.membershipTierName ?? "Thành viên"} · {user.points ?? 0} điểm
+        {user.membershipTierName ?? "Thành viên"}, {user.points ?? 0} điểm
       </Badge>
       <DropdownMenu>
         <DropdownMenuTrigger className="rounded-full outline-none ring-ring/50 focus-visible:ring-2">

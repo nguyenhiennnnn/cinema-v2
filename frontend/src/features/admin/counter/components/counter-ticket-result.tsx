@@ -18,13 +18,13 @@ interface CounterTicketResultProps {
 export const CounterTicketResult = ({ isLoading, booking, checkout, onNewSale }: CounterTicketResultProps) => {
   const seats = booking?.seats?.map((s) => `${s.seatRow}${s.seatNumber}`).join(", ") ?? "";
   const showtime = booking?.showtime
-    ? `${formatTime(booking.showtime.startTime)} · ${formatDate(booking.showtime.startTime)}`
+    ? `${formatTime(booking.showtime.startTime)}, ${formatDate(booking.showtime.startTime)}`
     : "";
   const room = booking?.showtime?.roomName ?? "";
   const total = booking ? formatCurrency(booking.finalAmount) : "";
 
   return (
-    <div className="flex flex-col items-center gap-6 border border-border bg-card p-6 text-center">
+    <div className="flex flex-col items-center gap-6 cut-lg bg-card p-6 text-center">
       <CheckCircle2 className="size-10 text-success" />
       <div>
         <p className="font-heading text-lg font-semibold text-foreground">Thanh toán thành công</p>

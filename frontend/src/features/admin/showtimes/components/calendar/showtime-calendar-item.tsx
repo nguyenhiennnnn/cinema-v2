@@ -41,18 +41,18 @@ export const ShowtimeCalendarItem = ({
     <button
       type="button"
       onClick={() => onClick?.(showtime)}
-      title={`${showtime.movieTitle} • ${formatShowtimeHour(showtime.startTime)} - ${formatShowtimeHour(
-        showtime.endTime,
-      )} • ${occupancyLabel} • ${formatCurrency(showtime.basePrice)}`}
+      title={`${showtime.movieTitle} (${formatShowtimeHour(showtime.startTime)} - ${formatShowtimeHour(
+        showtime.endTime
+      )}), ${occupancyLabel}, ${formatCurrency(showtime.basePrice)}`}
       style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
       className={cn(
-        "absolute top-1 flex h-[calc(100%-0.5rem)] flex-col justify-center overflow-hidden border px-2 py-1 text-left text-xs leading-tight transition-colors",
+        "absolute top-1 flex h-[calc(100%-0.5rem)] flex-col justify-center overflow-hidden cut-xs px-2 py-1 text-left text-xs leading-tight transition-colors",
         statusStyles[showtime.status] ?? statusStyles[ShowtimeStatus.Scheduled],
       )}
     >
       <span className="truncate font-medium">{showtime.movieTitle}</span>
       <span className="truncate opacity-80">
-        {formatShowtimeHour(showtime.startTime)} · {occupancyLabel}
+        {formatShowtimeHour(showtime.startTime)}, {occupancyLabel}
       </span>
     </button>
   );
