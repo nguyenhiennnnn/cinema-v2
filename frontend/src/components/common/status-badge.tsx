@@ -419,7 +419,7 @@ export const AgeRatingBadge = ({
     <Badge
       variant={config.variant}
       className={cn(
-        onImage && "rounded-sm border-white/10 bg-black/60 backdrop-blur-sm",
+        onImage && "cut-xs border-white/10 bg-black/60",
         config.className,
         className,
       )}

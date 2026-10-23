@@ -10,7 +10,7 @@ export const PageHeader = ({ title, description, action }: PageHeaderProps) => {
   return (
     <div className="mb-6 flex flex-col gap-4 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground uppercase">
+        <h1 className="t-h2 text-foreground">
           {title}
         </h1>
         {description && (
