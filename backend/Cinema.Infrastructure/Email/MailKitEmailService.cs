@@ -47,6 +47,19 @@ public class MailKitEmailService(
             await client.SendAsync(message, cancellationToken);
             logger.LogInformation("Email sent successfully to {ToEmail} with subject '{Subject}'", toEmail, subject);
         }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "EmailSendFailed To: {ToEmail}, SmtpHost: {Host}:{Port}, User: {User}, Error: {Message}",
+                toEmail,
+                _options.SmtpHost,
+                _options.SmtpPort,
+                _options.SmtpUser,
+                ex.Message
+            );
+            throw;
+        }
         finally
         {
             if (client.IsConnected)
