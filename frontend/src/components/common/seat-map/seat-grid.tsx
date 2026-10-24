@@ -54,7 +54,7 @@ export const SeatGrid = ({
                 if (cell?.isCoupleSecondary) return null;
                 const span = cell?.coupleSpan ?? 1;
                 return (
-                  <div key={col} style={{ gridColumn: `${col} / span ${span}` }}>
+                  <div key={col} style={{ gridColumn: `${col} / span ${span}` }} className="w-full">
                     {renderCell(cell, rowLabel, col)}
                   </div>
                 );

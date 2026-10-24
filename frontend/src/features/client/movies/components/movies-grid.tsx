@@ -1,6 +1,6 @@
 import { Film } from "lucide-react";
 import { MovieCard } from "@/features/client/movies/components/movie-card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MovieCardSkeleton } from "@/features/client/movies/components/movie-card-skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import { InfiniteScrollTrigger } from "@/components/common/infinite-scroll-trigger";
 import type { MovieListItemDto } from "@/features/client/movies/types";
@@ -16,7 +16,13 @@ interface MoviesGridProps {
 
 export const MoviesGrid = ({ movies, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage, onResetFilters }: MoviesGridProps) => {
   if (isLoading) {
-    return <Skeleton className="h-80 w-full" />;
+    return (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <MovieCardSkeleton key={i} />
+        ))}
+      </div>
+    );
   }
 
   if (movies.length === 0) {

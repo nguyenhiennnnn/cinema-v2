@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { Film } from "lucide-react";
 import { MovieCard } from "@/features/client/movies/components/movie-card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MovieCardSkeleton } from "@/features/client/movies/components/movie-card-skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import { useMovies } from "@/features/client/movies/hooks/use-movies";
 import type { MovieStatus } from "@/types/enum";
@@ -31,7 +31,11 @@ export const MovieSection = ({ title, status, viewAllHref, emptyMessage }: Movie
 
       <div className="mt-5">
         {isLoading ? (
-          <Skeleton className="h-64 w-full" />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <MovieCardSkeleton key={i} />
+            ))}
+          </div>
         ) : movies.length === 0 ? (
           <EmptyState icon={Film} title={emptyMessage} />
         ) : (

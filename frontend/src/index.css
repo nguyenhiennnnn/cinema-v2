@@ -439,6 +439,10 @@
       0 var(--cut)
     );
   }
+  /* seat inside grid fills its cell (including couple span) */
+  .seat--fill {
+    width: 100%;
+  }
   .seat[data-state="selected"] {
     background: var(--primary);
     color: var(--primary-foreground);
@@ -473,6 +477,6 @@
     background: var(--vip);
   }
   .seat[data-type="couple"] {
-    width: 60px;
+    border-radius: 0;
   }
 }

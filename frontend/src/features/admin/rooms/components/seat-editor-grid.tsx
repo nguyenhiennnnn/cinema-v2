@@ -156,23 +156,13 @@ export const SeatEditorGrid = ({
       />
       <div className="mt-6">
         <SeatLegend
-          items={
-            previewMode
-              ? [
-                { label: "Trống", className: "bg-secondary border-border" },
-                { label: "VIP", className: "bg-vip/15 border-vip/50" },
-                { label: "Ghế đôi", className: "bg-couple/15 border-couple/50" },
-                { label: "Đã tắt", className: "bg-muted/20 border-dashed border-border/40" },
-                { label: "Lối đi", className: "bg-transparent border-transparent" },
-              ]
-              : [
-                { label: "Trống", className: "bg-secondary border-border" },
-                { label: "VIP", className: "bg-accent/20 border-accent/60" },
-                { label: "Ghế đôi", className: "bg-couple/15 border-couple/50" },
-                { label: "Đã tắt", className: "bg-muted/20 border-dashed border-border/40" },
-                { label: "Lối đi", className: "bg-transparent border-transparent" },
-              ]
-          }
+          items={[
+            { label: "Trống", type: "standard", state: "available" },
+            { label: "VIP", type: "vip", state: "available" },
+            { label: "Ghế đôi", type: "couple", state: "available" },
+            { label: "Đã tắt", type: "standard", state: "inactive" },
+            { label: "Lối đi", type: "standard", state: "aisle" },
+          ]}
         />
       </div>
     </div>
