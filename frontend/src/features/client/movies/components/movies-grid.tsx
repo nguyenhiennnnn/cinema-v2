@@ -18,7 +18,7 @@ export const MoviesGrid = ({ movies, isLoading, hasNextPage, isFetchingNextPage,
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 5 }).map((_, i) => (
           <MovieCardSkeleton key={i} />
         ))}
       </div>
@@ -47,4 +47,4 @@ export const MoviesGrid = ({ movies, isLoading, hasNextPage, isFetchingNextPage,
       <InfiniteScrollTrigger hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} fetchNextPage={fetchNextPage} />
     </div>
   );
-}
+};
