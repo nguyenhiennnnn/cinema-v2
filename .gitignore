@@ -7,6 +7,8 @@
 
 # ─── .NET / C# ────────────────────────────────────────────────
 backend/**/appsettings.Local.json
+backend/**/appsettings.Development.json
+backend/**/appsettings.json
 !backend/**/appsettings.Local.json.example
 backend/bin/
 backend/obj/

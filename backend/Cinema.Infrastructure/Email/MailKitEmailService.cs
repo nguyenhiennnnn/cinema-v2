@@ -34,7 +34,7 @@ public class MailKitEmailService(
             await client.ConnectAsync(
                 _options.SmtpHost,
                 _options.SmtpPort,
-                SecureSocketOptions.StartTls,
+                SecureSocketOptions.Auto,
                 cancellationToken
             );
             if (!string.IsNullOrEmpty(_options.SmtpUser))
