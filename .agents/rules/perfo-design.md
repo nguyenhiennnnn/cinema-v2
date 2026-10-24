@@ -11,6 +11,9 @@ Cấm trong code mới:
 - Dùng lại các motif của design system cũ (ticket-notch, sprocket-rule,
   clip-corner, text-eyebrow). Dùng cut-*, notch-*, perf-*, t-* thay thế.
 
+Màu chỉ lấy từ token trong references/tokens.css (nền kem và nâu đỏ ink, đỏ nhung
+`primary`, vàng `accent`). Không thêm màu ngoài token.
+
 Không được đổi: namespace và class C# (Cinema.*), tên DB, route API và route
 frontend, tên field DTO, key i18n, key localStorage/cookie, logic nghiệp vụ,
 phân quyền. Đây là thay đổi giao diện và nhận diện thuần túy.

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
+import { useTheme } from "@/app/providers/theme-provider";
 import { toast } from "@/components/ui/toast";
 import { extractApiError } from "@/lib/error";
 import type { GoogleCredentialResponse } from "@/types/google-identity";
@@ -20,6 +21,13 @@ export const GoogleSignInButton = ({ redirectTo }: GoogleSignInButtonProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { mutate: googleLogin } = useGoogleLogin();
+  const { theme } = useTheme();
+
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
@@ -50,6 +58,8 @@ export const GoogleSignInButton = ({ redirectTo }: GoogleSignInButtonProps) => {
     const renderButton = () => {
       if (cancelled || !containerRef.current || !window.google) return;
 
+      containerRef.current.innerHTML = "";
+
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleCredential,
@@ -58,7 +68,7 @@ export const GoogleSignInButton = ({ redirectTo }: GoogleSignInButtonProps) => {
 
       window.google.accounts.id.renderButton(containerRef.current, {
         type: "standard",
-        theme: "outline",
+        theme: isDark ? "filled_black" : "outline",
         size: "large",
         text: "continue_with",
         shape: "rectangular",
@@ -82,7 +92,7 @@ export const GoogleSignInButton = ({ redirectTo }: GoogleSignInButtonProps) => {
       if (pollId) clearInterval(pollId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isDark]);
 
   if (!GOOGLE_CLIENT_ID) return null;
 

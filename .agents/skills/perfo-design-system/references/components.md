@@ -18,7 +18,7 @@ Tất cả dùng class semantic. Ví dụ dưới đây là hướng dẫn cấu
 
 ## Huy hiệu
 - Hình `cut-xs`, chữ 13px đậm, không `rounded-full`.
-- Độ tuổi: ô vuông 28px một chữ (P, T13, T16, T18, K), nền đặc. Mỗi mức tuổi một chữ, không chỉ khác màu.
+- Độ tuổi: ô vuông 28px một chữ (P, T13, T16, T18, K), nền đặc: P `success`, T13 và T16 `warning`, T18 và K `destructive`. Mỗi mức tuổi một chữ, không chỉ khác màu.
 - Trạng thái đơn đặt vé và thanh toán: icon nhỏ cộng chữ ("Đã thanh toán" với dấu tích, "Chờ thanh toán" với đồng hồ, "Đã hủy" với dấu gạch chéo).
 
 ## Thẻ phim

@@ -1,17 +1,12 @@
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-} from "@/components/ui/input-group";
+import { PasswordInput } from "@/components/ui/input";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { useLogin } from "../hooks/use-auth";
 import { extractApiError } from "@/lib/error";
@@ -27,7 +22,6 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export const LoginForm = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [showPassword, setShowPassword] = useState(false);
   const { mutate: login, isPending, error } = useLogin();
 
   const form = useForm<LoginFormValues>({
@@ -62,52 +56,25 @@ export const LoginForm = () => {
         name="password"
         control={form.control}
         render={({ field, fieldState }) => (
-          <div className="flex flex-col gap-1.5">
+          <Field data-invalid={fieldState.invalid}>
             <div className="flex items-center justify-between">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-foreground"
-              >
-                Mật khẩu
-              </label>
+              <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
               <Link
                 to="/auth/forgot-password"
-                className="text-xs text-primary hover:underline"
+                className="text-xs text-muted-foreground transition-colors hover:text-primary hover:underline"
               >
                 Quên mật khẩu?
               </Link>
             </div>
-            <InputGroup>
-              <Input
-                {...field}
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="••••••••"
-                aria-invalid={fieldState.invalid}
-              />
-              <InputGroupAddon align="inline-end">
-                <InputGroupButton
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={() => setShowPassword((s) => !s)}
-                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                >
-                  {showPassword ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
-                </InputGroupButton>
-              </InputGroupAddon>
-            </InputGroup>
-            {fieldState.invalid && (
-              <p className="text-xs text-destructive">
-                {fieldState.error?.message}
-              </p>
-            )}
-          </div>
+            <PasswordInput
+              {...field}
+              id="password"
+              autoComplete="current-password"
+              placeholder="••••••••"
+              aria-invalid={fieldState.invalid}
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
 

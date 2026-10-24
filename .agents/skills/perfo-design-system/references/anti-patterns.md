@@ -5,8 +5,9 @@
 ## Màu và bề mặt
 | Cấm | Thay bằng |
 |---|---|
-| Nền kem ấm kèm chữ serif và màu đất nung | Nền xám xanh lạnh của Perfo, chữ Archivo và Be Vietnam Pro |
-| Nền đen kèm một màu neon (xanh lá, cam đỏ) | Nền ink-xanh `background` dark, điểm nhấn duy nhất là đỏ `primary` |
+| Nền kem kèm chữ serif và màu đất nung | Nền kem `background` của Perfo, chữ Archivo và Be Vietnam Pro, đỏ nhung và vàng ánh kim |
+| Nền đen kèm một màu neon (xanh lá, cam đỏ) | Nền ink nâu đỏ `background` dark, điểm nhấn chính là đỏ `primary`, vàng `accent` chỉ cho VIP và sao |
+| `primary` và `destructive` đặt cạnh nhau | Tách bằng icon và nhãn, mỗi màn hình một khối đỏ đặc |
 | Gradient trang trí, chữ gradient, dải sáng skeleton | Khối màu phẳng, skeleton nhấp nháy opacity |
 | Kính mờ, `backdrop-blur`, viền phát sáng, glow | Nền đặc, nền che `foreground/60` |
 | Bóng đổ mềm `shadow-sm/md/lg/xl` | Khác biệt bậc tông giữa `background`, `card`, `secondary` |

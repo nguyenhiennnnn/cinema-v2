@@ -41,25 +41,31 @@ Giá trị đầy đủ nằm trong `references/tokens.css`. Không hardcode HEX
 
 ### Màu
 
-Nền trung tính lạnh (xám xanh như thép và nhựa phim), không dùng kem hay giấy ấm. Đỏ và vàng giữ nguyên theo logo.
+Nền trung tính ấm như phòng chiếu và nhung ghế: kem sáng ở light, nâu đỏ ink ở dark. Điểm nhấn là đỏ nhung và vàng ánh kim. Không đi cùng chữ serif hay màu đất nung.
 
 | Token | Light | Dark | Việc |
 |---|---|---|---|
-| `background` | `oklch(0.945 0.006 215)` | `oklch(0.19 0.014 262)` | Nền trang |
-| `card` | `oklch(0.98 0.004 215)` | `oklch(0.23 0.016 262)` | Khối nổi một bậc (thẻ, dialog) |
-| `secondary` / `muted` | `oklch(0.905 0.008 225)` | `oklch(0.15 0.012 262)` | Khối chìm (input, ô ghế thường, hàng bảng xen kẽ) |
-| `foreground` | `oklch(0.2 0.02 265)` | `oklch(0.94 0.006 230)` | Chữ chính |
-| `muted-foreground` | `oklch(0.46 0.02 255)` | `oklch(0.68 0.015 245)` | Chữ phụ |
-| `primary` | `oklch(0.42 0.18 24)` | `oklch(0.56 0.19 23)` | Đỏ Perfo: CTA, ghế đang chọn, cuống vé |
-| `accent` | `oklch(0.64 0.13 76)` | `oklch(0.72 0.12 78)` | Vàng: ghế VIP, sao đánh giá |
-| `border` | `oklch(0.84 0.01 230)` | `oklch(0.3 0.014 262)` | Chỉ cho đường kẻ bảng và đáy input, không bao khối |
+| `background` | `oklch(0.965 0.012 80)` | `oklch(0.12 0.014 30)` | Nền trang |
+| `card` | `oklch(0.99 0.006 80)` | `oklch(0.18 0.02 30)` | Khối nổi một bậc (thẻ, dialog) |
+| `secondary` / `muted` | `oklch(0.925 0.014 75)` | `oklch(0.22 0.018 30)` | Khối tách khỏi nền (input, ô ghế thường, hàng bảng xen kẽ) |
+| `foreground` | `oklch(0.2 0.02 30)` | `oklch(0.95 0.01 80)` | Chữ chính |
+| `muted-foreground` | `oklch(0.48 0.025 50)` | `oklch(0.7 0.02 60)` | Chữ phụ |
+| `primary` | `oklch(0.45 0.19 25)` | `oklch(0.56 0.21 25)` | Đỏ nhung Perfo: CTA, ghế đang chọn, cuống vé |
+| `accent` | `oklch(0.72 0.15 82)` | `oklch(0.72 0.15 82)` | Vàng ánh kim: ghế VIP, sao đánh giá |
+| `border` | `oklch(0.87 0.014 75)` | `oklch(0.28 0.02 30)` | Chỉ cho đường kẻ bảng và đáy input, không bao khối |
+| `destructive` | `oklch(0.55 0.22 30)` | `oklch(0.62 0.22 30)` | Hủy vé, xóa dữ liệu, lỗi |
+| `success` | `oklch(0.52 0.12 155)` | `oklch(0.64 0.14 155)` | Đã thanh toán, thành công |
+| `warning` | `oklch(0.7 0.15 70)` | `oklch(0.74 0.15 70)` | Chờ thanh toán, sắp hết hạn |
+| `couple` | `oklch(0.52 0.15 350)` | `oklch(0.64 0.15 350)` | Ghế đôi |
+| `held` | `oklch(0.7 0.15 62)` | `oklch(0.74 0.15 62)` | Ghế đang giữ |
 
-Giữ nguyên `vip`, `couple`, `held`, `destructive` hiện có trong project.
+`vip` trỏ tới `accent`. Mọi token màu đều nằm trong `references/tokens.css`, thay toàn bộ giá trị cũ trong project.
 
 Quy tắc dùng màu:
 - Chữ trên `primary` luôn là `primary-foreground`.
 - Chữ vàng trên nền sáng không đạt độ tương phản: vàng chỉ làm nền cho chip có chữ tối, hoặc làm icon kèm nhãn.
 - Không dùng quá hai sắc độ đỏ trên một màn hình.
+- `primary` và `destructive` cùng họ đỏ: không đặt cạnh nhau, phân biệt bằng icon và nhãn.
 
 ### Chữ
 

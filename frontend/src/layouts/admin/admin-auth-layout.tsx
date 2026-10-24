@@ -24,7 +24,7 @@ const AdminAuthLayout = () => {
           <BrandWordmark className="h-5 w-auto" />
         </Link>
 
-        <div className="w-full cut-lg border-t-4 border-sidebar-primary bg-card p-6 sm:p-8">
+        <div className="w-full cut-lg bg-card p-6 sm:p-8">
           <Outlet />
         </div>
       </div>
