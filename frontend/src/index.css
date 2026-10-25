@@ -116,14 +116,15 @@
   --input: oklch(0.76 0.02 70);
   --ring: var(--primary);
 
-  --sidebar: oklch(0.15 0.015 30);
+  /* Sidebar luôn dark bất kể light/dark mode — đồng nhất với .dark */
+  --sidebar: oklch(0.09 0.012 30);
   --sidebar-foreground: oklch(0.92 0.01 80);
   --sidebar-primary: oklch(0.56 0.21 25);
   --sidebar-primary-foreground: oklch(0.985 0.008 80);
-  --sidebar-accent: oklch(0.22 0.018 30);
-  --sidebar-accent-foreground: var(--sidebar-foreground);
-  --sidebar-border: oklch(0.28 0.018 30);
-  --sidebar-ring: var(--sidebar-primary);
+  --sidebar-accent: oklch(0.16 0.016 30);
+  --sidebar-accent-foreground: oklch(0.92 0.01 80);
+  --sidebar-border: oklch(0.24 0.018 30);
+  --sidebar-ring: oklch(0.56 0.21 25);
 
   --chart-1: var(--primary);
   --chart-2: var(--accent);

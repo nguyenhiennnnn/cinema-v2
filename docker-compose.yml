@@ -61,6 +61,7 @@ services:
       Email__SmtpPassword: ${SMTP_PASSWORD:-}
       Email__FromAddress: ${SMTP_FROM_ADDRESS:-no-reply@cinema.local}
       Email__FromName: ${SMTP_FROM_NAME:-Cinema}
+      Email__ResendApiKey: ${RESEND_API_KEY:-}
 
       VnPay__TmnCode: ${VNPAY_TMN_CODE:-}
       VnPay__HashSecret: ${VNPAY_HASH_SECRET:-}
