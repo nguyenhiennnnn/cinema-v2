@@ -29,7 +29,7 @@ export const SeatButton = ({
   ariaLabel,
 }: SeatButtonProps) => {
   if (state === "aisle" && !editable) {
-    return <div className={cn("h-7 w-full", className)} aria-hidden />;
+    return <div className={cn("h-8 w-full", className)} aria-hidden />;
   }
 
   const interactive = editable || state === "available" || state === "selected";
@@ -47,7 +47,7 @@ export const SeatButton = ({
       data-state={state}
       data-type={kind}
       className={cn(
-        "seat seat--fill w-full h-7 transition-colors cursor-pointer select-none",
+        "seat seat--fill w-full h-8 transition-colors cursor-pointer select-none",
         !interactive && "cursor-not-allowed",
         state === "inactive" && "opacity-30 bg-muted! cursor-not-allowed",
         state === "aisle" && "bg-transparent! border border-dashed border-border/50 text-muted-foreground/50 hover:bg-muted/40!",

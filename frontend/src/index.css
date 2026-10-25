@@ -5,7 +5,7 @@
 @import "@fontsource/be-vietnam-pro/500.css";
 @import "@fontsource/be-vietnam-pro/600.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 @theme inline {
   --font-heading: "Archivo Variable", "Arial Narrow", sans-serif;
@@ -421,14 +421,15 @@
 
   .seat {
     position: relative;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     background: var(--secondary);
     color: var(--foreground);
     font: 600 11px/1 var(--font-heading);
     font-variant-numeric: tabular-nums;
     display: grid;
     place-items: center;
+    cursor: default;
     --cut: var(--cut-xs);
     clip-path: polygon(
       var(--cut) 0,
@@ -438,6 +439,7 @@
       0 100%,
       0 var(--cut)
     );
+    transition: background 120ms ease-out, color 120ms ease-out;
   }
   /* seat inside grid fills its cell (including couple span) */
   .seat--fill {

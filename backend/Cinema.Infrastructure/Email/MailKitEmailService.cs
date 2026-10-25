@@ -31,10 +31,17 @@ public class MailKitEmailService(
         using var client = new SmtpClient();
         try
         {
+            // Port 465 dùng SSL ngay từ đầu (implicit TLS).
+            // Port 587 / 25 dùng STARTTLS (explicit TLS).
+            // Auto đôi khi không negotiate đúng với Gmail — dùng explicit để chắc chắn.
+            var socketOptions = _options.SmtpPort == 465
+                ? SecureSocketOptions.SslOnConnect
+                : SecureSocketOptions.StartTls;
+
             await client.ConnectAsync(
                 _options.SmtpHost,
                 _options.SmtpPort,
-                SecureSocketOptions.Auto,
+                socketOptions,
                 cancellationToken
             );
             if (!string.IsNullOrEmpty(_options.SmtpUser))

@@ -47,7 +47,7 @@ export const SeatGrid = ({
             )}
             <div
               className="grid gap-1.5"
-              style={{ gridTemplateColumns: `repeat(${cols}, minmax(1.75rem, 2.25rem))` }}
+              style={{ gridTemplateColumns: `repeat(${cols}, minmax(2rem, 2.5rem))` }}
             >
               {Array.from({ length: cols }, (_, i) => i + 1).map((col) => {
                 const cell = cellAt(rowLabel, col);

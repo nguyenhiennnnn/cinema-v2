@@ -65,20 +65,7 @@ export const SelectableSeatMap = ({
   const { rowLabels, cellAt } = useSeatGridModel({ rowsCount: rows, cols, cells });
 
   return (
-    <div className={cn("cut-lg bg-card p-6", className)}>
-      <div className="mb-6">
-        <SeatLegend
-          items={[
-            { label: "Trống", state: "available", type: "standard" },
-            { label: "VIP", state: "available", type: "vip" },
-            { label: "Ghế đôi", state: "available", type: "couple" },
-            { label: "Đang chọn", state: "selected", type: "standard" },
-            { label: "Đang giữ", state: "held", type: "standard" },
-            { label: "Đã bán", state: "booked", type: "standard" },
-          ]}
-        />
-      </div>
-
+    <div className={cn("bg-card p-6 cut-lg", className)}>
       <CinemaScreen />
 
       <SeatGrid
@@ -119,6 +106,19 @@ export const SelectableSeatMap = ({
           );
         }}
       />
+
+      <div className="mt-8 border-t border-border/50 pt-5">
+        <SeatLegend
+          items={[
+            { label: "Trống", state: "available", type: "standard" },
+            { label: "VIP", state: "available", type: "vip" },
+            { label: "Ghế đôi", state: "available", type: "couple" },
+            { label: "Đang chọn", state: "selected", type: "standard" },
+            { label: "Đang giữ", state: "held", type: "standard" },
+            { label: "Đã bán", state: "booked", type: "standard" },
+          ]}
+        />
+      </div>
     </div>
   );
 };

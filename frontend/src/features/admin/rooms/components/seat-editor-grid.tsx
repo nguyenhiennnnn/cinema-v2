@@ -115,7 +115,7 @@ export const SeatEditorGrid = ({
   };
 
   return (
-    <div className="border border-border bg-card p-4">
+    <div className="border border-border bg-card p-6">
       <CinemaScreen />
       <SeatGrid
         rowLabels={rowLabels}
@@ -154,7 +154,7 @@ export const SeatEditorGrid = ({
           );
         }}
       />
-      <div className="mt-6">
+      <div className="mt-8 border-t border-border/50 pt-5">
         <SeatLegend
           items={[
             { label: "Trống", type: "standard", state: "available" },
