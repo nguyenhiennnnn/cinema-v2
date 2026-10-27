@@ -53,3 +53,11 @@ export interface ShowtimeSeatsResponseDto {
   aisles: AislePositionDto[];
   seats: ShowtimeSeatItemDto[];
 }
+
+export interface SeatSuggestionDto {
+  seatRow: string;
+  seatNumbers: number[];
+  showtimeSeatIds: number[];
+  totalPrice: number;
+  score: number;
+}

@@ -1,5 +1,5 @@
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
+using System.Text;
+using System.Text.Json.Nodes;
 using Cinema.Application.DTOs.Ai;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
@@ -13,10 +13,17 @@ namespace Cinema.Application.Services.Ai;
 public class GeminiAiAssistantService(
     IAppDbContext db,
     HttpClient httpClient,
+    AiToolExecutor toolExecutor,
     IOptions<GeminiOptions> options,
     ILogger<GeminiAiAssistantService> logger
 ) : IAiAssistantService
 {
+    private const int MaxToolRounds = 4;
+
+    private const int MaxTotalToolCalls = 8;
+
+    private const int MaxCards = 6;
+
     private readonly GeminiOptions _options = options.Value;
 
     public async Task<AiChatResponse> ChatAsync(
@@ -39,65 +46,132 @@ public class GeminiAiAssistantService(
         }
 
         var systemPrompt = await BuildSystemPromptAsync(userId, cancellationToken);
-        var url = $"{_options.BaseUrl.TrimEnd('/')}/{_options.Model}:generateContent?key={apiKey}";
 
-        var contents = new List<object>();
-
+        var contents = new JsonArray();
         if (request.History is not null)
         {
             foreach (var h in request.History)
             {
-                var role = h.Role.ToLowerInvariant() switch
-                {
-                    "user" => "user",
-                    _ => "model",
-                };
-                contents.Add(new { role, parts = new[] { new { text = h.Content } } });
+                var role = h.Role.ToLowerInvariant() == "user" ? "user" : "model";
+                contents.Add(TextContent(role, h.Content));
             }
         }
+        contents.Add(TextContent("user", request.Message));
 
-        contents.Add(new { role = "user", parts = new[] { new { text = request.Message } } });
-
-        var payload = new
-        {
-            system_instruction = new { parts = new[] { new { text = systemPrompt } } },
-            contents,
-            generationConfig = new { temperature = 0.7, maxOutputTokens = 1000 },
-        };
+        var cards = new List<AiCardDto>();
+        var totalToolCalls = 0;
 
         try
         {
-            using var response = await httpClient.PostAsJsonAsync(url, payload, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
+            for (var round = 0; round <= MaxToolRounds; round++)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
-                logger.LogError(
-                    "Gemini API error ({StatusCode}): {Body}",
-                    response.StatusCode,
-                    errorBody
-                );
-                return new AiChatResponse(
-                    "Rất tiếc, kết nối với trợ lý AI Gemini thất bại. Vui lòng thử lại sau.",
-                    DateTime.UtcNow
-                );
+                var allowTools = round < MaxToolRounds;
+
+                var payload = new JsonObject
+                {
+                    ["system_instruction"] = new JsonObject
+                    {
+                        ["parts"] = new JsonArray(new JsonObject { ["text"] = systemPrompt }),
+                    },
+                    ["contents"] = contents.DeepClone(),
+                    ["generationConfig"] = new JsonObject
+                    {
+                        ["temperature"] = 0.5,
+                        ["maxOutputTokens"] = 2048,
+                    },
+                };
+                if (allowTools)
+                    payload["tools"] = AiToolExecutor.BuildFunctionDeclarations(userId.HasValue);
+
+                var modelContent = await CallGeminiAsync(payload, apiKey, cancellationToken);
+                if (modelContent is null)
+                {
+                    return new AiChatResponse(
+                        "Rất tiếc, kết nối với trợ lý AI Gemini thất bại. Vui lòng thử lại sau.",
+                        DateTime.UtcNow,
+                        FinalizeCards(cards)
+                    );
+                }
+
+                var parts = modelContent["parts"] as JsonArray;
+                var functionCalls = parts
+                    ?.OfType<JsonObject>()
+                    .Where(p => p["functionCall"] is JsonObject)
+                    .ToList();
+
+                if (!allowTools || functionCalls is null || functionCalls.Count == 0)
+                {
+                    var reply = string.Concat(
+                        parts
+                            ?.OfType<JsonObject>()
+                            .Select(p => p["text"]?.GetValue<string>())
+                            .Where(t => !string.IsNullOrEmpty(t))
+                            ?? []
+                    );
+
+                    if (string.IsNullOrWhiteSpace(reply))
+                        reply = "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.";
+
+                    return new AiChatResponse(reply.Trim(), DateTime.UtcNow, FinalizeCards(cards));
+                }
+
+                var echoed = (JsonObject)modelContent.DeepClone();
+                echoed["role"] ??= "model";
+                contents.Add(echoed);
+
+                var responseParts = new JsonArray();
+                foreach (var part in functionCalls)
+                {
+                    var call = (JsonObject)part["functionCall"]!;
+                    var name = call["name"]?.GetValue<string>() ?? string.Empty;
+                    var args = call["args"] as JsonObject;
+
+                    AiToolExecutor.ToolResult result;
+                    if (++totalToolCalls > MaxTotalToolCalls)
+                    {
+                        result = new AiToolExecutor.ToolResult(
+                            new JsonObject
+                            {
+                                ["error"] =
+                                    "Đã vượt quá số lần truy vấn cho phép, hãy trả lời với dữ liệu đã có.",
+                            },
+                            []
+                        );
+                    }
+                    else
+                    {
+                        result = await toolExecutor.ExecuteAsync(
+                            name,
+                            args,
+                            userId,
+                            cancellationToken
+                        );
+                        cards.AddRange(result.Cards);
+                    }
+
+                    responseParts.Add(
+                        new JsonObject
+                        {
+                            ["functionResponse"] = new JsonObject
+                            {
+                                ["name"] = name,
+                                ["response"] = result.Response,
+                            },
+                        }
+                    );
+                }
+
+                contents.Add(new JsonObject { ["role"] = "user", ["parts"] = responseParts });
             }
 
-            var result = await response.Content.ReadFromJsonAsync<GeminiApiResponse>(
-                cancellationToken: cancellationToken
+            return new AiChatResponse(
+                "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.",
+                DateTime.UtcNow
             );
-
-            var replyText = result
-                ?.Candidates?.FirstOrDefault()
-                ?.Content?.Parts?.FirstOrDefault()
-                ?.Text;
-
-            if (string.IsNullOrWhiteSpace(replyText))
-            {
-                replyText = "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.";
-            }
-
-            return new AiChatResponse(replyText, DateTime.UtcNow);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -108,6 +182,52 @@ public class GeminiAiAssistantService(
             );
         }
     }
+
+    private async Task<JsonObject?> CallGeminiAsync(
+        JsonObject payload,
+        string apiKey,
+        CancellationToken cancellationToken
+    )
+    {
+        var url = $"{_options.BaseUrl.TrimEnd('/')}/{_options.Model}:generateContent";
+
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json"),
+        };
+        httpRequest.Headers.Add("x-goog-api-key", apiKey);
+
+        using var response = await httpClient.SendAsync(httpRequest, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogError("Gemini API error ({StatusCode}): {Body}", response.StatusCode, body);
+            return null;
+        }
+
+        var root = JsonNode.Parse(body);
+        if (root?["candidates"] is JsonArray { Count: > 0 } candidates)
+        {
+            if (candidates[0]?["content"] is JsonObject content)
+                return content;
+
+            logger.LogWarning(
+                "Gemini returned no content. FinishReason: {Reason}",
+                candidates[0]?["finishReason"]?.ToString()
+            );
+            return new JsonObject { ["role"] = "model", ["parts"] = new JsonArray() };
+        }
+
+        logger.LogWarning("Gemini returned no candidates. Body: {Body}", body);
+        return new JsonObject { ["role"] = "model", ["parts"] = new JsonArray() };
+    }
+
+    private static JsonObject TextContent(string role, string text) =>
+        new() { ["role"] = role, ["parts"] = new JsonArray(new JsonObject { ["text"] = text }) };
+
+    private static List<AiCardDto> FinalizeCards(List<AiCardDto> cards) =>
+        cards.DistinctBy(c => $"{c.Type}|{c.Link}").Take(MaxCards).ToList();
 
     private async Task<string> BuildSystemPromptAsync(
         int? userId,
@@ -125,25 +245,12 @@ public class GeminiAiAssistantService(
         var closing = settings?.ClosingTime?.ToString("HH:mm") ?? "23:30";
 
         var now = DateTime.UtcNow;
-        var endSearch = now.AddDays(3);
 
         var movies = await db
             .Movies.Include(m => m.AgeRating)
             .Include(m => m.MovieGenres)
                 .ThenInclude(mg => mg.Genre)
             .Where(m => m.Status == MovieStatus.NowShowing || m.Status == MovieStatus.ComingSoon)
-            .ToListAsync(cancellationToken);
-
-        var showtimes = await db
-            .Showtimes.Include(s => s.Movie)
-            .Include(s => s.Room)
-            .Where(s =>
-                s.Status == ShowtimeStatus.Scheduled
-                && s.StartTime >= now
-                && s.StartTime <= endSearch
-            )
-            .OrderBy(s => s.StartTime)
-            .Take(20)
             .ToListAsync(cancellationToken);
 
         var combos = await db.Combos.Where(c => c.IsActive).ToListAsync(cancellationToken);
@@ -168,26 +275,23 @@ public class GeminiAiAssistantService(
             $"- [{m.MovieId}] {m.Title} ({m.Subtitle ?? "Phụ đề"}) | Thể loại: {string.Join(", ", m.MovieGenres.Select(g => g.Genre.Name))} | Thời lượng: {m.DurationMinutes}p | Độ tuổi: {m.AgeRating?.Code ?? "P"} | Trạng thái: {(m.Status == MovieStatus.NowShowing ? "Đang chiếu" : "Sắp chiếu")}"
         );
 
-        var showtimeLines = showtimes.Select(s =>
-            $"- Suất chiếu ID {s.ShowtimeId}: Phim '{s.Movie.Title}' | Phòng '{s.Room.RoomName}' | Bắt đầu: {s.StartTime:dd/MM/yyyy HH:mm} | Giá vé gốc: {s.BasePrice:N0} VNĐ"
-        );
-
         var comboLines = combos.Select(c => $"- {c.Name}: {c.Price:N0} VNĐ ({c.Description})");
+
+        var loginRule = userId.HasValue
+            ? "Khách đã đăng nhập: khi hỏi về vé/đơn đã đặt, hãy gọi hàm get_my_bookings."
+            : "Khách CHƯA đăng nhập: bạn không có quyền xem vé đã đặt, hãy mời khách đăng nhập để xem vé.";
 
         return $"""
             Bạn là Trợ lý AI thông minh và thân thiện của Rạp chiếu phim {cinemaName}.
-            Nhiệm vụ của bạn là hỗ trợ khách hàng tư vấn phim, lịch chiếu, giá vé, combo bắp nước, và thông tin rạp.
+            Nhiệm vụ của bạn là hỗ trợ khách hàng tư vấn phim, lịch chiếu, giá vé, tình trạng ghế, combo bắp nước, và thông tin rạp.
 
             === DỮ LIỆU THỜI GIAN THỰC TỪ HỆ THỐNG DB RẠP CHÍNH THỨC ===
             - Thời gian hiện tại: {now:dd/MM/yyyy HH:mm:ss}
             - Thông tin Rạp: {cinemaName} | Địa chỉ: {address} | Hotline: {phone} | Giờ mở/đóng cửa: {opening} - {closing}
             - Thông tin khách hàng đang trò chuyện: {userInfoStr}
 
-            --- DANH SÁCH PHIM DỰ KIẾN / ĐANG CHIẾU ---
+            --- DANH SÁCH PHIM DỰ KIẾN / ĐANG CHIẾU (số trong [] là movie_id) ---
             {string.Join("\n", movieInfoLines)}
-
-            --- LỊCH CHIẾU MỚI NHẤT (3 NGÀY TỚI) ---
-            {string.Join("\n", showtimeLines)}
 
             --- DANH SÁCH COMBO BẮP NƯỚC ---
             {string.Join("\n", comboLines)}
@@ -195,19 +299,16 @@ public class GeminiAiAssistantService(
 
             QUY TẮC PHẢN HỒI:
             1. Luôn trả lời lịch sự, thân thiện bằng tiếng Việt, xưng "Trợ lý Cinema" hoặc "Em", gọi khách là "Anh/Chị" hoặc "Bạn".
-            2. Chỉ tư vấn dựa trên thông tin chính xác từ dữ liệu hệ thống ở trên. Nếu khách hỏi thông tin không có trong danh sách, hãy trả lời khéo léo.
+            2. Chỉ tư vấn dựa trên thông tin chính xác từ dữ liệu hệ thống ở trên và kết quả các hàm. Nếu khách hỏi thông tin không có, hãy trả lời khéo léo, tuyệt đối không bịa.
             3. Trình bày phản hồi đẹp mắt bằng Markdown (dùng in đậm **, danh sách đầu dòng -).
             4. Khuyến khích khách hàng chọn suất chiếu và đặt vé trên ứng dụng.
+
+            QUY TẮC DÙNG HÀM (FUNCTION CALLING):
+            5. Lịch chiếu, giờ chiếu, giá vé: PHẢI gọi search_showtimes, không tự đoán. Khi khách nói "hôm nay/ngày mai/cuối tuần", hãy đổi sang ngày yyyy-MM-dd dựa trên thời gian hiện tại ở trên.
+            6. Tình trạng ghế/còn chỗ không: PHẢI gọi get_seat_availability với showtime_id lấy từ search_showtimes (nếu chưa có thì gọi search_showtimes trước).
+            7. {loginRule}
+            8. Các thẻ suất chiếu/vé sẽ tự hiển thị bên dưới câu trả lời, nên KHÔNG cần chép lại toàn bộ danh sách; chỉ tóm tắt ngắn gọn và nêu điểm đáng chú ý.
+            9. Nếu hàm trả về lỗi hoặc không có kết quả, hãy báo lại cho khách một cách tự nhiên và gợi ý lựa chọn khác.
             """;
     }
-
-    private record GeminiApiResponse(
-        [property: JsonPropertyName("candidates")] List<GeminiCandidate>? Candidates
-    );
-
-    private record GeminiCandidate([property: JsonPropertyName("content")] GeminiContent? Content);
-
-    private record GeminiContent([property: JsonPropertyName("parts")] List<GeminiPart>? Parts);
-
-    private record GeminiPart([property: JsonPropertyName("text")] string? Text);
 }

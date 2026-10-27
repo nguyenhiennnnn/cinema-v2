@@ -32,6 +32,10 @@ public class BookingService(
         CancellationToken cancellationToken
     )
     {
+        var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
+        if (SeatLayoutRules.ValidateSelection(slots, request.SeatIds) is { } seatError)
+            throw new BusinessRuleException(seatError);
+
         var booking = await CreateHoldBookingAsync(
             request.ShowtimeId,
             request.SeatIds,
@@ -661,12 +665,7 @@ public class BookingService(
                 seatCount: seatIds.Count
             );
             backgroundJobClient.Enqueue<SendEmailJob>(j =>
-                j.RunAsync(
-                    email,
-                    "Vé xem phim của bạn — Cinema",
-                    html,
-                    CancellationToken.None
-                )
+                j.RunAsync(email, "Vé xem phim của bạn — Cinema", html, CancellationToken.None)
             );
             logger.LogInformation(
                 "EmailQueued BookingId {BookingId} Type TicketConfirmation",

@@ -24,6 +24,14 @@ public record ShowtimeSeatsResponseDto(
     List<ShowtimeSeatItemDto> Seats
 );
 
+public record SeatSuggestionDto(
+    string SeatRow,
+    List<int> SeatNumbers,
+    List<int> ShowtimeSeatIds,
+    decimal TotalPrice,
+    double Score
+);
+
 public record AdminShowtimeDto(
     int ShowtimeId,
     int MovieId,

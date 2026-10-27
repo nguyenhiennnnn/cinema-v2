@@ -43,7 +43,9 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
   const [customerPhone, setCustomerPhone] = useState("");
 
   const promptLogin = (description: string) => {
-    const redirectTo = encodeURIComponent(`${location.pathname}${location.search}`);
+    const redirectTo = encodeURIComponent(
+      `${location.pathname}${location.search}`,
+    );
     openAlertDialog({
       title: "Yêu cầu đăng nhập",
       description,
@@ -137,16 +139,32 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
   );
 
   const toggleSeat = (showtimeSeatId: number) => {
-    const status = seatStatusMap.get(showtimeSeatId);
-    if (status && status !== ShowtimeSeatStatus.Available) return;
+    const allSeats = showtimeSeats.data?.seats ?? [];
+    const coupleId = allSeats.find(
+      (s) => s.showtimeSeatId === showtimeSeatId,
+    )?.coupleId;
+    const group = coupleId
+      ? allSeats
+          .filter((s) => s.coupleId === coupleId)
+          .map((s) => s.showtimeSeatId)
+      : [showtimeSeatId];
+    if (
+      group.some((id) => {
+        const status = seatStatusMap.get(id);
+        return status && status !== ShowtimeSeatStatus.Available;
+      })
+    )
+      return;
 
     setSelectedSeatIds((prev) => {
       const next = new Set(prev);
-      if (next.has(showtimeSeatId)) next.delete(showtimeSeatId);
-      else next.add(showtimeSeatId);
+      const remove = next.has(showtimeSeatId);
+      group.forEach((id) => (remove ? next.delete(id) : next.add(id)));
       return next;
     });
   };
+
+  const selectSeats = (ids: number[]) => setSelectedSeatIds(new Set(ids));
 
   const setComboQuantity = (comboId: number, quantity: number) => {
     setComboQuantities((prev) => ({ ...prev, [comboId]: quantity }));
@@ -226,6 +244,7 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     selectedSeatIds,
     selectedSeatsInfo: isResumeMode ? resumedSeats : selectedSeatsInfo,
     toggleSeat,
+    selectSeats,
     comboQuantities,
     setComboQuantity,
     isAuthenticated,

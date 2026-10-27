@@ -7,7 +7,20 @@ public record AiChatRequest(
     List<ChatMessageDto>? History
 );
 
+public record AiCardDto(
+    string Type,
+    string Title,
+    string? Subtitle,
+    string? Detail,
+    string? ImageUrl,
+    string Link
+);
+
 public record AiChatResponse(
     string Reply,
-    DateTime Timestamp
-);
+    DateTime Timestamp,
+    List<AiCardDto>? Cards = null
+)
+{
+    public List<AiCardDto> Cards { get; init; } = Cards ?? [];
+}

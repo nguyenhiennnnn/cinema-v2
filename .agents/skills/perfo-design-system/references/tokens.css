@@ -31,14 +31,14 @@
   --input: oklch(0.76 0.02 70);
   --ring: var(--primary);
 
-  --sidebar: oklch(0.15 0.015 30);
-  --sidebar-foreground: oklch(0.92 0.01 80);
-  --sidebar-primary: oklch(0.56 0.21 25);
-  --sidebar-primary-foreground: oklch(0.985 0.008 80);
-  --sidebar-accent: oklch(0.22 0.018 30);
-  --sidebar-accent-foreground: var(--sidebar-foreground);
-  --sidebar-border: oklch(0.28 0.018 30);
-  --sidebar-ring: var(--sidebar-primary);
+  --sidebar: oklch(0.945 0.014 78);
+  --sidebar-foreground: oklch(0.2 0.02 30);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.9 0.016 75);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--primary);
 
   --chart-1: var(--primary);
   --chart-2: var(--accent);
@@ -118,9 +118,16 @@
 }
 
 @layer base {
-  body { font-family: var(--font-sans); font-size: 15px; line-height: 1.55; }
+  body {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+  }
 
-  svg.lucide { stroke-linecap: square; stroke-linejoin: miter; }
+  svg.lucide {
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
 
   :where(a, button, input, select, textarea, [tabindex]):focus-visible {
     outline: 2px solid var(--ring);
@@ -133,69 +140,199 @@
 }
 
 @layer utilities {
-  .cut-xs, .cut-sm, .cut-md, .cut-lg {
+  .cut-xs,
+  .cut-sm,
+  .cut-md,
+  .cut-lg {
     clip-path: polygon(
-      var(--cut) 0, 100% 0,
-      100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%,
-      0 100%, 0 var(--cut)
+      var(--cut) 0,
+      100% 0,
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      0 100%,
+      0 var(--cut)
     );
   }
-  .cut-xs { --cut: var(--cut-xs); }
-  .cut-sm { --cut: var(--cut-sm); }
-  .cut-md { --cut: var(--cut-md); }
-  .cut-lg { --cut: var(--cut-lg); }
+  .cut-xs {
+    --cut: var(--cut-xs);
+  }
+  .cut-sm {
+    --cut: var(--cut-sm);
+  }
+  .cut-md {
+    --cut: var(--cut-md);
+  }
+  .cut-lg {
+    --cut: var(--cut-lg);
+  }
   .cut-flip {
     clip-path: polygon(
-      0 0, calc(100% - var(--cut)) 0,
-      100% var(--cut), 100% 100%,
-      var(--cut) 100%, 0 calc(100% - var(--cut))
+      0 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut))
     );
   }
 
   .notch-x {
     --y: 50%;
     mask:
-      radial-gradient(circle var(--notch) at 0 var(--y), #0000 calc(var(--notch) - 0.5px), #000 var(--notch)) left / 51% 100% no-repeat,
-      radial-gradient(circle var(--notch) at 100% var(--y), #0000 calc(var(--notch) - 0.5px), #000 var(--notch)) right / 51% 100% no-repeat;
+      radial-gradient(
+          circle var(--notch) at 0 var(--y),
+          #0000 calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        left / 51% 100% no-repeat,
+      radial-gradient(
+          circle var(--notch) at 100% var(--y),
+          #0000 calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        right / 51% 100% no-repeat;
   }
   .notch-y {
     --x: 70%;
     mask:
-      radial-gradient(circle var(--notch) at var(--x) 0, #0000 calc(var(--notch) - 0.5px), #000 var(--notch)) top / 100% 51% no-repeat,
-      radial-gradient(circle var(--notch) at var(--x) 100%, #0000 calc(var(--notch) - 0.5px), #000 var(--notch)) bottom / 100% 51% no-repeat;
+      radial-gradient(
+          circle var(--notch) at var(--x) 0,
+          #0000 calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        top / 100% 51% no-repeat,
+      radial-gradient(
+          circle var(--notch) at var(--x) 100%,
+          #0000 calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        bottom / 100% 51% no-repeat;
   }
 
   .perf-h {
     height: 4px;
     color: var(--muted-foreground);
-    background: radial-gradient(circle, currentColor 1.4px, #0000 1.8px) 0 0 / 10px 4px repeat-x;
+    background: radial-gradient(circle, currentColor 1.4px, #0000 1.8px) 0 0 /
+      10px 4px repeat-x;
   }
   .perf-v {
     width: 4px;
     color: var(--muted-foreground);
-    background: radial-gradient(circle, currentColor 1.4px, #0000 1.8px) 0 0 / 4px 10px repeat-y;
+    background: radial-gradient(circle, currentColor 1.4px, #0000 1.8px) 0 0 /
+      4px 10px repeat-y;
   }
 
   .tear-stub {
     transform-origin: 0 100%;
     transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .tear-stub[data-torn="true"] { transform: translate(16px, 8px) rotate(4deg); }
+  .tear-stub[data-torn="true"] {
+    transform: translate(16px, 8px) rotate(4deg);
+  }
   @media (prefers-reduced-motion: reduce) {
-    .tear-stub { transition: none; }
+    .tear-stub {
+      transition: none;
+    }
   }
 
-  .t-display { font-family: var(--font-heading); font-variation-settings: "wdth" 75; font-weight: 800; font-size: clamp(2.75rem, 6vw, 4.5rem); line-height: 1.04; letter-spacing: -0.01em; }
-  .t-h1 { font-family: var(--font-heading); font-variation-settings: "wdth" 85; font-weight: 750; font-size: 2.5rem; line-height: 1.08; }
-  .t-h2 { font-family: var(--font-heading); font-variation-settings: "wdth" 100; font-weight: 700; font-size: 1.75rem; line-height: 1.15; }
-  .t-h3 { font-family: var(--font-heading); font-variation-settings: "wdth" 100; font-weight: 650; font-size: 1.25rem; line-height: 1.25; }
-  .t-numeral { font-family: var(--font-heading); font-variation-settings: "wdth" 75; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.05; }
-  .t-code { font-family: var(--font-heading); font-variation-settings: "wdth" 80; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+  .t-display {
+    font-family: var(--font-heading);
+    font-variation-settings: "wdth" 75;
+    font-weight: 800;
+    font-size: clamp(2.75rem, 6vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+  }
+  .t-h1 {
+    font-family: var(--font-heading);
+    font-variation-settings: "wdth" 85;
+    font-weight: 750;
+    font-size: 2.5rem;
+    line-height: 1.08;
+  }
+  .t-h2 {
+    font-family: var(--font-heading);
+    font-variation-settings: "wdth" 100;
+    font-weight: 700;
+    font-size: 1.75rem;
+    line-height: 1.15;
+  }
+  .t-h3 {
+    font-family: var(--font-heading);
+    font-variation-settings: "wdth" 100;
+    font-weight: 650;
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  .t-numeral {
+    font-family: var(--font-heading);
+    font-variation-settings: "wdth" 75;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.05;
+  }
+  .t-code {
+    font-family: var(--font-heading);
+    font-variation-settings: "wdth" 80;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
 
-  .seat { position: relative; width: 28px; height: 28px; background: var(--secondary); color: var(--foreground); font: 600 11px/1 var(--font-heading); font-variant-numeric: tabular-nums; display: grid; place-items: center; --cut: var(--cut-xs); clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%, 0 var(--cut)); }
-  .seat[data-state="selected"] { background: var(--primary); color: var(--primary-foreground); }
-  .seat[data-state="held"] { background: repeating-linear-gradient(135deg, var(--held) 0 2px, transparent 2px 6px), var(--secondary); }
-  .seat[data-state="booked"] { background: linear-gradient(to top right, transparent calc(50% - 1px), var(--muted-foreground) 50%, transparent calc(50% + 1px)), linear-gradient(to bottom right, transparent calc(50% - 1px), var(--muted-foreground) 50%, transparent calc(50% + 1px)); color: var(--muted-foreground); cursor: not-allowed; }
-  .seat[data-type="vip"]::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--vip); }
-  .seat[data-type="couple"] { width: 60px; }
+  .seat {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    background: var(--secondary);
+    color: var(--foreground);
+    font: 600 11px/1 var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    display: grid;
+    place-items: center;
+    --cut: var(--cut-xs);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% 100%,
+      0 100%,
+      0 var(--cut)
+    );
+  }
+  .seat[data-state="selected"] {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  .seat[data-state="held"] {
+    background:
+      repeating-linear-gradient(135deg, var(--held) 0 2px, transparent 2px 6px),
+      var(--secondary);
+  }
+  .seat[data-state="booked"] {
+    background:
+      linear-gradient(
+        to top right,
+        transparent calc(50% - 1px),
+        var(--muted-foreground) 50%,
+        transparent calc(50% + 1px)
+      ),
+      linear-gradient(
+        to bottom right,
+        transparent calc(50% - 1px),
+        var(--muted-foreground) 50%,
+        transparent calc(50% + 1px)
+      );
+    color: var(--muted-foreground);
+    cursor: not-allowed;
+  }
+  .seat[data-type="vip"]::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--vip);
+  }
+  .seat[data-type="couple"] {
+    width: 60px;
+  }
 }

@@ -71,7 +71,7 @@ Tất cả dùng class semantic. Ví dụ dưới đây là hướng dẫn cấu
 - Hết hạn giữ ghế: "Hết thời gian giữ ghế. Chọn lại ghế để tiếp tục." Nút "Chọn lại ghế".
 
 ## Admin
-- Thanh bên: nền `sidebar`, nhãn nhóm câu thường 13px màu `muted-foreground`, mục là chữ 15px. Mục đang chọn: khối `sidebar-primary` đặc phủ hết chiều ngang, chữ `sidebar-primary-foreground`.
+- Thanh bên: nền `sidebar` (đổi theo light/dark, chỉ dùng token `sidebar-*`, không ép `dark`), nhãn nhóm câu thường 13px màu `muted-foreground`, mục là chữ 15px. Mục đang chọn: khối `sidebar-primary` đặc phủ hết chiều ngang, chữ `sidebar-primary-foreground`.
 - Bảng: không viền bao, hàng xen kẽ `bg-secondary/50`, tiêu đề cột dính trên cùng nền `card`, chữ đậm 13px câu thường. Đường kẻ `border` chỉ giữa tiêu đề và thân. Số căn phải và dùng `tabular-nums`.
 - Thẻ số liệu: khối `card cut-md`, số `t-numeral` 44, nhãn bên dưới. So sánh kỳ trước viết thành chữ ("tăng 12% so với tuần trước"), không mũi tên màu.
 - Form dài: chia nhóm bằng khoảng trắng 32px và tiêu đề `t-h3`, không bọc từng nhóm trong thẻ.

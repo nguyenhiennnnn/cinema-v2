@@ -57,4 +57,10 @@ public interface IShowtimeService
         int showtimeId,
         CancellationToken cancellationToken
     );
+
+    Task<List<SeatSuggestionDto>> GetSeatSuggestionsAsync(
+        int showtimeId,
+        int count,
+        CancellationToken cancellationToken
+    );
 }

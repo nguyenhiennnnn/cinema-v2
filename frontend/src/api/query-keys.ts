@@ -19,6 +19,8 @@ export const queryKeys = {
   showtimes: {
     schedule: (date: string) => ["showtimes", "schedule", date] as const,
     seats: (showtimeId: number) => ["showtimes", "seats", showtimeId] as const,
+    seatSuggestions: (showtimeId: number, count: number) =>
+      ["showtimes", "seat-suggestions", showtimeId, count] as const,
   },
 
   // ── Bookings (client) ────────────────────────────────────────────────────────
@@ -31,6 +33,8 @@ export const queryKeys = {
   // ── Combos (client) ──────────────────────────────────────────────────────────
   combos: {
     active: () => ["combos", "active"] as const,
+    suggestions: (showtimeId: number, seatCount: number) =>
+      ["combos", "suggestions", showtimeId, seatCount] as const,
   },
 
   // ── Catalog (client) ─────────────────────────────────────────────────────────

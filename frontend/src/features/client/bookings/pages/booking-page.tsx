@@ -58,6 +58,7 @@ const BookingPage = () => {
           statusMap={flow.seatStatusMap}
           selectedIds={flow.selectedSeatIds}
           onToggleSeat={flow.toggleSeat}
+          onSelectSeats={flow.selectSeats}
           comboQuantities={flow.comboQuantities}
           onComboChange={flow.setComboQuantity}
           customerName={flow.customerName}

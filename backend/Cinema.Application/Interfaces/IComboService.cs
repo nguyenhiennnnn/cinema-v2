@@ -7,6 +7,12 @@ public interface IComboService
 {
     Task<List<ComboDto>> GetActiveCombosAsync(CancellationToken cancellationToken);
 
+    Task<List<ComboSuggestionDto>> GetComboSuggestionsAsync(
+        int showtimeId,
+        int seatCount,
+        CancellationToken cancellationToken
+    );
+
     Task<OffsetPageResult<AdminComboDto>> GetCombosAdminAsync(
         int page,
         int pageSize,

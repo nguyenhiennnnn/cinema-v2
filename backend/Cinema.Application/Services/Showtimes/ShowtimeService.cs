@@ -589,6 +589,24 @@ public class ShowtimeService(
         return new BulkDeleteShowtimesResponse(results, successCount, results.Count - successCount);
     }
 
+    public async Task<List<SeatSuggestionDto>> GetSeatSuggestionsAsync(
+        int showtimeId,
+        int count,
+        CancellationToken cancellationToken
+    )
+    {
+        var roomCols =
+            await db
+                .Showtimes.Where(s => s.ShowtimeId == showtimeId)
+                .Select(s => (int?)s.Room.Cols)
+                .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new NotFoundException("Không tìm thấy suất chiếu.");
+
+        var seats = await db.LoadSeatSlotsAsync(showtimeId, cancellationToken);
+        var cols = Math.Max(roomCols, seats.Count > 0 ? seats.Max(s => s.Number) : 1);
+        return SeatLayoutRules.Suggest(seats, cols, count);
+    }
+
     public async Task<ShowtimeSeatsResponseDto> GetShowtimeSeatsAsync(
         int showtimeId,
         CancellationToken cancellationToken

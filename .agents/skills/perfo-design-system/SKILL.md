@@ -88,7 +88,7 @@ Thang chữ (class có sẵn trong `tokens.css`): `t-display` 72, `t-h1` 40, `t-
 
 **Client (khán giả).** Nền `background`, khối `card`. Poster tỉ lệ 2:3, không viền, không overlay gradient. Lưới poster 2 cột mobile, 4 đến 6 cột desktop, khoảng cách 16. Lịch chiếu là danh sách dòng, mỗi dòng một suất: số giờ lớn bên trái, thông tin ở giữa, cuống đặt vé bên phải (đây là chỗ duy nhất được dùng khấc kèm đục lỗ). Header nền đặc `background`, không blur, không đường kẻ mảnh.
 
-**Admin (vận hành).** Nền `background`, thanh bên tối (`sidebar`) cả ở light mode. Mật độ cao, bảng là trung tâm. Mục đang chọn là một khối `primary` đặc phủ hết chiều ngang nhãn, không dùng thanh viền trái, không đánh số nhóm. Thẻ số liệu là một khối `card` có số lớn `t-numeral` và nhãn câu thường bên dưới, không viền nhấn bên trái, không biểu tượng tròn.
+**Admin (vận hành).** Nền `background`, thanh bên dùng token `sidebar` và đổi theo theme: sáng ở light mode, tối ở dark mode. Không ghim thanh bên ở một theme cố định. Mật độ cao, bảng là trung tâm. Mục đang chọn là một khối `primary` đặc phủ hết chiều ngang nhãn, không dùng thanh viền trái, không đánh số nhóm. Thẻ số liệu là một khối `card` có số lớn `t-numeral` và nhãn câu thường bên dưới, không viền nhấn bên trái, không biểu tượng tròn.
 
 ## 5. Chuyển động
 

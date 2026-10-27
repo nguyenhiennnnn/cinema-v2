@@ -33,4 +33,25 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
         var result = await showtimeService.GetShowtimeSeatsAsync(showtimeId, cancellationToken);
         return Ok(result);
     }
+
+    [HttpGet("{showtimeId:int}/seat-suggestions")]
+    public async Task<IActionResult> GetSeatSuggestions(
+        int showtimeId,
+        [FromQuery] int count,
+        CancellationToken cancellationToken
+    )
+    {
+        if (count is < 1 or > 10)
+            throw new ValidationAppException(
+                "count phải từ 1 đến 10.",
+                new Dictionary<string, string[]> { ["count"] = ["count phải từ 1 đến 10."] }
+            );
+
+        var result = await showtimeService.GetSeatSuggestionsAsync(
+            showtimeId,
+            count,
+            cancellationToken
+        );
+        return Ok(result);
+    }
 }

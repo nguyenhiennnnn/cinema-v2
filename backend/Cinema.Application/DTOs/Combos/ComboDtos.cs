@@ -8,6 +8,8 @@ public record ComboDto(
     string? ImageUrl
 );
 
+public record ComboSuggestionDto(int ComboId, int SuggestedQuantity, string Label, bool IsPopular);
+
 public record AdminComboDto(
     int ComboId,
     string Name,

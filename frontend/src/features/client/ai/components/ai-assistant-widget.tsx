@@ -2,8 +2,9 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAiChat } from "../hooks/use-ai-chat";
-import type { ChatMessageDto } from "../types";
+import type { AiCard, ChatMessageDto } from "../types";
 import { AiChatMessageBubble } from "./ai-chat-message-bubble";
+import { AiChatCards } from "./ai-chat-cards";
 import { AiChatInput } from "./ai-chat-input";
 import { AiTypingIndicator } from "./ai-typing-indicator";
 
@@ -11,12 +12,14 @@ interface AiMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  cards?: AiCard[];
 }
 
 const SUGGESTIONS = [
   "Phim nào đang chiếu hôm nay?",
   "Lịch chiếu cuối tuần này",
-  "Ưu đãi cho thành viên",
+  "Suất tối nay còn ghế không?",
+  "Vé tôi đã đặt",
 ];
 
 const GREETING: AiMessage = {
@@ -51,7 +54,15 @@ export const AiAssistantWidget = () => {
       { message: trimmed, history },
       {
         onSuccess: (data) => {
-          setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "assistant", content: data.reply }]);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: data.reply,
+              cards: data.cards ?? [],
+            },
+          ]);
         },
         onError: () => {
           setMessages((prev) => [
@@ -106,7 +117,12 @@ export const AiAssistantWidget = () => {
         {/* Messages */}
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
           {messages.map((m) => (
-            <AiChatMessageBubble key={m.id} role={m.role} content={m.content} />
+            <div key={m.id}>
+              <AiChatMessageBubble role={m.role} content={m.content} />
+              {m.cards && m.cards.length > 0 && (
+                <AiChatCards cards={m.cards} onNavigate={() => setOpen(false)} />
+              )}
+            </div>
           ))}
           {chat.isPending && <AiTypingIndicator />}
 

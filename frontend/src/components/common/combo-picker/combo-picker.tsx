@@ -1,5 +1,6 @@
 import { PackageOpen } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ComboQuantityStepper } from "./combo-quantity-stepper";
 
@@ -16,9 +17,10 @@ interface ComboPickerProps {
   quantities: Record<number, number>;
   onChange: (comboId: number, quantity: number) => void;
   isLoading?: boolean;
+  labels?: Record<number, string>;
 }
 
-export const ComboPicker = ({ combos, quantities, onChange, isLoading }: ComboPickerProps) => {
+export const ComboPicker = ({ combos, quantities, onChange, isLoading, labels }: ComboPickerProps) => {
   if (isLoading) {
     return (
       <div className="@container grid grid-cols-1 gap-3 @sm:grid-cols-2">
@@ -58,6 +60,11 @@ export const ComboPicker = ({ combos, quantities, onChange, isLoading }: ComboPi
             <div className="min-w-0 flex-1">
               <p className="line-clamp-1 text-sm font-medium text-foreground">{combo.name}</p>
               <p className="text-xs font-semibold text-primary">{formatCurrency(combo.price)}</p>
+              {labels?.[combo.comboId] && (
+                <Badge variant="success" className="mt-1">
+                  {labels[combo.comboId]}
+                </Badge>
+              )}
             </div>
             <div className="shrink-0">
               <ComboQuantityStepper

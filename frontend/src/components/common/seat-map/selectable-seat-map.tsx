@@ -18,6 +18,7 @@ interface SelectableSeatMapProps {
   statusMap: Map<number, ShowtimeSeatStatus>;
   selectedIds: Set<number>;
   onToggle: (seat: ShowtimeSeatItemDto) => void;
+  highlightedIds?: Set<number>;
   className?: string;
 }
 
@@ -36,6 +37,7 @@ export const SelectableSeatMap = ({
   statusMap,
   selectedIds,
   onToggle,
+  highlightedIds,
   className,
 }: SelectableSeatMapProps) => {
   const cells: SeatCellData[] = seats.map((seat) => ({
@@ -89,6 +91,7 @@ export const SelectableSeatMap = ({
               ariaLabel={`Ghế ${cell.seatRow}${cell.seatNumber}`}
               kind={resolveSeatVisualKind(cell.seatTypeName)}
               state={toCellState(status, isSelected)}
+              className={cn(highlightedIds?.has(cell.showtimeSeatId) && "ring-2 ring-accent animate-pulse")}
               onClick={() =>
                 onToggle({
                   showtimeSeatId: cell.showtimeSeatId!,
