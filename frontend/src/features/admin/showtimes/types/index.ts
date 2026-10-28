@@ -156,7 +156,6 @@ export interface AutoScheduleRequest {
   basePrice: number;
   roomIds?: number[];
   allowAfterHours?: boolean;
-  dynamicPricing?: boolean;
 }
 
 export interface AutoScheduleItemDto {
@@ -167,8 +166,6 @@ export interface AutoScheduleItemDto {
   startTime: string;
   endTime: string;
   basePrice: number;
-  isPrime: boolean;
-  priceFactor: number;
 }
 
 export interface AutoScheduleUnplacedDto {

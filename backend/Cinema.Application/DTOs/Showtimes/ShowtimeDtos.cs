@@ -155,8 +155,7 @@ public record AutoScheduleRequest(
     List<AutoScheduleMovieRequest> Movies,
     decimal BasePrice,
     List<int>? RoomIds = null,
-    bool AllowAfterHours = false,
-    bool DynamicPricing = true
+    bool AllowAfterHours = false
 );
 
 public record AutoScheduleItemDto(
@@ -166,9 +165,7 @@ public record AutoScheduleItemDto(
     string RoomName,
     DateTime StartTime,
     DateTime EndTime,
-    decimal BasePrice,
-    bool IsPrime,
-    double PriceFactor = 1.0
+    decimal BasePrice
 );
 
 public record AutoScheduleUnplacedDto(int MovieId, string MovieTitle, int Requested, int Placed);

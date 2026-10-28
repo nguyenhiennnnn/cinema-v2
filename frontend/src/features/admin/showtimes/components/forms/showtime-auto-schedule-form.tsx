@@ -5,7 +5,6 @@ import { z } from "zod";
 import { Plus, Trash2 } from "lucide-react";
 
 import { toast } from "@/components/ui/toast";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -38,7 +37,6 @@ const formSchema = z.object({
     .min(1, "Thêm ít nhất một phim."),
   basePrice: z.coerce.number().min(0, "Giá vé không hợp lệ."),
   allowAfterHours: z.boolean(),
-  dynamicPricing: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,11 +44,6 @@ type FormValues = z.infer<typeof formSchema>;
 const hhmm = (iso: string) => iso.slice(11, 16);
 
 const vnd = (value: number) => `${value.toLocaleString("vi-VN")} ₫`;
-
-const factorLabel = (factor: number) => {
-  const pct = Math.round((factor - 1) * 100);
-  return pct === 0 ? null : `${pct > 0 ? "+" : ""}${pct}%`;
-};
 
 interface ShowtimeAutoScheduleFormProps {
   onSuccess: () => void;
@@ -72,7 +65,6 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
       movies: [{ movieId: undefined, shows: 3, basePrice: undefined }],
       basePrice: 75000,
       allowAfterHours: false,
-      dynamicPricing: true,
     },
   });
 
@@ -135,19 +127,9 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
                   <p className="truncate text-sm font-medium text-foreground">{item.movieTitle}</p>
                   <p className="text-xs text-muted-foreground">{item.roomName}</p>
                 </div>
-                {item.isPrime && (
-                  <Badge variant="outline" className="border-accent text-accent">
-                    Giờ vàng
-                  </Badge>
-                )}
-                <div className="shrink-0 text-right">
-                  <p className="text-sm font-medium tabular-nums text-foreground">
-                    {vnd(item.basePrice)}
-                  </p>
-                  {factorLabel(item.priceFactor) && (
-                    <p className="text-xs text-muted-foreground">{factorLabel(item.priceFactor)}</p>
-                  )}
-                </div>
+                <p className="shrink-0 text-sm font-medium tabular-nums text-foreground">
+                  {vnd(item.basePrice)}
+                </p>
                 <Button
                   type="button"
                   variant="ghost"
@@ -288,17 +270,6 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
           type="number"
           min={0}
           step={1000}
-        />
-
-        <Controller
-          name="dynamicPricing"
-          control={form.control}
-          render={({ field }) => (
-            <Field className="flex flex-row items-center justify-between">
-              <FieldLabel>Giá linh hoạt (giờ vàng, cuối tuần, độ hot của phim)</FieldLabel>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
-            </Field>
-          )}
         />
 
         <Controller

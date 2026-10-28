@@ -77,7 +77,7 @@ public class AuthService(
             user,
             VerificationTokenPurpose.EmailConfirmation,
             TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
-            "verify-email",
+            "auth/confirm-email",
             "Xác thực email — Cinema",
             "Vui lòng xác thực email bằng cách bấm vào liên kết sau",
             cancellationToken
@@ -536,7 +536,7 @@ public class AuthService(
             user,
             VerificationTokenPurpose.EmailConfirmation,
             TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
-            "verify-email",
+            "auth/confirm-email",
             "Xác thực email — Cinema",
             "Vui lòng xác thực email bằng cách bấm vào liên kết sau",
             cancellationToken

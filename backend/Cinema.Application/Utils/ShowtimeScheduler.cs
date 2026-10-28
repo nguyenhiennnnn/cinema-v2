@@ -12,9 +12,10 @@ public static class ShowtimeScheduler
 {
     private const int StepMinutes = 5;
     private const int MinSameMovieGapMinutes = 60;
-    private const int PrimeStartMinute = 18 * 60;
-    private const int PrimeEndMinute = 21 * 60;
-    private const double PrimeFalloffMinutes = 360;
+    private const int DefaultWindowMinutes = 16 * 60;
+    private const double SpreadMinutes = 30;
+    private const double FitWeight = 4;
+    private const double LoadWeight = 0.5;
 
     public static double Heat(int tickets, int maxTickets, decimal rating) =>
         Math.Clamp(
@@ -22,37 +23,6 @@ public static class ShowtimeScheduler
             0,
             1
         );
-
-    public static double Prime(DateTime start, DateOnly day)
-    {
-        var minute = (start - day.ToDateTime(TimeOnly.MinValue)).TotalMinutes;
-        var outside =
-            minute < PrimeStartMinute
-                ? PrimeStartMinute - minute
-                : Math.Max(0, minute - PrimeEndMinute);
-        return Math.Max(0, 1 - outside / PrimeFalloffMinutes);
-    }
-
-    public static double PriceFactor(DateTime start, DateOnly day, double heat)
-    {
-        var time = 0.85 + 0.30 * Prime(start, day);
-        var weekend = day.DayOfWeek is DayOfWeek.Friday or DayOfWeek.Saturday or DayOfWeek.Sunday
-            ? 1.10
-            : 1.0;
-        var demand = 0.95 + 0.15 * Math.Clamp(heat, 0, 1);
-        return Math.Clamp(time * weekend * demand, 0.7, 1.4);
-    }
-
-    public static decimal Price(decimal basePrice, double factor, decimal step = 5000m)
-    {
-        if (basePrice < step)
-            return basePrice;
-
-        return Math.Max(
-            step,
-            Math.Round(basePrice * (decimal)factor / step, MidpointRounding.AwayFromZero) * step
-        );
-    }
 
     public static List<SchedulerSlot> Build(
         DateOnly day,
@@ -70,7 +40,7 @@ public static class ShowtimeScheduler
             return placed;
 
         var (open, close) = OperatingHours.Window(day, opening, closing);
-        var dayStart = day.ToDateTime(TimeOnly.MinValue);
+        var windowEnd = close ?? open.AddMinutes(DefaultWindowMinutes);
         var maxSeats = Math.Max(1, rooms.Max(r => r.Seats));
         var occupied = rooms.ToDictionary(
             r => r.RoomId,
@@ -78,15 +48,20 @@ public static class ShowtimeScheduler
         );
         var queue = movies.OrderByDescending(m => m.Heat).ThenBy(m => m.MovieId).ToList();
         var remaining = queue.ToDictionary(m => m.MovieId, m => m.Shows);
+        var ideals = queue.ToDictionary(
+            m => m.MovieId,
+            m => Ideals(open, windowEnd, m.Shows, m.DurationMinutes, allowAfterHours)
+        );
 
         while (remaining.Values.Any(v => v > 0))
         {
             foreach (var movie in queue.Where(m => remaining[m.MovieId] > 0))
             {
                 var block = movie.DurationMinutes + bufferMinutes;
+                var targets = ideals[movie.MovieId];
                 var options = rooms
                     .SelectMany(room =>
-                        Candidates(open, close, movie.DurationMinutes, block, dayStart, occupied[room.RoomId])
+                        Candidates(open, close, movie.DurationMinutes, block, targets, occupied[room.RoomId])
                             .Where(c =>
                                 IsFree(c, block, movie.DurationMinutes, open, close, allowAfterHours, occupied[room.RoomId])
                                 && placed.All(p =>
@@ -97,9 +72,7 @@ public static class ShowtimeScheduler
                             .Select(c => (
                                 Room: room,
                                 Start: c,
-                                Score: Prime(c, day) * 100
-                                    + movie.Heat * room.Seats / maxSeats * 10
-                                    - occupied[room.RoomId].Count * 0.5
+                                Score: Score(c, targets, movie.Heat, room.Seats, maxSeats, occupied[room.RoomId].Count)
                             ))
                     )
                     .ToList();
@@ -115,6 +88,10 @@ public static class ShowtimeScheduler
                     .ThenBy(x => x.Start)
                     .ThenBy(x => x.Room.RoomId)
                     .First();
+
+                if (targets.Count > 0)
+                    targets.Remove(targets.MinBy(t => Math.Abs((best.Start - t).TotalMinutes)));
+
                 var end = best.Start.AddMinutes(block);
                 occupied[best.Room.RoomId].Add((best.Start, end));
                 placed.Add(new SchedulerSlot(movie.MovieId, best.Room.RoomId, best.Start, end));
@@ -125,21 +102,50 @@ public static class ShowtimeScheduler
         return placed.OrderBy(p => p.Start).ThenBy(p => p.RoomId).ToList();
     }
 
+    private static double Score(
+        DateTime start,
+        List<DateTime> targets,
+        double heat,
+        int seats,
+        int maxSeats,
+        int load
+    )
+    {
+        var distance = targets.Count == 0 ? 0 : targets.Min(t => Math.Abs((start - t).TotalMinutes));
+        var fit = 1 - Math.Abs(heat - (double)seats / maxSeats);
+        return -distance / SpreadMinutes + fit * FitWeight - load * LoadWeight;
+    }
+
+    private static List<DateTime> Ideals(
+        DateTime open,
+        DateTime windowEnd,
+        int shows,
+        int duration,
+        bool allowAfterHours
+    )
+    {
+        var latest = allowAfterHours ? windowEnd.AddMinutes(-1) : windowEnd.AddMinutes(-duration);
+        var span = (latest - open).TotalMinutes;
+        if (span < 0 || shows <= 0)
+            return [];
+
+        return Enumerable
+            .Range(0, shows)
+            .Select(i => Up(open.AddMinutes(span * (i + 0.5) / shows)))
+            .ToList();
+    }
+
     private static IEnumerable<DateTime> Candidates(
         DateTime open,
         DateTime? close,
         int duration,
         int block,
-        DateTime dayStart,
+        List<DateTime> targets,
         List<(DateTime Start, DateTime End)> intervals
     )
     {
-        var points = new List<DateTime>
-        {
-            Up(open),
-            Up(dayStart.AddMinutes(PrimeStartMinute)),
-            Up(dayStart.AddMinutes(PrimeEndMinute)),
-        };
+        var points = new List<DateTime> { Up(open) };
+        points.AddRange(targets);
         if (close is not null)
             points.Add(Down(close.Value.AddMinutes(-duration)));
         foreach (var (start, end) in intervals)

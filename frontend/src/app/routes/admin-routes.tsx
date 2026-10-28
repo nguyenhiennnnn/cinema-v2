@@ -1,7 +1,10 @@
 import type { RouteObject } from "react-router";
 
 import AdminLayout from "@/layouts/admin/admin-layout";
-import { AdminProtectedRoute } from "./protected-route/admin-protected-route";
+import {
+  AdminIndexRedirect,
+  AdminProtectedRoute,
+} from "./protected-route/admin-protected-route";
 import { GuestRoute } from "./protected-route/guest-route";
 
 import AdminLoginPage from "@/features/admin/login/pages/login-page";
@@ -48,6 +51,7 @@ export const adminRoutes: RouteObject[] = [
     path: "/admin",
     element: <AdminProtectedRoute />,
     children: [
+      { index: true, element: <AdminIndexRedirect /> },
       {
         element: <AdminLayout />,
         children: [

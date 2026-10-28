@@ -749,23 +749,15 @@ public class ShowtimeService(
         var titles = movies.ToDictionary(m => m.MovieId, m => m.Title);
         var roomNames = rooms.ToDictionary(r => r.RoomId, r => r.RoomName);
         var items = slots
-            .Select(s =>
-            {
-                var factor = request.DynamicPricing
-                    ? ShowtimeScheduler.PriceFactor(s.Start, request.Date, heats[s.MovieId])
-                    : 1.0;
-                return new AutoScheduleItemDto(
-                    s.MovieId,
-                    titles[s.MovieId],
-                    s.RoomId,
-                    roomNames[s.RoomId],
-                    s.Start,
-                    s.End,
-                    ShowtimeScheduler.Price(moviePrices[s.MovieId], factor),
-                    ShowtimeScheduler.Prime(s.Start, request.Date) >= 1,
-                    Math.Round(factor, 2)
-                );
-            })
+            .Select(s => new AutoScheduleItemDto(
+                s.MovieId,
+                titles[s.MovieId],
+                s.RoomId,
+                roomNames[s.RoomId],
+                s.Start,
+                s.End,
+                moviePrices[s.MovieId]
+            ))
             .ToList();
         var unplaced = movies
             .Select(m => new AutoScheduleUnplacedDto(

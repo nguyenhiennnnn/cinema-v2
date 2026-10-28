@@ -12,11 +12,24 @@ export const AdminProtectedRoute = () => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  if (user?.role !== Role.Admin && user?.role !== Role.Employee) {
+  if (!user) return <AuthLoadingGuard />;
+
+  if (user.role !== Role.Admin && user.role !== Role.Employee) {
     return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
+};
+
+export const AdminIndexRedirect = () => {
+  const role = useAuthStore((s) => s.user?.role);
+
+  return (
+    <Navigate
+      to={role === Role.Employee ? "/admin/bookings/counter" : "/admin/dashboard"}
+      replace
+    />
+  );
 };
 
 

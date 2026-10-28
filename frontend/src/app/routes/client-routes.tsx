@@ -53,7 +53,6 @@ export const clientRoutes: RouteObject[] = [
     ],
   },
   {
-    // Auth pages: redirect away if already logged in
     path: "/auth",
     element: <GuestRoute redirectTo="/" />,
     children: [
