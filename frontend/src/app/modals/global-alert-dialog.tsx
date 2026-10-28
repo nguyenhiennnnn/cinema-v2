@@ -44,7 +44,7 @@ export const GlobalAlertDialog = () => {
             }}
             className={
               variant === "destructive"
-                ? "bg-destructive text-white hover:bg-destructive/90"
+                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 : undefined
             }
           >

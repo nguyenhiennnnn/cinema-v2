@@ -16,7 +16,7 @@ export const Spinner = ({ className, size = "md" }: SpinnerProps) => (
     role="status"
     aria-label="Đang tải"
     className={cn(
-      "animate-spin rounded-full border-primary border-t-transparent",
+      "animate-spin border-primary border-t-transparent",
       sizeClassMap[size],
       className,
     )}

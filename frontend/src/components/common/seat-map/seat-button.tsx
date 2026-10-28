@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
-import type { SeatCellState, SeatVisualKind } from "./seat-map-types";
+import type { SeatCellState, SeatMark, SeatVisualKind } from "./seat-map-types";
 
 interface SeatButtonProps {
   label: string;
   kind?: SeatVisualKind;
   state: SeatCellState;
+  /** Dấu nhấn phụ (gợi ý, đang chọn vùng, ghế đôi chờ ghép). Vẽ bằng outline trong. */
+  mark?: SeatMark;
   onClick?: () => void;
   disabled?: boolean;
   title?: string;
@@ -19,6 +21,7 @@ export const SeatButton = ({
   label,
   kind = "standard",
   state,
+  mark,
   onClick,
   disabled,
   title,
@@ -28,8 +31,9 @@ export const SeatButton = ({
   onMouseEnter,
   ariaLabel,
 }: SeatButtonProps) => {
+  // Lối đi ngoài trình soạn thảo là khoảng trắng, không vẽ gì.
   if (state === "aisle" && !editable) {
-    return <div className={cn("h-8 w-full", className)} aria-hidden />;
+    return <div className={cn("h-9 w-full", className)} aria-hidden />;
   }
 
   const interactive = editable || state === "available" || state === "selected";
@@ -46,11 +50,10 @@ export const SeatButton = ({
       onMouseEnter={onMouseEnter}
       data-state={state}
       data-type={kind}
+      data-mark={mark}
       className={cn(
-        "seat seat--fill w-full h-8 transition-colors cursor-pointer select-none",
-        !interactive && "cursor-not-allowed",
-        state === "inactive" && "opacity-30 bg-muted! cursor-not-allowed",
-        state === "aisle" && "bg-transparent! border border-dashed border-border/50 text-muted-foreground/50 hover:bg-muted/40!",
+        "seat seat--fill select-none",
+        interactive ? "cursor-pointer" : "cursor-not-allowed",
         className,
       )}
     >

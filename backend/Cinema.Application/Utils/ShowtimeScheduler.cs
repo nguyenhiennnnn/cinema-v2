@@ -33,6 +33,27 @@ public static class ShowtimeScheduler
         return Math.Max(0, 1 - outside / PrimeFalloffMinutes);
     }
 
+    public static double PriceFactor(DateTime start, DateOnly day, double heat)
+    {
+        var time = 0.85 + 0.30 * Prime(start, day);
+        var weekend = day.DayOfWeek is DayOfWeek.Friday or DayOfWeek.Saturday or DayOfWeek.Sunday
+            ? 1.10
+            : 1.0;
+        var demand = 0.95 + 0.15 * Math.Clamp(heat, 0, 1);
+        return Math.Clamp(time * weekend * demand, 0.7, 1.4);
+    }
+
+    public static decimal Price(decimal basePrice, double factor, decimal step = 5000m)
+    {
+        if (basePrice < step)
+            return basePrice;
+
+        return Math.Max(
+            step,
+            Math.Round(basePrice * (decimal)factor / step, MidpointRounding.AwayFromZero) * step
+        );
+    }
+
     public static List<SchedulerSlot> Build(
         DateOnly day,
         TimeOnly? opening,

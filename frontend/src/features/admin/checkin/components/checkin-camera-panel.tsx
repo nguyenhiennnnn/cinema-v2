@@ -13,7 +13,7 @@ export const CheckinCameraPanel = ({ active, onToggle, onDetect }: CheckinCamera
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-square w-full overflow-hidden border border-border/60 bg-black">
+      <div className="relative aspect-square w-full overflow-hidden border border-border/60 bg-scrim">
         {active ? (
           <video ref={videoRef} muted playsInline className="h-full w-full object-cover" />
         ) : (

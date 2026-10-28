@@ -78,4 +78,46 @@ public class ShowtimeSchedulerTests
         slots.ShouldAllBe(s => s.Start < Day.ToDateTime(Close));
         slots.Max(s => s.End).ShouldBeGreaterThan(Day.ToDateTime(Close));
     }
+
+    [Fact]
+    public void PriceFactor_PrimeTimeCostsMoreThanMorning()
+    {
+        var prime = ShowtimeScheduler.PriceFactor(Day.ToDateTime(new TimeOnly(19, 0)), Day, 0.5);
+        var morning = ShowtimeScheduler.PriceFactor(Day.ToDateTime(new TimeOnly(9, 0)), Day, 0.5);
+
+        prime.ShouldBeGreaterThan(morning);
+    }
+
+    [Fact]
+    public void PriceFactor_WeekendAndHotMovieCostMore()
+    {
+        var weekday = new DateOnly(2026, 10, 28);
+        var saturday = new DateOnly(2026, 10, 31);
+        var at = new TimeOnly(19, 0);
+
+        ShowtimeScheduler
+            .PriceFactor(saturday.ToDateTime(at), saturday, 0.5)
+            .ShouldBeGreaterThan(ShowtimeScheduler.PriceFactor(weekday.ToDateTime(at), weekday, 0.5));
+        ShowtimeScheduler
+            .PriceFactor(weekday.ToDateTime(at), weekday, 1)
+            .ShouldBeGreaterThan(ShowtimeScheduler.PriceFactor(weekday.ToDateTime(at), weekday, 0));
+    }
+
+    [Fact]
+    public void PriceFactor_IsClamped()
+    {
+        var saturday = new DateOnly(2026, 10, 31);
+
+        ShowtimeScheduler
+            .PriceFactor(saturday.ToDateTime(new TimeOnly(19, 0)), saturday, 1)
+            .ShouldBeLessThanOrEqualTo(1.4);
+    }
+
+    [Theory]
+    [InlineData(75000, 1.15, 85000)]
+    [InlineData(75000, 0.85, 65000)]
+    [InlineData(75000, 1.0, 75000)]
+    [InlineData(3000, 1.3, 3000)]
+    public void Price_RoundsToStep(decimal basePrice, double factor, decimal expected) =>
+        ShowtimeScheduler.Price(basePrice, factor).ShouldBe(expected);
 }

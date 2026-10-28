@@ -112,7 +112,7 @@ export const MediaUploader = ({
               <div className="flex h-40 flex-col items-center justify-center gap-2 p-4 text-center text-muted-foreground">
                 <ImageOff className="size-8" />
                 <span className="text-xs">Không thể tải ảnh từ URL</span>
-                <span className="text-[11px] text-muted-foreground/70 max-w-xs truncate">{previewUrl}</span>
+                <span className="text-xs text-muted-foreground max-w-xs truncate">{previewUrl}</span>
               </div>
             ) : (
               <img

@@ -33,7 +33,7 @@ export const TicketCard = ({ booking, onCancel }: TicketCardProps) => {
         <div>
           <p className="font-heading text-sm font-semibold text-foreground">{booking.movieTitle}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">{formatDateTime(booking.startTime)}</p>
-          <p className="mt-0.5 text-xs tracking-wider tabular-nums text-muted-foreground">{booking.bookingCode}</p>
+          <p className="mt-0.5 t-code text-xs text-muted-foreground">{booking.bookingCode}</p>
         </div>
       </div>
 

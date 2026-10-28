@@ -59,7 +59,7 @@ const AccountTicketDetailPage = () => {
       <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card p-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold tracking-wider tabular-nums text-foreground">{booking.bookingCode}</span>
+            <span className="t-code text-lg text-foreground">{booking.bookingCode}</span>
             <button onClick={() => navigator.clipboard.writeText(booking.bookingCode)} className="text-muted-foreground hover:text-foreground">
               <Copy className="size-4" />
             </button>

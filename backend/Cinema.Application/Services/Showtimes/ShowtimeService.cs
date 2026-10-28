@@ -715,6 +715,19 @@ public class ShowtimeService(
         var maxTickets = tickets.Values.DefaultIfEmpty(0).Max();
 
         var requested = request.Movies.ToDictionary(m => m.MovieId, m => m.Shows);
+        var moviePrices = request.Movies.ToDictionary(
+            m => m.MovieId,
+            m => m.BasePrice ?? request.BasePrice
+        );
+        var heats = movies.ToDictionary(
+            m => m.MovieId,
+            m =>
+                ShowtimeScheduler.Heat(
+                    tickets.GetValueOrDefault(m.MovieId),
+                    maxTickets,
+                    m.AverageRating
+                )
+        );
         var slots = ShowtimeScheduler.Build(
             request.Date,
             hours?.OpeningTime,
@@ -726,11 +739,7 @@ public class ShowtimeService(
                 .Select(m => new SchedulerMovie(
                     m.MovieId,
                     m.DurationMinutes,
-                    ShowtimeScheduler.Heat(
-                        tickets.GetValueOrDefault(m.MovieId),
-                        maxTickets,
-                        m.AverageRating
-                    ),
+                    heats[m.MovieId],
                     requested[m.MovieId]
                 ))
                 .ToList(),
@@ -740,16 +749,23 @@ public class ShowtimeService(
         var titles = movies.ToDictionary(m => m.MovieId, m => m.Title);
         var roomNames = rooms.ToDictionary(r => r.RoomId, r => r.RoomName);
         var items = slots
-            .Select(s => new AutoScheduleItemDto(
-                s.MovieId,
-                titles[s.MovieId],
-                s.RoomId,
-                roomNames[s.RoomId],
-                s.Start,
-                s.End,
-                request.BasePrice,
-                ShowtimeScheduler.Prime(s.Start, request.Date) >= 1
-            ))
+            .Select(s =>
+            {
+                var factor = request.DynamicPricing
+                    ? ShowtimeScheduler.PriceFactor(s.Start, request.Date, heats[s.MovieId])
+                    : 1.0;
+                return new AutoScheduleItemDto(
+                    s.MovieId,
+                    titles[s.MovieId],
+                    s.RoomId,
+                    roomNames[s.RoomId],
+                    s.Start,
+                    s.End,
+                    ShowtimeScheduler.Price(moviePrices[s.MovieId], factor),
+                    ShowtimeScheduler.Prime(s.Start, request.Date) >= 1,
+                    Math.Round(factor, 2)
+                );
+            })
             .ToList();
         var unplaced = movies
             .Select(m => new AutoScheduleUnplacedDto(

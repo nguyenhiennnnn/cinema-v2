@@ -35,7 +35,7 @@ export const createPaymentColumns = ({ onViewDetail }: PaymentColumnsOptions) =>
     columnHelper.accessor("bookingCode", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Đơn đặt vé" />,
       cell: ({ row }) => (
-        <span className="tabular-nums font-medium tracking-wider text-foreground">
+        <span className="t-code text-foreground">
           {row.original.bookingCode}
         </span>
       ),

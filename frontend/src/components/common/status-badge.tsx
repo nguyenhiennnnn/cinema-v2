@@ -427,7 +427,7 @@ export const AgeRatingBadge = ({
         config.variant === "warning" && "bg-warning text-warning-foreground",
         config.variant === "destructive" && "bg-destructive text-destructive-foreground",
         config.variant === "outline" && "bg-secondary text-secondary-foreground",
-        onImage && "border border-white/20",
+        onImage && "border border-scrim-foreground/20",
         className,
       )}
     >

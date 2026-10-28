@@ -147,6 +147,7 @@ export interface ShowtimeCalendarResponseDto {
 export interface AutoScheduleMovieRequest {
   movieId: number;
   shows: number;
+  basePrice?: number;
 }
 
 export interface AutoScheduleRequest {
@@ -155,6 +156,7 @@ export interface AutoScheduleRequest {
   basePrice: number;
   roomIds?: number[];
   allowAfterHours?: boolean;
+  dynamicPricing?: boolean;
 }
 
 export interface AutoScheduleItemDto {
@@ -166,6 +168,7 @@ export interface AutoScheduleItemDto {
   endTime: string;
   basePrice: number;
   isPrime: boolean;
+  priceFactor: number;
 }
 
 export interface AutoScheduleUnplacedDto {

@@ -28,7 +28,7 @@ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
         <TooltipContent>Thu gọn / mở rộng menu</TooltipContent>
       </Tooltip>
 
-      <span className="hidden text-xs tracking-wide text-muted-foreground md:block">
+      <span className="hidden text-xs text-muted-foreground md:block">
         Quản trị hệ thống
       </span>
 
@@ -48,7 +48,7 @@ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
         <Tooltip>
           <TooltipTrigger render={<Button variant="ghost" size="icon" className="relative" />}>
             <Bell className="size-4" />
-            <Badge className="absolute -top-1 -right-1 h-4 min-w-4 justify-center px-1 text-[10px]">
+            <Badge className="absolute -top-1 -right-1 h-5 min-w-5 justify-center px-1 text-xs">
               3
             </Badge>
           </TooltipTrigger>

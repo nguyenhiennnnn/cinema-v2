@@ -40,14 +40,12 @@ function applyMeToAuthUser(me: MeResponse): Partial<AuthUser> {
   };
 }
 
-// ─── Sau khi set credentials, gọi /me để lấy dữ liệu đầy đủ ─────────────────
-
 async function hydrateUserFromMe() {
   try {
     const res = await authApi.me();
     useAuthStore.getState().updateUser(applyMeToAuthUser(res.data));
   } catch {
-    // /me thất bại không ảnh hưởng login — giữ data từ LoginResponse
+    //
   }
 }
 

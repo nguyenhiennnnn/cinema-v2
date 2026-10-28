@@ -32,16 +32,25 @@ const formSchema = z.object({
           .int("Số suất không hợp lệ.")
           .min(1, "Tối thiểu 1 suất.")
           .max(20, "Tối đa 20 suất."),
+        basePrice: z.coerce.number().min(0, "Giá vé không hợp lệ.").optional(),
       }),
     )
     .min(1, "Thêm ít nhất một phim."),
   basePrice: z.coerce.number().min(0, "Giá vé không hợp lệ."),
   allowAfterHours: z.boolean(),
+  dynamicPricing: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const hhmm = (iso: string) => iso.slice(11, 16);
+
+const vnd = (value: number) => `${value.toLocaleString("vi-VN")} ₫`;
+
+const factorLabel = (factor: number) => {
+  const pct = Math.round((factor - 1) * 100);
+  return pct === 0 ? null : `${pct > 0 ? "+" : ""}${pct}%`;
+};
 
 interface ShowtimeAutoScheduleFormProps {
   onSuccess: () => void;
@@ -60,9 +69,10 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
     resolver: zodResolver(formSchema),
     defaultValues: {
       date: "",
-      movies: [{ movieId: undefined, shows: 3 }],
+      movies: [{ movieId: undefined, shows: 3, basePrice: undefined }],
       basePrice: 75000,
       allowAfterHours: false,
+      dynamicPricing: true,
     },
   });
 
@@ -130,6 +140,14 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
                     Giờ vàng
                   </Badge>
                 )}
+                <div className="shrink-0 text-right">
+                  <p className="text-sm font-medium tabular-nums text-foreground">
+                    {vnd(item.basePrice)}
+                  </p>
+                  {factorLabel(item.priceFactor) && (
+                    <p className="text-xs text-muted-foreground">{factorLabel(item.priceFactor)}</p>
+                  )}
+                </div>
                 <Button
                   type="button"
                   variant="ghost"
@@ -198,7 +216,30 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
                     )}
                   />
                 </div>
-                <div className="w-24 shrink-0">
+                <div className="w-32 shrink-0">
+                  <Controller
+                    name={`movies.${index}.basePrice`}
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value === "" ? undefined : e.target.value)
+                          }
+                          type="number"
+                          min={0}
+                          step={1000}
+                          placeholder="Giá riêng"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      </>
+                    )}
+                  />
+                </div>
+                <div className="w-20 shrink-0">
                   <Controller
                     name={`movies.${index}.shows`}
                     control={form.control}
@@ -232,7 +273,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append({ movieId: undefined as unknown as number, shows: 3 })}
+              onClick={() => append({ movieId: undefined as unknown as number, shows: 3, basePrice: undefined })}
               disabled={fields.length >= 20}
             >
               <Plus className="size-4" /> Thêm phim
@@ -243,10 +284,21 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
         <FormInputField
           name="basePrice"
           control={form.control}
-          label="Giá vé (VNĐ)"
+          label="Giá vé mặc định (VNĐ)"
           type="number"
           min={0}
           step={1000}
+        />
+
+        <Controller
+          name="dynamicPricing"
+          control={form.control}
+          render={({ field }) => (
+            <Field className="flex flex-row items-center justify-between">
+              <FieldLabel>Giá linh hoạt (giờ vàng, cuối tuần, độ hot của phim)</FieldLabel>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            </Field>
+          )}
         />
 
         <Controller

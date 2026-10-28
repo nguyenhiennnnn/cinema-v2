@@ -23,12 +23,12 @@ const MoviesPage = () => {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <Seo
         title="Danh sách phim"
-        description="Khám phá tất cả các bộ phim đang và sắp chiếu tại Perfo. Lọc theo thể loại, ngôn ngữ và nhiều tiêu chí khác."
+        description="Xem tất cả phim đang và sắp chiếu tại Perfo. Lọc theo thể loại, ngôn ngữ và nhiều tiêu chí khác."
         canonical="/movies"
       />
       <div className="mb-6">
         <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">Danh sách phim</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Khám phá tất cả các bộ phim đang và sắp chiếu tại rạp.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Phim đang chiếu và sắp chiếu tại rạp.</p>
       </div>
 
       <MoviesFilterBar params={params} setParams={setParams} />

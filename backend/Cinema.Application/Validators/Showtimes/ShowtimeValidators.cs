@@ -117,6 +117,10 @@ public class AutoScheduleRequestValidator : AbstractValidator<AutoScheduleReques
                 m.RuleFor(x => x.Shows)
                     .InclusiveBetween(1, 20)
                     .WithMessage("shows phải từ 1 đến 20.");
+                m.RuleFor(x => x.BasePrice)
+                    .GreaterThanOrEqualTo(0)
+                    .When(x => x.BasePrice.HasValue)
+                    .WithMessage("basePrice của phim phải >= 0.");
             });
 
         RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage("basePrice phải >= 0.");

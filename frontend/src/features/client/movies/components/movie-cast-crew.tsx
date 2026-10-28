@@ -30,7 +30,7 @@ export const MovieCastCrew = ({ director, cast }: MovieCastCrewProps) => {
                 <UserAvatar src={actor.avatarUrl} name={actor.fullName} size="lg" />
                 <div>
                   <p className="line-clamp-1 text-xs font-medium text-foreground">{actor.fullName}</p>
-                  {actor.characterName && <p className="line-clamp-1 text-[10px] text-muted-foreground">{actor.characterName}</p>}
+                  {actor.characterName && <p className="line-clamp-1 text-xs text-muted-foreground">{actor.characterName}</p>}
                 </div>
               </div>
             ))}

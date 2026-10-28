@@ -206,7 +206,7 @@ export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
             <p className="truncate text-xs font-medium text-sidebar-foreground">
               {user?.fullName}
             </p>
-            <p className="truncate text-[10px] text-sidebar-foreground/40">
+            <p className="truncate text-xs text-sidebar-foreground/60">
               {user?.role}
             </p>
           </div>

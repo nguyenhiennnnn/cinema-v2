@@ -2,7 +2,6 @@ import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export interface StatusPageAction {
   label: string;
@@ -52,7 +51,7 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
                     {action.label}
                   </>
                 );
-                const className = cn(buttonVariants({ variant: action.variant ?? "default" }), "tracking-wide");
+                const className = buttonVariants({ variant: action.variant ?? "default" });
 
                 return action.to ? (
                   <Link key={action.label} to={action.to} className={className}>

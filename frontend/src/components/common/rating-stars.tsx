@@ -33,7 +33,7 @@ export const RatingStars = ({
           onClick={() => onChange?.(star)}
           aria-label={`${star} sao`}
           className={cn(
-            !readOnly && "cursor-pointer transition-transform hover:scale-110",
+            !readOnly && "cursor-pointer",
             readOnly && "cursor-default",
           )}
         >

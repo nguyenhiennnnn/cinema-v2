@@ -608,7 +608,7 @@ public class AuthService(
         await db.SaveChangesAsync(cancellationToken);
 
         var link =
-            $"{appurlOptions.Value.ApiBaseUrl}/{frontendPath}?token={Uri.EscapeDataString(rawToken)}";
+            $"{appurlOptions.Value.FrontendBaseUrl.TrimEnd('/')}/{frontendPath.TrimStart('/')}?token={Uri.EscapeDataString(rawToken)}";
 
         var buttonLabel = purpose switch
         {

@@ -44,6 +44,7 @@ services:
 
       Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGIN:-http://localhost:5173}
       App__ApiBaseUrl: ${API_BASE_URL:-http://localhost:8080}
+      App__FrontendBaseUrl: ${FRONTEND_BASE_URL:-http://localhost:5173}
 
       Jwt__Secret: ${JWT_SECRET:?JWT_SECRET is required — set it in .env}
       Jwt__Issuer: ${JWT_ISSUER:-Cinema}

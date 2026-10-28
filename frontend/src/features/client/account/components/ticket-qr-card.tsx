@@ -13,7 +13,7 @@ export const TicketQrCard = ({ ticket }: TicketQrCardProps) => {
         Ghế {ticket.seatRow}
         {ticket.seatNumber}
       </p>
-      <img src={ticket.qrCodeImage} alt={`QR ghế ${ticket.seatRow}${ticket.seatNumber}`} className="size-40 border border-border bg-white p-2" />
+      <img src={ticket.qrCodeImage} alt={`QR ghế ${ticket.seatRow}${ticket.seatNumber}`} className="size-40 border border-border bg-primary-foreground p-2" />
       {ticket.isCheckedIn ? (
         <span className="flex items-center gap-1 bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
           <CheckCircle2 className="size-3.5" />

@@ -63,7 +63,7 @@ export const ShowtimeCalendarDay = ({
               {HOUR_MARKS.map((hour) => (
                 <div
                   key={hour}
-                  className="flex-1 border-l text-[11px] text-muted-foreground first:border-l-0"
+                  className="flex-1 border-l text-xs text-muted-foreground first:border-l-0"
                 >
                   <span className="ml-1">{hour}h</span>
                 </div>

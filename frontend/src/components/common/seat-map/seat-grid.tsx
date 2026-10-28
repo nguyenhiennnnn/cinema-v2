@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { CinemaScreen } from "./seat-legend";
 import type { SeatGridCell } from "./seat-map-types";
 
 interface SeatGridProps {
@@ -13,6 +14,8 @@ interface SeatGridProps {
   rowLabelTitle?: (rowLabel: string) => string | undefined;
 }
 
+const ROW_LABEL = "t-code w-6 shrink-0 text-center text-[13px] text-muted-foreground";
+
 export const SeatGrid = ({
   rowLabels,
   cols,
@@ -25,29 +28,31 @@ export const SeatGrid = ({
 }: SeatGridProps) => {
   return (
     <div className={cn("w-full overflow-x-auto pb-2", className)}>
-      <div className="mx-auto flex w-max min-w-full flex-col items-center gap-1.5">
+      <div className="mx-auto flex w-max flex-col gap-1.5">
+        {/* thanh màn hình rộng đúng bằng phần ghế (trừ hai cột chữ cái hàng) */}
+        <CinemaScreen className="mx-8 mb-8" />
+
         {rowLabels.map((rowLabel) => (
-          <div key={rowLabel} className="flex items-center gap-1.5">
+          <div key={rowLabel} className="flex items-center gap-2">
             {onRowLabelClick ? (
               <button
                 type="button"
                 onClick={() => onRowLabelClick(rowLabel)}
                 title={rowLabelTitle?.(rowLabel)}
                 className={cn(
-                  "w-5 shrink-0 text-center text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                  ROW_LABEL,
+                  "h-9 transition-colors hover:bg-muted hover:text-foreground",
                   rowLabelClassName?.(rowLabel),
                 )}
               >
                 {rowLabel}
               </button>
             ) : (
-              <span className="w-5 shrink-0 text-center text-xs font-semibold text-muted-foreground">
-                {rowLabel}
-              </span>
+              <span className={ROW_LABEL}>{rowLabel}</span>
             )}
             <div
               className="grid gap-1.5"
-              style={{ gridTemplateColumns: `repeat(${cols}, minmax(2rem, 2.5rem))` }}
+              style={{ gridTemplateColumns: `repeat(${cols}, minmax(2.25rem, 2.5rem))` }}
             >
               {Array.from({ length: cols }, (_, i) => i + 1).map((col) => {
                 const cell = cellAt(rowLabel, col);
@@ -60,9 +65,12 @@ export const SeatGrid = ({
                 );
               })}
             </div>
+            <span className={ROW_LABEL} aria-hidden>
+              {rowLabel}
+            </span>
           </div>
         ))}
       </div>
     </div>
   );
-}
+};

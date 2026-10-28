@@ -68,6 +68,14 @@
   --color-held: var(--held);
   --color-held-foreground: var(--held-foreground);
 
+  /* Không có cỡ chữ dưới 13px: text-xs = 13px */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+
+  /* Lớp phủ trên ảnh/video: không đổi theo theme để chữ luôn đọc rõ */
+  --color-scrim: var(--scrim);
+  --color-scrim-foreground: var(--scrim-foreground);
+
   --radius-xs: 0px;
   --radius-sm: 0px;
   --radius-md: 0px;
@@ -138,6 +146,9 @@
   --held: oklch(0.7 0.15 62);
   --held-foreground: oklch(0.2 0.04 60);
 
+  --scrim: oklch(0.12 0.014 30);
+  --scrim-foreground: oklch(0.95 0.01 80);
+
   --radius: 0px;
   --cut-xs: 4px;
   --cut-sm: 6px;
@@ -202,6 +213,9 @@
   --couple-foreground: oklch(0.13 0.02 350);
   --held: oklch(0.74 0.15 62);
   --held-foreground: oklch(0.16 0.03 60);
+
+  --scrim: oklch(0.12 0.014 30);
+  --scrim-foreground: oklch(0.95 0.01 80);
 
   --radius: 0px;
   --cut-xs: 4px;
@@ -419,18 +433,30 @@
     letter-spacing: 0.04em;
   }
 
+  /* ---- Ô ghế -------------------------------------------------------
+     Hình dạng mang trạng thái, màu chỉ bổ trợ:
+     trống = khối đặc vát hai góc trên, đang chọn = khối đỏ đặc,
+     đang giữ = sọc chéo, đã bán = dấu gạch chéo, đã tắt = chữ gạch ngang,
+     VIP = vạch vàng trên đầu, ghế đôi = rộng gấp đôi + vạch dưới đầu. */
   .seat {
+    --seat-size: 2.25rem;
+    --seat-bg: color-mix(in oklch, var(--secondary) 94%, var(--foreground));
+    --cut: var(--cut-xs);
     position: relative;
-    width: 32px;
-    height: 32px;
-    background: var(--secondary);
+    width: var(--seat-size);
+    height: var(--seat-size);
+    background: var(--seat-bg);
     color: var(--foreground);
-    font: 600 11px/1 var(--font-heading);
+    font-family: var(--font-heading);
+    font-variation-settings: "wdth" 80;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.04em;
     font-variant-numeric: tabular-nums;
     display: grid;
     place-items: center;
     cursor: default;
-    --cut: var(--cut-xs);
     clip-path: polygon(
       var(--cut) 0,
       calc(100% - var(--cut)) 0,
@@ -439,11 +465,18 @@
       0 100%,
       0 var(--cut)
     );
-    transition: background 120ms ease-out, color 120ms ease-out;
+    transition:
+      background-color 120ms ease-out,
+      color 120ms ease-out;
   }
-  /* seat inside grid fills its cell (including couple span) */
+  /* ô trong lưới lấp đầy cột (kể cả ghế đôi chiếm hai cột) */
   .seat--fill {
     width: 100%;
+  }
+  @media (hover: hover) {
+    .seat[data-state="available"]:not(:disabled):hover {
+      background: color-mix(in oklch, var(--secondary) 84%, var(--foreground));
+    }
   }
   .seat[data-state="selected"] {
     background: var(--primary);
@@ -452,7 +485,8 @@
   .seat[data-state="held"] {
     background:
       repeating-linear-gradient(135deg, var(--held) 0 2px, transparent 2px 6px),
-      var(--secondary);
+      var(--seat-bg);
+    cursor: not-allowed;
   }
   .seat[data-state="booked"] {
     background:
@@ -471,6 +505,16 @@
     color: var(--muted-foreground);
     cursor: not-allowed;
   }
+  .seat[data-state="inactive"] {
+    background: color-mix(in oklch, var(--secondary) 70%, transparent);
+    color: var(--muted-foreground);
+    text-decoration: line-through;
+  }
+  .seat[data-state="aisle"] {
+    background: transparent;
+    color: var(--muted-foreground);
+    border: 1px dashed var(--input);
+  }
   .seat[data-type="vip"]::before {
     content: "";
     position: absolute;
@@ -478,7 +522,36 @@
     height: 3px;
     background: var(--vip);
   }
-  .seat[data-type="couple"] {
-    border-radius: 0;
+  .seat[data-type="couple"]::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 3px;
+    background: var(--couple);
+  }
+
+  /* clip-path cắt luôn box-shadow và outline ngoài, nên mọi dấu nhấn
+     của ô ghế dùng outline lệch vào trong */
+  .seat:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+  }
+  .seat[data-mark] {
+    outline: 2px solid var(--primary);
+    outline-offset: -4px;
+  }
+  .seat[data-mark="suggested"] {
+    outline-color: var(--accent);
+  }
+  .seat[data-mark="pending"] {
+    outline-color: var(--couple);
+  }
+  .seat[data-mark="range"] {
+    background: color-mix(in oklch, var(--primary) 16%, var(--seat-bg));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .seat {
+      transition: none;
+    }
   }
 }

@@ -70,7 +70,7 @@ export const AiAssistantWidget = () => {
             {
               id: crypto.randomUUID(),
               role: "assistant",
-              content: "Xin lỗi, hiện mình chưa thể phản hồi. Bạn vui lòng thử lại sau ít phút nhé.",
+              content: "Chưa gửi được tin nhắn. Kiểm tra kết nối rồi gửi lại.",
             },
           ]);
         },

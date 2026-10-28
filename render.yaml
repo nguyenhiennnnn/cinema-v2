@@ -35,6 +35,8 @@ services:
         sync: false
       - key: App__ApiBaseUrl
         sync: false
+      - key: App__FrontendBaseUrl
+        sync: false
       - key: Cloudinary__CloudName
         sync: false
       - key: Cloudinary__ApiKey

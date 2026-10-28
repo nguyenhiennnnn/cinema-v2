@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { ChevronRight, Film, Ticket } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { AiCard } from "../types";
 
 interface AiChatCardsProps {
@@ -59,10 +58,7 @@ export const AiChatCards = ({ cards, onNavigate }: AiChatCardsProps) => {
               )}
             </div>
             <span
-              className={cn(
-                "mt-1 inline-flex items-center gap-0.5 text-xs font-medium text-primary",
-                "transition-transform group-hover:translate-x-0.5",
-              )}
+              className="mt-1 inline-flex items-center gap-0.5 text-xs font-medium text-primary"
             >
               {ACTION_LABEL[card.type]}
               <ChevronRight className="size-3.5" />

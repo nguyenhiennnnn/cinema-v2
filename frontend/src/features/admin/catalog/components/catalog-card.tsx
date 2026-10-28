@@ -26,7 +26,7 @@ export const CatalogCard = ({
     <Link
       to={to}
       className={cn(
-        "group relative flex flex-col justify-between overflow-hidden border border-border bg-card p-5 transition-all duration-300",
+        "group relative flex flex-col justify-between overflow-hidden border border-border bg-card p-5 transition-colors duration-150",
         "hover:border-primary",
       )}
     >
@@ -47,7 +47,7 @@ export const CatalogCard = ({
               {count ?? 0}
             </span>
           )}
-          <p className="text-[11px] text-muted-foreground">bản ghi</p>
+          <p className="text-xs text-muted-foreground">bản ghi</p>
         </div>
       </div>
 

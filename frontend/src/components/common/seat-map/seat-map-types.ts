@@ -8,6 +8,9 @@ export type SeatCellState =
   | "inactive"
   | "aisle";
 
+/** Dấu nhấn phụ trên ô ghế, vẽ bằng outline lệch vào trong (clip-path cắt outline ngoài). */
+export type SeatMark = "suggested" | "range" | "pending";
+
 export interface SeatCellData {
   seatRow: string;
   seatNumber: number;

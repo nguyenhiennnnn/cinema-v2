@@ -79,7 +79,7 @@ export const SeatSuggestionPanel = ({
                   active ? "border-primary" : "border-border",
                 )}
               >
-                <span className="font-mono text-sm font-bold tracking-wider text-foreground">
+                <span className="t-code text-sm text-foreground">
                   {o.seatNumbers.length > 1 ? `${first}–${last}` : first}
                 </span>
                 <span className="text-xs text-muted-foreground">{o.seatNumbers.length} ghế</span>

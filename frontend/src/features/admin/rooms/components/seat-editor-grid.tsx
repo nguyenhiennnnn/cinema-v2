@@ -1,12 +1,24 @@
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
-import { CinemaScreen, SeatLegend } from "@/components/common/seat-map/seat-legend";
+import type { SeatLegendItem } from "@/components/common/seat-map/seat-legend";
+import { SeatMapFrame } from "@/components/common/seat-map/seat-map-frame";
 import { SeatButton } from "@/components/common/seat-map/seat-button";
 import { SeatGrid } from "@/components/common/seat-map/seat-grid";
 import { useSeatGridModel } from "@/components/common/seat-map/use-seat-grid-model";
-import { resolveSeatVisualKind, seatCellKey } from "@/components/common/seat-map/seat-map-types";
+import {
+  resolveSeatVisualKind,
+  seatCellKey,
+  type SeatMark,
+} from "@/components/common/seat-map/seat-map-types";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
 import type { EditorCell } from "../hooks/use-seat-editor-state";
+
+const LEGEND: SeatLegendItem[] = [
+  { label: "Trống", type: "standard", state: "available" },
+  { label: "VIP", type: "vip", state: "available" },
+  { label: "Ghế đôi", type: "couple", state: "available" },
+  { label: "Đã tắt", type: "standard", state: "inactive" },
+  { label: "Lối đi", type: "standard", state: "aisle" },
+];
 
 interface SeatEditorGridProps {
   rows: number;
@@ -99,8 +111,8 @@ export const SeatEditorGrid = ({
   };
 
   const rowLabelClassName = (rowLabel: string) => {
-    if (copySourceRow === rowLabel) return "bg-primary/15 text-primary ring-1 ring-primary/40";
-    if (isPickingCopySource) return "bg-accent/15 text-accent-foreground";
+    if (copySourceRow === rowLabel) return "bg-primary text-primary-foreground";
+    if (isPickingCopySource) return "bg-accent text-accent-foreground";
     return undefined;
   };
 
@@ -115,8 +127,7 @@ export const SeatEditorGrid = ({
   };
 
   return (
-    <div className="border border-border bg-card p-6">
-      <CinemaScreen />
+    <SeatMapFrame legend={LEGEND}>
       <SeatGrid
         rowLabels={rowLabels}
         cols={cols}
@@ -129,6 +140,7 @@ export const SeatEditorGrid = ({
           const key = seatCellKey(rowLabel, col);
           const isPending = pendingCoupleKey === key;
           const isSelected = !previewMode && selectedKeys?.has(key);
+          const mark: SeatMark | undefined = isPending ? "pending" : isSelected ? "range" : undefined;
           const state = cell.isAisle ? "aisle" : cell.isActive ? "available" : "inactive";
           const label = cell.isAisle
             ? ""
@@ -145,26 +157,12 @@ export const SeatEditorGrid = ({
               onClick={previewMode || selectionMode ? undefined : () => onCellClick(rowLabel, col)}
               onMouseDown={!previewMode && selectionMode ? () => handleCellMouseDown(rowLabel, col) : undefined}
               onMouseEnter={!previewMode && selectionMode ? () => handleCellMouseEnter(rowLabel, col) : undefined}
-              className={cn(
-                isPending && "ring-2 ring-couple ring-offset-1 ring-offset-background",
-                isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background bg-primary/10!",
-              )}
+              mark={mark}
               title={cell.coupleId ? "Ghế đôi" : undefined}
             />
           );
         }}
       />
-      <div className="mt-8 border-t border-border/50 pt-5">
-        <SeatLegend
-          items={[
-            { label: "Trống", type: "standard", state: "available" },
-            { label: "VIP", type: "vip", state: "available" },
-            { label: "Ghế đôi", type: "couple", state: "available" },
-            { label: "Đã tắt", type: "standard", state: "inactive" },
-            { label: "Lối đi", type: "standard", state: "aisle" },
-          ]}
-        />
-      </div>
-    </div>
+    </SeatMapFrame>
   );
 }

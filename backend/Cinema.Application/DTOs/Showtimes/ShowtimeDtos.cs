@@ -148,14 +148,15 @@ public record ShowtimeCalendarResponseDto(
     List<ShowtimeCalendarDayDto> Days
 );
 
-public record AutoScheduleMovieRequest(int MovieId, int Shows);
+public record AutoScheduleMovieRequest(int MovieId, int Shows, decimal? BasePrice = null);
 
 public record AutoScheduleRequest(
     DateOnly Date,
     List<AutoScheduleMovieRequest> Movies,
     decimal BasePrice,
     List<int>? RoomIds = null,
-    bool AllowAfterHours = false
+    bool AllowAfterHours = false,
+    bool DynamicPricing = true
 );
 
 public record AutoScheduleItemDto(
@@ -166,7 +167,8 @@ public record AutoScheduleItemDto(
     DateTime StartTime,
     DateTime EndTime,
     decimal BasePrice,
-    bool IsPrime
+    bool IsPrime,
+    double PriceFactor = 1.0
 );
 
 public record AutoScheduleUnplacedDto(int MovieId, string MovieTitle, int Requested, int Placed);

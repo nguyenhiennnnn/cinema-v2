@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 
-const COLORS = [
-  "oklch(0.4 0.15 23)",
-  "oklch(0.6 0.086 74)",
-  "oklch(0.5 0.11 152)",
-  "oklch(0.55 0.1 200)",
-  "oklch(0.5 0.11 350)",
-];
+/** Màu pháo giấy lấy từ token của design system, đọc lúc bắn để theo đúng theme đang bật. */
+const COLOR_TOKENS = ["--primary", "--accent", "--success", "--couple", "--held"];
+
+const readPalette = () => {
+  const style = getComputedStyle(document.documentElement);
+  return COLOR_TOKENS.map((token) => style.getPropertyValue(token).trim()).filter(Boolean);
+};
 
 interface Particle {
   x: number;
@@ -30,6 +30,9 @@ export const Confetti = ({ active, duration = 3200 }: { active: boolean; duratio
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
+    const palette = readPalette();
+    if (palette.length === 0) return;
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const resize = () => {
       canvas.width = window.innerWidth * dpr;
@@ -50,7 +53,7 @@ export const Confetti = ({ active, duration = 3200 }: { active: boolean; duratio
       rotation: Math.random() * 360,
       vr: (Math.random() - 0.5) * 10,
       size: 6 + Math.random() * 6,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      color: palette[Math.floor(Math.random() * palette.length)],
       shape: Math.random() > 0.5 ? "rect" : "circle",
     }));
 

@@ -1,12 +1,12 @@
-import { cn } from "@/lib/utils";
 import { ShowtimeSeatStatus } from "@/types/enum";
 import type {
   AislePositionDto,
   ShowtimeSeatItemDto,
 } from "@/features/client/showtimes/types";
-import { CinemaScreen, SeatLegend } from "./seat-legend";
+import type { SeatLegendItem } from "./seat-legend";
 import { SeatButton } from "./seat-button";
 import { SeatGrid } from "./seat-grid";
+import { SeatMapFrame } from "./seat-map-frame";
 import { useSeatGridModel } from "./use-seat-grid-model";
 import { resolveSeatVisualKind, seatCellKey, type SeatCellData, type SeatCellState } from "./seat-map-types";
 
@@ -28,6 +28,24 @@ function toCellState(status: ShowtimeSeatStatus, isSelected: boolean): SeatCellS
   if (status === ShowtimeSeatStatus.Held) return "held";
   return "available";
 }
+
+const STATE_TEXT: Record<SeatCellState, string> = {
+  available: "trống",
+  selected: "đang chọn",
+  held: "đang giữ",
+  booked: "đã bán",
+  inactive: "đã tắt",
+  aisle: "lối đi",
+};
+
+const LEGEND: SeatLegendItem[] = [
+  { label: "Trống", state: "available", type: "standard" },
+  { label: "VIP", state: "available", type: "vip" },
+  { label: "Ghế đôi", state: "available", type: "couple" },
+  { label: "Đang chọn", state: "selected", type: "standard" },
+  { label: "Đang giữ", state: "held", type: "standard" },
+  { label: "Đã bán", state: "booked", type: "standard" },
+];
 
 export const SelectableSeatMap = ({
   rows,
@@ -67,14 +85,12 @@ export const SelectableSeatMap = ({
   const { rowLabels, cellAt } = useSeatGridModel({ rowsCount: rows, cols, cells });
 
   return (
-    <div className={cn("bg-card p-6 cut-lg", className)}>
-      <CinemaScreen />
-
+    <SeatMapFrame legend={LEGEND} className={className}>
       <SeatGrid
         rowLabels={rowLabels}
         cols={cols}
         cellAt={cellAt}
-        renderCell={(cell, col) => {
+        renderCell={(cell, _rowLabel, col) => {
           if (!cell) return null;
           if (cell.isAisle) {
             return <SeatButton label="" state="aisle" />;
@@ -83,15 +99,20 @@ export const SelectableSeatMap = ({
 
           const status = statusMap.get(cell.showtimeSeatId) ?? ShowtimeSeatStatus.Available;
           const isSelected = selectedIds.has(cell.showtimeSeatId);
-          const label = cell.coupleSpan === 2 ? `${cell.seatRow}${col}` : `${col}`;
+          const state = toCellState(status, isSelected);
+          const isCouple = cell.coupleSpan === 2;
+          const label = isCouple ? `${col}-${col + 1}` : `${col}`;
+          const code = isCouple
+            ? `${cell.seatRow}${cell.seatNumber}-${cell.seatRow}${cell.seatNumber + 1}`
+            : `${cell.seatRow}${cell.seatNumber}`;
 
           return (
             <SeatButton
               label={label}
-              ariaLabel={`Ghế ${cell.seatRow}${cell.seatNumber}`}
+              ariaLabel={`Ghế ${code}, ${STATE_TEXT[state]}`}
               kind={resolveSeatVisualKind(cell.seatTypeName)}
-              state={toCellState(status, isSelected)}
-              className={cn(highlightedIds?.has(cell.showtimeSeatId) && "ring-2 ring-accent animate-pulse")}
+              state={state}
+              mark={highlightedIds?.has(cell.showtimeSeatId) ? "suggested" : undefined}
               onClick={() =>
                 onToggle({
                   showtimeSeatId: cell.showtimeSeatId!,
@@ -104,24 +125,11 @@ export const SelectableSeatMap = ({
                   price: cell.price ?? 0,
                 })
               }
-              title={`${cell.seatRow}${cell.seatNumber}, ${cell.seatTypeName ?? ""}`}
+              title={`${code}${cell.seatTypeName ? `, ${cell.seatTypeName}` : ""}`}
             />
           );
         }}
       />
-
-      <div className="mt-8 border-t border-border/50 pt-5">
-        <SeatLegend
-          items={[
-            { label: "Trống", state: "available", type: "standard" },
-            { label: "VIP", state: "available", type: "vip" },
-            { label: "Ghế đôi", state: "available", type: "couple" },
-            { label: "Đang chọn", state: "selected", type: "standard" },
-            { label: "Đang giữ", state: "held", type: "standard" },
-            { label: "Đã bán", state: "booked", type: "standard" },
-          ]}
-        />
-      </div>
-    </div>
+    </SeatMapFrame>
   );
 };

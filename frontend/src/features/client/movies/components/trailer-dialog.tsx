@@ -15,7 +15,7 @@ function toEmbedUrl(url: string) {
 export const TrailerDialog = ({ open, onOpenChange, trailerUrl, title }: TrailerDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl overflow-hidden border-none bg-black p-0">
+      <DialogContent className="max-w-3xl overflow-hidden border-none bg-scrim p-0">
         <div className="aspect-video w-full">
           {open && (
             <iframe

@@ -10,13 +10,7 @@ const AdminAuthLayout = () => {
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 65% 60% at 50% 50%, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.35) 100%)",
-        }}
-      />
+      <div className="absolute inset-0 bg-scrim/60" />
 
       <div className="relative z-10 flex w-full max-w-sm flex-col items-center gap-5">
         <Link to="/" className="flex items-center gap-2">

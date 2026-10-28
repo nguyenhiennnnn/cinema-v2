@@ -27,11 +27,10 @@ export const HeroCarousel = () => {
   const movie = movies[index];
 
   return (
-    <div className="relative h-[70vh] min-h-105 w-full overflow-hidden bg-black">
+    <div className="relative h-[70vh] min-h-105 w-full overflow-hidden bg-scrim">
       <img src={movie.posterUrl ?? undefined} alt={movie.title} className="absolute inset-0 h-full w-full object-cover" />
-      {/* Lớp phủ cố định — chữ luôn đọc rõ trên cả light/dark */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.1) 100%)" }} />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }} />
+      {/* Lớp phủ đặc, không đổi theo theme: chữ luôn đọc rõ trên cả light và dark */}
+      <div className="absolute inset-0 bg-scrim/60" />
 
       <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-14 sm:px-6 lg:px-8">
         <p className="text-[13px] font-medium text-accent">Đang chiếu</p>
@@ -39,15 +38,15 @@ export const HeroCarousel = () => {
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <AgeRatingBadge code={movie.ageRating?.code} onImage />
           {movie.genres.slice(0, 3).map((g) => (
-            <span key={g} className="border border-white/20 bg-white/10 px-2 py-0.5 text-xs font-medium text-white/90">
+            <span key={g} className="bg-scrim-foreground/15 px-2 py-0.5 text-xs font-medium text-scrim-foreground">
               {g}
             </span>
           ))}
         </div>
 
-        <h1 className="mt-3 max-w-2xl t-h1 text-white md:text-6xl">{movie.title}</h1>
+        <h1 className="mt-3 max-w-2xl t-h1 text-scrim-foreground md:text-6xl">{movie.title}</h1>
 
-        <div className="mt-4 flex items-center gap-4 text-sm text-white/70">
+        <div className="mt-4 flex items-center gap-4 text-sm text-scrim-foreground/70">
           <span>{formatDuration(movie.durationMinutes)}</span>
           {movie.averageRating > 0 && (
             <span className="flex items-center gap-1 font-semibold text-accent">
@@ -67,7 +66,7 @@ export const HeroCarousel = () => {
           </Link>
           <Link
             to={`/movies/${movie.movieId}`}
-            className="inline-flex items-center gap-2 border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/20"
+            className="cut-sm inline-flex items-center gap-2 bg-scrim-foreground/15 px-5 py-2.5 text-sm font-medium text-scrim-foreground hover:bg-scrim-foreground/25"
           >
             <Info className="size-4" />
             Chi tiết phim
@@ -76,7 +75,7 @@ export const HeroCarousel = () => {
 
         {movies.length > 1 && (
           <div className="mt-8 flex items-center gap-4">
-            <button onClick={() => setIndex((i) => (i - 1 + movies.length) % movies.length)} className="text-white/60 hover:text-white">
+            <button onClick={() => setIndex((i) => (i - 1 + movies.length) % movies.length)} className="text-scrim-foreground/60 hover:text-scrim-foreground">
               <ChevronLeft className="size-5" />
             </button>
             <div className="flex gap-1.5">
@@ -84,11 +83,11 @@ export const HeroCarousel = () => {
                 <button
                   key={m.movieId}
                   onClick={() => setIndex(i)}
-                  className={cn("h-1 transition-all", i === index ? "w-7 bg-primary" : "w-3.5 bg-white/30")}
+                  className={cn("h-1 transition-all", i === index ? "w-7 bg-primary" : "w-3.5 bg-scrim-foreground/30")}
                 />
               ))}
             </div>
-            <button onClick={() => setIndex((i) => (i + 1) % movies.length)} className="text-white/60 hover:text-white">
+            <button onClick={() => setIndex((i) => (i + 1) % movies.length)} className="text-scrim-foreground/60 hover:text-scrim-foreground">
               <ChevronRight className="size-5" />
             </button>
           </div>

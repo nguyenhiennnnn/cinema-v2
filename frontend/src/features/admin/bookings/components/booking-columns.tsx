@@ -26,7 +26,7 @@ export const createBookingColumns = ({ onViewDetail }: BookingColumnsOptions) =>
     columnHelper.accessor("bookingCode", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Mã đơn" />,
       cell: ({ row }) => (
-        <span className="tabular-nums font-medium tracking-wider text-foreground">
+        <span className="t-code text-foreground">
           {row.original.bookingCode}
         </span>
       ),
