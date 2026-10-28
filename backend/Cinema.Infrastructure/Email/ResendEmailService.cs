@@ -8,11 +8,6 @@ using Microsoft.Extensions.Options;
 
 namespace Cinema.Infrastructure.Email;
 
-/// <summary>
-/// Gửi email qua Resend HTTP API (https://resend.com) — không dùng SMTP port 587/465.
-/// Phù hợp với Render Free Tier vốn block outbound SMTP.
-/// Đăng ký miễn phí tại resend.com → tạo API key → thêm vào Email:ResendApiKey.
-/// </summary>
 public class ResendEmailService(
     IHttpClientFactory httpClientFactory,
     IOptions<EmailOptions> options,
@@ -35,7 +30,7 @@ public class ResendEmailService(
 
         var payload = new
         {
-            from = $"{_options.FromName} <{_options.FromAddress}>",
+            from = $"{_options.FromName} <{(string.IsNullOrWhiteSpace(_options.ResendFromAddress) ? _options.FromAddress : _options.ResendFromAddress)}>",
             to = new[] { toEmail },
             subject,
             html = htmlBody,

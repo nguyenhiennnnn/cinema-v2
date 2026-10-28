@@ -15,6 +15,7 @@ using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,6 +25,17 @@ using Serilog;
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
+
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Serilog — structured logging
 // Doc config tu appsettings.json (Serilog section),
@@ -227,9 +239,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-var connectionString =
-    builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection");
+var connectionString = builder.Configuration.GetPostgresConnectionString();
 
 // Hangfire — background job processing
 // Storage: SQL Server (cung DB voi ung dung)
@@ -366,6 +376,8 @@ if (runMigrationsOnStartup)
 
 // Enable request body buffering truoc Serilog de stream co the doc nhieu lan.
 // Can thiet cho Stripe webhook signature verification (EventUtility.ConstructEvent).
+app.UseForwardedHeaders();
+
 app.Use(
     async (context, next) =>
     {
@@ -391,7 +403,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.UseCors("Default"); // CORS truoc Authentication
 if (!app.Environment.IsEnvironment("Testing"))
 {

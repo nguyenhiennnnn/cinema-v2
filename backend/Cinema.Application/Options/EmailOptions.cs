@@ -17,9 +17,7 @@ public class EmailOptions
 
     public int PasswordResetExpirationMinutes { get; set; } = 30;
 
-    /// <summary>
-    /// Resend API key (https://resend.com). Khi được cấu hình, dùng Resend HTTP API
-    /// thay cho SMTP — bắt buộc trên Render Free Tier vì SMTP port 587/465 bị block.
-    /// </summary>
     public string ResendApiKey { get; set; } = string.Empty;
+
+    public string ResendFromAddress { get; set; } = string.Empty;
 }

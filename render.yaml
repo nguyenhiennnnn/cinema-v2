@@ -1,88 +1,60 @@
-# render.yaml — Render Infrastructure-as-Code
-# Tham khảo: https://render.com/docs/blueprint-spec
-#
-# Để triển khai:
-# 1. Tạo tài khoản Render.com
-# 2. Kết nối repository GitHub
-# 3. Tạo "New Blueprint" và chọn file này
-# 4. Render sẽ tự động tạo PostgreSQL database và Web Service
+databases:
+  - name: cinema-db
+    plan: free
+    region: singapore
+    databaseName: cinema_db
+    user: cinema_user
+    ipAllowList: []
 
 services:
-  # ── Backend: ASP.NET Core Web API ─────────────────────────────────────────
   - type: web
     name: cinema-api
     runtime: docker
-    # Dockerfile nằm trong thư mục backend/
+    plan: free
+    region: singapore
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    # Build target: production stage (không phải dev stage)
-    dockerCommand: ""
-    plan: free
-    healthCheckPath: /health
-
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: commit
     envVars:
-      # ── Kết nối PostgreSQL — Render tự inject khi dùng fromDatabase ───────
       - key: ConnectionStrings__DefaultConnection
         fromDatabase:
           name: cinema-db
           property: connectionString
-
-      # ── ASP.NET Core Environment ──────────────────────────────────────────
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: ASPNETCORE_URLS
-        value: http://+:8080
       - key: RunMigrationsOnStartup
         value: "true"
-
-      # ── CORS: cho phép domain frontend Vercel ────────────────────────────
-      # Cập nhật giá trị này sau khi deploy frontend lên Vercel
-      - key: Cors__AllowedOrigins__0
-        sync: false # Cần nhập thủ công trên Render Dashboard
-
-      # ── App URL (URL của backend sau khi deploy) ─────────────────────────
-      - key: App__ApiBaseUrl
-        sync: false # Cần nhập thủ công
-
-      # ── JWT ──────────────────────────────────────────────────────────────
       - key: Jwt__Secret
-        generateValue: true # Render tự sinh secret ngẫu nhiên
-
-      # ── Cloudinary ───────────────────────────────────────────────────────
+        generateValue: true
+      - key: Jwt__Issuer
+        value: Cinema
+      - key: Jwt__Audience
+        value: Cinema.Client
+      - key: Cors__AllowedOrigins__0
+        sync: false
+      - key: App__ApiBaseUrl
+        sync: false
       - key: Cloudinary__CloudName
         sync: false
       - key: Cloudinary__ApiKey
         sync: false
       - key: Cloudinary__ApiSecret
         sync: false
-
-      # ── Email (SMTP) ──────────────────────────────────────────────────────
-      - key: Email__SmtpHost
-        sync: false
-      - key: Email__SmtpPort
-        value: "587"
-      - key: Email__SmtpUser
-        sync: false
-      - key: Email__SmtpPassword
-        sync: false
       - key: Email__ResendApiKey
         sync: false
-      - key: Email__FromAddress
-        sync: false
+      - key: Email__ResendFromAddress
+        value: onboarding@resend.dev
       - key: Email__FromName
         value: Cinema
-
-      # ── VnPay ─────────────────────────────────────────────────────────────
       - key: VnPay__TmnCode
         sync: false
       - key: VnPay__HashSecret
         sync: false
       - key: VnPay__ReturnUrl
-        sync: false # https://<frontend-vercel-domain>/booking/result
+        sync: false
       - key: VnPay__IpnUrl
-        sync: false # https://<cinema-api-render-domain>/api/v1/payments/vnpay/ipn
-
-      # ── Momo ──────────────────────────────────────────────────────────────
+        sync: false
       - key: Momo__PartnerCode
         sync: false
       - key: Momo__AccessKey
@@ -93,8 +65,6 @@ services:
         sync: false
       - key: Momo__IpnUrl
         sync: false
-
-      # ── Stripe ────────────────────────────────────────────────────────────
       - key: Stripe__SecretKey
         sync: false
       - key: Stripe__PublishableKey
@@ -103,21 +73,29 @@ services:
         sync: false
       - key: Stripe__ReturnUrl
         sync: false
-
-      # ── Google OAuth ──────────────────────────────────────────────────────
       - key: Google__ClientId
         sync: false
       - key: Google__ClientSecret
         sync: false
-
-      # ── Gemini AI ─────────────────────────────────────────────────────────
       - key: Gemini__ApiKey
         sync: false
 
-# ── PostgreSQL Database ────────────────────────────────────────────────────
-databases:
-  - name: cinema-db
-    plan: free
-    databaseName: cinema_db
-    user: cinema_user
-    region: singapore
+  - type: web
+    name: cinema-web
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/dist
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+      - key: VITE_SITE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

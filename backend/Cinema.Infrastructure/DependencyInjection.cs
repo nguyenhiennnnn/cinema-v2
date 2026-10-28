@@ -1,5 +1,4 @@
 using Cinema.Application.Interfaces;
-using Cinema.Application.Options;
 using Cinema.Application.Services.Ai;
 using Cinema.Infrastructure.Auth;
 using Cinema.Infrastructure.Email;
@@ -20,9 +19,7 @@ public static class DependencyInjection
         IConfiguration configuration
     )
     {
-        var connectionString =
-            configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection");
+        var connectionString = configuration.GetPostgresConnectionString();
 
         var env = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
         var isDev = string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase);
@@ -30,10 +27,7 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>((sp, options) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var conn =
-                config.GetConnectionString("DefaultConnection")
-                ?? configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection");
+            var conn = config.GetPostgresConnectionString();
 
             var env = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
             var isDev = string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase);
@@ -64,16 +58,10 @@ public static class DependencyInjection
 
         services.AddScoped<IFileStorage, CloudinaryFileStorage>();
 
-        var resendApiKey = configuration["Email:ResendApiKey"];
-        if (!string.IsNullOrWhiteSpace(resendApiKey))
-        {
-            services.AddHttpClient("Resend");
-            services.AddScoped<IEmailService, ResendEmailService>();
-        }
-        else
-        {
-            services.AddScoped<IEmailService, MailKitEmailService>();
-        }
+        services.AddHttpClient("Resend");
+        services.AddScoped<ResendEmailService>();
+        services.AddScoped<MailKitEmailService>();
+        services.AddScoped<IEmailService, FallbackEmailService>();
 
         services.AddScoped<IRealtimeNotifier, SignalRRealtimeNotifier>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
