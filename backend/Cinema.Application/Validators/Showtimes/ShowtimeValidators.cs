@@ -94,3 +94,48 @@ public class BulkDeleteShowtimesRequestValidator : AbstractValidator<BulkDeleteS
         RuleForEach(x => x.ShowtimeIds).GreaterThan(0).WithMessage("showtimeId phải lớn hơn 0.");
     }
 }
+
+public class AutoScheduleRequestValidator : AbstractValidator<AutoScheduleRequest>
+{
+    public AutoScheduleRequestValidator()
+    {
+        RuleFor(x => x.Date).NotEmpty().WithMessage("date không được để trống.");
+
+        RuleFor(x => x.Movies)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithMessage("movies không được để trống.")
+            .Must(m => m.Count <= 20)
+            .WithMessage("Tối đa 20 phim mỗi lần xếp lịch.")
+            .Must(m => m.Select(x => x.MovieId).Distinct().Count() == m.Count)
+            .WithMessage("movies không được chứa phim trùng lặp.");
+
+        RuleForEach(x => x.Movies)
+            .ChildRules(m =>
+            {
+                m.RuleFor(x => x.MovieId).GreaterThan(0).WithMessage("movieId phải lớn hơn 0.");
+                m.RuleFor(x => x.Shows)
+                    .InclusiveBetween(1, 20)
+                    .WithMessage("shows phải từ 1 đến 20.");
+            });
+
+        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage("basePrice phải >= 0.");
+
+        RuleForEach(x => x.RoomIds).GreaterThan(0).WithMessage("roomId phải lớn hơn 0.");
+    }
+}
+
+public class ApplyAutoScheduleRequestValidator : AbstractValidator<ApplyAutoScheduleRequest>
+{
+    public ApplyAutoScheduleRequestValidator()
+    {
+        RuleFor(x => x.Items)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithMessage("items không được để trống.")
+            .Must(i => i.Count <= 200)
+            .WithMessage("Tối đa 200 suất chiếu mỗi lần áp dụng.");
+
+        RuleForEach(x => x.Items).SetValidator(new UpsertShowtimeRequestValidator());
+    }
+}

@@ -18,4 +18,6 @@ public class CinemaSettings
     public decimal CancelRefundPercent { get; set; } = 100m;
 
     public int CancelDeadlineHours { get; set; } = 2;
+
+    public int StopSellingMinutesBefore { get; set; }
 }

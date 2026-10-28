@@ -6,6 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
@@ -34,6 +35,7 @@ const bulkFormSchema = z.object({
   daysOfWeek: z.array(z.string()).min(1, "Chọn ít nhất một thứ trong tuần."),
   times: z.array(z.object({ value: z.string().min(1, "Vui lòng chọn giờ chiếu.") })).min(1, "Thêm ít nhất một khung giờ."),
   basePrice: z.coerce.number().min(0, "Giá vé không hợp lệ."),
+  allowAfterHours: z.boolean(),
 });
 
 type BulkFormValues = z.infer<typeof bulkFormSchema>;
@@ -59,6 +61,7 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
       daysOfWeek: [],
       times: [{ value: "" }],
       basePrice: 75000,
+      allowAfterHours: false,
     },
   });
 
@@ -81,6 +84,7 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
       daysOfWeek: values.daysOfWeek,
       times: values.times.map((t) => t.value),
       basePrice: values.basePrice,
+      allowAfterHours: values.allowAfterHours,
     }, {
       onSuccess: () => {
         toast.add({
@@ -218,6 +222,17 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
           type="number"
           min={0}
           step={1000}
+        />
+
+        <Controller
+          name="allowAfterHours"
+          control={form.control}
+          render={({ field }) => (
+            <Field className="flex flex-row items-center justify-between">
+              <FieldLabel>Cho phép suất khuya (kết thúc sau giờ đóng cửa)</FieldLabel>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            </Field>
+          )}
         />
       </FieldGroup>
 

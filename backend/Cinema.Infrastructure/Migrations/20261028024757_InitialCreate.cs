@@ -58,7 +58,8 @@ namespace Cinema.Infrastructure.Migrations
                     UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     PointsPerAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false, defaultValue: 10000m),
                     CancelRefundPercent = table.Column<decimal>(type: "numeric(5,2)", nullable: false, defaultValue: 0m),
-                    CancelDeadlineHours = table.Column<int>(type: "integer", nullable: false)
+                    CancelDeadlineHours = table.Column<int>(type: "integer", nullable: false),
+                    StopSellingMinutesBefore = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -796,8 +797,8 @@ namespace Cinema.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "CinemaSettings",
-                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CancelRefundPercent", "ClosingTime", "Email", "LogoUrl", "Name", "OpeningTime", "Phone", "PointsPerAmount", "TaxCode", "UpdatedAt" },
-                values: new object[] { 1, "Đang cập nhật", 2, 100m, new TimeOnly(23, 59, 0), null, null, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, null, null });
+                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CancelRefundPercent", "ClosingTime", "Email", "LogoUrl", "Name", "OpeningTime", "Phone", "PointsPerAmount", "StopSellingMinutesBefore", "TaxCode", "UpdatedAt" },
+                values: new object[] { 1, "Đang cập nhật", 2, 100m, new TimeOnly(23, 59, 0), null, null, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, 0, null, null });
 
             migrationBuilder.InsertData(
                 table: "Combos",

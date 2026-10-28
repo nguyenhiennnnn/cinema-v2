@@ -100,7 +100,12 @@ public class ShowtimeService(
 
         var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
 
-        await ValidateShowtimeTimeWindowAsync(request.StartTime, cancellationToken);
+        await ValidateOperatingHoursAsync(
+            request.StartTime,
+            request.StartTime.AddMinutes(movie.DurationMinutes),
+            request.AllowAfterHours,
+            cancellationToken
+        );
 
         await EnsureNoOverlapAsync(
             request.RoomId,
@@ -195,7 +200,17 @@ public class ShowtimeService(
             );
 
         var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
-        await ValidateShowtimeTimeWindowAsync(request.StartTime, cancellationToken);
+        if (
+            showtime.StartTime != request.StartTime
+            || showtime.MovieId != request.MovieId
+            || request.AllowAfterHours
+        )
+            await ValidateOperatingHoursAsync(
+                request.StartTime,
+                request.StartTime.AddMinutes(movie.DurationMinutes),
+                request.AllowAfterHours,
+                cancellationToken
+            );
         await EnsureNoOverlapAsync(
             showtime.RoomId,
             request.StartTime,
@@ -461,23 +476,19 @@ public class ShowtimeService(
                 var startTime = date.ToDateTime(timeOfDay);
                 var endTime = startTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
 
-                if (settings is not null)
+                var violation = OperatingHours.Violation(
+                    startTime,
+                    startTime.AddMinutes(movie.DurationMinutes),
+                    settings?.OpeningTime,
+                    settings?.ClosingTime,
+                    request.AllowAfterHours
+                );
+                if (violation is not null)
                 {
-                    var t = TimeOnly.FromDateTime(startTime);
-                    if (
-                        (settings.OpeningTime.HasValue && t < settings.OpeningTime.Value)
-                        || (settings.ClosingTime.HasValue && t >= settings.ClosingTime.Value)
-                    )
-                    {
-                        skipped.Add(
-                            new BulkSkippedShowtimeItem(
-                                date.ToString("dd/MM/yyyy"),
-                                timeStr,
-                                $"Ngoài khung giờ hoạt động ({settings.OpeningTime:HH\\:mm} - {settings.ClosingTime:HH\\:mm})."
-                            )
-                        );
-                        continue;
-                    }
+                    skipped.Add(
+                        new BulkSkippedShowtimeItem(date.ToString("dd/MM/yyyy"), timeStr, violation)
+                    );
+                    continue;
                 }
 
                 if (
@@ -587,6 +598,212 @@ public class ShowtimeService(
         );
 
         return new BulkDeleteShowtimesResponse(results, successCount, results.Count - successCount);
+    }
+
+    public async Task<int> CompleteEndedShowtimesAsync(CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        var count = await db
+            .Showtimes.Where(s => s.Status == ShowtimeStatus.Scheduled && s.EndTime < now)
+            .ExecuteUpdateAsync(
+                s => s.SetProperty(x => x.Status, ShowtimeStatus.Completed),
+                cancellationToken
+            );
+        if (count > 0)
+            logger.LogInformation("ShowtimesCompleted Count {Count}", count);
+
+        return count;
+    }
+
+    public async Task<int> EndMoviesWithoutUpcomingShowtimesAsync(
+        CancellationToken cancellationToken
+    )
+    {
+        var now = DateTime.UtcNow;
+        var cutoff = ShowtimeLifecycle.MovieEndCutoff(now);
+        var count = await db
+            .Movies.Where(m =>
+                m.Status == MovieStatus.NowShowing
+                && m.Showtimes.Any(s => s.Status != ShowtimeStatus.Cancelled)
+                && !m.Showtimes.Any(s => s.Status == ShowtimeStatus.Scheduled && s.EndTime > cutoff)
+            )
+            .ExecuteUpdateAsync(
+                m => m.SetProperty(x => x.Status, MovieStatus.Ended),
+                cancellationToken
+            );
+        if (count > 0)
+            logger.LogInformation("MoviesEnded Count {Count}", count);
+
+        return count;
+    }
+
+    public async Task<AutoScheduleResponseDto> PreviewAutoScheduleAsync(
+        AutoScheduleRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var movieIds = request.Movies.Select(m => m.MovieId).ToList();
+        var movies = await db
+            .Movies.Where(m => movieIds.Contains(m.MovieId))
+            .Select(m => new
+            {
+                m.MovieId,
+                m.Title,
+                m.DurationMinutes,
+                m.Status,
+                m.AverageRating,
+            })
+            .ToListAsync(cancellationToken);
+
+        var missing = movieIds.Except(movies.Select(m => m.MovieId)).ToList();
+        if (missing.Count > 0)
+            throw new ValidationAppException(
+                $"movieId không tồn tại: {string.Join(", ", missing)}."
+            );
+
+        var ended = movies.FirstOrDefault(m => m.Status == MovieStatus.Ended);
+        if (ended is not null)
+            throw new BusinessRuleException(
+                $"Phim \"{ended.Title}\" đã ngừng chiếu (Ended), không thể xếp lịch."
+            );
+
+        var roomQuery = db.CinemaRooms.Where(r =>
+            r.IsActive && r.Seats.Any(s => s.IsActive && !s.IsAisle)
+        );
+        if (request.RoomIds is { Count: > 0 } roomIds)
+            roomQuery = roomQuery.Where(r => roomIds.Contains(r.RoomId));
+        var rooms = await roomQuery
+            .Select(r => new
+            {
+                r.RoomId,
+                r.RoomName,
+                Seats = r.Seats.Count(s => s.IsActive && !s.IsAisle),
+            })
+            .ToListAsync(cancellationToken);
+        if (rooms.Count == 0)
+            throw new BusinessRuleException(
+                "Không có phòng chiếu hoạt động và đã có sơ đồ ghế để xếp lịch."
+            );
+
+        var hours = await db
+            .CinemaSettings.Where(s => s.Id == 1)
+            .Select(s => new { s.OpeningTime, s.ClosingTime })
+            .FirstOrDefaultAsync(cancellationToken);
+        var (open, _) = OperatingHours.Window(request.Date, hours?.OpeningTime, hours?.ClosingTime);
+        var horizon = request.Date.ToDateTime(TimeOnly.MinValue).AddDays(2);
+        var scheduledRoomIds = rooms.Select(r => r.RoomId).ToList();
+        var busy = await db
+            .Showtimes.Where(s =>
+                s.Status == ShowtimeStatus.Scheduled
+                && scheduledRoomIds.Contains(s.RoomId)
+                && s.EndTime > open
+                && s.StartTime < horizon
+            )
+            .Select(s => new SchedulerBusy(s.RoomId, s.StartTime, s.EndTime))
+            .ToListAsync(cancellationToken);
+
+        var since = DateTime.UtcNow.AddDays(-7);
+        var tickets = await db
+            .BookingTickets.Where(t =>
+                t.Booking.Status == BookingStatus.Confirmed
+                && t.Booking.CreatedAt >= since
+                && movieIds.Contains(t.ShowtimeSeat.Showtime.MovieId)
+            )
+            .GroupBy(t => t.ShowtimeSeat.Showtime.MovieId)
+            .Select(g => new { MovieId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.MovieId, x => x.Count, cancellationToken);
+        var maxTickets = tickets.Values.DefaultIfEmpty(0).Max();
+
+        var requested = request.Movies.ToDictionary(m => m.MovieId, m => m.Shows);
+        var slots = ShowtimeScheduler.Build(
+            request.Date,
+            hours?.OpeningTime,
+            hours?.ClosingTime,
+            request.AllowAfterHours,
+            _bufferMinutes,
+            rooms.Select(r => new SchedulerRoom(r.RoomId, r.Seats)).ToList(),
+            movies
+                .Select(m => new SchedulerMovie(
+                    m.MovieId,
+                    m.DurationMinutes,
+                    ShowtimeScheduler.Heat(
+                        tickets.GetValueOrDefault(m.MovieId),
+                        maxTickets,
+                        m.AverageRating
+                    ),
+                    requested[m.MovieId]
+                ))
+                .ToList(),
+            busy
+        );
+
+        var titles = movies.ToDictionary(m => m.MovieId, m => m.Title);
+        var roomNames = rooms.ToDictionary(r => r.RoomId, r => r.RoomName);
+        var items = slots
+            .Select(s => new AutoScheduleItemDto(
+                s.MovieId,
+                titles[s.MovieId],
+                s.RoomId,
+                roomNames[s.RoomId],
+                s.Start,
+                s.End,
+                request.BasePrice,
+                ShowtimeScheduler.Prime(s.Start, request.Date) >= 1
+            ))
+            .ToList();
+        var unplaced = movies
+            .Select(m => new AutoScheduleUnplacedDto(
+                m.MovieId,
+                m.Title,
+                requested[m.MovieId],
+                slots.Count(s => s.MovieId == m.MovieId)
+            ))
+            .Where(u => u.Placed < u.Requested)
+            .ToList();
+
+        return new AutoScheduleResponseDto(request.Date.ToString("dd/MM/yyyy"), items, unplaced);
+    }
+
+    public async Task<BulkCreateShowtimesResponse> ApplyAutoScheduleAsync(
+        ApplyAutoScheduleRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var created = new List<BulkCreatedShowtimeItem>();
+        var skipped = new List<BulkSkippedShowtimeItem>();
+
+        foreach (var item in request.Items.OrderBy(i => i.StartTime))
+        {
+            try
+            {
+                var result = await CreateShowtimeAsync(item, cancellationToken);
+                created.Add(
+                    new BulkCreatedShowtimeItem(
+                        result.ShowtimeId,
+                        result.StartTime,
+                        result.SeatsGenerated
+                    )
+                );
+            }
+            catch (AppException ex)
+            {
+                skipped.Add(
+                    new BulkSkippedShowtimeItem(
+                        item.StartTime.ToString("dd/MM/yyyy"),
+                        item.StartTime.ToString("HH:mm"),
+                        ex.Message
+                    )
+                );
+            }
+        }
+
+        logger.LogInformation(
+            "AutoScheduleApplied TotalCreated {Created} TotalSkipped {Skipped}",
+            created.Count,
+            skipped.Count
+        );
+
+        return new BulkCreateShowtimesResponse(created, skipped, created.Count, skipped.Count);
     }
 
     public async Task<List<SeatSuggestionDto>> GetSeatSuggestionsAsync(
@@ -857,28 +1074,26 @@ public class ShowtimeService(
         return activeSeats.Count;
     }
 
-    private async Task ValidateShowtimeTimeWindowAsync(
+    private async Task ValidateOperatingHoursAsync(
         DateTime startTime,
+        DateTime endTime,
+        bool allowAfterHours,
         CancellationToken cancellationToken
     )
     {
-        var settings = await db.CinemaSettings.FirstOrDefaultAsync(
-            s => s.Id == 1,
-            cancellationToken
+        var hours = await db
+            .CinemaSettings.Where(s => s.Id == 1)
+            .Select(s => new { s.OpeningTime, s.ClosingTime })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var violation = OperatingHours.Violation(
+            startTime,
+            endTime,
+            hours?.OpeningTime,
+            hours?.ClosingTime,
+            allowAfterHours
         );
-        if (settings is null)
-            return;
-
-        var t = TimeOnly.FromDateTime(startTime);
-
-        if (settings.OpeningTime.HasValue && t < settings.OpeningTime.Value)
-            throw new BusinessRuleException(
-                $"Giờ chiếu ({t:HH:mm}) không được sớm hơn giờ mở cửa ({settings.OpeningTime.Value:HH:mm})."
-            );
-
-        if (settings.ClosingTime.HasValue && t >= settings.ClosingTime.Value)
-            throw new BusinessRuleException(
-                $"Giờ chiếu ({t:HH:mm}) không được muộn hơn hoặc bằng giờ đóng cửa ({settings.ClosingTime.Value:HH:mm})."
-            );
+        if (violation is not null)
+            throw new BusinessRuleException(violation);
     }
 }

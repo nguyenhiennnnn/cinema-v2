@@ -26,6 +26,7 @@ const settingsFormSchema = z.object({
   pointsPerAmount: z.coerce.number().min(0, "Giá trị không được âm."),
   cancelRefundPercent: z.coerce.number().min(0).max(100, "Tối đa 100%."),
   cancelDeadlineHours: z.coerce.number().min(0, "Giá trị không được âm."),
+  stopSellingMinutesBefore: z.coerce.number().min(0, "Giá trị không được âm.").max(1440, "Tối đa 1440 phút."),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -48,6 +49,7 @@ const AdminSettingsPage = () => {
       pointsPerAmount: 0,
       cancelRefundPercent: 0,
       cancelDeadlineHours: 0,
+      stopSellingMinutesBefore: 0,
     },
   });
 
@@ -65,6 +67,7 @@ const AdminSettingsPage = () => {
         pointsPerAmount: settings.data.pointsPerAmount,
         cancelRefundPercent: settings.data.cancelRefundPercent,
         cancelDeadlineHours: settings.data.cancelDeadlineHours,
+        stopSellingMinutesBefore: settings.data.stopSellingMinutesBefore,
       });
     }
   }, [settings.data, form]);
@@ -82,6 +85,7 @@ const AdminSettingsPage = () => {
       pointsPerAmount: values.pointsPerAmount,
       cancelRefundPercent: values.cancelRefundPercent,
       cancelDeadlineHours: values.cancelDeadlineHours,
+      stopSellingMinutesBefore: values.stopSellingMinutesBefore,
     }, {
       onSuccess: () => {
         toast.add({ title: "Đã cập nhật cấu hình rạp.", type: "success" });
@@ -165,6 +169,14 @@ const AdminSettingsPage = () => {
               label="Hạn hủy (giờ)"
               type="number"
               min={0}
+            />
+            <FormInputField
+              name="stopSellingMinutesBefore"
+              control={form.control}
+              label="Ngừng bán online trước giờ chiếu (phút)"
+              type="number"
+              min={0}
+              max={1440}
             />
           </div>
         </FieldGroup>

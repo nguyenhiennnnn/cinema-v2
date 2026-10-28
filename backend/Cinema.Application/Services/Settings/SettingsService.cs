@@ -43,6 +43,7 @@ public class SettingsService(IAppDbContext db) : ISettingsService
         settings.PointsPerAmount = request.PointsPerAmount;
         settings.CancelRefundPercent = request.CancelRefundPercent;
         settings.CancelDeadlineHours = request.CancelDeadlineHours;
+        settings.StopSellingMinutesBefore = request.StopSellingMinutesBefore;
         settings.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);

@@ -57,7 +57,13 @@ public record CreateShowtimeResponse(
     int SeatsGenerated
 );
 
-public record UpsertShowtimeRequest(int MovieId, int RoomId, DateTime StartTime, decimal BasePrice);
+public record UpsertShowtimeRequest(
+    int MovieId,
+    int RoomId,
+    DateTime StartTime,
+    decimal BasePrice,
+    bool AllowAfterHours = false
+);
 
 public record DeleteShowtimeResponse(int ShowtimeId, string Status, int ManualRefundRequiredCount);
 
@@ -91,7 +97,8 @@ public record BulkCreateShowtimesRequest(
     BulkDateRange DateRange,
     List<string> DaysOfWeek,
     List<string> Times,
-    decimal BasePrice
+    decimal BasePrice,
+    bool AllowAfterHours = false
 );
 
 public record BulkCreatedShowtimeItem(int ShowtimeId, DateTime StartTime, int SeatsGenerated);
@@ -140,3 +147,34 @@ public record ShowtimeCalendarResponseDto(
     string To,
     List<ShowtimeCalendarDayDto> Days
 );
+
+public record AutoScheduleMovieRequest(int MovieId, int Shows);
+
+public record AutoScheduleRequest(
+    DateOnly Date,
+    List<AutoScheduleMovieRequest> Movies,
+    decimal BasePrice,
+    List<int>? RoomIds = null,
+    bool AllowAfterHours = false
+);
+
+public record AutoScheduleItemDto(
+    int MovieId,
+    string MovieTitle,
+    int RoomId,
+    string RoomName,
+    DateTime StartTime,
+    DateTime EndTime,
+    decimal BasePrice,
+    bool IsPrime
+);
+
+public record AutoScheduleUnplacedDto(int MovieId, string MovieTitle, int Requested, int Placed);
+
+public record AutoScheduleResponseDto(
+    string Date,
+    List<AutoScheduleItemDto> Items,
+    List<AutoScheduleUnplacedDto> Unplaced
+);
+
+public record ApplyAutoScheduleRequest(List<UpsertShowtimeRequest> Items);

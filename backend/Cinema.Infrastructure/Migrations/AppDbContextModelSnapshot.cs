@@ -652,6 +652,9 @@ namespace Cinema.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(10000m);
 
+                    b.Property<int>("StopSellingMinutesBefore")
+                        .HasColumnType("integer");
+
                     b.Property<string>("TaxCode")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -676,7 +679,8 @@ namespace Cinema.Infrastructure.Migrations
                             ClosingTime = new TimeOnly(23, 59, 0),
                             Name = "Cinema",
                             OpeningTime = new TimeOnly(8, 0, 0),
-                            PointsPerAmount = 10000m
+                            PointsPerAmount = 10000m,
+                            StopSellingMinutesBefore = 0
                         });
                 });
 

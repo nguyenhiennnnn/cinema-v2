@@ -28,12 +28,14 @@ public class MailKitEmailService(
         message.Subject = subject;
         message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
-        using var client = new SmtpClient();
+        using var client = new SmtpClient { Timeout = 15_000 };
         try
         {
-            // Port 465 dùng SSL ngay từ đầu (implicit TLS).
-            // Port 587 / 25 dùng STARTTLS (explicit TLS).
-            // Auto đôi khi không negotiate đúng với Gmail — dùng explicit để chắc chắn.
+            if (string.IsNullOrWhiteSpace(_options.SmtpHost))
+                throw new InvalidOperationException(
+                    "Chưa cấu hình email: đặt Email__ResendApiKey hoặc Email__SmtpHost."
+                );
+
             var socketOptions = _options.SmtpPort == 465
                 ? SecureSocketOptions.SslOnConnect
                 : SecureSocketOptions.StartTls;

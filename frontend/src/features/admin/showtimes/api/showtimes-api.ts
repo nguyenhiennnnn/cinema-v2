@@ -12,6 +12,9 @@ import type {
   BulkDeleteShowtimesResponse,
   AdminShowtimeCalendarParams,
   ShowtimeCalendarResponseDto,
+  AutoScheduleRequest,
+  AutoScheduleResponseDto,
+  ApplyAutoScheduleRequest,
 } from "../types";
 
 const BASE = "/admin/showtimes";
@@ -36,6 +39,18 @@ export const showtimesAdminApi = {
     apiDelete<ApiResponse<BulkDeleteShowtimesResponse>>(`${BASE}/bulk`, {
       data: body,
     }),
+
+  previewAutoSchedule: (body: AutoScheduleRequest) =>
+    apiPost<ApiResponse<AutoScheduleResponseDto>>(
+      `${BASE}/auto-schedule/preview`,
+      body,
+    ),
+
+  applyAutoSchedule: (body: ApplyAutoScheduleRequest) =>
+    apiPost<ApiResponse<BulkCreateShowtimesResponse>>(
+      `${BASE}/auto-schedule/apply`,
+      body,
+    ),
 
   getCalendar: (params: AdminShowtimeCalendarParams) =>
     apiGet<ApiResponse<ShowtimeCalendarResponseDto>>(`${BASE}/calendar`, {

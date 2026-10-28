@@ -43,6 +43,20 @@ public interface IShowtimeService
         CancellationToken cancellationToken
     );
 
+    Task<int> CompleteEndedShowtimesAsync(CancellationToken cancellationToken);
+
+    Task<int> EndMoviesWithoutUpcomingShowtimesAsync(CancellationToken cancellationToken);
+
+    Task<AutoScheduleResponseDto> PreviewAutoScheduleAsync(
+        AutoScheduleRequest request,
+        CancellationToken cancellationToken
+    );
+
+    Task<BulkCreateShowtimesResponse> ApplyAutoScheduleAsync(
+        ApplyAutoScheduleRequest request,
+        CancellationToken cancellationToken
+    );
+
     Task<WholeCinemaScheduleDto> GetWholeCinemaScheduleAsync(
         DateOnly date,
         CancellationToken cancellationToken

@@ -810,6 +810,24 @@ public class BookingService(
         if (showtime.StartTime <= DateTime.UtcNow)
             throw new BusinessRuleException("Suất chiếu đã bắt đầu hoặc đã kết thúc.");
 
+        if (channel == BookingChannel.Online)
+        {
+            var stopMinutes = await db
+                .CinemaSettings.Where(s => s.Id == 1)
+                .Select(s => s.StopSellingMinutesBefore)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (
+                ShowtimeLifecycle.IsOnlineSalesClosed(
+                    DateTime.UtcNow,
+                    showtime.StartTime,
+                    stopMinutes
+                )
+            )
+                throw new BusinessRuleException(
+                    $"Đã ngừng bán vé online cho suất chiếu này (trước giờ chiếu {stopMinutes} phút)."
+                );
+        }
+
         if (string.IsNullOrWhiteSpace(customerName))
         {
             throw new ValidationAppException(

@@ -12,6 +12,7 @@ export interface CinemaSettingsDto {
   pointsPerAmount: number;
   cancelRefundPercent: number;
   cancelDeadlineHours: number;
+  stopSellingMinutesBefore: number;
 }
 
 export interface UpdateSettingsRequest {
@@ -26,6 +27,7 @@ export interface UpdateSettingsRequest {
   pointsPerAmount: number;
   cancelRefundPercent: number;
   cancelDeadlineHours: number;
+  stopSellingMinutesBefore: number;
 }
 
 // Alias for backward compat

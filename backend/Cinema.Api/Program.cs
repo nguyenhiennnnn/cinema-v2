@@ -21,10 +21,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Serilog;
 
-
-// Npgsql: cho phep DateTime voi Kind=UTC ghi vao cot "timestamp without time zone".
-// Can thiet khi chuyen tu SQL Server vi tat ca cot datetime dung "timestamp without time zone".
-// Xem: https://www.npgsql.org/efcore/release-notes/6.0.html#opting-out-of-the-new-timestamp-mapping-logic
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
@@ -427,6 +423,11 @@ if (!app.Environment.IsEnvironment("Testing"))
 {
     RecurringJob.AddOrUpdate<ReleaseExpiredSeatsJob>(
         RecurringJobIds.ReleaseExpiredSeats,
+        j => j.RunAsync(CancellationToken.None),
+        Cron.Minutely
+    );
+    RecurringJob.AddOrUpdate<ShowtimeLifecycleJob>(
+        RecurringJobIds.UpdateShowtimeLifecycle,
         j => j.RunAsync(CancellationToken.None),
         Cron.Minutely
     );

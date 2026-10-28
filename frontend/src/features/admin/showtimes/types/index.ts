@@ -28,6 +28,7 @@ export interface UpsertShowtimeRequest {
   roomId: number;
   startTime: string;
   basePrice: number;
+  allowAfterHours?: boolean;
 }
 
 export interface CreateShowtimeResponse {
@@ -63,6 +64,7 @@ export interface BulkCreateShowtimesRequest {
   daysOfWeek: string[]; // ["Mon", "Tue", ...]
   times: string[]; // ["09:00", "13:00", ...]
   basePrice: number;
+  allowAfterHours?: boolean;
 }
 
 export interface BulkCreatedShowtimeItem {
@@ -138,4 +140,47 @@ export interface ShowtimeCalendarResponseDto {
   from: string;
   to: string;
   days: ShowtimeCalendarDayDto[];
+}
+
+// ── Auto schedule ─────────────────────────────────────────────────────────────
+
+export interface AutoScheduleMovieRequest {
+  movieId: number;
+  shows: number;
+}
+
+export interface AutoScheduleRequest {
+  date: string; // "yyyy-MM-dd"
+  movies: AutoScheduleMovieRequest[];
+  basePrice: number;
+  roomIds?: number[];
+  allowAfterHours?: boolean;
+}
+
+export interface AutoScheduleItemDto {
+  movieId: number;
+  movieTitle: string;
+  roomId: number;
+  roomName: string;
+  startTime: string;
+  endTime: string;
+  basePrice: number;
+  isPrime: boolean;
+}
+
+export interface AutoScheduleUnplacedDto {
+  movieId: number;
+  movieTitle: string;
+  requested: number;
+  placed: number;
+}
+
+export interface AutoScheduleResponseDto {
+  date: string; // "dd/MM/yyyy"
+  items: AutoScheduleItemDto[];
+  unplaced: AutoScheduleUnplacedDto[];
+}
+
+export interface ApplyAutoScheduleRequest {
+  items: UpsertShowtimeRequest[];
 }

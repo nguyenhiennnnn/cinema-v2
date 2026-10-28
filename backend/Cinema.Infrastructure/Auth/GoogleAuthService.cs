@@ -31,7 +31,7 @@ public class GoogleAuthService(
         }
         catch (InvalidJwtException ex)
         {
-            logger.LogWarning(ex, "GoogleIdTokenInvalid");
+            logger.LogWarning(ex, "GoogleIdTokenInvalid ExpectedAudience {ClientId}", clientId);
             throw new UnauthorizedAppException("Google ID token không hợp lệ hoặc đã hết hạn.");
         }
 

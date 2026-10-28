@@ -38,15 +38,15 @@ services:
       # ── CORS: cho phép domain frontend Vercel ────────────────────────────
       # Cập nhật giá trị này sau khi deploy frontend lên Vercel
       - key: Cors__AllowedOrigins__0
-        sync: false   # Cần nhập thủ công trên Render Dashboard
+        sync: false # Cần nhập thủ công trên Render Dashboard
 
       # ── App URL (URL của backend sau khi deploy) ─────────────────────────
       - key: App__ApiBaseUrl
-        sync: false   # Cần nhập thủ công
+        sync: false # Cần nhập thủ công
 
       # ── JWT ──────────────────────────────────────────────────────────────
       - key: Jwt__Secret
-        generateValue: true   # Render tự sinh secret ngẫu nhiên
+        generateValue: true # Render tự sinh secret ngẫu nhiên
 
       # ── Cloudinary ───────────────────────────────────────────────────────
       - key: Cloudinary__CloudName
@@ -65,6 +65,8 @@ services:
         sync: false
       - key: Email__SmtpPassword
         sync: false
+      - key: Email__ResendApiKey
+        sync: false
       - key: Email__FromAddress
         sync: false
       - key: Email__FromName
@@ -76,9 +78,9 @@ services:
       - key: VnPay__HashSecret
         sync: false
       - key: VnPay__ReturnUrl
-        sync: false   # https://<frontend-vercel-domain>/booking/result
+        sync: false # https://<frontend-vercel-domain>/booking/result
       - key: VnPay__IpnUrl
-        sync: false   # https://<cinema-api-render-domain>/api/v1/payments/vnpay/ipn
+        sync: false # https://<cinema-api-render-domain>/api/v1/payments/vnpay/ipn
 
       # ── Momo ──────────────────────────────────────────────────────────────
       - key: Momo__PartnerCode
@@ -118,4 +120,4 @@ databases:
     plan: free
     databaseName: cinema_db
     user: cinema_user
-    region: singapore   # Chọn region gần nhất với user của bạn
+    region: singapore

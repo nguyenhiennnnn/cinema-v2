@@ -49,9 +49,7 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
             .When(x => x.ClosingTime is not null)
             .WithMessage("closingTime phải có định dạng HH:mm.");
 
-        RuleFor(x => x.PointsPerAmount)
-            .GreaterThan(0)
-            .WithMessage("pointsPerAmount phải > 0.");
+        RuleFor(x => x.PointsPerAmount).GreaterThan(0).WithMessage("pointsPerAmount phải > 0.");
 
         RuleFor(x => x.CancelRefundPercent)
             .InclusiveBetween(0, 100)
@@ -60,6 +58,10 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
         RuleFor(x => x.CancelDeadlineHours)
             .GreaterThanOrEqualTo(0)
             .WithMessage("cancelDeadlineHours phải >= 0.");
+
+        RuleFor(x => x.StopSellingMinutesBefore)
+            .InclusiveBetween(0, 1440)
+            .WithMessage("stopSellingMinutesBefore phải từ 0 đến 1440.");
     }
 
     private static bool BeValidTime(string? value) =>

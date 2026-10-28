@@ -7,6 +7,8 @@ import type {
   UpsertShowtimeRequest,
   BulkCreateShowtimesRequest,
   BulkDeleteShowtimesRequest,
+  AutoScheduleRequest,
+  ApplyAutoScheduleRequest,
 } from "../types";
 import { showtimesAdminApi } from "../api/showtimes-api";
 
@@ -81,6 +83,28 @@ export function useAdminBulkDeleteShowtimes() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.adminShowtimes.all(),
+      });
+    },
+  });
+}
+
+export function useAdminPreviewAutoSchedule() {
+  return useMutation({
+    mutationFn: (body: AutoScheduleRequest) =>
+      showtimesAdminApi.previewAutoSchedule(body),
+  });
+}
+
+export function useAdminApplyAutoSchedule() {
+  return useMutation({
+    mutationFn: (body: ApplyAutoScheduleRequest) =>
+      showtimesAdminApi.applyAutoSchedule(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.adminShowtimes.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.adminShowtimes.calendars(),
       });
     },
   });

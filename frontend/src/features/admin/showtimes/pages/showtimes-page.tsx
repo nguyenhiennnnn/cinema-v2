@@ -1,4 +1,4 @@
-import { CalendarPlus, Plus } from "lucide-react";
+import { CalendarPlus, Plus, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { createShowtimeColumns } from "../components/showtime-columns";
 import { ShowtimeCreateForm } from "../components/forms/showtime-create-form";
 import { ShowtimeUpdateForm } from "../components/forms/showtime-update-form";
 import { ShowtimeBulkCreateForm } from "../components/forms/showtime-bulk-create-form";
+import { ShowtimeAutoScheduleForm } from "../components/forms/showtime-auto-schedule-form";
 import { ShowtimeCalendarView } from "../components/calendar/showtime-calendar-view";
 import { useAuthRole } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
@@ -83,6 +84,15 @@ const AdminShowtimesPage = () => {
     });
   };
 
+  const handleAutoSchedule = () => {
+    openDialog({
+      title: "Tự động xếp lịch",
+      description: "Đề xuất lịch chiếu cả ngày cho toàn bộ phòng, xem lại rồi áp dụng.",
+      content: <ShowtimeAutoScheduleForm onSuccess={closeDialog} />,
+      className: "sm:max-w-2xl",
+    });
+  };
+
   const handleSelectFromCalendar = (showtime: ShowtimeCalendarItemDto) => {
     const mapped: AdminShowtimeDto = {
       showtimeId: showtime.showtimeId,
@@ -112,6 +122,10 @@ const AdminShowtimesPage = () => {
         action={
           canManage ? (
             <div className="flex gap-2">
+              <Button variant="outline" onClick={handleAutoSchedule}>
+                <Sparkles className="size-4" />
+                <span>Tự động xếp lịch</span>
+              </Button>
               <Button variant="outline" onClick={handleBulkCreate}>
                 <CalendarPlus className="size-4" />
                 <span>Tạo hàng loạt</span>

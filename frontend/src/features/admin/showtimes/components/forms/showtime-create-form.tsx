@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDateTimePickerField } from "@/components/common/form/form-datetime-picker-field";
@@ -19,6 +20,7 @@ const showtimeFormSchema = z.object({
   roomId: z.coerce.number({ message: "Vui lòng chọn phòng chiếu." }),
   startTime: z.string().min(1, "Vui lòng chọn thời gian chiếu."),
   basePrice: z.coerce.number().min(0, "Giá vé không hợp lệ."),
+  allowAfterHours: z.boolean(),
 });
 
 type ShowtimeFormValues = z.infer<typeof showtimeFormSchema>;
@@ -38,7 +40,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
 
   const form = useForm<ShowtimeFormValues>({
     resolver: zodResolver(showtimeFormSchema),
-    defaultValues: { startTime: "", basePrice: 75000 },
+    defaultValues: { startTime: "", basePrice: 75000, allowAfterHours: false },
   });
 
   const onSubmit = async (values: ShowtimeFormValues) => {
@@ -47,6 +49,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
       roomId: values.roomId,
       startTime: values.startTime,
       basePrice: values.basePrice,
+      allowAfterHours: values.allowAfterHours,
     }, {
       onSuccess: () => {
         toast.add({ title: "Đã tạo suất chiếu mới.", type: "success" });
@@ -118,6 +121,17 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
           type="number"
           min={0}
           step={1000}
+        />
+
+        <Controller
+          name="allowAfterHours"
+          control={form.control}
+          render={({ field }) => (
+            <Field className="flex flex-row items-center justify-between">
+              <FieldLabel>Cho phép suất khuya (kết thúc sau giờ đóng cửa)</FieldLabel>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            </Field>
+          )}
         />
       </FieldGroup>
 
