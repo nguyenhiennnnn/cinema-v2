@@ -1,0 +1,173 @@
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { addDays, differenceInCalendarDays, format, parseISO, startOfWeek } from "date-fns";
+
+import { toast } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
+
+import { useAdminCloneShowtimes } from "../../hooks/use-admin-showtimes";
+import type { BulkCreateShowtimesResponse } from "../../types";
+
+const MAX_SOURCE_DAYS = 31;
+
+const formSchema = z
+  .object({
+    sourceFrom: z.string().min(1, "Vui lòng chọn ngày bắt đầu."),
+    sourceTo: z.string().min(1, "Vui lòng chọn ngày kết thúc."),
+    targetFrom: z.string().min(1, "Vui lòng chọn ngày bắt đầu của lịch mới."),
+    allowAfterHours: z.boolean(),
+  })
+  .superRefine((v, ctx) => {
+    if (!v.sourceFrom || !v.sourceTo || !v.targetFrom) return;
+    const from = parseISO(v.sourceFrom);
+    const to = parseISO(v.sourceTo);
+    const target = parseISO(v.targetFrom);
+
+    if (differenceInCalendarDays(to, from) < 0) {
+      ctx.addIssue({ code: "custom", path: ["sourceTo"], message: "Ngày kết thúc phải sau ngày bắt đầu." });
+    } else if (differenceInCalendarDays(to, from) + 1 > MAX_SOURCE_DAYS) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["sourceTo"],
+        message: `Tối đa ${MAX_SOURCE_DAYS} ngày mỗi lần nhân bản.`,
+      });
+    }
+    if (differenceInCalendarDays(target, from) < 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["targetFrom"],
+        message: "Lịch mới phải bắt đầu sau ngày bắt đầu của lịch nguồn.",
+      });
+    }
+  });
+
+type FormValues = z.infer<typeof formSchema>;
+
+const toIso = (d: Date) => format(d, "yyyy-MM-dd");
+
+interface ShowtimeCloneFormProps {
+  onSuccess: () => void;
+}
+
+export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
+  const clone = useAdminCloneShowtimes();
+  const [result, setResult] = useState<BulkCreateShowtimesResponse | null>(null);
+
+  // Mặc định: nhân bản tuần hiện tại (T2–CN) sang tuần kế tiếp — thao tác phổ biến nhất.
+  const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      sourceFrom: toIso(monday),
+      sourceTo: toIso(addDays(monday, 6)),
+      targetFrom: toIso(addDays(monday, 7)),
+      allowAfterHours: false,
+    },
+  });
+
+  const [sourceFrom, sourceTo, targetFrom] = form.watch(["sourceFrom", "sourceTo", "targetFrom"]);
+  const canPreviewTarget = Boolean(sourceFrom && sourceTo && targetFrom);
+  const targetRangeLabel = canPreviewTarget
+    ? (() => {
+        const shift = differenceInCalendarDays(parseISO(targetFrom), parseISO(sourceFrom));
+        const a = format(addDays(parseISO(sourceFrom), shift), "dd/MM/yyyy");
+        const b = format(addDays(parseISO(sourceTo), shift), "dd/MM/yyyy");
+        return shift >= 1 ? `${a} – ${b}` : null;
+      })()
+    : null;
+
+  const onSubmit = async (values: FormValues) => {
+    const shiftDays = differenceInCalendarDays(parseISO(values.targetFrom), parseISO(values.sourceFrom));
+    const res = await clone.mutateAsync({
+      sourceFrom: values.sourceFrom,
+      sourceTo: values.sourceTo,
+      shiftDays,
+      allowAfterHours: values.allowAfterHours,
+    });
+    toast.add({
+      title: `Đã nhân bản ${res.data.totalCreated} suất chiếu.`,
+      description:
+        res.data.totalSkipped > 0
+          ? `Bỏ qua ${res.data.totalSkipped} suất do trùng lịch hoặc không hợp lệ.`
+          : undefined,
+      type: res.data.totalCreated > 0 ? "success" : "warning",
+    });
+    if (res.data.totalSkipped > 0) setResult(res.data);
+    else onSuccess();
+  };
+
+  if (result) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-foreground">
+          Đã tạo <strong>{result.totalCreated}</strong> suất · bỏ qua <strong>{result.totalSkipped}</strong> suất:
+        </p>
+        <ul className="max-h-72 divide-y divide-border overflow-y-auto rounded-lg border border-border">
+          {result.skipped.map((s, i) => (
+            <li key={`${s.date}-${s.time}-${i}`} className="flex items-start gap-3 px-3 py-2 text-sm">
+              <span className="w-32 shrink-0 font-mono tabular-nums text-foreground">
+                {s.date} {s.time}
+              </span>
+              <span className="text-muted-foreground">{s.reason}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="flex justify-end pt-2">
+          <Button type="button" onClick={onSuccess}>
+            Đóng
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <FieldGroup>
+        <div className="grid grid-cols-2 gap-3">
+          <FormDatePickerField name="sourceFrom" control={form.control} label="Sao chép từ ngày" />
+          <FormDatePickerField name="sourceTo" control={form.control} label="Đến ngày" />
+        </div>
+
+        <FormDatePickerField
+          name="targetFrom"
+          control={form.control}
+          label="Dán vào lịch bắt đầu từ ngày"
+          calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+        />
+
+        {targetRangeLabel && (
+          <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+            Lịch mới sẽ được tạo cho <span className="font-medium text-foreground">{targetRangeLabel}</span>. Suất trùng
+            giờ với lịch đã có sẽ được bỏ qua, các suất đã hủy không được sao chép.
+          </p>
+        )}
+
+        <Controller
+          name="allowAfterHours"
+          control={form.control}
+          render={({ field }) => (
+            <Field className="flex flex-row items-center justify-between">
+              <FieldLabel>Cho phép suất khuya (kết thúc sau giờ đóng cửa)</FieldLabel>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            </Field>
+          )}
+        />
+      </FieldGroup>
+
+      <div className="flex justify-end gap-2 pt-2">
+        <Button type="button" variant="outline" onClick={onSuccess} disabled={clone.isPending}>
+          Hủy
+        </Button>
+        <Button type="submit" disabled={clone.isPending}>
+          {clone.isPending ? "Đang nhân bản..." : "Nhân bản"}
+        </Button>
+      </div>
+    </form>
+  );
+};

@@ -19,10 +19,10 @@ import {
   useAdminPreviewAutoSchedule,
 } from "../../hooks/use-admin-showtimes";
 import type { AutoScheduleResponseDto } from "../../types";
-import { SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 const formSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày."),
+  toDate: z.string().optional(),
   movies: z
     .array(
       z.object({
@@ -44,6 +44,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 const hhmm = (iso: string) => iso.slice(11, 16);
 
+const ddmm = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+
 const vnd = (value: number) => `${value.toLocaleString("vi-VN")} ₫`;
 
 interface ShowtimeAutoScheduleFormProps {
@@ -57,12 +59,13 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
   const [movieSearch, setMovieSearch] = useState("");
   const [draft, setDraft] = useState<AutoScheduleResponseDto | null>(null);
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
+  const movies = useAdminMovies({ search: movieSearch, pageSize: 20 });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       date: "",
+      toDate: "",
       movies: [{ movieId: undefined, shows: 3, basePrice: undefined }],
       basePrice: 75000,
       allowAfterHours: false,
@@ -72,7 +75,10 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "movies" });
 
   const onPreview = async (values: FormValues) => {
-    const res = await preview.mutateAsync(values);
+    const res = await preview.mutateAsync({
+      ...values,
+      toDate: values.toDate ? values.toDate : undefined,
+    });
     setDraft(res.data);
   };
 
@@ -122,6 +128,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
             {draft.items.map((item, index) => (
               <li key={`${item.roomId}-${item.startTime}`} className="flex items-center gap-3 px-3 py-2">
                 <span className="w-28 shrink-0 font-mono text-sm font-medium tabular-nums text-foreground">
+                  {draft.toDate && <span className="mr-1 text-xs text-muted-foreground">{ddmm(item.startTime)}</span>}
                   {hhmm(item.startTime)} - {hhmm(item.endTime)}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -147,7 +154,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
 
         <div className="flex items-center justify-between gap-2 pt-2">
           <p className="text-sm text-muted-foreground">
-            {draft.date} · {draft.items.length} suất
+            {draft.toDate ? `${draft.date} – ${draft.toDate}` : draft.date} · {draft.items.length} suất
           </p>
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={() => setDraft(null)} disabled={apply.isPending}>
@@ -165,12 +172,21 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
   return (
     <form onSubmit={form.handleSubmit(onPreview)} className="space-y-4">
       <FieldGroup>
-        <FormDatePickerField
-          name="date"
-          control={form.control}
-          label="Ngày chiếu"
-          calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <FormDatePickerField
+            name="date"
+            control={form.control}
+            label="Từ ngày"
+            calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+          />
+          <FormDatePickerField
+            name="toDate"
+            control={form.control}
+            label="Đến ngày (tùy chọn)"
+            clearable
+            calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+          />
+        </div>
 
         <Field>
           <FieldLabel>Phim và số suất mong muốn</FieldLabel>

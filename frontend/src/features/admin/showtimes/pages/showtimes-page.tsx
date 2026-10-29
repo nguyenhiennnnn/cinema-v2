@@ -1,4 +1,4 @@
-import { CalendarPlus, Plus, Sparkles } from "lucide-react";
+import { CalendarPlus, Copy, Plus, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { createShowtimeColumns } from "../components/showtime-columns";
 import { ShowtimeCreateForm } from "../components/forms/showtime-create-form";
 import { ShowtimeUpdateForm } from "../components/forms/showtime-update-form";
 import { ShowtimeBulkCreateForm } from "../components/forms/showtime-bulk-create-form";
+import { ShowtimeCloneForm } from "../components/forms/showtime-clone-form";
 import { ShowtimeAutoScheduleForm } from "../components/forms/showtime-auto-schedule-form";
 import { ShowtimeCalendarView } from "../components/calendar/showtime-calendar-view";
 import { useAuthRole } from "@/stores/auth-store";
@@ -58,18 +59,21 @@ const AdminShowtimesPage = () => {
   const handleDelete = (showtime: AdminShowtimeDto) => {
     openAlertDialog({
       title: `Hủy suất chiếu "${showtime.movieTitle}"?`,
-      description: "Vé đã đặt cho suất chiếu này (nếu có) sẽ cần được xử lý hoàn tiền thủ công.",
+      description:
+        "Vé đã đặt sẽ bị hủy. Thanh toán online được hoàn tiền tự động; vé thanh toán tiền mặt cần hoàn thủ công tại quầy.",
       confirmText: "Hủy suất chiếu",
       variant: "destructive",
       onConfirm: async () => {
         const res = await deleteShowtime.mutateAsync(showtime.showtimeId);
         const refundCount = res.data?.manualRefundRequiredCount ?? 0;
+        const autoCount = res.data?.autoRefundQueuedCount ?? 0;
+        const notes = [
+          autoCount > 0 ? `${autoCount} giao dịch online đang được hoàn tiền tự động.` : null,
+          refundCount > 0 ? `${refundCount} vé cần được hoàn tiền thủ công.` : null,
+        ].filter(Boolean);
         toast.add({
           title: "Đã hủy suất chiếu.",
-          description:
-            refundCount > 0
-              ? `Có ${refundCount} vé cần được hoàn tiền thủ công.`
-              : undefined,
+          description: notes.length > 0 ? notes.join(" ") : undefined,
           type: "success",
         });
       },
@@ -81,6 +85,14 @@ const AdminShowtimesPage = () => {
       title: "Tạo suất chiếu hàng loạt",
       description: "Lên lịch nhiều suất chiếu lặp lại theo ngày trong tuần.",
       content: <ShowtimeBulkCreateForm onSuccess={closeDialog} />,
+    });
+  };
+
+  const handleClone = () => {
+    openDialog({
+      title: "Nhân bản lịch chiếu",
+      description: "Sao chép các suất chiếu của một khoảng ngày sang tuần khác.",
+      content: <ShowtimeCloneForm onSuccess={closeDialog} />,
     });
   };
 
@@ -125,6 +137,10 @@ const AdminShowtimesPage = () => {
               <Button variant="outline" onClick={handleAutoSchedule}>
                 <Sparkles className="size-4" />
                 <span>Tự động xếp lịch</span>
+              </Button>
+              <Button variant="outline" onClick={handleClone}>
+                <Copy className="size-4" />
+                <span>Nhân bản lịch</span>
               </Button>
               <Button variant="outline" onClick={handleBulkCreate}>
                 <CalendarPlus className="size-4" />

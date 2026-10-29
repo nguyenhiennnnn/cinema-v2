@@ -3,6 +3,7 @@ using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Hangfire;
+using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,12 +15,18 @@ public class ShowtimeRefundJob(
     IEnumerable<IPaymentGateway> paymentGateways,
     IBackgroundJobClient backgroundJobClient,
     ILogger<ShowtimeRefundJob> logger,
-    IOptions<BrandOptions>? brandOptions = null
+    IOptions<BrandOptions>? brandOptions = null,
+    IOptions<BackgroundJobOptions>? jobOptions = null
 )
 {
     private readonly BrandOptions _brand = brandOptions?.Value ?? new();
+    private readonly int _retryAttempts = (jobOptions?.Value ?? new()).RetryAttempts;
 
-    public async Task RunAsync(int paymentId, CancellationToken cancellationToken)
+    public async Task RunAsync(
+        int paymentId,
+        PerformContext? context,
+        CancellationToken cancellationToken
+    )
     {
         var payment = await db
             .Payments.Include(p => p.Booking)
@@ -57,18 +64,28 @@ public class ShowtimeRefundJob(
             g.MethodName == payment.PaymentMethod.ToString()
         );
 
-        var refundResult = gateway is null
-            ? new RefundResult(false, null, "Cổng thanh toán chưa được cấu hình.")
-            : await gateway.RefundAsync(
-                new RefundRequest(
-                    payment.TransactionId!,
-                    payment.Amount,
-                    $"Hoàn tiền do rạp hủy suất chiếu - booking {booking.BookingCode}",
-                    payment.PaidAt ?? payment.CreatedAt,
-                    GatewayTransactionId: payment.GatewayTransactionId
-                ),
-                cancellationToken
-            );
+        RefundResult refundResult;
+        if (gateway is null)
+            refundResult = new RefundResult(false, null, "Cổng thanh toán chưa được cấu hình.");
+        else
+            try
+            {
+                refundResult = await gateway.RefundAsync(
+                    new RefundRequest(
+                        payment.TransactionId!,
+                        payment.Amount,
+                        $"Hoàn tiền do rạp hủy suất chiếu - booking {booking.BookingCode}",
+                        payment.PaidAt ?? payment.CreatedAt,
+                        GatewayTransactionId: payment.GatewayTransactionId
+                    ),
+                    cancellationToken
+                );
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "ShowtimeRefundGatewayError PaymentId {PaymentId}", paymentId);
+                refundResult = new RefundResult(false, null, ex.Message);
+            }
 
         if (refundResult.Success)
         {
@@ -106,6 +123,11 @@ public class ShowtimeRefundJob(
             refundResult.Message
         );
 
+        var retryCount = context?.GetJobParameter<int>("RetryCount") ?? _retryAttempts;
+        var failureMessage = $"Hoàn tiền thất bại PaymentId {paymentId}: {refundResult.Message}";
+        if (retryCount < _retryAttempts)
+            throw new InvalidOperationException(failureMessage);
+
         if (booking.User is not null)
             EnqueueEmail(
                 booking.User.Email,
@@ -117,6 +139,8 @@ public class ShowtimeRefundJob(
                     payment.Amount
                 )
             );
+
+        throw new InvalidOperationException(failureMessage);
     }
 
     private void EnqueueEmail(string toEmail, string subject, string html) =>

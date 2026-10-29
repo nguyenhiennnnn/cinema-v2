@@ -267,8 +267,8 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var paymentId = await SeedCancelledOnlinePaymentAsync();
         var job = CreateRefundJob();
 
-        await job.RunAsync(paymentId, CancellationToken.None);
-        await job.RunAsync(paymentId, CancellationToken.None); // chạy lại: phải bỏ qua
+        await job.RunAsync(paymentId, null, CancellationToken.None);
+        await job.RunAsync(paymentId, null, CancellationToken.None); // chạy lại: phải bỏ qua
 
         gateway.Verify(
             g => g.RefundAsync(It.IsAny<RefundRequest>(), It.IsAny<CancellationToken>()),
@@ -290,7 +290,9 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var paymentId = await SeedCancelledOnlinePaymentAsync();
         var job = CreateRefundJob();
 
-        await job.RunAsync(paymentId, CancellationToken.None);
+        await Should.ThrowAsync<InvalidOperationException>(() =>
+            job.RunAsync(paymentId, null, CancellationToken.None)
+        );
 
         var payment = await Db.Payments.AsNoTracking().SingleAsync(p => p.PaymentId == paymentId);
         payment.Status.ShouldBe(PaymentStatus.Success);

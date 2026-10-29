@@ -48,6 +48,8 @@ export interface DeleteShowtimeResponse {
   showtimeId: number;
   status: string;
   manualRefundRequiredCount: number;
+  /** Số khoản hoàn tiền online đã được đưa vào hàng đợi hoàn tự động. */
+  autoRefundQueuedCount?: number;
 }
 
 // ── Bulk create ───────────────────────────────────────────────────────────────
@@ -156,6 +158,8 @@ export interface AutoScheduleRequest {
   basePrice: number;
   roomIds?: number[];
   allowAfterHours?: boolean;
+  /** Xếp nhiều ngày: từ `date` đến `toDate` (tối đa 31 ngày). */
+  toDate?: string; // "yyyy-MM-dd"
 }
 
 export interface AutoScheduleItemDto {
@@ -177,10 +181,21 @@ export interface AutoScheduleUnplacedDto {
 
 export interface AutoScheduleResponseDto {
   date: string; // "dd/MM/yyyy"
+  toDate?: string | null; // "dd/MM/yyyy", có khi xếp nhiều ngày
   items: AutoScheduleItemDto[];
   unplaced: AutoScheduleUnplacedDto[];
 }
 
 export interface ApplyAutoScheduleRequest {
   items: UpsertShowtimeRequest[];
+}
+
+// ── Clone (nhân bản lịch chiếu sang tuần khác) ───────────────────────────────
+
+export interface CloneShowtimesRequest {
+  sourceFrom: string; // "yyyy-MM-dd"
+  sourceTo: string;
+  shiftDays: number; // số ngày dịch chuyển, >= 1 (7 = tuần sau)
+  roomIds?: number[];
+  allowAfterHours?: boolean;
 }

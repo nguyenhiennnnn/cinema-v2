@@ -15,6 +15,7 @@ import type {
   AutoScheduleRequest,
   AutoScheduleResponseDto,
   ApplyAutoScheduleRequest,
+  CloneShowtimesRequest,
 } from "../types";
 
 const BASE = "/admin/showtimes";
@@ -51,6 +52,9 @@ export const showtimesAdminApi = {
       `${BASE}/auto-schedule/apply`,
       body,
     ),
+
+  cloneShowtimes: (body: CloneShowtimesRequest) =>
+    apiPost<ApiResponse<BulkCreateShowtimesResponse>>(`${BASE}/clone`, body),
 
   getCalendar: (params: AdminShowtimeCalendarParams) =>
     apiGet<ApiResponse<ShowtimeCalendarResponseDto>>(`${BASE}/calendar`, {

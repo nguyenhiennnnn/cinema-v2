@@ -59,7 +59,7 @@ public class PaymentService(
         if (payment is null)
             return new VnPayIpnResult("01", "Order not found");
 
-        if (payment.Status is PaymentStatus.Success or PaymentStatus.Failed)
+        if (IsAlreadyProcessed(payment, callback.IsSuccess))
         {
             logger.LogInformation(
                 "PaymentAlreadyProcessed PaymentId {PaymentId} Status {Status}",
@@ -125,7 +125,7 @@ public class PaymentService(
         if (payment is null)
             return new MomoIpnResult(1, "Order not found");
 
-        if (payment.Status is PaymentStatus.Success or PaymentStatus.Failed)
+        if (IsAlreadyProcessed(payment, callback.IsSuccess))
         {
             logger.LogInformation(
                 "PaymentAlreadyProcessed PaymentId {PaymentId} Status {Status}",
@@ -194,7 +194,7 @@ public class PaymentService(
             return new StripeWebhookResult(false, "Payment not found");
         }
 
-        if (payment.Status is PaymentStatus.Success or PaymentStatus.Failed)
+        if (IsAlreadyProcessed(payment, callback.IsSuccess))
         {
             logger.LogInformation(
                 "PaymentAlreadyProcessed PaymentId {PaymentId} Status {Status}",
@@ -222,6 +222,8 @@ public class PaymentService(
         CancellationToken cancellationToken
     )
     {
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
         var payment = await db.Payments.FirstAsync(
             p => p.PaymentId == paymentId,
             cancellationToken
@@ -237,35 +239,41 @@ public class PaymentService(
         }
         await db.SaveChangesAsync(cancellationToken);
 
-        if (isSuccess)
+        if (!isSuccess)
         {
-            try
-            {
-                await bookingService.ConfirmBookingAndGenerateTicketsAsync(
-                    payment.BookingId,
-                    cancellationToken
-                );
-                logger.LogInformation(
-                    "PaymentVerified PaymentId {PaymentId} BookingId {BookingId}",
-                    payment.PaymentId,
-                    payment.BookingId
-                );
-            }
-            catch (SeatsNoLongerHeldException)
-            {
-                await HandleSeatsExpiredAfterPaymentAsync(payment, cancellationToken);
-            }
-        }
-        else
-        {
+            await transaction.CommitAsync(cancellationToken);
             await bookingService.ProcessPaymentFailureAsync(payment.BookingId, cancellationToken);
             logger.LogInformation(
                 "PaymentFailed PaymentId {PaymentId} BookingId {BookingId}",
                 payment.PaymentId,
                 payment.BookingId
             );
+            return;
+        }
+
+        try
+        {
+            await bookingService.ConfirmBookingAndGenerateTicketsAsync(
+                payment.BookingId,
+                cancellationToken
+            );
+            await transaction.CommitAsync(cancellationToken);
+            logger.LogInformation(
+                "PaymentVerified PaymentId {PaymentId} BookingId {BookingId}",
+                payment.PaymentId,
+                payment.BookingId
+            );
+        }
+        catch (SeatsNoLongerHeldException)
+        {
+            await transaction.CommitAsync(cancellationToken);
+            await HandleSeatsExpiredAfterPaymentAsync(payment, cancellationToken);
         }
     }
+
+    private static bool IsAlreadyProcessed(Payment payment, bool callbackSuccess) =>
+        payment.Status is PaymentStatus.Success or PaymentStatus.Refunded
+        || (payment.Status == PaymentStatus.Failed && !callbackSuccess);
 
     private async Task HandleSeatsExpiredAfterPaymentAsync(
         Payment payment,

@@ -288,6 +288,17 @@ public class BookingService(
                 $"Payment gateway '{payment.PaymentMethod}' chưa được cấu hình."
             );
 
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
+        var claimed = await db
+            .Bookings.Where(b => b.BookingId == bookingId && b.Status == BookingStatus.Confirmed)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(b => b.Status, BookingStatus.Cancelled),
+                cancellationToken
+            );
+        if (claimed == 0)
+            throw new ConflictAppException("Booking đang được xử lý hoặc đã được hủy.");
+
         var refundResult = await gateway.RefundAsync(
             new RefundRequest(
                 payment.TransactionId!,
@@ -312,8 +323,6 @@ public class BookingService(
             );
         }
 
-        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-
         var releasedSeatIds = await ReleaseConfirmedBookingSeatsAsync(booking, cancellationToken);
         booking.Status = BookingStatus.Cancelled;
         payment.Status = PaymentStatus.Refunded;
@@ -329,8 +338,22 @@ public class BookingService(
                 cancellationToken
             );
 
-        await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(
+                ex,
+                "RefundCommitFailed BookingId {BookingId} PaymentId {PaymentId} RefundTransactionId {RefundTransactionId} — đã hoàn tiền ở cổng nhưng DB chưa ghi nhận.",
+                bookingId,
+                payment.PaymentId,
+                refundResult.RefundTransactionId
+            );
+            throw;
+        }
 
         await realtimeNotifier.NotifySeatReleasedAsync(
             booking.ShowtimeId,
@@ -541,10 +564,15 @@ public class BookingService(
                 .FirstOrDefaultAsync(t => t.QrCode == request.QrCode, cancellationToken)
             ?? throw new NotFoundException("QR không hợp lệ.");
 
+        if (ticket.Booking.Status != BookingStatus.Confirmed)
+            throw new BusinessRuleException("Vé không còn hiệu lực (booking đã hủy hoặc chưa thanh toán).");
+
         if (ticket.IsCheckedIn)
             throw new ConflictAppException("Vé đã check-in trước đó.");
 
         var showtime = ticket.ShowtimeSeat.Showtime;
+        if (showtime.Status == ShowtimeStatus.Cancelled)
+            throw new BusinessRuleException("Suất chiếu đã bị hủy.");
         var now = DateTime.UtcNow;
 
         if (now < showtime.StartTime.AddMinutes(-_checkInOpenMinutes))
@@ -554,9 +582,18 @@ public class BookingService(
         if (now > showtime.EndTime)
             throw new BusinessRuleException("Suất chiếu đã kết thúc.");
 
+        var checkedIn = await db
+            .BookingTickets.Where(t => t.TicketId == ticket.TicketId && !t.IsCheckedIn)
+            .ExecuteUpdateAsync(
+                setters =>
+                    setters.SetProperty(t => t.IsCheckedIn, true).SetProperty(t => t.CheckedInAt, now),
+                cancellationToken
+            );
+        if (checkedIn == 0)
+            throw new ConflictAppException("Vé đã check-in trước đó.");
+
         ticket.IsCheckedIn = true;
         ticket.CheckedInAt = now;
-        await db.SaveChangesAsync(cancellationToken);
 
         return ticket.Adapt<CheckinResponse>();
     }
@@ -575,6 +612,9 @@ public class BookingService(
             logger.LogInformation("PaymentAlreadyProcessed BookingId {BookingId}", bookingId);
             return;
         }
+
+        if (booking.Status is BookingStatus.Cancelled or BookingStatus.Expired)
+            throw new SeatsNoLongerHeldException(bookingId);
 
         var holderUserId = await ResolveHolderUserIdAsync(booking, cancellationToken);
         var heldSeats = await db
@@ -606,6 +646,14 @@ public class BookingService(
         try
         {
             booking.Status = BookingStatus.Confirmed;
+
+            var heldSeatIds = heldSeats.Select(s => s.ShowtimeSeatId).ToList();
+            await db
+                .BookingTickets.Where(t =>
+                    heldSeatIds.Contains(t.ShowtimeSeatId)
+                    && t.Booking.Status != BookingStatus.Confirmed
+                )
+                .ExecuteDeleteAsync(cancellationToken);
 
             foreach (var seat in heldSeats)
             {
@@ -696,6 +744,15 @@ public class BookingService(
         {
             logger.LogInformation(
                 "ProcessPaymentFailure bỏ qua — BookingId {BookingId} không ở trạng thái Pending.",
+                bookingId
+            );
+            return;
+        }
+
+        if (booking.ExpiresAt > DateTime.UtcNow)
+        {
+            logger.LogInformation(
+                "ProcessPaymentFailure giữ ghế — BookingId {BookingId} còn hạn, cho phép thanh toán lại.",
                 bookingId
             );
             return;

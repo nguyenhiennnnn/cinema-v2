@@ -307,6 +307,30 @@ public class PaymentServiceStripeTests : IDisposable
     }
 
     [Fact]
+    public async Task ProcessStripeWebhookAsync_SuccessAfterPaymentMarkedFailed_StillConfirmsBooking()
+    {
+        var payment = await SeedPendingPaymentAsync(transactionId: "PI-LATE-1");
+        payment.Status = PaymentStatus.Failed;
+        await _handle.Db.SaveChangesAsync();
+        SetupWebhook(
+            signatureValid: true,
+            isSuccess: true,
+            amount: 100_000m,
+            transactionId: "PI-LATE-1"
+        );
+        var sut = CreateSut();
+
+        await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
+
+        var reloaded = await _handle.Db.Payments.SingleAsync(p => p.PaymentId == payment.PaymentId);
+        reloaded.Status.ShouldBe(PaymentStatus.Success);
+        _bookingServiceMock.Verify(
+            b => b.ConfirmBookingAndGenerateTicketsAsync(payment.BookingId, It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+    }
+
+    [Fact]
     public async Task ProcessStripeWebhookAsync_DuplicateWebhookDeliveryForSameSuccessfulEvent_ConfirmsBookingOnlyOnce()
     {
         var payment = await SeedPendingPaymentAsync(transactionId: "PI-DUPLICATE-1");

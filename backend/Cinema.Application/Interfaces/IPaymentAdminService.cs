@@ -8,7 +8,8 @@ public record AdminPaymentListFilter(
     string? PaymentMethod,
     DateOnly? FromDate,
     DateOnly? ToDate,
-    string? Search
+    string? Search,
+    bool? NeedsRefund = null
 );
 
 public interface IPaymentAdminService

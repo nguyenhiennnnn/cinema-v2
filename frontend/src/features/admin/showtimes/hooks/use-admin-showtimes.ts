@@ -9,6 +9,7 @@ import type {
   BulkDeleteShowtimesRequest,
   AutoScheduleRequest,
   ApplyAutoScheduleRequest,
+  CloneShowtimesRequest,
 } from "../types";
 import { showtimesAdminApi } from "../api/showtimes-api";
 
@@ -99,6 +100,21 @@ export function useAdminApplyAutoSchedule() {
   return useMutation({
     mutationFn: (body: ApplyAutoScheduleRequest) =>
       showtimesAdminApi.applyAutoSchedule(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.adminShowtimes.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.adminShowtimes.calendars(),
+      });
+    },
+  });
+}
+
+export function useAdminCloneShowtimes() {
+  return useMutation({
+    mutationFn: (body: CloneShowtimesRequest) =>
+      showtimesAdminApi.cloneShowtimes(body),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.adminShowtimes.lists(),

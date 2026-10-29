@@ -28,6 +28,12 @@ public class PaymentAdminService(IAppDbContext db) : IPaymentAdminService
             EnumConverters.TryParseEnum<PaymentMethod>(filter.PaymentMethod, out var method)
         )
             query = query.Where(p => p.PaymentMethod == method);
+        if (filter.NeedsRefund == true)
+            query = query.Where(p =>
+                p.Status == PaymentStatus.Success
+                && p.PaymentMethod != PaymentMethod.Cash
+                && p.Booking.Status == BookingStatus.Cancelled
+            );
         if (filter.FromDate is not null)
             query = query.Where(p =>
                 p.CreatedAt >= DateTimeUtils.GetStartOfDay(filter.FromDate.Value)

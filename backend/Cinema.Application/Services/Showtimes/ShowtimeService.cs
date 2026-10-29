@@ -413,7 +413,7 @@ public class ShowtimeService(
             try
             {
                 backgroundJobClient.Enqueue<ShowtimeRefundJob>(j =>
-                    j.RunAsync(paymentId, CancellationToken.None)
+                    j.RunAsync(paymentId, null, CancellationToken.None)
                 );
             }
             catch (Exception ex)
