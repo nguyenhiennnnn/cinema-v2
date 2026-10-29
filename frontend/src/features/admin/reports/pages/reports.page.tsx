@@ -7,6 +7,7 @@ import { RevenueSummaryCards } from "../components/revenue-summary-cards";
 import { RevenueReportChart } from "../components/revenue-report-chart";
 import { TopMoviesReportTable } from "../components/top-movies-report-table";
 import { EmployeePerformanceTable } from "../components/employee-performance-table";
+import { TOP_MOVIES_REPORT_LIMIT } from "@/config/default-constants";
 
 function getDefaultRange() {
   const to = new Date();
@@ -28,7 +29,7 @@ const AdminReportsPage = () => {
     hasValidRange,
   );
   const { data: topMovies, isLoading: isTopMoviesLoading } = useTopMoviesReport(
-    { fromDate, toDate, limit: 10 },
+    { fromDate, toDate, limit: TOP_MOVIES_REPORT_LIMIT },
     hasValidRange,
   );
   const { data: employeePerformance, isLoading: isEmployeeLoading } = useEmployeePerformanceReport(

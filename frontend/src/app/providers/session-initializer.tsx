@@ -10,9 +10,6 @@ export const SessionInitializer = () => {
   useEffect(() => {
     if (isInitialized) return;
 
-    // Xóa key persist cũ nếu còn lưu từ phiên bản trước
-    localStorage.removeItem("cinema_auth");
-
     const refreshToken = refreshTokenStorage.get();
 
     if (!refreshToken) {

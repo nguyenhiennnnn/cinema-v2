@@ -19,6 +19,7 @@ import {
   useAdminPreviewAutoSchedule,
 } from "../../hooks/use-admin-showtimes";
 import type { AutoScheduleResponseDto } from "../../types";
+import { SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 const formSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày."),
@@ -56,7 +57,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
   const [movieSearch, setMovieSearch] = useState("");
   const [draft, setDraft] = useState<AutoScheduleResponseDto | null>(null);
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: 20 });
+  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

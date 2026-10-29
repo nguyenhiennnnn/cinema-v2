@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { buttonVariants } from "@/components/ui/button";
+import { BRAND } from "@/config/brand";
 
 export interface StatusPageAction {
   label: string;
@@ -69,7 +70,7 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
       </div>
 
       <p className="mt-6 text-xs text-muted-foreground">
-        Perfo (mã lỗi {code})
+        {BRAND.name} (mã lỗi {code})
       </p>
     </div>
   );

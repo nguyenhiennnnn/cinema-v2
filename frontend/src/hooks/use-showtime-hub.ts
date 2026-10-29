@@ -15,6 +15,8 @@ import {
   type SeatReleasedPayload,
   type HoldExpiredPayload,
 } from "@/lib/signalr";
+import { ENV } from "@/config/env";
+import { SIGNALR_RECONNECT_DELAYS_MS } from "@/config/default-constants";
 
 export interface ShowtimeHubCallbacks {
   onSeatHeld?: (payload: SeatHeldPayload) => void;
@@ -61,9 +63,9 @@ export function useShowtimeHub(
           }
         },
       })
-      .withAutomaticReconnect([0, 1000, 3000, 5000, 10000])
+      .withAutomaticReconnect(SIGNALR_RECONNECT_DELAYS_MS)
       .configureLogging(
-        import.meta.env.DEV ? LogLevel.Information : LogLevel.Warning,
+        ENV.IS_DEV ? LogLevel.Information : LogLevel.Warning,
       )
       .build();
 
@@ -88,7 +90,7 @@ export function useShowtimeHub(
         await connection.start();
         await connection.invoke("JoinShowtime", showtimeId);
       } catch (err) {
-        if (import.meta.env.DEV) {
+        if (ENV.IS_DEV) {
           console.warn("[SignalR] Kết nối thất bại:", err);
         }
       }

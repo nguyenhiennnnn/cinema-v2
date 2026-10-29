@@ -97,9 +97,18 @@ public class BulkDeleteShowtimesRequestValidator : AbstractValidator<BulkDeleteS
 
 public class AutoScheduleRequestValidator : AbstractValidator<AutoScheduleRequest>
 {
+    private const int MaxRangeDays = 31;
+
     public AutoScheduleRequestValidator()
     {
         RuleFor(x => x.Date).NotEmpty().WithMessage("date không được để trống.");
+
+        RuleFor(x => x)
+            .Cascade(CascadeMode.Stop)
+            .Must(x => x.ToDate is null || x.ToDate.Value >= x.Date)
+            .WithMessage("toDate phải >= date.")
+            .Must(x => x.ToDate is null || x.ToDate.Value.DayNumber - x.Date.DayNumber < MaxRangeDays)
+            .WithMessage($"Khoảng ngày xếp lịch không được vượt quá {MaxRangeDays} ngày.");
 
         RuleFor(x => x.Movies)
             .Cascade(CascadeMode.Stop)
@@ -137,9 +146,35 @@ public class ApplyAutoScheduleRequestValidator : AbstractValidator<ApplyAutoSche
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage("items không được để trống.")
-            .Must(i => i.Count <= 200)
-            .WithMessage("Tối đa 200 suất chiếu mỗi lần áp dụng.");
+            .Must(i => i.Count <= 1000)
+            .WithMessage("Tối đa 1000 suất chiếu mỗi lần áp dụng.");
 
         RuleForEach(x => x.Items).SetValidator(new UpsertShowtimeRequestValidator());
+    }
+}
+
+public class CloneShowtimesRequestValidator : AbstractValidator<CloneShowtimesRequest>
+{
+    private const int MaxSourceRangeDays = 31;
+
+    public CloneShowtimesRequestValidator()
+    {
+        RuleFor(x => x.SourceFrom).NotEmpty().WithMessage("sourceFrom không được để trống.");
+
+        RuleFor(x => x.SourceTo)
+            .NotEmpty()
+            .WithMessage("sourceTo không được để trống.")
+            .GreaterThanOrEqualTo(x => x.SourceFrom)
+            .WithMessage("sourceTo phải >= sourceFrom.");
+
+        RuleFor(x => x)
+            .Must(x => x.SourceTo.DayNumber - x.SourceFrom.DayNumber < MaxSourceRangeDays)
+            .WithMessage($"Khoảng ngày nguồn không được vượt quá {MaxSourceRangeDays} ngày.");
+
+        RuleFor(x => x.ShiftDays)
+            .InclusiveBetween(1, 366)
+            .WithMessage("shiftDays phải từ 1 đến 366.");
+
+        RuleForEach(x => x.RoomIds).GreaterThan(0).WithMessage("roomId phải lớn hơn 0.");
     }
 }

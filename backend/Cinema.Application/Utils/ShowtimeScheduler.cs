@@ -1,3 +1,5 @@
+using Cinema.Application.Options;
+
 namespace Cinema.Application.Utils;
 
 public record SchedulerRoom(int RoomId, int Seats);
@@ -10,13 +12,6 @@ public record SchedulerSlot(int MovieId, int RoomId, DateTime Start, DateTime En
 
 public static class ShowtimeScheduler
 {
-    private const int StepMinutes = 5;
-    private const int MinSameMovieGapMinutes = 60;
-    private const int DefaultWindowMinutes = 16 * 60;
-    private const double SpreadMinutes = 30;
-    private const double FitWeight = 4;
-    private const double LoadWeight = 0.5;
-
     public static double Heat(int tickets, int maxTickets, decimal rating) =>
         Math.Clamp(
             (maxTickets > 0 ? 0.7 * tickets / maxTickets : 0) + 0.3 * (double)rating / 10,
@@ -32,15 +27,17 @@ public static class ShowtimeScheduler
         int bufferMinutes,
         IReadOnlyList<SchedulerRoom> rooms,
         IReadOnlyList<SchedulerMovie> movies,
-        IReadOnlyList<SchedulerBusy> busy
+        IReadOnlyList<SchedulerBusy> busy,
+        SchedulerOptions? schedulerOptions = null
     )
     {
+        var cfg = schedulerOptions ?? new SchedulerOptions();
         var placed = new List<SchedulerSlot>();
         if (rooms.Count == 0 || movies.Count == 0)
             return placed;
 
         var (open, close) = OperatingHours.Window(day, opening, closing);
-        var windowEnd = close ?? open.AddMinutes(DefaultWindowMinutes);
+        var windowEnd = close ?? open.AddMinutes(cfg.DefaultWindowMinutes);
         var maxSeats = Math.Max(1, rooms.Max(r => r.Seats));
         var occupied = rooms.ToDictionary(
             r => r.RoomId,
@@ -50,7 +47,7 @@ public static class ShowtimeScheduler
         var remaining = queue.ToDictionary(m => m.MovieId, m => m.Shows);
         var ideals = queue.ToDictionary(
             m => m.MovieId,
-            m => Ideals(open, windowEnd, m.Shows, m.DurationMinutes, allowAfterHours)
+            m => Ideals(open, windowEnd, m.Shows, m.DurationMinutes, allowAfterHours, cfg.StepMinutes)
         );
 
         while (remaining.Values.Any(v => v > 0))
@@ -61,18 +58,18 @@ public static class ShowtimeScheduler
                 var targets = ideals[movie.MovieId];
                 var options = rooms
                     .SelectMany(room =>
-                        Candidates(open, close, movie.DurationMinutes, block, targets, occupied[room.RoomId])
+                        Candidates(open, close, movie.DurationMinutes, block, targets, occupied[room.RoomId], cfg.StepMinutes)
                             .Where(c =>
                                 IsFree(c, block, movie.DurationMinutes, open, close, allowAfterHours, occupied[room.RoomId])
                                 && placed.All(p =>
                                     p.MovieId != movie.MovieId
-                                    || Math.Abs((c - p.Start).TotalMinutes) >= MinSameMovieGapMinutes
+                                    || Math.Abs((c - p.Start).TotalMinutes) >= cfg.MinSameMovieGapMinutes
                                 )
                             )
                             .Select(c => (
                                 Room: room,
                                 Start: c,
-                                Score: Score(c, targets, movie.Heat, room.Seats, maxSeats, occupied[room.RoomId].Count)
+                                Score: Score(c, targets, movie.Heat, room.Seats, maxSeats, occupied[room.RoomId].Count, cfg)
                             ))
                     )
                     .ToList();
@@ -108,12 +105,13 @@ public static class ShowtimeScheduler
         double heat,
         int seats,
         int maxSeats,
-        int load
+        int load,
+        SchedulerOptions cfg
     )
     {
         var distance = targets.Count == 0 ? 0 : targets.Min(t => Math.Abs((start - t).TotalMinutes));
         var fit = 1 - Math.Abs(heat - (double)seats / maxSeats);
-        return -distance / SpreadMinutes + fit * FitWeight - load * LoadWeight;
+        return -distance / cfg.SpreadMinutes + fit * cfg.FitWeight - load * cfg.LoadWeight;
     }
 
     private static List<DateTime> Ideals(
@@ -121,7 +119,8 @@ public static class ShowtimeScheduler
         DateTime windowEnd,
         int shows,
         int duration,
-        bool allowAfterHours
+        bool allowAfterHours,
+        int step
     )
     {
         var latest = allowAfterHours ? windowEnd.AddMinutes(-1) : windowEnd.AddMinutes(-duration);
@@ -131,7 +130,7 @@ public static class ShowtimeScheduler
 
         return Enumerable
             .Range(0, shows)
-            .Select(i => Up(open.AddMinutes(span * (i + 0.5) / shows)))
+            .Select(i => Up(open.AddMinutes(span * (i + 0.5) / shows), step))
             .ToList();
     }
 
@@ -141,17 +140,18 @@ public static class ShowtimeScheduler
         int duration,
         int block,
         List<DateTime> targets,
-        List<(DateTime Start, DateTime End)> intervals
+        List<(DateTime Start, DateTime End)> intervals,
+        int step
     )
     {
-        var points = new List<DateTime> { Up(open) };
+        var points = new List<DateTime> { Up(open, step) };
         points.AddRange(targets);
         if (close is not null)
-            points.Add(Down(close.Value.AddMinutes(-duration)));
+            points.Add(Down(close.Value.AddMinutes(-duration), step));
         foreach (var (start, end) in intervals)
         {
-            points.Add(Up(end));
-            points.Add(Down(start.AddMinutes(-block)));
+            points.Add(Up(end, step));
+            points.Add(Down(start.AddMinutes(-block), step));
         }
 
         return points.Distinct();
@@ -176,9 +176,9 @@ public static class ShowtimeScheduler
         return !intervals.Any(i => start < i.End && end > i.Start);
     }
 
-    private static DateTime Up(DateTime value) =>
-        value.Date.AddMinutes(Math.Ceiling((value - value.Date).TotalMinutes / StepMinutes) * StepMinutes);
+    private static DateTime Up(DateTime value, int step) =>
+        value.Date.AddMinutes(Math.Ceiling((value - value.Date).TotalMinutes / step) * step);
 
-    private static DateTime Down(DateTime value) =>
-        value.Date.AddMinutes(Math.Floor((value - value.Date).TotalMinutes / StepMinutes) * StepMinutes);
+    private static DateTime Down(DateTime value, int step) =>
+        value.Date.AddMinutes(Math.Floor((value - value.Date).TotalMinutes / step) * step);
 }

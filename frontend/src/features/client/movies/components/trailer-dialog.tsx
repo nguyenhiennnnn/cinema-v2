@@ -1,4 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { YOUTUBE_EMBED_BASE_URL } from "@/config/default-constants";
 
 interface TrailerDialogProps {
   open: boolean;
@@ -9,7 +10,7 @@ interface TrailerDialogProps {
 
 function toEmbedUrl(url: string) {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]+)/);
-  return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : url;
+  return match ? `${YOUTUBE_EMBED_BASE_URL}/${match[1]}?autoplay=1` : url;
 }
 
 export const TrailerDialog = ({ open, onOpenChange, trailerUrl, title }: TrailerDialogProps) => {

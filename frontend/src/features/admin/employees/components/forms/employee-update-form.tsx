@@ -12,6 +12,7 @@ import { FormDatePickerField } from "@/components/common/form/form-date-picker-f
 import { useAdminUpdateEmployee } from "../../hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
 import type { AdminEmployeeDto } from "../../types";
+import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 const employeeFormSchema = z.object({
   positionId: z.coerce.number().optional(),
@@ -28,7 +29,7 @@ interface EmployeeUpdateFormProps {
 
 export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormProps) => {
   const updateEmployee = useAdminUpdateEmployee();
-  const positions = useAdminPositions({ pageSize: 100 });
+  const positions = useAdminPositions({ pageSize: LOOKUP_PAGE_SIZE });
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),

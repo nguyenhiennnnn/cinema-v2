@@ -6,7 +6,7 @@ name: cinema
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: cinema-postgres
+    container_name: perfo-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-CinemaDb}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -23,14 +23,14 @@ services:
       start_period: 10s
     restart: unless-stopped
     networks:
-      - cinema-net
+      - perfo-net
 
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
       target: dev
-    container_name: cinema-api
+    container_name: perfo-api
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,10 +47,31 @@ services:
       App__FrontendBaseUrl: ${FRONTEND_BASE_URL:-http://localhost:5173}
 
       Jwt__Secret: ${JWT_SECRET:?JWT_SECRET is required — set it in .env}
-      Jwt__Issuer: ${JWT_ISSUER:-Cinema}
-      Jwt__Audience: ${JWT_AUDIENCE:-Cinema.Client}
+      Jwt__Issuer: ${JWT_ISSUER:-Perfo}
+      Jwt__Audience: ${JWT_AUDIENCE:-Perfo.Client}
       Jwt__AccessTokenExpirationSeconds: ${JWT_ACCESS_TOKEN_EXPIRATION_SECONDS:-3600}
       Jwt__RefreshTokenExpirationDays: ${JWT_REFRESH_TOKEN_EXPIRATION_DAYS:-30}
+      Jwt__SocketTokenExpirationSeconds: ${JWT_SOCKET_TOKEN_EXPIRATION_SECONDS:-300}
+
+      Brand__Name: ${BRAND_NAME:-Perfo}
+      Brand__DisplayName: ${BRAND_DISPLAY_NAME:-PERFO}
+      Brand__Tagline: ${BRAND_TAGLINE:-Vé điện tử · Không cần in}
+      Brand__SupportEmail: ${BRAND_SUPPORT_EMAIL:-}
+
+      Booking__CheckInOpenMinutes: ${BOOKING_CHECK_IN_OPEN_MINUTES:-30}
+      RateLimit__GlobalSegmentsPerWindow: ${RATE_LIMIT_GLOBAL_SEGMENTS_PER_WINDOW:-4}
+
+      Scheduler__StepMinutes: ${SCHEDULER_STEP_MINUTES:-5}
+      Scheduler__MinSameMovieGapMinutes: ${SCHEDULER_MIN_SAME_MOVIE_GAP_MINUTES:-60}
+      Scheduler__DefaultWindowMinutes: ${SCHEDULER_DEFAULT_WINDOW_MINUTES:-960}
+      Scheduler__SpreadMinutes: ${SCHEDULER_SPREAD_MINUTES:-30}
+      Scheduler__FitWeight: ${SCHEDULER_FIT_WEIGHT:-4}
+      Scheduler__LoadWeight: ${SCHEDULER_LOAD_WEIGHT:-0.5}
+      Scheduler__HeatLookbackDays: ${SCHEDULER_HEAT_LOOKBACK_DAYS:-7}
+
+      BackgroundJobs__ReleaseExpiredSeatsCron: "${BG_RELEASE_EXPIRED_SEATS_CRON:-* * * * *}"
+      BackgroundJobs__ShowtimeLifecycleCron: "${BG_SHOWTIME_LIFECYCLE_CRON:-* * * * *}"
+      BackgroundJobs__RetryAttempts: ${BG_RETRY_ATTEMPTS:-3}
 
       Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME:-}
       Cloudinary__ApiKey: ${CLOUDINARY_API_KEY:-}
@@ -60,8 +81,8 @@ services:
       Email__SmtpPort: ${SMTP_PORT:-587}
       Email__SmtpUser: ${SMTP_USER:-}
       Email__SmtpPassword: ${SMTP_PASSWORD:-}
-      Email__FromAddress: ${SMTP_FROM_ADDRESS:-no-reply@cinema.local}
-      Email__FromName: ${SMTP_FROM_NAME:-Cinema}
+      Email__FromAddress: ${SMTP_FROM_ADDRESS:-no-reply@perfo.local}
+      Email__FromName: ${SMTP_FROM_NAME:-}
       Email__ResendApiKey: ${RESEND_API_KEY:-}
       Email__ResendFromAddress: ${RESEND_FROM_ADDRESS:-onboarding@resend.dev}
 
@@ -112,14 +133,14 @@ services:
       start_period: 40s
     restart: unless-stopped
     networks:
-      - cinema-net
+      - perfo-net
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       target: dev
-    container_name: cinema-frontend
+    container_name: perfo-frontend
     depends_on:
       - api
     ports:
@@ -136,10 +157,10 @@ services:
       - /app/node_modules
     restart: unless-stopped
     networks:
-      - cinema-net
+      - perfo-net
 
 networks:
-  cinema-net:
+  perfo-net:
     driver: bridge
 
 volumes:

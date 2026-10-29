@@ -7,6 +7,8 @@ import {
 } from "nuqs";
 import type { MovieStatus } from "@/types/enum";
 import {
+  DEFAULT_BOOKINGS_PAGE_LIMIT,
+  DEFAULT_MOVIES_PAGE_LIMIT,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
   SEARCH_DEBOUNCE_MS,
@@ -181,7 +183,7 @@ export const useAdminReportParams = (
 
 const clientMovieParsers = {
   cursor: parseAsString,
-  limit: parseAsInteger.withDefault(12),
+  limit: parseAsInteger.withDefault(DEFAULT_MOVIES_PAGE_LIMIT),
   status: parseAsString,
   genreId: parseAsInteger,
   languageId: parseAsInteger,
@@ -197,7 +199,7 @@ export const useClientMovieParams = (
 
 const clientBookingParsers = {
   cursor: parseAsString,
-  limit: parseAsInteger.withDefault(10),
+  limit: parseAsInteger.withDefault(DEFAULT_BOOKINGS_PAGE_LIMIT),
   status: parseAsString,
 };
 

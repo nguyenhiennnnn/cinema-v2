@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { useAdminLogin } from "@/features/auth/hooks/use-auth";
 import { extractApiError } from "@/lib/error";
+import { BRAND } from "@/config/brand";
 
 const adminLoginSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
@@ -48,7 +49,7 @@ export const AdminLoginForm = () => {
         label="Email quản trị"
         type="email"
         autoComplete="email"
-        placeholder="admin@perfo.vn"
+        placeholder={BRAND.adminEmailPlaceholder}
       />
 
       <FormInputField

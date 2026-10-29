@@ -8,6 +8,7 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateDirector } from "../../../hooks/use-admin-director";
+import { URL_PLACEHOLDER } from "@/config/default-constants";
 
 const directorFormSchema = z.object({
   fullName: z
@@ -68,7 +69,7 @@ export const DirectorCreateForm = ({ onSuccess }: DirectorCreateFormProps) => {
           name="avatarUrl"
           control={form.control}
           label="Ảnh đại diện (không bắt buộc)"
-          placeholder="https://..."
+          placeholder={URL_PLACEHOLDER}
           autoComplete="off"
         />
       </FieldGroup>

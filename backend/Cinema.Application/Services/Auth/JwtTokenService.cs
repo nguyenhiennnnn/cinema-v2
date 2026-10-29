@@ -32,7 +32,7 @@ public class JwtTokenService(IOptions<JwtOptions> jwtOptions) : ITokenService
 
     public AccessTokenResult GenerateSocketToken(User user)
     {
-        const int expirationSeconds = 300;
+        var expirationSeconds = _options.SocketTokenExpirationSeconds;
         var claims = BuildBaseClaims(user);
         var token = BuildToken(claims, TimeSpan.FromSeconds(expirationSeconds));
 

@@ -16,6 +16,7 @@ import { TimePickerField } from "@/components/common/date-time/time-picker-field
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminBulkCreateShowtimes } from "../../hooks/use-admin-showtimes";
+import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 const daysOfWeekOptions = [
   { value: "Mon", label: "Th 2" },
@@ -50,8 +51,8 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
   const [movieSearch, setMovieSearch] = useState("");
   const [roomSearch, setRoomSearch] = useState("");
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: 20 });
-  const rooms = useAdminRooms({ pageSize: 100 });
+  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
+  const rooms = useAdminRooms({ pageSize: LOOKUP_PAGE_SIZE });
 
   const form = useForm<BulkFormValues>({
     resolver: zodResolver(bulkFormSchema),

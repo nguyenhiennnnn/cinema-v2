@@ -15,9 +15,12 @@ public class GeminiAiAssistantService(
     HttpClient httpClient,
     AiToolExecutor toolExecutor,
     IOptions<GeminiOptions> options,
-    ILogger<GeminiAiAssistantService> logger
+    ILogger<GeminiAiAssistantService> logger,
+    IOptions<BrandOptions>? brandOptions = null
 ) : IAiAssistantService
 {
+    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
+
     private const int MaxToolRounds = 4;
 
     private const int MaxTotalToolCalls = 8;
@@ -238,7 +241,7 @@ public class GeminiAiAssistantService(
             s => s.Id == 1,
             cancellationToken
         );
-        var cinemaName = settings?.Name ?? "Perfo";
+        var cinemaName = settings?.Name ?? _brand.Name;
         var address = settings?.Address ?? "Chưa cập nhật";
         var phone = settings?.Phone ?? "Chưa cập nhật";
         var opening = settings?.OpeningTime?.ToString("HH:mm") ?? "08:00";
@@ -298,7 +301,7 @@ public class GeminiAiAssistantService(
             ==========================================================
 
             QUY TẮC PHẢN HỒI:
-            1. Luôn trả lời lịch sự, thân thiện bằng tiếng Việt, xưng "Trợ lý Cinema" hoặc "Em", gọi khách là "Anh/Chị" hoặc "Bạn".
+            1. Luôn trả lời lịch sự, thân thiện bằng tiếng Việt, xưng "Trợ lý {_brand.Name}" hoặc "Em", gọi khách là "Anh/Chị" hoặc "Bạn".
             2. Chỉ tư vấn dựa trên thông tin chính xác từ dữ liệu hệ thống ở trên và kết quả các hàm. Nếu khách hỏi thông tin không có, hãy trả lời khéo léo, tuyệt đối không bịa.
             3. Trình bày phản hồi đẹp mắt bằng Markdown (dùng in đậm **, danh sách đầu dòng -).
             4. Khuyến khích khách hàng chọn suất chiếu và đặt vé trên ứng dụng.

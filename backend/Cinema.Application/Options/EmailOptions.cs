@@ -10,8 +10,8 @@ public class EmailOptions
 
     public string SmtpPassword { get; set; } = string.Empty;
 
-    public string FromAddress { get; set; } = "no-reply@cinema.local";
-    public string FromName { get; set; } = "Perfo";
+    public string FromAddress { get; set; } = "no-reply@perfo.local";
+    public string FromName { get; set; } = string.Empty;
 
     public int EmailConfirmationExpirationHours { get; set; } = 24;
 

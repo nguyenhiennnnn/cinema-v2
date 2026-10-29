@@ -9,6 +9,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateDirector } from "../../../hooks/use-admin-director";
 import type { DirectorDto } from "../../../types";
+import { URL_PLACEHOLDER } from "@/config/default-constants";
 
 const directorFormSchema = z.object({
   fullName: z
@@ -79,7 +80,7 @@ export const DirectorUpdateForm = ({
           name="avatarUrl"
           control={form.control}
           label="Ảnh đại diện (không bắt buộc)"
-          placeholder="https://..."
+          placeholder={URL_PLACEHOLDER}
           autoComplete="off"
         />
       </FieldGroup>

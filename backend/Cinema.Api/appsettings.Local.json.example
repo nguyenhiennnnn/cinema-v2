@@ -9,6 +9,20 @@
     "ApiBaseUrl": "http://localhost:8080",
     "FrontendBaseUrl": "http://localhost:5173"
   },
+  "Brand": {
+    "Name": "Perfo",
+    "DisplayName": "PERFO",
+    "Tagline": "Vé điện tử · Không cần in",
+    "SupportEmail": ""
+  },
+  "Email": {
+    "SmtpHost": "",
+    "SmtpPort": 587,
+    "SmtpUser": "",
+    "SmtpPassword": "",
+    "FromAddress": "no-reply@perfo.local",
+    "FromName": ""
+  },
   "VnPay": {
     "TmnCode": "",
     "HashSecret": "",

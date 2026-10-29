@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useScheduleParams } from "@/hooks/use-query-params";
 import { toDateKey } from "@/lib/cinema-format";
 import { Seo } from "@/components/common/seo";
+import { BRAND } from "@/config/brand";
 
 const SchedulePage = () => {
   const [{ date }, setScheduleParams] = useScheduleParams();
@@ -35,7 +36,7 @@ const SchedulePage = () => {
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <Seo
         title="Lịch chiếu phim"
-        description="Tra cứu lịch chiếu toàn bộ phim tại rạp Perfo theo từng ngày. Chọn suất chiếu yêu thích và đặt vé ngay."
+        description={`Tra cứu lịch chiếu toàn bộ phim tại rạp ${BRAND.name} theo từng ngày. Chọn suất chiếu yêu thích và đặt vé ngay.`}
         canonical="/schedule"
       />
       <div className="mb-6">

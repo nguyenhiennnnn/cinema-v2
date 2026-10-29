@@ -72,6 +72,7 @@ public class ExceptionHandlingMiddleware(
             // 23503 = foreign_key_violation
             // 23505 = unique_violation
             // 23514 = check_violation
+            // 23P01 = exclusion_violation (vd: EX_Showtimes_Room_NoOverlap — trùng suất chiếu cùng phòng)
             var (status, message) = pgEx.SqlState switch
             {
                 "23503" => (
@@ -85,6 +86,12 @@ public class ExceptionHandlingMiddleware(
                 "23514" => (
                     StatusCodes.Status400BadRequest,
                     "Dữ liệu không thỏa mãn ràng buộc kiểm tra."
+                ),
+                "23P01" => (
+                    StatusCodes.Status409Conflict,
+                    pgEx.ConstraintName == "EX_Showtimes_Room_NoOverlap"
+                        ? "Trùng khung giờ chiếu trong phòng này."
+                        : "Dữ liệu xung đột với bản ghi đã có (vi phạm ràng buộc loại trừ)."
                 ),
                 _ => (StatusCodes.Status400BadRequest, "Lỗi ràng buộc dữ liệu."),
             };

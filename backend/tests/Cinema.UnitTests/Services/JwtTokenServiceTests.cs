@@ -3,7 +3,6 @@ using Cinema.Application.Options;
 using Cinema.Application.Services.Auth;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Constants;
-using Microsoft.Extensions.Options;
 using Shouldly;
 
 namespace Cinema.UnitTests.Services;
@@ -11,13 +10,13 @@ namespace Cinema.UnitTests.Services;
 public class JwtTokenServiceTests
 {
     private static JwtTokenService CreateService(JwtOptions? options = null) =>
-        new(Options.Create(options ?? DefaultOptions()));
+        new(Microsoft.Extensions.Options.Options.Create(options ?? DefaultOptions()));
 
     private static JwtOptions DefaultOptions() =>
         new()
         {
-            Issuer = "Cinema",
-            Audience = "Cinema.Client",
+            Issuer = "Perfo",
+            Audience = "Perfo.Client",
             Secret = "unit-test-secret-key-at-least-32-chars-long",
             AccessTokenExpirationSeconds = 3600,
             RefreshTokenExpirationDays = 30,
@@ -55,8 +54,8 @@ public class JwtTokenServiceTests
         jwt.Claims.ShouldContain(c =>
             c.Type == JwtRegisteredClaimNames.Email && c.Value == user.Email
         );
-        jwt.Issuer.ShouldBe("Cinema");
-        jwt.Audiences.ShouldContain("Cinema.Client");
+        jwt.Issuer.ShouldBe("Perfo");
+        jwt.Audiences.ShouldContain("Perfo.Client");
         result.ExpiresIn.ShouldBe(3600);
     }
 

@@ -5,6 +5,7 @@ import { useMovies } from "@/features/client/movies/hooks/use-movies";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import type { MovieStatus } from "@/types/enum";
 import { Seo } from "@/components/common/seo";
+import { BRAND } from "@/config/brand";
 
 const MoviesPage = () => {
   const [params, setParams] = useClientMovieParams();
@@ -23,7 +24,7 @@ const MoviesPage = () => {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <Seo
         title="Danh sách phim"
-        description="Xem tất cả phim đang và sắp chiếu tại Perfo. Lọc theo thể loại, ngôn ngữ và nhiều tiêu chí khác."
+        description={`Xem tất cả phim đang và sắp chiếu tại ${BRAND.name}. Lọc theo thể loại, ngôn ngữ và nhiều tiêu chí khác.`}
         canonical="/movies"
       />
       <div className="mb-6">

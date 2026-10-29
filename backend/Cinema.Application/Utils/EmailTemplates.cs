@@ -1,4 +1,5 @@
 using System.Net;
+using Cinema.Application.Options;
 
 namespace Cinema.Application.Utils;
 
@@ -25,8 +26,6 @@ public static class EmailTemplates
     private const string FontHeading = "'Archivo', 'Arial Narrow', Arial, sans-serif";
     private const string FontMono = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace";
 
-    private const string BrandName = "PERFO";
-
     private sealed record Tone(string Fg, string Bg, string Border, string Css);
 
     private static readonly Tone Success =
@@ -38,9 +37,17 @@ public static class EmailTemplates
     private static readonly Tone Neutral =
         new(ColorForeground, ColorBackground, ColorBorder, "neutral");
 
-    private static string Layout(string preheader, string kicker, string bodyHtml)
+    private static string Layout(
+        BrandOptions brand,
+        string preheader,
+        string kicker,
+        string bodyHtml
+    )
     {
         var year = DateTime.UtcNow.Year;
+        var support = string.IsNullOrWhiteSpace(brand.SupportEmail)
+            ? string.Empty
+            : $"<br />Cần hỗ trợ? Liên hệ {WebUtility.HtmlEncode(brand.SupportEmail)}.";
 
         return $$"""
             <!DOCTYPE html>
@@ -50,7 +57,7 @@ public static class EmailTemplates
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <meta name="color-scheme" content="light dark" />
                 <meta name="supported-color-schemes" content="light dark" />
-                <title>{{BrandName}}</title>
+                <title>{{brand.DisplayName}}</title>
                 <!--[if !mso]><!-->
                 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
                 <!--<![endif]-->
@@ -83,7 +90,7 @@ public static class EmailTemplates
                           <td style="padding:0 0 18px 0;">
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                               <tr>
-                                <td class="tx" style="font-family:{{FontHeading}}; font-size:22px; font-weight:700; letter-spacing:0.02em; line-height:1; color:{{ColorForeground}};">{{BrandName}}<span class="bg-pri" style="display:inline-block; width:7px; height:7px; border-radius:50%; background-color:{{ColorPrimary}}; margin-left:3px;"></span></td>
+                                <td class="tx" style="font-family:{{FontHeading}}; font-size:22px; font-weight:700; letter-spacing:0.02em; line-height:1; color:{{ColorForeground}};">{{brand.DisplayName}}<span class="bg-pri" style="display:inline-block; width:7px; height:7px; border-radius:50%; background-color:{{ColorPrimary}}; margin-left:3px;"></span></td>
                               </tr>
                             </table>
                           </td>
@@ -121,13 +128,13 @@ public static class EmailTemplates
 
                         <tr>
                           <td class="tx-mut" style="padding:22px 8px 0 8px; text-align:center; font-family:{{FontHeading}}; font-size:11px; font-weight:600; letter-spacing:0.1em; color:{{ColorMuted}}; text-transform:uppercase;">
-                            Vé điện tử &middot; Không cần in
+                            {{WebUtility.HtmlEncode(brand.Tagline)}}
                           </td>
                         </tr>
                         <tr>
                           <td class="tx-mut" style="padding:10px 8px 0 8px; text-align:center; font-size:12px; line-height:1.6; color:{{ColorMuted}};">
-                            Email này được gửi tự động từ hệ thống {{BrandName}}, vui lòng không trả lời trực tiếp email này.<br />
-                            &copy; {{year}} {{BrandName}}. Đã đăng ký bản quyền.
+                            Email này được gửi tự động từ hệ thống {{brand.DisplayName}}, vui lòng không trả lời trực tiếp email này.{{support}}<br />
+                            &copy; {{year}} {{brand.DisplayName}}. Đã đăng ký bản quyền.
                           </td>
                         </tr>
                       </table>
@@ -200,6 +207,7 @@ public static class EmailTemplates
             """;
 
     public static string ActionLink(
+        BrandOptions brand,
         string fullName,
         string title,
         string introText,
@@ -218,10 +226,11 @@ public static class EmailTemplates
             )}
             """;
 
-        return Layout(title, "Tài khoản", body);
+        return Layout(brand, title, "Tài khoản", body);
     }
 
     public static string BookingConfirmed(
+        BrandOptions brand,
         string customerName,
         string bookingCode,
         string movieTitle,
@@ -245,10 +254,11 @@ public static class EmailTemplates
             )}
             """;
 
-        return Layout($"Vé xem phim {bookingCode} đã được xác nhận", "Vé điện tử", body);
+        return Layout(brand, $"Vé xem phim {bookingCode} đã được xác nhận", "Vé điện tử", body);
     }
 
     public static string BookingCancelledRefunded(
+        BrandOptions brand,
         string customerName,
         string bookingCode,
         decimal refundAmount
@@ -265,6 +275,7 @@ public static class EmailTemplates
             """;
 
         return Layout(
+            brand,
             $"Booking {bookingCode} đã hủy — hoàn {refundAmount:N0} VNĐ",
             "Thông báo hoàn tiền",
             body
@@ -272,6 +283,7 @@ public static class EmailTemplates
     }
 
     public static string ShowtimeCancelledAutoRefunded(
+        BrandOptions brand,
         string customerName,
         string bookingCode,
         decimal refundAmount
@@ -290,6 +302,7 @@ public static class EmailTemplates
             """;
 
         return Layout(
+            brand,
             $"Suất chiếu {bookingCode} đã bị hủy — đã hoàn {refundAmount:N0} VNĐ",
             "Thông báo từ rạp",
             body
@@ -297,6 +310,7 @@ public static class EmailTemplates
     }
 
     public static string ShowtimeCancelledManualRefund(
+        BrandOptions brand,
         string customerName,
         string bookingCode,
         decimal amountDue
@@ -315,6 +329,7 @@ public static class EmailTemplates
             """;
 
         return Layout(
+            brand,
             $"Suất chiếu {bookingCode} đã bị hủy — cần hoàn {amountDue:N0} VNĐ",
             "Thông báo từ rạp",
             body
@@ -322,6 +337,7 @@ public static class EmailTemplates
     }
 
     public static string SeatsExpiredAfterPayment(
+        BrandOptions brand,
         bool autoRefunded,
         int bookingId,
         int paymentId,
@@ -364,6 +380,7 @@ public static class EmailTemplates
                 """;
 
         return Layout(
+            brand,
             autoRefunded
                 ? $"Đã tự động hoàn tiền — Booking #{bookingId}"
                 : $"CẦN HOÀN TIỀN THỦ CÔNG — Booking #{bookingId}",

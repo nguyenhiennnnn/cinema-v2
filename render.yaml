@@ -31,6 +31,40 @@ services:
         value: Cinema
       - key: Jwt__Audience
         value: Cinema.Client
+      - key: Jwt__SocketTokenExpirationSeconds
+        value: "300"
+      - key: Brand__Name
+        value: Perfo
+      - key: Brand__DisplayName
+        value: PERFO
+      - key: Brand__Tagline
+        value: "Vé điện tử · Không cần in"
+      - key: Brand__SupportEmail
+        value: ""
+      - key: Booking__CheckInOpenMinutes
+        value: "30"
+      - key: RateLimit__GlobalSegmentsPerWindow
+        value: "4"
+      - key: Scheduler__StepMinutes
+        value: "5"
+      - key: Scheduler__MinSameMovieGapMinutes
+        value: "60"
+      - key: Scheduler__DefaultWindowMinutes
+        value: "960"
+      - key: Scheduler__SpreadMinutes
+        value: "30"
+      - key: Scheduler__FitWeight
+        value: "4"
+      - key: Scheduler__LoadWeight
+        value: "0.5"
+      - key: Scheduler__HeatLookbackDays
+        value: "7"
+      - key: BackgroundJobs__ReleaseExpiredSeatsCron
+        value: "* * * * *"
+      - key: BackgroundJobs__ShowtimeLifecycleCron
+        value: "* * * * *"
+      - key: BackgroundJobs__RetryAttempts
+        value: "3"
       - key: Cors__AllowedOrigins__0
         sync: false
       - key: App__ApiBaseUrl
@@ -48,7 +82,7 @@ services:
       - key: Email__ResendFromAddress
         value: onboarding@resend.dev
       - key: Email__FromName
-        value: Cinema
+        value: Perfo
       - key: VnPay__TmnCode
         sync: false
       - key: VnPay__HashSecret

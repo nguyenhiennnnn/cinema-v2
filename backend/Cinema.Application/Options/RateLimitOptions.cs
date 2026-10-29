@@ -6,6 +6,7 @@ public class RateLimitOptions
 
     public int GlobalPermitLimit { get; set; } = 100;
     public int GlobalWindowSeconds { get; set; } = 60;
+    public int GlobalSegmentsPerWindow { get; set; } = 4;
 
     public int AuthPermitLimit { get; set; } = 5;
     public int AuthWindowSeconds { get; set; } = 60;

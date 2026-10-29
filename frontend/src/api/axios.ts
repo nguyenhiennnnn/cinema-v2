@@ -9,15 +9,17 @@ import {
   type AuthUser,
 } from "@/stores/auth-store";
 import { logDevError } from "@/lib/error";
+import { ENV } from "@/config/env";
+import { API_TIMEOUT_MS } from "@/config/default-constants";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = ENV.API_BASE_URL;
 
 /** Must match authApi.refresh() — avoids interceptor depending on auth-api module (circular import risk) */
 const AUTH_REFRESH_URL = `${BASE_URL}/auth/refresh`;
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
-  timeout: 20000,
+  timeout: API_TIMEOUT_MS,
   headers: {
     "Content-Type": "application/json",
   },

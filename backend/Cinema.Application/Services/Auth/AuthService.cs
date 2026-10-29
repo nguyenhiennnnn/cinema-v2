@@ -25,9 +25,11 @@ public class AuthService(
     IOptions<JwtOptions> jwtOptions,
     IOptions<EmailOptions> emailOptions,
     IBackgroundJobClient backgroundJobClient,
-    ILogger<AuthService> logger
+    ILogger<AuthService> logger,
+    IOptions<BrandOptions>? brandOptions = null
 ) : IAuthService
 {
+    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
     private readonly int _refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
 
     public async Task<RegisterResponse> RegisterAsync(
@@ -78,7 +80,7 @@ public class AuthService(
             VerificationTokenPurpose.EmailConfirmation,
             TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
             "auth/confirm-email",
-            "Xác thực email — Cinema",
+            $"Xác thực email — {_brand.Name}",
             "Vui lòng xác thực email bằng cách bấm vào liên kết sau",
             cancellationToken
         );
@@ -440,7 +442,7 @@ public class AuthService(
             VerificationTokenPurpose.PasswordReset,
             TimeSpan.FromMinutes(emailOptions.Value.PasswordResetExpirationMinutes),
             "reset-password",
-            "Đặt lại mật khẩu — Cinema",
+            $"Đặt lại mật khẩu — {_brand.Name}",
             "Vui lòng bấm vào liên kết sau để đặt lại mật khẩu",
             cancellationToken
         );
@@ -537,7 +539,7 @@ public class AuthService(
             VerificationTokenPurpose.EmailConfirmation,
             TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
             "auth/confirm-email",
-            "Xác thực email — Cinema",
+            $"Xác thực email — {_brand.Name}",
             "Vui lòng xác thực email bằng cách bấm vào liên kết sau",
             cancellationToken
         );
@@ -618,6 +620,7 @@ public class AuthService(
         };
 
         var html = EmailTemplates.ActionLink(
+            _brand,
             user.FullName,
             subject,
             introText,

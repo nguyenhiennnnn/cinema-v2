@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import jsQR from "jsqr";
+import { QR_SCAN_REPEAT_GUARD_MS } from "@/config/default-constants";
 
 interface BarcodeDetectorResult {
   rawValue: string;
@@ -79,7 +80,7 @@ export function useQrCameraScanner({
 
     if (value) {
       const now = Date.now();
-      if (value !== lastValueRef.current || now - lastTimeRef.current > 2500) {
+      if (value !== lastValueRef.current || now - lastTimeRef.current > QR_SCAN_REPEAT_GUARD_MS) {
         lastValueRef.current = value;
         lastTimeRef.current = now;
         onDetect(value);

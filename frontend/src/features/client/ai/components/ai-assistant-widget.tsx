@@ -7,6 +7,7 @@ import { AiChatMessageBubble } from "./ai-chat-message-bubble";
 import { AiChatCards } from "./ai-chat-cards";
 import { AiChatInput } from "./ai-chat-input";
 import { AiTypingIndicator } from "./ai-typing-indicator";
+import { BRAND } from "@/config/brand";
 
 interface AiMessage {
   id: string;
@@ -26,7 +27,7 @@ const GREETING: AiMessage = {
   id: "greeting",
   role: "assistant",
   content:
-    "Chào bạn! Mình là **Trợ lý Perfo**, có thể giúp bạn tìm phim, lịch chiếu, ưu đãi... Bạn cần hỗ trợ gì ạ?",
+    `Chào bạn! Mình là **Trợ lý ${BRAND.name}**, có thể giúp bạn tìm phim, lịch chiếu, ưu đãi... Bạn cần hỗ trợ gì ạ?`,
 };
 
 export const AiAssistantWidget = () => {
@@ -96,7 +97,7 @@ export const AiAssistantWidget = () => {
               <Sparkles className="size-4" />
             </div>
             <div>
-              <p className="font-heading text-sm font-semibold tracking-tight">Trợ lý Perfo</p>
+              <p className="font-heading text-sm font-semibold tracking-tight">Trợ lý {BRAND.name}</p>
               <p className="flex items-center gap-1 text-xs text-primary-foreground/70">
                 <span className="size-1.5 inline-block bg-success" />
                 Luôn sẵn sàng hỗ trợ

@@ -13,6 +13,7 @@ import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminShowtimesCalendar } from "../../hooks/use-admin-showtimes";
 import type { ShowtimeCalendarItemDto } from "../../types";
 import { ShowtimeCalendarDay } from "./showtime-calendar-day";
+import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 interface ShowtimeCalendarViewProps {
   onSelectShowtime?: (showtime: ShowtimeCalendarItemDto) => void;
@@ -35,7 +36,7 @@ export const ShowtimeCalendarView = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const rooms = useAdminRooms({ page: 1, pageSize: 100 });
+  const rooms = useAdminRooms({ page: 1, pageSize: LOOKUP_PAGE_SIZE });
 
   const queryParams = {
     from: params.from ?? "",

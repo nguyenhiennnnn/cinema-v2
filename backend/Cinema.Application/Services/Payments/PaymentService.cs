@@ -1,5 +1,6 @@
 using Cinema.Application.BackgroundJobs;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -8,6 +9,7 @@ using Cinema.Shared.Exceptions;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Services.Payments;
 
@@ -16,9 +18,12 @@ public class PaymentService(
     IBookingService bookingService,
     IEnumerable<IPaymentGateway> paymentGateways,
     IBackgroundJobClient backgroundJobClient,
-    ILogger<PaymentService> logger
+    ILogger<PaymentService> logger,
+    IOptions<BrandOptions>? brandOptions = null
 ) : IPaymentService
 {
+    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
+
     public async Task<VnPayIpnResult> ProcessVnPayIpnAsync(
         IReadOnlyDictionary<string, string> parameters,
         CancellationToken cancellationToken
@@ -326,6 +331,7 @@ public class PaymentService(
         if (!string.IsNullOrWhiteSpace(settings?.Email))
         {
             var html = EmailTemplates.SeatsExpiredAfterPayment(
+                _brand,
                 autoRefunded,
                 payment.BookingId,
                 payment.PaymentId,
@@ -335,8 +341,8 @@ public class PaymentService(
                 j.RunAsync(
                     settings.Email!,
                     autoRefunded
-                        ? $"[Perfo] Đã tự động hoàn tiền — Booking #{payment.BookingId}"
-                        : $"[Perfo] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{payment.BookingId}",
+                        ? $"[{_brand.Name}] Đã tự động hoàn tiền — Booking #{payment.BookingId}"
+                        : $"[{_brand.Name}] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{payment.BookingId}",
                     html,
                     CancellationToken.None
                 )

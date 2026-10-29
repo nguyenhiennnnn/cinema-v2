@@ -7,10 +7,10 @@ import { extractApiError } from "@/lib/error";
 import type { GoogleCredentialResponse } from "@/types/google-identity";
 
 import { useGoogleLogin } from "../hooks/use-auth";
+import { ENV } from "@/config/env";
+import { GOOGLE_SDK_POLL_INTERVAL_MS } from "@/config/default-constants";
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as
-  | string
-  | undefined;
+const GOOGLE_CLIENT_ID = ENV.GOOGLE_CLIENT_ID;
 
 interface GoogleSignInButtonProps {
   redirectTo?: string;
@@ -84,7 +84,7 @@ export const GoogleSignInButton = ({ redirectTo }: GoogleSignInButtonProps) => {
           if (pollId) clearInterval(pollId);
           renderButton();
         }
-      }, 100);
+      }, GOOGLE_SDK_POLL_INTERVAL_MS);
     }
 
     return () => {

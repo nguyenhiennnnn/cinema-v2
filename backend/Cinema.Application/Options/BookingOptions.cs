@@ -6,4 +6,5 @@ public class BookingOptions
 
     public int HoldDurationMinutes { get; set; } = 15;
     public int RoomBufferMinutes { get; set; } = 15;
+    public int CheckInOpenMinutes { get; set; } = 30;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "cinema",
+  "name": "perfo",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -23,8 +23,8 @@
     "docker:logs:db": "docker compose logs -f sqlserver",
     "docker:build": "docker compose build",
     "docker:build:nocache": "docker compose build --no-cache",
-    "docker:exec:api": "docker exec -it cinema-api sh",
-    "docker:exec:frontend": "docker exec -it cinema-frontend sh",
+    "docker:exec:api": "docker exec -it perfo-api sh",
+    "docker:exec:frontend": "docker exec -it perfo-frontend sh",
     "docker:exec:db": "docker exec -it cinema-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $SQL_SA_PASSWORD -C -N",
     "docker:prune": "docker system prune -f",
     "// === CHAY THU CONG (khong Docker) ===": "",

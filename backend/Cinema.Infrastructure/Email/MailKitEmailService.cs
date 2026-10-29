@@ -10,10 +10,13 @@ namespace Cinema.Infrastructure.Email;
 
 public class MailKitEmailService(
     IOptions<EmailOptions> options,
+    IOptions<BrandOptions> brandOptions,
     ILogger<MailKitEmailService> logger
 ) : IEmailService
 {
     private readonly EmailOptions _options = options.Value;
+    private string FromName =>
+        string.IsNullOrWhiteSpace(_options.FromName) ? brandOptions.Value.Name : _options.FromName;
 
     public async Task SendAsync(
         string toEmail,
@@ -23,7 +26,7 @@ public class MailKitEmailService(
     )
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(_options.FromName, _options.FromAddress));
+        message.From.Add(new MailboxAddress(FromName, _options.FromAddress));
         message.To.Add(MailboxAddress.Parse(toEmail));
         message.Subject = subject;
         message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();

@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
+import { BRAND } from "@/config/brand";
 
 const FOOTER_CATEGORIES = [
   { label: "Phim đang chiếu", to: "/movies?status=now-showing" },
@@ -64,8 +65,8 @@ export const ClientFooter = () => {
 
         <div className="flex flex-col gap-2">
           <p className="text-[13px] font-medium text-foreground">Chăm sóc khách hàng</p>
-          <p className="text-sm text-muted-foreground">Hotline: 1900 xxxx (8h–22h)</p>
-          <p className="text-sm text-muted-foreground">Email: cskh@perfo.vn</p>
+          <p className="text-sm text-muted-foreground">Hotline: {BRAND.supportHotline}</p>
+          <p className="text-sm text-muted-foreground">Email: {BRAND.supportEmail}</p>
           <p className="mt-2 text-sm font-medium text-foreground">
             VNPay, MoMo, Visa, Mastercard
           </p>
@@ -73,7 +74,7 @@ export const ClientFooter = () => {
       </div>
       <div className="perf-h" />
       <div className="px-4 py-4 text-center text-xs text-muted-foreground">
-        © 2026 Perfo. Toàn bộ bản quyền thuộc về Perfo Project.
+        © 2026 {BRAND.name}. Toàn bộ bản quyền thuộc về {BRAND.name} Project.
       </div>
     </footer>
   );

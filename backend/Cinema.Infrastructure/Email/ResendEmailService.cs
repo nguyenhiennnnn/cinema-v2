@@ -11,10 +11,13 @@ namespace Cinema.Infrastructure.Email;
 public class ResendEmailService(
     IHttpClientFactory httpClientFactory,
     IOptions<EmailOptions> options,
+    IOptions<BrandOptions> brandOptions,
     ILogger<ResendEmailService> logger
 ) : IEmailService
 {
     private readonly EmailOptions _options = options.Value;
+    private string FromName =>
+        string.IsNullOrWhiteSpace(_options.FromName) ? brandOptions.Value.Name : _options.FromName;
     private const string ResendApiUrl = "https://api.resend.com/emails";
 
     public async Task SendAsync(
@@ -30,7 +33,7 @@ public class ResendEmailService(
 
         var payload = new
         {
-            from = $"{_options.FromName} <{(string.IsNullOrWhiteSpace(_options.ResendFromAddress) ? _options.FromAddress : _options.ResendFromAddress)}>",
+            from = $"{FromName} <{(string.IsNullOrWhiteSpace(_options.ResendFromAddress) ? _options.FromAddress : _options.ResendFromAddress)}>",
             to = new[] { toEmail },
             subject,
             html = htmlBody,

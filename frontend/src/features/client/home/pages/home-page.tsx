@@ -4,19 +4,19 @@ import { ComboCarousel } from "@/features/client/home/components/combo-carousel"
 import { CinemaExperienceSection } from "@/features/client/home/components/cinema-experience-section";
 import { MovieStatus } from "@/types/enum";
 import { Seo } from "@/components/common/seo";
+import { BRAND } from "@/config/brand";
 
 const homeStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "Perfo",
-  url: import.meta.env.VITE_SITE_URL ?? "",
-  description:
-    "Đặt vé xem phim nhanh chóng: chọn phim, suất chiếu, chọn ghế và thanh toán online chỉ trong vài phút.",
+  name: BRAND.name,
+  url: BRAND.siteUrl,
+  description: BRAND.defaultDescription,
   potentialAction: {
     "@type": "SearchAction",
     target: {
       "@type": "EntryPoint",
-      urlTemplate: `${import.meta.env.VITE_SITE_URL ?? ""}/movies?search={search_term_string}`,
+      urlTemplate: `${BRAND.siteUrl}/movies?search={search_term_string}`,
     },
     "query-input": "required name=search_term_string",
   },
@@ -26,8 +26,8 @@ const HomePage = () => {
   return (
     <div>
       <Seo
-        title="Lịch chiếu và đặt vé — Perfo"
-        description="Perfo — đặt vé xem phim trực tuyến, chọn ghế realtime, nhận vé điện tử ngay."
+        title={`Lịch chiếu và đặt vé — ${BRAND.name}`}
+        description={`${BRAND.name} — đặt vé xem phim trực tuyến, chọn ghế realtime, nhận vé điện tử ngay.`}
         canonical="/"
         structuredData={homeStructuredData}
       />

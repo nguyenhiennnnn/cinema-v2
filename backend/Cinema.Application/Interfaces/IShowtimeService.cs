@@ -57,6 +57,11 @@ public interface IShowtimeService
         CancellationToken cancellationToken
     );
 
+    Task<BulkCreateShowtimesResponse> CloneShowtimesAsync(
+        CloneShowtimesRequest request,
+        CancellationToken cancellationToken
+    );
+
     Task<WholeCinemaScheduleDto> GetWholeCinemaScheduleAsync(
         DateOnly date,
         CancellationToken cancellationToken

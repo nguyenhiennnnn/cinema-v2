@@ -85,6 +85,17 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
             await showtimeService.ApplyAutoScheduleAsync(request, cancellationToken)
         );
 
+    [HttpPost("clone")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> CloneShowtimes(
+        [FromBody] CloneShowtimesRequest request,
+        CancellationToken cancellationToken
+    ) =>
+        StatusCode(
+            StatusCodes.Status201Created,
+            await showtimeService.CloneShowtimesAsync(request, cancellationToken)
+        );
+
     [HttpDelete("bulk")]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> BulkDelete(

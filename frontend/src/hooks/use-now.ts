@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { NOW_TICK_INTERVAL_MS } from "@/config/default-constants";
 
-export function useNow(intervalMs = 60_000) {
+export function useNow(intervalMs = NOW_TICK_INTERVAL_MS) {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {

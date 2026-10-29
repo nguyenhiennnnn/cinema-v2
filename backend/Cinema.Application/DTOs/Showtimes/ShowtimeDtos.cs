@@ -65,7 +65,12 @@ public record UpsertShowtimeRequest(
     bool AllowAfterHours = false
 );
 
-public record DeleteShowtimeResponse(int ShowtimeId, string Status, int ManualRefundRequiredCount);
+public record DeleteShowtimeResponse(
+    int ShowtimeId,
+    string Status,
+    int ManualRefundRequiredCount,
+    int AutoRefundQueuedCount = 0
+);
 
 public record WholeCinemaShowtimeSlotDto(
     int ShowtimeId,
@@ -155,7 +160,8 @@ public record AutoScheduleRequest(
     List<AutoScheduleMovieRequest> Movies,
     decimal BasePrice,
     List<int>? RoomIds = null,
-    bool AllowAfterHours = false
+    bool AllowAfterHours = false,
+    DateOnly? ToDate = null
 );
 
 public record AutoScheduleItemDto(
@@ -173,7 +179,16 @@ public record AutoScheduleUnplacedDto(int MovieId, string MovieTitle, int Reques
 public record AutoScheduleResponseDto(
     string Date,
     List<AutoScheduleItemDto> Items,
-    List<AutoScheduleUnplacedDto> Unplaced
+    List<AutoScheduleUnplacedDto> Unplaced,
+    string? ToDate = null
 );
 
 public record ApplyAutoScheduleRequest(List<UpsertShowtimeRequest> Items);
+
+public record CloneShowtimesRequest(
+    DateOnly SourceFrom,
+    DateOnly SourceTo,
+    int ShiftDays = 7,
+    List<int>? RoomIds = null,
+    bool AllowAfterHours = false
+);

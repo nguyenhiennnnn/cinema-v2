@@ -14,6 +14,7 @@ import { toDateInputValue } from "@/lib/formatters";
 import { useAdminCreateEmployee } from "../../hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
 import { useAdminUsersSelect } from "@/features/admin/users/hooks/use-admin-users";
+import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 const employeeFormSchema = z.object({
   userId: z.coerce
@@ -34,7 +35,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
   const [userSearch, setUserSearch] = useState("");
 
   const adminUsers = useAdminUsersSelect({ search: userSearch, availableOnly: true });
-  const positions = useAdminPositions({ pageSize: 100 });
+  const positions = useAdminPositions({ pageSize: LOOKUP_PAGE_SIZE });
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),

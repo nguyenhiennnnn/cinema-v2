@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionInitializer } from "./session-initializer";
 import { ThemeProvider } from "./theme-provider";
 import { HelmetProvider } from "react-helmet-async";
+import { BRAND } from "@/config/brand";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ interface AppProvidersProps {
 export const AppProviders = ({ children }: AppProvidersProps) => {
   return (
     <HelmetProvider>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="system" storageKey={BRAND.storageKeys.theme}>
         <QueryClientProvider client={queryClient}>
           <NuqsAdapter>
             <TooltipProvider>

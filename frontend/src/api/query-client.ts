@@ -1,5 +1,6 @@
 import { QueryCache, QueryClient, MutationCache } from "@tanstack/react-query";
 import { extractApiError, logDevError, showApiErrorToast } from "@/lib/error";
+import { QUERY_GC_TIME_MS, QUERY_STALE_TIME_MS } from "@/config/default-constants";
 
 function handleGlobalError(context: "Query" | "Mutation") {
   return (error: unknown, query: { meta?: Record<string, unknown> }) => {
@@ -19,8 +20,8 @@ export const queryClient = new QueryClient({
   }),
   defaultOptions: {
     queries: {
-      staleTime: 30 * 1000,
-      gcTime: 5 * 60 * 1000,
+      staleTime: QUERY_STALE_TIME_MS,
+      gcTime: QUERY_GC_TIME_MS,
       retry: (failureCount, error) => {
         const { statusCode } = extractApiError(error);
         if (statusCode && statusCode >= 400 && statusCode < 500) return false;

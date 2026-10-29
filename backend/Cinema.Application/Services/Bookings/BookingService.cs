@@ -21,10 +21,13 @@ public class BookingService(
     IRealtimeNotifier realtimeNotifier,
     IEnumerable<IPaymentGateway> paymentGateways,
     IBackgroundJobClient backgroundJobClient,
-    ILogger<BookingService> logger
+    ILogger<BookingService> logger,
+    IOptions<BrandOptions>? brandOptions = null
 ) : IBookingService
 {
     private readonly int _holdMinutes = bookingOptions.Value.HoldDurationMinutes;
+    private readonly int _checkInOpenMinutes = bookingOptions.Value.CheckInOpenMinutes;
+    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
 
     public async Task<HoldBookingResponse> HoldSeatsAsync(
         int userId,
@@ -342,6 +345,7 @@ public class BookingService(
         );
 
         var html = EmailTemplates.BookingCancelledRefunded(
+            _brand,
             booking.CustomerName,
             booking.BookingCode,
             eligibility.RefundAmount
@@ -353,7 +357,7 @@ public class BookingService(
         backgroundJobClient.Enqueue<SendEmailJob>(j =>
             j.RunAsync(
                 userEmail,
-                "Xác nhận hủy vé & hoàn tiền — Cinema System",
+                $"Xác nhận hủy vé & hoàn tiền — {_brand.Name}",
                 html,
                 CancellationToken.None
             )
@@ -543,8 +547,10 @@ public class BookingService(
         var showtime = ticket.ShowtimeSeat.Showtime;
         var now = DateTime.UtcNow;
 
-        if (now < showtime.StartTime.AddMinutes(-30))
-            throw new BusinessRuleException("Chưa tới giờ check-in (mở trước giờ chiếu 30 phút).");
+        if (now < showtime.StartTime.AddMinutes(-_checkInOpenMinutes))
+            throw new BusinessRuleException(
+                $"Chưa tới giờ check-in (mở trước giờ chiếu {_checkInOpenMinutes} phút)."
+            );
         if (now > showtime.EndTime)
             throw new BusinessRuleException("Suất chiếu đã kết thúc.");
 
@@ -659,13 +665,19 @@ public class BookingService(
                 .Select(u => u.Email)
                 .FirstAsync(cancellationToken);
             var html = EmailTemplates.BookingConfirmed(
+                _brand,
                 booking.CustomerName,
                 booking.BookingCode,
                 movieTitle: string.Empty,
                 seatCount: seatIds.Count
             );
             backgroundJobClient.Enqueue<SendEmailJob>(j =>
-                j.RunAsync(email, "Vé xem phim của bạn — Cinema", html, CancellationToken.None)
+                j.RunAsync(
+                    email,
+                    $"Vé xem phim của bạn — {_brand.Name}",
+                    html,
+                    CancellationToken.None
+                )
             );
             logger.LogInformation(
                 "EmailQueued BookingId {BookingId} Type TicketConfirmation",

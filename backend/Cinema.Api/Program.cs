@@ -26,6 +26,9 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
+T BindSection<T>(string sectionName)
+    where T : new() => builder.Configuration.GetSection(sectionName).Get<T>() ?? new T();
+
 var port = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrWhiteSpace(port))
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -39,14 +42,14 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 // Serilog — structured logging
 // Doc config tu appsettings.json (Serilog section),
-// ghi log ra Console va file logs/cinema-{date}.log
+// ghi log ra Console va file logs/perfo-{date}.log
 builder.Host.UseSerilog(
     (context, services, loggerConfig) =>
         loggerConfig
             .ReadFrom.Configuration(context.Configuration)
             .Enrich.FromLogContext()
             .WriteTo.Console()
-            .WriteTo.File("logs/cinema-.log", rollingInterval: RollingInterval.Day)
+            .WriteTo.File("logs/perfo-.log", rollingInterval: RollingInterval.Day)
 );
 
 // Options pattern — anh xa cac section trong appsettings.json
@@ -80,10 +83,21 @@ builder.Services.Configure<GeminiOptions>(
 builder.Services.Configure<GoogleOptions>(
     builder.Configuration.GetSection(GoogleOptions.SectionName)
 );
+builder.Services.Configure<BrandOptions>(
+    builder.Configuration.GetSection(BrandOptions.SectionName)
+);
+builder.Services.Configure<SchedulerOptions>(
+    builder.Configuration.GetSection(SchedulerOptions.SectionName)
+);
+builder.Services.Configure<BackgroundJobOptions>(
+    builder.Configuration.GetSection(BackgroundJobOptions.SectionName)
+);
 
 // Doc JwtOptions de cau hinh TokenValidationParameters o duoi
 var jwtOptions =
     builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+var brandOptions = BindSection<BrandOptions>(BrandOptions.SectionName);
+var backgroundJobOptions = BindSection<BackgroundJobOptions>(BackgroundJobOptions.SectionName);
 
 // MVC Controllers
 // ApiResponseFilter  — boc moi response thanh ApiResponse<T> chuan
@@ -200,11 +214,11 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc(
         "client",
-        new OpenApiInfo { Title = "Cinema System — Client API", Version = "v1" }
+        new OpenApiInfo { Title = $"{brandOptions.Name} — Client API", Version = "v1" }
     );
     options.SwaggerDoc(
         "admin",
-        new OpenApiInfo { Title = "Cinema System — Admin API", Version = "v1" }
+        new OpenApiInfo { Title = $"{brandOptions.Name} — Admin API", Version = "v1" }
     );
 
     // Phan loai endpoint: admin doc bat dau bang api/v1/admin
@@ -258,7 +272,11 @@ if (!builder.Environment.IsEnvironment("Testing"))
     );
     builder.Services.AddHangfireServer();
     GlobalJobFilters.Filters.Add(
-        new AutomaticRetryAttribute { Attempts = 3, DelaysInSeconds = [30, 120, 600] }
+        new AutomaticRetryAttribute
+        {
+            Attempts = backgroundJobOptions.RetryAttempts,
+            DelaysInSeconds = backgroundJobOptions.RetryDelaysSeconds,
+        }
     );
 }
 
@@ -311,7 +329,7 @@ builder.Services.AddRateLimiter(options =>
             {
                 PermitLimit = rateLimitOptions.GlobalPermitLimit,
                 Window = TimeSpan.FromSeconds(rateLimitOptions.GlobalWindowSeconds),
-                SegmentsPerWindow = 4,
+                SegmentsPerWindow = rateLimitOptions.GlobalSegmentsPerWindow,
                 QueueLimit = 0,
             }
         )
@@ -347,6 +365,22 @@ builder.Services.AddRateLimiter(options =>
             )
     );
 });
+
+if (builder.Environment.IsProduction())
+{
+    var productionErrors = ProductionOptionsValidator.Validate(
+        BindSection<AppUrlOptions>(AppUrlOptions.SectionName),
+        jwtOptions,
+        corsOrigins,
+        BindSection<VnPayOptions>(VnPayOptions.SectionName),
+        BindSection<MomoOptions>(MomoOptions.SectionName),
+        BindSection<StripeOptions>(StripeOptions.SectionName)
+    );
+    if (productionErrors.Count > 0)
+        throw new InvalidOperationException(
+            "Cấu hình Production không hợp lệ:" + string.Concat(productionErrors.Select(e => $"\n- {e}"))
+        );
+}
 
 // Build app
 var app = builder.Build();
@@ -437,12 +471,12 @@ if (!app.Environment.IsEnvironment("Testing"))
     RecurringJob.AddOrUpdate<ReleaseExpiredSeatsJob>(
         RecurringJobIds.ReleaseExpiredSeats,
         j => j.RunAsync(CancellationToken.None),
-        Cron.Minutely
+        backgroundJobOptions.ReleaseExpiredSeatsCron
     );
     RecurringJob.AddOrUpdate<ShowtimeLifecycleJob>(
         RecurringJobIds.UpdateShowtimeLifecycle,
         j => j.RunAsync(CancellationToken.None),
-        Cron.Minutely
+        backgroundJobOptions.ShowtimeLifecycleCron
     );
 }
 

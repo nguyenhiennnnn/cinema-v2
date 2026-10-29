@@ -9,6 +9,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateActor } from "../../../hooks/use-admin-actor";
 import type { ActorDto } from "../../../types";
+import { URL_PLACEHOLDER } from "@/config/default-constants";
 
 const actorFormSchema = z.object({
   fullName: z
@@ -76,7 +77,7 @@ export const ActorUpdateForm = ({ actor, onSuccess }: ActorUpdateFormProps) => {
           name="avatarUrl"
           control={form.control}
           label="Ảnh đại diện (không bắt buộc)"
-          placeholder="https://..."
+          placeholder={URL_PLACEHOLDER}
           autoComplete="off"
         />
       </FieldGroup>

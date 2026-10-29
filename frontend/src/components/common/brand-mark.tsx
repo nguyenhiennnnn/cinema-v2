@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/config/brand";
 
 export const BrandMark = ({ className }: { className?: string }) => (
   <svg viewBox="4 14 56 36" aria-hidden="true" className={cn("h-auto", className)}>
@@ -25,7 +26,7 @@ export const BrandMark = ({ className }: { className?: string }) => (
 );
 
 export const BrandWordmark = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 184 48" role="img" aria-label="Perfo" className={cn("h-auto", className)}>
+  <svg viewBox="0 0 184 48" role="img" aria-label={BRAND.name} className={cn("h-auto", className)}>
     <clipPath id="perfo-wm-clip">
       <rect x="-2" width="190" height="48" />
     </clipPath>

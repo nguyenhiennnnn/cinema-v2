@@ -1,5 +1,6 @@
 import axios from "axios";
 import { toast } from "@/components/ui/toast";
+import { ENV } from "@/config/env";
 
 export interface ApiErrorShape {
   message: string;
@@ -23,7 +24,7 @@ export function extractApiError(error: unknown): ApiErrorShape {
 }
 
 export function logDevError(error: unknown, context?: string): void {
-  if (!import.meta.env.DEV) return;
+  if (!ENV.IS_DEV) return;
 
   const tag = context ? `[${context}]` : "[API Error]";
 

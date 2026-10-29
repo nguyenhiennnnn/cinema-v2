@@ -88,4 +88,23 @@ public class ShowtimeSchedulerTests
         slots.ShouldAllBe(s => s.Start < Day.ToDateTime(Close));
         slots.Max(s => s.End).ShouldBeGreaterThan(Day.ToDateTime(Close));
     }
+
+    [Fact]
+    public void Build_UsesConfiguredStepMinutes()
+    {
+        var slots = ShowtimeScheduler.Build(
+            Day,
+            Open,
+            Close,
+            false,
+            15,
+            Rooms,
+            [new(10, 100, 0.8, 4)],
+            [],
+            new Cinema.Application.Options.SchedulerOptions { StepMinutes = 15 }
+        );
+
+        slots.ShouldNotBeEmpty();
+        slots.ShouldAllBe(s => s.Start.Minute % 15 == 0);
+    }
 }

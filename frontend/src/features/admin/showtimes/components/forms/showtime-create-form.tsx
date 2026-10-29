@@ -14,6 +14,7 @@ import { SingleSelectField } from "@/components/common/form/single-select-field"
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminCreateShowtime } from "../../hooks/use-admin-showtimes";
+import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -35,8 +36,8 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
   const [movieSearch, setMovieSearch] = useState("");
   const [roomSearch, setRoomSearch] = useState("");
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: 20 });
-  const rooms = useAdminRooms({ pageSize: 100 });
+  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
+  const rooms = useAdminRooms({ pageSize: LOOKUP_PAGE_SIZE });
 
   const form = useForm<ShowtimeFormValues>({
     resolver: zodResolver(showtimeFormSchema),

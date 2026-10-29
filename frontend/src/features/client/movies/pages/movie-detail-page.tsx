@@ -7,6 +7,7 @@ import { ExpandableText } from "@/components/common/expandable-text";
 import { useMovieDetail } from "@/features/client/movies/hooks/use-movies";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Seo } from "@/components/common/seo";
+import { BRAND } from "@/config/brand";
 
 const MovieDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,7 +46,7 @@ const MovieDetailPage = () => {
 
   const seoDescription = movie.description
     ? movie.description.slice(0, 160)
-    : `Xem thông tin và đặt vé phim ${movie.title} tại Perfo. Chọn suất chiếu, ghế ngồi và thanh toán online nhanh chóng.`;
+    : `Xem thông tin và đặt vé phim ${movie.title} tại ${BRAND.name}. Chọn suất chiếu, ghế ngồi và thanh toán online nhanh chóng.`;
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">

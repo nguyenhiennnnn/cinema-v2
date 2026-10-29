@@ -1,4 +1,6 @@
-export const SIGNALR_HUB_URL = `${import.meta.env.VITE_API_BASE_URL?.replace("/api/v1", "") ?? ""}/hubs/showtimes`;
+import { ENV } from "@/config/env";
+
+export const SIGNALR_HUB_URL = `${ENV.API_BASE_URL.replace("/api/v1", "")}/hubs/showtimes`;
 
 export const SignalREvents = {
   SeatHeld: "seat.held",
