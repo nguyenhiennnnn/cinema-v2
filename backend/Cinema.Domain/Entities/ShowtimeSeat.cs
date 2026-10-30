@@ -9,6 +9,7 @@ public class ShowtimeSeat
     public int SeatId { get; set; }
     public ShowtimeSeatStatus Status { get; set; } = ShowtimeSeatStatus.Available;
     public int? HeldByUserId { get; set; }
+    public int? HeldByBookingId { get; set; }
     public DateTime? HeldUntil { get; set; }
     public decimal Price { get; set; }
 

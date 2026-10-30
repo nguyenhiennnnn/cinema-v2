@@ -19,10 +19,12 @@ public class PaymentService(
     IEnumerable<IPaymentGateway> paymentGateways,
     IBackgroundJobClient backgroundJobClient,
     ILogger<PaymentService> logger,
-    IOptions<BrandOptions>? brandOptions = null
+    IOptions<BrandOptions>? brandOptions = null,
+    IOptions<StripeOptions>? stripeOptions = null
 ) : IPaymentService
 {
     private readonly BrandOptions _brand = brandOptions?.Value ?? new();
+    private readonly string _stripeCurrency = (stripeOptions?.Value ?? new()).Currency;
 
     public async Task<VnPayIpnResult> ProcessVnPayIpnAsync(
         IReadOnlyDictionary<string, string> parameters,
@@ -204,6 +206,31 @@ public class PaymentService(
             return new StripeWebhookResult(true, "Payment already processed");
         }
 
+        if (Math.Abs(payment.Amount - callback.Amount) > 0.01m)
+        {
+            logger.LogWarning(
+                "PaymentWebhookReceived Stripe sai số tiền — PaymentId {PaymentId} Expected {Expected} Got {Got}",
+                payment.PaymentId,
+                payment.Amount,
+                callback.Amount
+            );
+            return new StripeWebhookResult(false, "Invalid amount");
+        }
+
+        if (
+            !string.IsNullOrWhiteSpace(callback.Currency)
+            && !string.Equals(callback.Currency, _stripeCurrency, StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            logger.LogWarning(
+                "PaymentWebhookReceived Stripe sai currency — PaymentId {PaymentId} Expected {Expected} Got {Got}",
+                payment.PaymentId,
+                _stripeCurrency,
+                callback.Currency
+            );
+            return new StripeWebhookResult(false, "Invalid currency");
+        }
+
         await ApplyPaymentResultAsync(
             payment.PaymentId,
             callback.IsSuccess,
@@ -352,6 +379,36 @@ public class PaymentService(
                         ? $"[{_brand.Name}] Đã tự động hoàn tiền — Booking #{payment.BookingId}"
                         : $"[{_brand.Name}] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{payment.BookingId}",
                     html,
+                    CancellationToken.None
+                )
+            );
+        }
+
+        var customer = await db
+            .Bookings.Where(b => b.BookingId == payment.BookingId && b.UserId != null)
+            .Select(b => new
+            {
+                b.BookingCode,
+                b.CustomerName,
+                b.User!.Email,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (customer is not null && !string.IsNullOrWhiteSpace(customer.Email))
+        {
+            var customerHtml = EmailTemplates.SeatsExpiredAfterPaymentCustomer(
+                _brand,
+                customer.CustomerName,
+                customer.BookingCode,
+                autoRefunded,
+                payment.Amount
+            );
+            backgroundJobClient.Enqueue<SendEmailJob>(j =>
+                j.RunAsync(
+                    customer.Email,
+                    autoRefunded
+                        ? $"[{_brand.Name}] Đã hoàn tiền — Booking {customer.BookingCode}"
+                        : $"[{_brand.Name}] Chờ hoàn tiền — Booking {customer.BookingCode}",
+                    customerHtml,
                     CancellationToken.None
                 )
             );

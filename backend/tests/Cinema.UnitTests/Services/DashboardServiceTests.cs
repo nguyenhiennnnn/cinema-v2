@@ -1,3 +1,4 @@
+using Cinema.Application.Utils;
 using Cinema.Application.Services.Dashboard;
 using Cinema.Application.Services.Reports;
 using Cinema.Domain.Entities;
@@ -62,6 +63,18 @@ public class DashboardServiceTests : IDisposable
         };
         _handle.Db.Bookings.Add(booking);
         await _handle.Db.SaveChangesAsync();
+
+        _handle.Db.Payments.Add(
+            new Payment
+            {
+                BookingId = booking.BookingId,
+                PaymentMethod = PaymentMethod.Cash,
+                Amount = amount,
+                Status = PaymentStatus.Success,
+                PaidAt = createdAt,
+                CreatedAt = createdAt,
+            }
+        );
 
         var usedSeatIds = await _handle.Db.BookingTickets.Select(t => t.ShowtimeSeatId).ToListAsync();
         var seat = await _handle.Db.ShowtimeSeats.FirstOrDefaultAsync(ss => ss.ShowtimeId == showtimeId && !usedSeatIds.Contains(ss.ShowtimeSeatId));
@@ -162,7 +175,7 @@ public class DashboardServiceTests : IDisposable
     {
         var now = DateTime.UtcNow;
         var (showtime, seats) = await SeedShowtimeWithSeatsAsync(
-            now.Date.AddHours(20),
+            VietnamTime.ToUtc(VietnamTime.Today(), new TimeOnly(20, 0)),
             seatCount: 4
         );
         var bookedSeat = seats[0];
@@ -190,7 +203,9 @@ public class DashboardServiceTests : IDisposable
     public async Task GetInsightsAsync_IncludesTodaysShowtimesAndTopMoviesWithinWindow()
     {
         var now = DateTime.UtcNow;
-        var (showtime, _) = await SeedShowtimeWithSeatsAsync(now.Date.AddHours(18));
+        var (showtime, _) = await SeedShowtimeWithSeatsAsync(
+            VietnamTime.ToUtc(VietnamTime.Today(), new TimeOnly(18, 0))
+        );
         await AddConfirmedBookingAsync(showtime.ShowtimeId, now, 150_000m);
         var sut = CreateSut();
 
@@ -199,6 +214,40 @@ public class DashboardServiceTests : IDisposable
         insights.TodayShowtimes.ShouldContain(s => s.ShowtimeId == showtime.ShowtimeId);
         insights.TopMovies.ShouldContain(m => m.MovieId == showtime.MovieId);
         insights.RevenueTrend.Sum(r => r.TotalRevenue).ShouldBe(150_000m);
+    }
+
+    [Fact]
+    public async Task GetSummaryAsync_BookingJustAfterVietnamMidnight_CountsAsTodayAndJustBeforeAsYesterday()
+    {
+        var startOfToday = VietnamTime.StartOfDayUtc(VietnamTime.Today());
+        var (showtime, _) = await SeedShowtimeWithSeatsAsync(DateTime.UtcNow.AddDays(3));
+        await AddConfirmedBookingAsync(showtime.ShowtimeId, startOfToday.AddMinutes(30), 200_000m);
+        await AddConfirmedBookingAsync(showtime.ShowtimeId, startOfToday.AddMinutes(-30), 100_000m);
+        var sut = CreateSut();
+
+        var summary = await sut.GetSummaryAsync(CancellationToken.None);
+
+        summary.TodayRevenue.ShouldBe(200_000m);
+        summary.YesterdayRevenue.ShouldBe(100_000m);
+    }
+
+    [Fact]
+    public async Task GetSummaryAsync_PartiallyRefundedPaymentToday_CountsOnlyRetainedAmount()
+    {
+        var (showtime, _) = await SeedShowtimeWithSeatsAsync(DateTime.UtcNow.AddDays(3));
+        var booking = await AddConfirmedBookingAsync(showtime.ShowtimeId, DateTime.UtcNow, 100_000m);
+        var payment = await _handle.Db.Payments.SingleAsync(p => p.BookingId == booking.BookingId);
+        payment.Status = PaymentStatus.Refunded;
+        payment.RefundedAmount = 30_000m;
+        payment.PaidAt = VietnamTime.StartOfDayUtc(VietnamTime.Today()).AddMinutes(30);
+        var tracked = await _handle.Db.Bookings.SingleAsync(b => b.BookingId == booking.BookingId);
+        tracked.Status = BookingStatus.Cancelled;
+        await _handle.Db.SaveChangesAsync();
+        var sut = CreateSut();
+
+        var summary = await sut.GetSummaryAsync(CancellationToken.None);
+
+        summary.TodayRevenue.ShouldBe(70_000m);
     }
 
     public void Dispose() => _handle.Dispose();

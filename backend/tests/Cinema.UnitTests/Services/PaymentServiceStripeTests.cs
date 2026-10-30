@@ -1,3 +1,6 @@
+using Hangfire.States;
+using Hangfire.Common;
+using Cinema.Application.BackgroundJobs;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Payments;
 using Cinema.Domain.Entities;
@@ -397,6 +400,114 @@ public class PaymentServiceStripeTests : IDisposable
         result.Success.ShouldBeTrue();
         var reloaded = await _handle.Db.Payments.SingleAsync(p => p.PaymentId == payment.PaymentId);
         reloaded.Status.ShouldBe(PaymentStatus.Success);
+    }
+
+    [Fact]
+    public async Task ProcessStripeWebhookAsync_AmountMismatch_ReturnsInvalidAmountAndDoesNotConfirm()
+    {
+        var payment = await SeedPendingPaymentAsync(amount: 100_000m, transactionId: "PI-AMOUNT-1");
+        SetupWebhook(signatureValid: true, isSuccess: true, amount: 1_000m, transactionId: "PI-AMOUNT-1");
+        var sut = CreateSut();
+
+        var result = await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
+
+        result.Success.ShouldBeFalse();
+        result.Message.ShouldBe("Invalid amount");
+        var reloaded = await _handle.Db.Payments.SingleAsync(p => p.PaymentId == payment.PaymentId);
+        reloaded.Status.ShouldBe(PaymentStatus.Pending);
+        _bookingServiceMock.Verify(
+            b => b.ConfirmBookingAndGenerateTicketsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task ProcessStripeWebhookAsync_CurrencyMismatch_ReturnsInvalidCurrencyAndDoesNotConfirm()
+    {
+        var payment = await SeedPendingPaymentAsync(amount: 100_000m, transactionId: "PI-CUR-1");
+        _gatewayMock
+            .Setup(g => g.VerifyWebhook(It.IsAny<string>(), It.IsAny<string?>()))
+            .Returns(
+                new GatewayCallbackResult(true, true, "PI-CUR-1", "paid", 100_000m, 0, Currency: "usd")
+            );
+        var sut = CreateSut();
+
+        var result = await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
+
+        result.Success.ShouldBeFalse();
+        result.Message.ShouldBe("Invalid currency");
+        var reloaded = await _handle.Db.Payments.SingleAsync(p => p.PaymentId == payment.PaymentId);
+        reloaded.Status.ShouldBe(PaymentStatus.Pending);
+    }
+
+    [Fact]
+    public async Task ProcessStripeWebhookAsync_MatchingAmountAndCurrency_ConfirmsBooking()
+    {
+        var payment = await SeedPendingPaymentAsync(amount: 100_000m, transactionId: "PI-CUR-2");
+        _gatewayMock
+            .Setup(g => g.VerifyWebhook(It.IsAny<string>(), It.IsAny<string?>()))
+            .Returns(
+                new GatewayCallbackResult(true, true, "PI-CUR-2", "paid", 100_000m, 0, Currency: "VND")
+            );
+        var sut = CreateSut();
+
+        var result = await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
+
+        result.Success.ShouldBeTrue();
+        _bookingServiceMock.Verify(
+            b => b.ConfirmBookingAndGenerateTicketsAsync(payment.BookingId, It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+    }
+
+    private void VerifyCustomerEmail(string subjectFragment) =>
+        _backgroundJobClientMock.Verify(
+            c =>
+                c.Create(
+                    It.Is<Job>(j =>
+                        j.Type == typeof(SendEmailJob)
+                        && (string)j.Args[0] == "customer@test.local"
+                        && ((string)j.Args[1]).Contains(subjectFragment)
+                    ),
+                    It.IsAny<IState>()
+                ),
+            Times.Once
+        );
+
+    [Fact]
+    public async Task ProcessStripeWebhookAsync_SeatsExpiredAndAutoRefunded_EmailsCustomerAboutRefund()
+    {
+        var payment = await SeedPendingPaymentAsync(transactionId: "PI-EXP-1");
+        SetupWebhook(true, true, 100_000m, "PI-EXP-1");
+        _bookingServiceMock
+            .Setup(b => b.ConfirmBookingAndGenerateTicketsAsync(payment.BookingId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new SeatsNoLongerHeldException(payment.BookingId));
+        _gatewayMock
+            .Setup(g => g.RefundAsync(It.IsAny<RefundRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RefundResult(true, "RF-1", null));
+        var sut = CreateSut();
+
+        await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
+
+        VerifyCustomerEmail("Đã hoàn tiền");
+    }
+
+    [Fact]
+    public async Task ProcessStripeWebhookAsync_SeatsExpiredAndRefundFails_EmailsCustomerThatRefundIsPending()
+    {
+        var payment = await SeedPendingPaymentAsync(transactionId: "PI-EXP-2");
+        SetupWebhook(true, true, 100_000m, "PI-EXP-2");
+        _bookingServiceMock
+            .Setup(b => b.ConfirmBookingAndGenerateTicketsAsync(payment.BookingId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new SeatsNoLongerHeldException(payment.BookingId));
+        _gatewayMock
+            .Setup(g => g.RefundAsync(It.IsAny<RefundRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RefundResult(false, null, "declined"));
+        var sut = CreateSut();
+
+        await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
+
+        VerifyCustomerEmail("Chờ hoàn tiền");
     }
 
     public void Dispose() => _handle.Dispose();

@@ -15,6 +15,7 @@ import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminCreateShowtime } from "../../hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { toBusinessIso } from "@/lib/formatters";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -48,7 +49,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
     await createShowtime.mutateAsync({
       movieId: values.movieId,
       roomId: values.roomId,
-      startTime: values.startTime,
+      startTime: toBusinessIso(values.startTime),
       basePrice: values.basePrice,
       allowAfterHours: values.allowAfterHours,
     }, {

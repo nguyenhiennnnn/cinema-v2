@@ -1,27 +1,36 @@
 using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Bookings;
+using Cinema.Application.Options;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Validators.Bookings;
 
 public class ComboSelectionRequestValidator : AbstractValidator<ComboSelectionRequest>
 {
-    public ComboSelectionRequestValidator()
+    public ComboSelectionRequestValidator(IOptions<BookingOptions>? options = null)
     {
+        var maxQuantity = (options?.Value ?? new BookingOptions()).MaxComboQuantity;
+
         RuleFor(x => x.ComboId)
             .GreaterThan(0)
             .WithMessage("comboId phải lớn hơn 0.");
 
         RuleFor(x => x.Quantity)
             .GreaterThan(0)
-            .WithMessage("quantity phải lớn hơn 0.");
+            .WithMessage("quantity phải lớn hơn 0.")
+            .LessThanOrEqualTo(maxQuantity)
+            .WithMessage($"quantity không được vượt quá {maxQuantity}.");
     }
 }
 
 public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequest>
 {
-    public HoldSeatsRequestValidator()
+    public HoldSeatsRequestValidator(IOptions<BookingOptions>? options = null)
     {
+        var bookingOptions = options ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
+        var maxSeats = bookingOptions.Value.MaxSeatsPerBooking;
+
         RuleFor(x => x.ShowtimeId)
             .GreaterThan(0)
             .WithMessage("showtimeId phải lớn hơn 0.");
@@ -50,8 +59,12 @@ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequ
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithMessage("Danh sách ghế bị trùng lặp.");
 
+        RuleFor(x => x.SeatIds)
+            .Must(ids => ids.Count <= maxSeats)
+            .WithMessage($"Mỗi booking tối đa {maxSeats} ghế.");
+
         RuleForEach(x => x.Combos)
-            .SetValidator(new ComboSelectionRequestValidator());
+            .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
     }
 
     [GeneratedRegex(@"^(0|\+84)[0-9]{9,10}$")]
@@ -60,8 +73,11 @@ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequ
 
 public partial class CounterHoldRequestValidator : AbstractValidator<CounterHoldRequest>
 {
-    public CounterHoldRequestValidator()
+    public CounterHoldRequestValidator(IOptions<BookingOptions>? options = null)
     {
+        var bookingOptions = options ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
+        var maxSeats = bookingOptions.Value.MaxSeatsPerBooking;
+
         RuleFor(x => x.ShowtimeId)
             .GreaterThan(0)
             .WithMessage("showtimeId phải lớn hơn 0.");
@@ -78,8 +94,12 @@ public partial class CounterHoldRequestValidator : AbstractValidator<CounterHold
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithMessage("Danh sách ghế bị trùng lặp.");
 
+        RuleFor(x => x.SeatIds)
+            .Must(ids => ids.Count <= maxSeats)
+            .WithMessage($"Mỗi booking tối đa {maxSeats} ghế.");
+
         RuleForEach(x => x.Combos)
-            .SetValidator(new ComboSelectionRequestValidator());
+            .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
 
         RuleFor(x => x.UserId)
             .GreaterThan(0)

@@ -1,4 +1,5 @@
 using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,7 @@ public class SeatExpirationService(
                 setters
                     .SetProperty(x => x.Status, ShowtimeSeatStatus.Available)
                     .SetProperty(x => x.HeldByUserId, (int?)null)
+                    .SetProperty(x => x.HeldByBookingId, (int?)null)
                     .SetProperty(x => x.HeldUntil, (DateTime?)null),
             cancellationToken
         );
@@ -53,14 +55,14 @@ public class SeatExpirationService(
 
         foreach (var booking in expirationBookings)
         {
-            var holderUserId = await ResolveHolderUserIdAsync(booking, cancellationToken);
+            var holderUserId = await BookingSeatHold.ResolveHolderUserIdAsync(
+                db,
+                booking,
+                cancellationToken
+            );
 
             var seats = await db
-                .ShowtimeSeats.Where(ss =>
-                    ss.ShowtimeId == booking.ShowtimeId
-                    && ss.HeldByUserId == holderUserId
-                    && ss.Status == ShowtimeSeatStatus.Held
-                )
+                .ShowtimeSeats.HeldFor(booking, holderUserId)
                 .ToListAsync(cancellationToken);
 
             var seatIds = seats.Select(s => s.ShowtimeSeatId).ToList();
@@ -68,6 +70,7 @@ public class SeatExpirationService(
             {
                 seat.Status = ShowtimeSeatStatus.Available;
                 seat.HeldByUserId = null;
+                seat.HeldByBookingId = null;
                 seat.HeldUntil = null;
             }
 
@@ -105,26 +108,5 @@ public class SeatExpirationService(
                 "SeatsReleased (stale, không khớp booking Pending nào) Count {Count}",
                 staleReleased
             );
-    }
-
-    private async Task<int> ResolveHolderUserIdAsync(
-        Booking booking,
-        CancellationToken cancellationToken
-    )
-    {
-        if (booking.UserId is not null)
-            return booking.UserId.Value;
-
-        if (booking.CreatedByEmployeeId is not null)
-        {
-            var employee = await db.Employees.FirstAsync(
-                e => e.EmployeeId == booking.CreatedByEmployeeId,
-                cancellationToken
-            );
-
-            return employee.UserId;
-        }
-
-        return -1;
     }
 }

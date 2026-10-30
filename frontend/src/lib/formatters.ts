@@ -88,3 +88,44 @@ export function toDateTimeInputValue(
   const d = parseDate(date);
   return d ? format(d, "yyyy-MM-dd'T'HH:mm") : null;
 }
+
+export const BUSINESS_TIME_ZONE = "Asia/Ho_Chi_Minh";
+const BUSINESS_UTC_OFFSET = "+07:00";
+
+function getBusinessParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: BUSINESS_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const pick = (type: string) =>
+    parts.find((part) => part.type === type)?.value ?? "00";
+  return {
+    date: `${pick("year")}-${pick("month")}-${pick("day")}`,
+    time: `${pick("hour")}:${pick("minute")}`,
+  };
+}
+
+export function getBusinessToday(now: Date = new Date()): string {
+  return getBusinessParts(now).date;
+}
+
+export function toBusinessDateTimeInputValue(
+  date?: string | Date | null,
+): string | null {
+  const d = parseDate(date);
+  if (!d) return null;
+  const parts = getBusinessParts(d);
+  return `${parts.date}T${parts.time}`;
+}
+
+export function toBusinessIso(value: string): string {
+  const trimmed = value.trim();
+  if (/(Z|[+-]\d{2}:?\d{2})$/i.test(trimmed)) return trimmed;
+  const withSeconds = /T\d{2}:\d{2}$/.test(trimmed) ? `${trimmed}:00` : trimmed;
+  return `${withSeconds}${BUSINESS_UTC_OFFSET}`;
+}

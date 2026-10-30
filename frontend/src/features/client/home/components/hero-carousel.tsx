@@ -27,9 +27,8 @@ export const HeroCarousel = () => {
   const movie = movies[index];
 
   return (
-    <div className="relative h-[70vh] min-h-105 w-full overflow-hidden bg-scrim">
+    <div className="relative h-[calc(100vh-64px)] min-h-105 w-full overflow-hidden bg-scrim">
       <img src={movie.posterUrl ?? undefined} alt={movie.title} className="absolute inset-0 h-full w-full object-cover" />
-      {/* Lớp phủ đặc, không đổi theo theme: chữ luôn đọc rõ trên cả light và dark */}
       <div className="absolute inset-0 bg-scrim/60" />
 
       <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-14 sm:px-6 lg:px-8">

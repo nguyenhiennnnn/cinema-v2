@@ -604,44 +604,6 @@ namespace Cinema.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ShowtimeSeats",
-                columns: table => new
-                {
-                    ShowtimeSeatId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ShowtimeId = table.Column<int>(type: "integer", nullable: false),
-                    SeatId = table.Column<int>(type: "integer", nullable: false),
-                    Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Available"),
-                    HeldByUserId = table.Column<int>(type: "integer", nullable: true),
-                    HeldUntil = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ShowtimeSeats", x => x.ShowtimeSeatId);
-                    table.CheckConstraint("CK_ShowtimeSeats_Price", "\"Price\" >= 0");
-                    table.CheckConstraint("CK_ShowtimeSeats_Status", "\"Status\" IN ('Available','Held','Booked')");
-                    table.ForeignKey(
-                        name: "FK_ShowtimeSeats_Seats_SeatId",
-                        column: x => x.SeatId,
-                        principalTable: "Seats",
-                        principalColumn: "SeatId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ShowtimeSeats_Showtimes_ShowtimeId",
-                        column: x => x.ShowtimeId,
-                        principalTable: "Showtimes",
-                        principalColumn: "ShowtimeId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ShowtimeSeats_Users_HeldByUserId",
-                        column: x => x.HeldByUserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BookingCombos",
                 columns: table => new
                 {
@@ -703,6 +665,51 @@ namespace Cinema.Infrastructure.Migrations
                         column: x => x.BookingId,
                         principalTable: "Bookings",
                         principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShowtimeSeats",
+                columns: table => new
+                {
+                    ShowtimeSeatId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ShowtimeId = table.Column<int>(type: "integer", nullable: false),
+                    SeatId = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Available"),
+                    HeldByUserId = table.Column<int>(type: "integer", nullable: true),
+                    HeldByBookingId = table.Column<int>(type: "integer", nullable: true),
+                    HeldUntil = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShowtimeSeats", x => x.ShowtimeSeatId);
+                    table.CheckConstraint("CK_ShowtimeSeats_Price", "\"Price\" >= 0");
+                    table.CheckConstraint("CK_ShowtimeSeats_Status", "\"Status\" IN ('Available','Held','Booked')");
+                    table.ForeignKey(
+                        name: "FK_ShowtimeSeats_Bookings_HeldByBookingId",
+                        column: x => x.HeldByBookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_ShowtimeSeats_Seats_SeatId",
+                        column: x => x.SeatId,
+                        principalTable: "Seats",
+                        principalColumn: "SeatId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ShowtimeSeats_Showtimes_ShowtimeId",
+                        column: x => x.ShowtimeId,
+                        principalTable: "Showtimes",
+                        principalColumn: "ShowtimeId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ShowtimeSeats_Users_HeldByUserId",
+                        column: x => x.HeldByUserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -1504,6 +1511,11 @@ namespace Cinema.Infrastructure.Migrations
                 name: "IX_Showtime_Room_Time",
                 table: "Showtimes",
                 columns: new[] { "RoomId", "StartTime", "EndTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShowtimeSeats_HeldByBookingId",
+                table: "ShowtimeSeats",
+                column: "HeldByBookingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShowtimeSeats_HeldByUserId",

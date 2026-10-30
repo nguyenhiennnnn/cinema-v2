@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using Cinema.Application.DTOs.Ai;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -289,7 +290,7 @@ public class GeminiAiAssistantService(
             Nhiệm vụ của bạn là hỗ trợ khách hàng tư vấn phim, lịch chiếu, giá vé, tình trạng ghế, combo bắp nước, và thông tin rạp.
 
             === DỮ LIỆU THỜI GIAN THỰC TỪ HỆ THỐNG DB RẠP CHÍNH THỨC ===
-            - Thời gian hiện tại: {now:dd/MM/yyyy HH:mm:ss}
+            - Thời gian hiện tại: {VietnamTime.ToLocal(now):dd/MM/yyyy HH:mm:ss}
             - Thông tin Rạp: {cinemaName} | Địa chỉ: {address} | Hotline: {phone} | Giờ mở/đóng cửa: {opening} - {closing}
             - Thông tin khách hàng đang trò chuyện: {userInfoStr}
 

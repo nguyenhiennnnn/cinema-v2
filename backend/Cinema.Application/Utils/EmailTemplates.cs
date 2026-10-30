@@ -336,6 +336,51 @@ public static class EmailTemplates
         );
     }
 
+    public static string SeatsExpiredAfterPaymentCustomer(
+        BrandOptions brand,
+        string customerName,
+        string bookingCode,
+        bool autoRefunded,
+        decimal amount
+    )
+    {
+        var rows = new[]
+        {
+            DetailRow("Mã đặt vé", bookingCode, mono: true),
+            DetailRowEmphasis(
+                autoRefunded ? "Số tiền đã hoàn" : "Số tiền sẽ được hoàn",
+                $"{amount:N0} VNĐ"
+            ),
+        };
+
+        var body = autoRefunded
+            ? $"""
+                {Badge("Đã hoàn tiền tự động", Warning)}
+                {Heading($"Rất tiếc, {WebUtility.HtmlEncode(customerName)}")}
+                {Paragraph(
+                    $"Thanh toán cho booking <strong>{bookingCode}</strong> đã thành công nhưng ghế đã hết thời gian giữ chỗ nên chúng tôi không thể xuất vé. Chúng tôi đã tự động hoàn lại toàn bộ số tiền vào phương thức thanh toán bạn đã sử dụng."
+                )}
+                {DetailCard(Neutral, [.. rows])}
+                {MutedParagraph("Khoản hoàn tiền sẽ về tài khoản/thẻ trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng.")}
+                """
+            : $"""
+                {Badge("Chờ hoàn tiền", Warning)}
+                {Heading($"Rất tiếc, {WebUtility.HtmlEncode(customerName)}")}
+                {Paragraph(
+                    $"Thanh toán cho booking <strong>{bookingCode}</strong> đã thành công nhưng ghế đã hết thời gian giữ chỗ nên chúng tôi không thể xuất vé. Rạp sẽ hoàn lại toàn bộ số tiền cho bạn thủ công trong thời gian sớm nhất."
+                )}
+                {DetailCard(Neutral, [.. rows])}
+                {MutedParagraph("Nếu cần hỗ trợ, vui lòng liên hệ trực tiếp rạp và cung cấp mã đặt vé ở trên.")}
+                """;
+
+        return Layout(
+            brand,
+            $"Booking {bookingCode} chưa xuất được vé — {(autoRefunded ? "đã hoàn tiền" : "chờ hoàn tiền")}",
+            "Thông báo hoàn tiền",
+            body
+        );
+    }
+
     public static string SeatsExpiredAfterPayment(
         BrandOptions brand,
         bool autoRefunded,

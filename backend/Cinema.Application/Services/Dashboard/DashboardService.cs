@@ -1,5 +1,6 @@
 using Cinema.Application.DTOs.Dashboard;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -13,29 +14,33 @@ public class DashboardService(IAppDbContext db, IReportService reportService) : 
     public async Task<DashboardSummaryDto> GetSummaryAsync(CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
-        var todayStart = now.Date;
-        var todayEnd = todayStart.AddDays(1);
-        var yesterdayStart = todayStart.AddDays(-1);
+        var today = VietnamTime.Today(now);
+        var todayStart = VietnamTime.StartOfDayUtc(today);
+        var todayEnd = VietnamTime.StartOfNextDayUtc(today);
+        var yesterdayStart = VietnamTime.StartOfDayUtc(today.AddDays(-1));
 
-        var todayRevenue =
-            await db
-                .Bookings.Where(b =>
-                    b.Status == BookingStatus.Confirmed
-                    && b.CreatedAt >= todayStart
-                    && b.CreatedAt < todayEnd
-                )
-                .SumAsync(b => (decimal?)b.FinalAmount, cancellationToken)
-            ?? 0m;
+        var paidRows = await db
+            .Payments.Where(p =>
+                (p.Status == PaymentStatus.Success || p.Status == PaymentStatus.Refunded)
+                && p.PaidAt != null
+                && p.PaidAt >= yesterdayStart
+                && p.PaidAt < todayEnd
+            )
+            .Select(p => new
+            {
+                PaidAt = p.PaidAt!.Value,
+                p.Amount,
+                p.RefundedAmount,
+            })
+            .ToListAsync(cancellationToken);
 
-        var yesterdayRevenue =
-            await db
-                .Bookings.Where(b =>
-                    b.Status == BookingStatus.Confirmed
-                    && b.CreatedAt >= yesterdayStart
-                    && b.CreatedAt < todayStart
-                )
-                .SumAsync(b => (decimal?)b.FinalAmount, cancellationToken)
-            ?? 0m;
+        var todayRevenue = paidRows
+            .Where(p => p.PaidAt >= todayStart)
+            .Sum(p => Math.Max(0m, p.Amount - (p.RefundedAmount ?? 0m)));
+
+        var yesterdayRevenue = paidRows
+            .Where(p => p.PaidAt < todayStart)
+            .Sum(p => Math.Max(0m, p.Amount - (p.RefundedAmount ?? 0m)));
 
         decimal? revenueChangePercent =
             yesterdayRevenue > 0
@@ -105,11 +110,10 @@ public class DashboardService(IAppDbContext db, IReportService reportService) : 
     {
         var clampedDays = Math.Clamp(days, 1, 90);
 
-        var now = DateTime.UtcNow;
-        var todayStart = now.Date;
-        var todayEnd = todayStart.AddDays(1);
+        var toDate = VietnamTime.Today();
+        var todayStart = VietnamTime.StartOfDayUtc(toDate);
+        var todayEnd = VietnamTime.StartOfNextDayUtc(toDate);
 
-        var toDate = DateOnly.FromDateTime(todayStart);
         var fromDate = toDate.AddDays(-(clampedDays - 1));
 
         var revenueReport = await reportService.GetRevenueReportAsync(

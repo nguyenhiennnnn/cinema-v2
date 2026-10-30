@@ -17,18 +17,19 @@ public static class DateTimeUtils
             ? $"{(int)Math.Ceiling(span.TotalMinutes)} phút"
             : $"{(int)Math.Ceiling(span.TotalSeconds)} giây";
 
-    public static string GetPeriodKey(DateTime createdAt, string groupBy) =>
-        groupBy switch
+    public static string GetPeriodKey(DateTime createdAt, string groupBy)
+    {
+        var local = VietnamTime.ToLocal(createdAt);
+        return groupBy switch
         {
-            "day" => createdAt.ToString("dd/MM/yyyy"),
-            "week" => $"{ISOWeek.GetYear(createdAt)}-W{ISOWeek.GetWeekOfYear(createdAt):D2}",
-            "month" => createdAt.ToString("MM/yyyy"),
-            _ => createdAt.ToString("dd/MM/yyyy"),
+            "day" => local.ToString("dd/MM/yyyy"),
+            "week" => $"{ISOWeek.GetYear(local)}-W{ISOWeek.GetWeekOfYear(local):D2}",
+            "month" => local.ToString("MM/yyyy"),
+            _ => local.ToString("dd/MM/yyyy"),
         };
+    }
 
-    public static DateTime GetStartOfDay(DateOnly date) =>
-        date.ToDateTime(TimeOnly.MinValue);
+    public static DateTime GetStartOfDay(DateOnly date) => VietnamTime.StartOfDayUtc(date);
 
-    public static DateTime GetStartOfNextDay(DateOnly date) =>
-        date.AddDays(1).ToDateTime(TimeOnly.MinValue);
+    public static DateTime GetStartOfNextDay(DateOnly date) => VietnamTime.StartOfNextDayUtc(date);
 }

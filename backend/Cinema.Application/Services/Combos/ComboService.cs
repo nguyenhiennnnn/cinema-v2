@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Combos;
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
@@ -16,8 +17,6 @@ public class ComboService(IAppDbContext db) : IComboService
         @"(\d+)\s*(?:Coca|Pepsi|Sprite|Fanta|Nước|Trà|Cà phê)",
         RegexOptions.IgnoreCase | RegexOptions.Compiled
     );
-
-    private const int VietnamUtcOffsetHours = 7;
 
     public async Task<List<ComboSuggestionDto>> GetComboSuggestionsAsync(
         int showtimeId,
@@ -67,7 +66,7 @@ public class ComboService(IAppDbContext db) : IComboService
 
         var maxSales = sales.Values.DefaultIfEmpty(0).Max();
         var medianPrice = combos.Select(c => c.Price).Order().ElementAt(combos.Count / 2);
-        var localHour = showtime.StartTime.AddHours(VietnamUtcOffsetHours).Hour;
+        var localHour = VietnamTime.ToLocal(showtime.StartTime).Hour;
         var lateNight = localHour >= 21 || localHour < 6;
         var kidsMovie = showtime.AgeCode is "P" or "K";
 

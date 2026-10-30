@@ -26,7 +26,8 @@ public record GatewayCallbackResult(
     string GatewayResponseCode,
     decimal Amount,
     int BookingId,
-    string? GatewayTransactionId = null
+    string? GatewayTransactionId = null,
+    string? Currency = null
 );
 
 public interface IPaymentGateway

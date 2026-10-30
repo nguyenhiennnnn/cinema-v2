@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cinema.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261028024757_InitialCreate")]
+    [Migration("20261030074633_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -4611,6 +4611,9 @@ namespace Cinema.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ShowtimeSeatId"));
 
+                    b.Property<int?>("HeldByBookingId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("HeldByUserId")
                         .HasColumnType("integer");
 
@@ -4634,6 +4637,8 @@ namespace Cinema.Infrastructure.Migrations
                         .HasDefaultValue("Available");
 
                     b.HasKey("ShowtimeSeatId");
+
+                    b.HasIndex("HeldByBookingId");
 
                     b.HasIndex("HeldByUserId");
 
@@ -5053,6 +5058,11 @@ namespace Cinema.Infrastructure.Migrations
 
             modelBuilder.Entity("Cinema.Domain.Entities.ShowtimeSeat", b =>
                 {
+                    b.HasOne("Cinema.Domain.Entities.Booking", null)
+                        .WithMany()
+                        .HasForeignKey("HeldByBookingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Cinema.Domain.Entities.User", "HeldByUser")
                         .WithMany()
                         .HasForeignKey("HeldByUserId")

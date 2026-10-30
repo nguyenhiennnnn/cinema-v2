@@ -312,7 +312,15 @@ public class AuthService(
         if (existing is null)
             throw new UnauthorizedAppException("Refresh token không hợp lệ.");
 
-        if (existing.IsRevoked || existing.ExpiresAt <= DateTime.UtcNow)
+        if (existing.IsRevoked)
+        {
+            if (existing.ReplacedByTokenId is not null)
+                await RevokeTokenChainAsync(existing.ReplacedByTokenId, cancellationToken);
+
+            throw new UnauthorizedAppException("Refresh token đã hết hạn hoặc đã bị thu hồi.");
+        }
+
+        if (existing.ExpiresAt <= DateTime.UtcNow)
             throw new UnauthorizedAppException("Refresh token đã hết hạn hoặc đã bị thu hồi.");
 
         if (!existing.User.IsActive)
@@ -348,6 +356,32 @@ public class AuthService(
             userDto,
             accessToken.ExpiresIn
         );
+    }
+
+    private async Task RevokeTokenChainAsync(int? nextTokenId, CancellationToken cancellationToken)
+    {
+        var visited = new HashSet<int>();
+        var now = DateTime.UtcNow;
+        while (nextTokenId is not null && visited.Add(nextTokenId.Value))
+        {
+            var token = await db.RefreshTokens.FirstOrDefaultAsync(
+                rt => rt.RefreshTokenId == nextTokenId,
+                cancellationToken
+            );
+            if (token is null)
+                break;
+
+            if (!token.IsRevoked)
+            {
+                token.IsRevoked = true;
+                token.RevokedAt = now;
+            }
+
+            nextTokenId = token.ReplacedByTokenId;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        logger.LogWarning("RefreshTokenReuseDetected — đã thu hồi toàn bộ chuỗi refresh token.");
     }
 
     public async Task<MessageResponse> LogoutAsync(

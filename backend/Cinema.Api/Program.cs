@@ -4,6 +4,7 @@ using Cinema.Api.Filters;
 using Cinema.Api.Middlewares;
 using Cinema.Application;
 using Cinema.Application.BackgroundJobs;
+using Cinema.Application.Interfaces;
 using Cinema.Application.MappingConfig;
 using Cinema.Application.Options;
 using Cinema.Infrastructure;
@@ -185,6 +186,23 @@ builder
         // Ho tro SignalR: doc JWT tu query string thay vi header
         options.Events = new JwtBearerEvents
         {
+            OnTokenValidated = async context =>
+            {
+                var rawUserId = context.Principal?.FindFirst(AppClaimTypes.UserId)?.Value;
+                if (!int.TryParse(rawUserId, out var userId))
+                {
+                    context.Fail("Token không hợp lệ.");
+                    return;
+                }
+
+                var db = context.HttpContext.RequestServices.GetRequiredService<IAppDbContext>();
+                var isActive = await db.Users.AnyAsync(
+                    u => u.UserId == userId && u.IsActive,
+                    context.HttpContext.RequestAborted
+                );
+                if (!isActive)
+                    context.Fail("Tài khoản đã bị khóa.");
+            },
             OnMessageReceived = context =>
             {
                 var accessToken = context.Request.Query["access_token"];

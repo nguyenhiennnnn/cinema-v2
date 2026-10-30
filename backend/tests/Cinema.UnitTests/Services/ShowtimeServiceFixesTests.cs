@@ -1,3 +1,4 @@
+using Cinema.Application.Utils;
 using Cinema.Application.BackgroundJobs;
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
@@ -17,7 +18,7 @@ namespace Cinema.UnitTests.Services;
 public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
 {
     private static DateTime Day(int daysFromNow, int hour = 14) =>
-        DateTime.UtcNow.Date.AddDays(daysFromNow).AddHours(hour);
+        VietnamTime.ToUtc(VietnamTime.Today().AddDays(daysFromNow), new TimeOnly(hour, 0));
 
     private static Booking NewBooking(
         int showtimeId,
@@ -332,9 +333,9 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
         var sut = CreateSut();
-        var target = DateOnly.FromDateTime(Day(2));
+        var target = VietnamTime.LocalDate(Day(2));
         await sut.CreateShowtimeAsync(
-            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, target.ToDateTime(new TimeOnly(14, 0)), 90_000m),
+            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, VietnamTime.ToUtc(target, new TimeOnly(14, 0)), 90_000m),
             CancellationToken.None
         );
 
@@ -364,7 +365,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 4);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
         var sut = CreateSut();
-        var from = DateOnly.FromDateTime(Day(2));
+        var from = VietnamTime.LocalDate(Day(2));
         var to = from.AddDays(2);
 
         var result = await sut.PreviewAutoScheduleAsync(
@@ -380,7 +381,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         result.Items.Count.ShouldBe(6);
         result.Unplaced.ShouldBeEmpty();
         result
-            .Items.Select(i => DateOnly.FromDateTime(i.StartTime))
+            .Items.Select(i => VietnamTime.LocalDate(i.StartTime))
             .Distinct()
             .Count()
             .ShouldBe(3);
@@ -392,9 +393,9 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
-        var sourceDay = DateOnly.FromDateTime(Day(-1));
+        var sourceDay = VietnamTime.LocalDate(Day(-1));
         TestDataSeeder.AddShowtime(
-            Db, movie, room, seats, sourceDay.ToDateTime(new TimeOnly(14, 0)),
+            Db, movie, room, seats, VietnamTime.ToUtc(sourceDay, new TimeOnly(14, 0)),
             status: ShowtimeStatus.Completed);
         var sut = CreateSut();
         var request = new CloneShowtimesRequest(sourceDay, sourceDay, ShiftDays: 7);
@@ -403,7 +404,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var second = await sut.CloneShowtimesAsync(request, CancellationToken.None);
 
         first.TotalCreated.ShouldBe(1);
-        first.Created[0].StartTime.ShouldBe(sourceDay.AddDays(7).ToDateTime(new TimeOnly(14, 0)));
+        first.Created[0].StartTime.ShouldBe(VietnamTime.ToUtc(sourceDay.AddDays(7), new TimeOnly(14, 0)));
         first.Created[0].SeatsGenerated.ShouldBe(2);
         second.TotalCreated.ShouldBe(0);
         second.TotalSkipped.ShouldBe(1);
@@ -413,10 +414,123 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
     public async Task CloneShowtimesAsync_NoSourceShowtimes_ThrowsBusinessRuleException()
     {
         var sut = CreateSut();
-        var day = DateOnly.FromDateTime(Day(-30));
+        var day = VietnamTime.LocalDate(Day(-30));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CloneShowtimesAsync(new CloneShowtimesRequest(day, day), CancellationToken.None)
         );
+    }
+
+    [Fact]
+    public async Task CreateShowtimeAsync_StartTimeInThePast_ThrowsBusinessRuleException()
+    {
+        var room = TestDataSeeder.AddRoom(Db);
+        TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var sut = CreateSut();
+
+        await Should.ThrowAsync<BusinessRuleException>(() =>
+            sut.CreateShowtimeAsync(
+                new UpsertShowtimeRequest(movie.MovieId, room.RoomId, DateTime.UtcNow.AddHours(-1), 90_000m, true),
+                CancellationToken.None
+            )
+        );
+        (await Db.Showtimes.CountAsync()).ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task UpdateShowtimeAsync_StartTimeInThePast_ThrowsBusinessRuleException()
+    {
+        var room = TestDataSeeder.AddRoom(Db);
+        TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var sut = CreateSut();
+        var created = await sut.CreateShowtimeAsync(
+            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, Day(1), 90_000m),
+            CancellationToken.None
+        );
+
+        await Should.ThrowAsync<BusinessRuleException>(() =>
+            sut.UpdateShowtimeAsync(
+                created.ShowtimeId,
+                new UpsertShowtimeRequest(movie.MovieId, room.RoomId, DateTime.UtcNow.AddHours(-1), 90_000m, true),
+                CancellationToken.None
+            )
+        );
+    }
+
+    [Fact]
+    public async Task BulkCreateShowtimesAsync_DatesInThePast_AreSkippedWithFutureReason()
+    {
+        var room = TestDataSeeder.AddRoom(Db);
+        TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var yesterday = VietnamTime.Today().AddDays(-1);
+        var sut = CreateSut();
+
+        var result = await sut.BulkCreateShowtimesAsync(
+            new BulkCreateShowtimesRequest(
+                movie.MovieId,
+                room.RoomId,
+                new BulkDateRange(yesterday, yesterday),
+                [yesterday.DayOfWeek.ToString()[..3]],
+                ["10:00"],
+                90_000m
+            ),
+            CancellationToken.None
+        );
+
+        result.TotalCreated.ShouldBe(0);
+        result.TotalSkipped.ShouldBe(1);
+        result.Skipped[0].Reason.ShouldContain("tương lai");
+    }
+
+    [Fact]
+    public async Task DeleteShowtimeAsync_ShowtimeAlreadyStarted_ThrowsAndKeepsScheduled()
+    {
+        var room = TestDataSeeder.AddRoom(Db);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats, DateTime.UtcNow.AddMinutes(-30));
+        var sut = CreateSut();
+
+        await Should.ThrowAsync<BusinessRuleException>(() =>
+            sut.DeleteShowtimeAsync(showtime.ShowtimeId, CancellationToken.None)
+        );
+
+        (await Db.Showtimes.AsNoTracking().SingleAsync(s => s.ShowtimeId == showtime.ShowtimeId))
+            .Status.ShouldBe(ShowtimeStatus.Scheduled);
+    }
+
+    [Fact]
+    public async Task DeleteShowtimeAsync_PendingBooking_MarksPendingPaymentsFailed()
+    {
+        var room = TestDataSeeder.AddRoom(Db);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats, Day(1));
+        var booking = NewBooking(showtime.ShowtimeId, "BK-PEND-PAY", BookingStatus.Pending, DateTime.UtcNow.AddMinutes(10));
+        Db.Bookings.Add(booking);
+        await Db.SaveChangesAsync();
+        Db.Payments.Add(
+            new Payment
+            {
+                BookingId = booking.BookingId,
+                PaymentMethod = PaymentMethod.VNPay,
+                TransactionId = "TX-PEND",
+                Amount = 90_000m,
+                Status = PaymentStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
+            }
+        );
+        await Db.SaveChangesAsync();
+        var sut = CreateSut();
+
+        await sut.DeleteShowtimeAsync(showtime.ShowtimeId, CancellationToken.None);
+
+        (await Db.Bookings.AsNoTracking().SingleAsync(b => b.BookingId == booking.BookingId))
+            .Status.ShouldBe(BookingStatus.Cancelled);
+        (await Db.Payments.AsNoTracking().SingleAsync(p => p.BookingId == booking.BookingId))
+            .Status.ShouldBe(PaymentStatus.Failed);
     }
 }

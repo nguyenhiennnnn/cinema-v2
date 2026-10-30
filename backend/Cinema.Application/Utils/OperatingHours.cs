@@ -8,15 +8,12 @@ public static class OperatingHours
         TimeOnly? closing
     )
     {
-        var open = day.ToDateTime(opening ?? TimeOnly.MinValue);
+        var open = VietnamTime.ToUtc(day, opening ?? TimeOnly.MinValue);
         if (closing is null)
             return (open, null);
 
-        var close = day.ToDateTime(closing.Value);
-        if (closing.Value <= (opening ?? TimeOnly.MinValue))
-            close = close.AddDays(1);
-
-        return (open, close);
+        var closeDay = closing.Value <= (opening ?? TimeOnly.MinValue) ? day.AddDays(1) : day;
+        return (open, VietnamTime.ToUtc(closeDay, closing.Value));
     }
 
     public static string? Violation(
@@ -30,7 +27,7 @@ public static class OperatingHours
         if (opening is null && closing is null)
             return null;
 
-        var startDay = DateOnly.FromDateTime(start);
+        var startDay = VietnamTime.LocalDate(start);
         var days = closing is null ? new[] { startDay } : new[] { startDay, startDay.AddDays(-1) };
 
         foreach (var day in days)
@@ -43,6 +40,6 @@ public static class OperatingHours
         }
 
         var range = $"{opening?.ToString("HH:mm") ?? "--"} - {closing?.ToString("HH:mm") ?? "--"}";
-        return $"Suất chiếu {start:HH:mm} - {end:HH:mm} nằm ngoài khung giờ hoạt động của rạp ({range}).";
+        return $"Suất chiếu {VietnamTime.ToLocal(start):HH:mm} - {VietnamTime.ToLocal(end):HH:mm} nằm ngoài khung giờ hoạt động của rạp ({range}).";
     }
 }

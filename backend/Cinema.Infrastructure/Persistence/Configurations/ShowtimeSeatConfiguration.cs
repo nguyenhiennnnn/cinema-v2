@@ -47,6 +47,12 @@ public class ShowtimeSeatConfiguration : IEntityTypeConfiguration<ShowtimeSeat>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
+            .HasOne<Booking>()
+            .WithMany()
+            .HasForeignKey(x => x.HeldByBookingId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder
             .HasIndex(x => new { x.ShowtimeId, x.SeatId })
             .IsUnique()
             .HasDatabaseName("UQ_Showtime_Seat");

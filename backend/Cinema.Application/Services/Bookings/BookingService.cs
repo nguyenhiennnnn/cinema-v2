@@ -331,12 +331,22 @@ public class BookingService(
         payment.RefundTransactionId = refundResult.RefundTransactionId;
 
         if (booking.UserId is not null)
+        {
+            var amountToReverse =
+                payment.Amount > 0m
+                    ? Math.Round(
+                        booking.FinalAmount * eligibility.RefundAmount / payment.Amount,
+                        0,
+                        MidpointRounding.AwayFromZero
+                    )
+                    : 0m;
             await ReverseLoyaltyAsync(
                 booking.UserId.Value,
-                booking.FinalAmount,
+                amountToReverse,
                 settings,
                 cancellationToken
             );
+        }
 
         try
         {
@@ -438,11 +448,11 @@ public class BookingService(
             query = query.Where(b => b.Channel == ch);
         if (filter.FromDate is not null)
             query = query.Where(b =>
-                b.CreatedAt >= filter.FromDate.Value.ToDateTime(TimeOnly.MinValue)
+                b.CreatedAt >= VietnamTime.StartOfDayUtc(filter.FromDate.Value)
             );
         if (filter.ToDate is not null)
             query = query.Where(b =>
-                b.CreatedAt < filter.ToDate.Value.AddDays(1).ToDateTime(TimeOnly.MinValue)
+                b.CreatedAt < VietnamTime.StartOfNextDayUtc(filter.ToDate.Value)
             );
         if (!string.IsNullOrWhiteSpace(filter.Search))
             query = query.Where(b =>
@@ -517,6 +527,10 @@ public class BookingService(
             await db.Bookings.FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken)
             ?? throw new NotFoundException("Không tìm thấy booking.");
 
+        if (booking.Channel != BookingChannel.Counter)
+            throw new BusinessRuleException(
+                "Chỉ có thể thu tiền tại quầy cho booking tạo tại quầy."
+            );
         if (booking.Status != BookingStatus.Pending || booking.ExpiresAt <= DateTime.UtcNow)
             throw new BusinessRuleException(
                 "Booking không ở trạng thái Pending hoặc đã hết hạn giữ ghế."
@@ -619,11 +633,7 @@ public class BookingService(
         var holderUserId = await ResolveHolderUserIdAsync(booking, cancellationToken);
         var heldSeats = await db
             .ShowtimeSeats.Include(ss => ss.Seat)
-            .Where(ss =>
-                ss.ShowtimeId == booking.ShowtimeId
-                && ss.HeldByUserId == holderUserId
-                && ss.Status == ShowtimeSeatStatus.Held
-            )
+            .HeldFor(booking, holderUserId)
             .ToListAsync(cancellationToken);
 
         if (heldSeats.Count == 0)
@@ -659,6 +669,7 @@ public class BookingService(
             {
                 seat.Status = ShowtimeSeatStatus.Booked;
                 seat.HeldByUserId = null;
+                seat.HeldByBookingId = null;
                 seat.HeldUntil = null;
                 seatIds.Add(seat.ShowtimeSeatId);
 
@@ -712,11 +723,15 @@ public class BookingService(
                 .Users.Where(u => u.UserId == booking.UserId)
                 .Select(u => u.Email)
                 .FirstAsync(cancellationToken);
+            var movieTitle = await db
+                .Showtimes.Where(s => s.ShowtimeId == booking.ShowtimeId)
+                .Select(s => s.Movie.Title)
+                .FirstOrDefaultAsync(cancellationToken);
             var html = EmailTemplates.BookingConfirmed(
                 _brand,
                 booking.CustomerName,
                 booking.BookingCode,
-                movieTitle: string.Empty,
+                movieTitle: movieTitle ?? string.Empty,
                 seatCount: seatIds.Count
             );
             backgroundJobClient.Enqueue<SendEmailJob>(j =>
@@ -792,6 +807,12 @@ public class BookingService(
         var pointsToRevoke = (int)Math.Floor(finalAmount / settings.PointsPerAmount);
         profile.Points = Math.Max(0, profile.Points - pointsToRevoke);
         profile.TotalSpent = Math.Max(0, profile.TotalSpent - finalAmount);
+
+        var eligibleTier = await db
+            .MembershipTiers.Where(t => t.MinPoints <= profile.Points)
+            .OrderByDescending(t => t.MinPoints)
+            .FirstOrDefaultAsync(cancellationToken);
+        profile.TierId = eligibleTier?.TierId;
     }
 
     private async Task ReleaseAndCancelBookingAsync(
@@ -927,19 +948,30 @@ public class BookingService(
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var now = DateTime.UtcNow;
         var holdUntil = now.AddMinutes(_holdMinutes);
+        if (holdUntil > showtime.StartTime)
+            holdUntil = showtime.StartTime;
         var distinctSeatIds = showtimeSeatIds.Distinct().ToList();
 
         var affected = await db
             .ShowtimeSeats.Where(ss =>
                 distinctSeatIds.Contains(ss.ShowtimeSeatId)
                 && ss.ShowtimeId == showtimeId
-                && ss.Status == ShowtimeSeatStatus.Available
+                && (
+                    ss.Status == ShowtimeSeatStatus.Available
+                    || (
+                        ss.Status == ShowtimeSeatStatus.Held
+                        && ss.HeldByUserId == holderUserId
+                        && ss.HeldUntil != null
+                        && ss.HeldUntil < now
+                    )
+                )
             )
             .ExecuteUpdateAsync(
                 setters =>
                     setters
                         .SetProperty(x => x.Status, ShowtimeSeatStatus.Held)
                         .SetProperty(x => x.HeldByUserId, holderUserId)
+                        .SetProperty(x => x.HeldByBookingId, (int?)null)
                         .SetProperty(x => x.HeldUntil, holdUntil),
                 cancellationToken
             );
@@ -1004,6 +1036,14 @@ public class BookingService(
 
         db.Bookings.Add(booking);
         await db.SaveChangesAsync(cancellationToken);
+        await db
+            .ShowtimeSeats.Where(ss =>
+                distinctSeatIds.Contains(ss.ShowtimeSeatId) && ss.ShowtimeId == showtimeId
+            )
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(x => x.HeldByBookingId, booking.BookingId),
+                cancellationToken
+            );
         await transaction.CommitAsync(cancellationToken);
 
         await realtimeNotifier.NotifySeatHeldAsync(
@@ -1103,11 +1143,7 @@ public class BookingService(
     {
         var holderUserId = await ResolveHolderUserIdAsync(booking, cancellationToken);
         var seats = await db
-            .ShowtimeSeats.Where(ss =>
-                ss.ShowtimeId == booking.ShowtimeId
-                && ss.HeldByUserId == holderUserId
-                && ss.Status == ShowtimeSeatStatus.Held
-            )
+            .ShowtimeSeats.HeldFor(booking, holderUserId)
             .ToListAsync(cancellationToken);
 
         var seatIds = seats.Select(s => s.ShowtimeSeatId).ToList();
@@ -1115,6 +1151,7 @@ public class BookingService(
         {
             seat.Status = ShowtimeSeatStatus.Available;
             seat.HeldByUserId = null;
+            seat.HeldByBookingId = null;
             seat.HeldUntil = null;
         }
         return seatIds;
@@ -1140,6 +1177,7 @@ public class BookingService(
         {
             seat.Status = ShowtimeSeatStatus.Available;
             seat.HeldByUserId = null;
+            seat.HeldByBookingId = null;
             seat.HeldUntil = null;
         }
 
@@ -1155,11 +1193,7 @@ public class BookingService(
         {
             var holderUserId = await ResolveHolderUserIdAsync(booking, cancellationToken);
             return await db
-                .ShowtimeSeats.Where(ss =>
-                    ss.ShowtimeId == booking.ShowtimeId
-                    && ss.HeldByUserId == holderUserId
-                    && ss.Status == ShowtimeSeatStatus.Held
-                )
+                .ShowtimeSeats.HeldFor(booking, holderUserId)
                 .ProjectToType<BookingSeatDto>()
                 .ToListAsync(cancellationToken);
         }
@@ -1195,23 +1229,10 @@ public class BookingService(
             .ProjectToType<BookingComboItemDto>()
             .ToListAsync(cancellationToken);
 
-    private async Task<int> ResolveHolderUserIdAsync(
+    private Task<int> ResolveHolderUserIdAsync(
         Booking booking,
         CancellationToken cancellationToken
-    )
-    {
-        if (booking.UserId is not null)
-            return booking.UserId.Value;
-        if (booking.CreatedByEmployeeId is not null)
-        {
-            var employee = await db.Employees.FirstAsync(
-                e => e.EmployeeId == booking.CreatedByEmployeeId,
-                cancellationToken
-            );
-            return employee.UserId;
-        }
-        throw new BusinessRuleException("Booking thiếu cả UserId lẫn CreatedByEmployeeId.");
-    }
+    ) => BookingSeatHold.ResolveHolderUserIdAsync(db, booking, cancellationToken);
 
     private async Task<List<BookingPaymentDto>> GetBookingPaymentsAsync(
         int bookingId,

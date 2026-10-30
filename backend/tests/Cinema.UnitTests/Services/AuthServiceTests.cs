@@ -350,6 +350,68 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
     }
 
     [Fact]
+    public async Task RefreshAsync_ReusingRotatedToken_RevokesWholeTokenChain()
+    {
+        var (user, oldToken) = await SeedActiveRefreshTokenAsync();
+        var second = new RefreshToken
+        {
+            UserId = user.UserId,
+            TokenHash = "hash:second",
+            ExpiresAt = DateTime.UtcNow.AddDays(10),
+            CreatedAt = DateTime.UtcNow,
+        };
+        Db.RefreshTokens.Add(second);
+        await Db.SaveChangesAsync();
+        var third = new RefreshToken
+        {
+            UserId = user.UserId,
+            TokenHash = "hash:third",
+            ExpiresAt = DateTime.UtcNow.AddDays(10),
+            CreatedAt = DateTime.UtcNow,
+        };
+        Db.RefreshTokens.Add(third);
+        await Db.SaveChangesAsync();
+        oldToken.IsRevoked = true;
+        oldToken.ReplacedByTokenId = second.RefreshTokenId;
+        second.IsRevoked = true;
+        second.ReplacedByTokenId = third.RefreshTokenId;
+        await Db.SaveChangesAsync();
+        var sut = CreateSut();
+
+        await Should.ThrowAsync<UnauthorizedAppException>(() =>
+            sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
+        );
+
+        var reloadedThird = await Db.RefreshTokens.AsNoTracking().SingleAsync(rt => rt.RefreshTokenId == third.RefreshTokenId);
+        reloadedThird.IsRevoked.ShouldBeTrue();
+        reloadedThird.RevokedAt.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task RefreshAsync_ReusingLoggedOutToken_DoesNotRevokeOtherSessions()
+    {
+        var (user, token) = await SeedActiveRefreshTokenAsync();
+        var other = new RefreshToken
+        {
+            UserId = user.UserId,
+            TokenHash = "hash:other-session",
+            ExpiresAt = DateTime.UtcNow.AddDays(10),
+            CreatedAt = DateTime.UtcNow,
+        };
+        Db.RefreshTokens.Add(other);
+        token.IsRevoked = true;
+        await Db.SaveChangesAsync();
+        var sut = CreateSut();
+
+        await Should.ThrowAsync<UnauthorizedAppException>(() =>
+            sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
+        );
+
+        (await Db.RefreshTokens.AsNoTracking().SingleAsync(rt => rt.RefreshTokenId == other.RefreshTokenId))
+            .IsRevoked.ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task RefreshAsync_ExpiredToken_ThrowsUnauthorized()
     {
         var (_, token) = await SeedActiveRefreshTokenAsync();

@@ -1,3 +1,4 @@
+using Cinema.Application.Utils;
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -11,7 +12,7 @@ namespace Cinema.UnitTests.Services;
 public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
 {
     private static DateTime SafeStartTime(int daysFromNow = 1) =>
-        DateTime.UtcNow.Date.AddDays(daysFromNow).AddHours(14);
+        VietnamTime.ToUtc(VietnamTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));
 
     [Fact]
     public async Task CreateShowtimeAsync_ValidRequest_GeneratesOneShowtimeSeatPerActiveNonAisleSeat()
@@ -168,7 +169,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var sut = CreateSut();
-        var tooEarly = DateTime.UtcNow.Date.AddDays(1).AddHours(6); // before 08:00 opening
+        var tooEarly = VietnamTime.ToUtc(VietnamTime.Today().AddDays(1), new TimeOnly(6, 0));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CreateShowtimeAsync(
@@ -253,7 +254,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
 public class ShowtimeServiceUpdateAndDeleteTests : ShowtimeServiceTestBase
 {
     private static DateTime SafeStartTime(int daysFromNow = 1) =>
-        DateTime.UtcNow.Date.AddDays(daysFromNow).AddHours(14);
+        VietnamTime.ToUtc(VietnamTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));
 
     [Fact]
     public async Task UpdateShowtimeAsync_ChangingRoomId_ThrowsBusinessRuleException()

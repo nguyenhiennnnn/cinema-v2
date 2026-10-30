@@ -111,6 +111,8 @@ public class ReviewService(IAppDbContext db) : IReviewService
         db.Reviews.Add(review);
         await db.SaveChangesAsync(cancellationToken);
 
+        await RecalculateMovieAverageRatingAsync(movieId, cancellationToken);
+
         review.User = user;
         return review.Adapt<ReviewDto>();
     }

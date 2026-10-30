@@ -178,7 +178,8 @@ public class StripeGateway(IOptions<StripeOptions> options, ILogger<StripeGatewa
                     GatewayResponseCode: session.PaymentStatus ?? "paid",
                     Amount: amount,
                     BookingId: bookingId,
-                    GatewayTransactionId: session.PaymentIntentId
+                    GatewayTransactionId: session.PaymentIntentId,
+                    Currency: currency
                 );
             }
         }

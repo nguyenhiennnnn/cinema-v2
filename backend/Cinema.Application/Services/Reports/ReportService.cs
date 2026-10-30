@@ -31,39 +31,61 @@ public class ReportService(IAppDbContext db) : IReportService
         var fromDateVal = DateTimeUtils.GetStartOfDay(fromDate);
         var toDateVal = DateTimeUtils.GetStartOfNextDay(toDate);
 
-        var bookings = await db
-            .Bookings.Where(b =>
-                b.Status == BookingStatus.Confirmed
-                && b.CreatedAt >= fromDateVal
-                && b.CreatedAt < toDateVal
+        var payments = await db
+            .Payments.Where(p =>
+                (p.Status == PaymentStatus.Success || p.Status == PaymentStatus.Refunded)
+                && p.PaidAt != null
+                && p.PaidAt >= fromDateVal
+                && p.PaidAt < toDateVal
             )
-            .Select(b => new
+            .Select(p => new
             {
-                b.CreatedAt,
-                b.FinalAmount,
-                TicketRevenue = b.Tickets.Sum(t => (decimal?)t.Price) ?? 0m,
-                ComboRevenue = b.BookingCombos.Sum(bc => (decimal?)(bc.Quantity * bc.UnitPrice))
-                    ?? 0m,
+                p.BookingId,
+                PaidAt = p.PaidAt!.Value,
+                p.Amount,
+                p.RefundedAmount,
+                BookingFinalAmount = p.Booking.FinalAmount,
+                TicketRevenue = p.Booking.Tickets.Sum(t => (decimal?)t.Price) ?? 0m,
+                ComboRevenue = p.Booking.BookingCombos.Sum(bc =>
+                    (decimal?)(bc.Quantity * bc.UnitPrice)
+                ) ?? 0m,
             })
             .ToListAsync(cancellationToken);
 
-        var items = bookings
-            .GroupBy(b => DateTimeUtils.GetPeriodKey(b.CreatedAt, groupBy))
+        var rows = payments
+            .Select(p =>
+            {
+                var net = Math.Max(0m, p.Amount - (p.RefundedAmount ?? 0m));
+                var ratio = p.BookingFinalAmount > 0m ? Math.Min(1m, net / p.BookingFinalAmount) : 0m;
+                return new
+                {
+                    p.BookingId,
+                    p.PaidAt,
+                    Net = net,
+                    TicketRevenue = p.TicketRevenue * ratio,
+                    ComboRevenue = p.ComboRevenue * ratio,
+                };
+            })
+            .Where(r => r.Net > 0m)
+            .ToList();
+
+        var items = rows
+            .GroupBy(r => DateTimeUtils.GetPeriodKey(r.PaidAt, groupBy))
             .OrderBy(g => g.Key, StringComparer.Ordinal)
             .Select(g => new
             {
                 Period = g.Key,
                 TicketRevenue = g.Sum(x => x.TicketRevenue),
                 ComboRevenue = g.Sum(x => x.ComboRevenue),
-                TotalRevenue = g.Sum(x => x.FinalAmount),
-                BookingCount = g.Count(),
+                TotalRevenue = g.Sum(x => x.Net),
+                BookingCount = g.Select(x => x.BookingId).Distinct().Count(),
             })
             .Adapt<List<RevenueReportItemDto>>();
 
         var summary = new
         {
-            TotalRevenue = bookings.Sum(b => b.FinalAmount),
-            TotalBookings = bookings.Count,
+            TotalRevenue = rows.Sum(r => r.Net),
+            TotalBookings = rows.Select(r => r.BookingId).Distinct().Count(),
         }.Adapt<RevenueSummaryDto>();
 
         return new RevenueReportDto(groupBy, items, summary);

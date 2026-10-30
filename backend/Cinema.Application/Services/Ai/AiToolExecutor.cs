@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json.Nodes;
 using Cinema.Application.DTOs.Ai;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -165,8 +166,8 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             )
                 return Error("date phải có định dạng yyyy-MM-dd.");
 
-            var dayStart = date.ToDateTime(TimeOnly.MinValue);
-            var dayEnd = dayStart.AddDays(1);
+            var dayStart = VietnamTime.StartOfDayUtc(date);
+            var dayEnd = VietnamTime.StartOfNextDayUtc(date);
             query = query.Where(s => s.StartTime >= dayStart && s.StartTime < dayEnd);
         }
         else
@@ -217,7 +218,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     ["movieTitle"] = r.MovieTitle,
                     ["room"] = r.RoomName,
                     ["screenType"] = r.ScreenType,
-                    ["startTime"] = r.StartTime.ToString("dd/MM/yyyy HH:mm"),
+                    ["startTime"] = VietnamTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
                     ["basePriceVnd"] = r.BasePrice,
                     ["availableSeats"] = r.AvailableSeats,
                 }
@@ -226,7 +227,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                 new AiCardDto(
                     "showtime",
                     r.MovieTitle,
-                    $"{r.StartTime:HH:mm dd/MM} • {r.RoomName}",
+                    $"{VietnamTime.ToLocal(r.StartTime):HH:mm dd/MM} • {r.RoomName}",
                     $"Từ {r.BasePrice:N0} VNĐ • Còn {r.AvailableSeats} ghế",
                     r.PosterUrl,
                     $"/booking/{r.ShowtimeId}"
@@ -314,7 +315,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             ["showtimeId"] = showtime.ShowtimeId,
             ["movieTitle"] = showtime.MovieTitle,
             ["room"] = showtime.RoomName,
-            ["startTime"] = showtime.StartTime.ToString("dd/MM/yyyy HH:mm"),
+            ["startTime"] = VietnamTime.ToLocal(showtime.StartTime).ToString("dd/MM/yyyy HH:mm"),
             ["totalSeats"] = seats.Count,
             ["availableSeats"] = free.Count,
             ["bySeatType"] = byType,
@@ -326,7 +327,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
         var card = new AiCardDto(
             "showtime",
             showtime.MovieTitle,
-            $"{showtime.StartTime:HH:mm dd/MM} • {showtime.RoomName}",
+            $"{VietnamTime.ToLocal(showtime.StartTime):HH:mm dd/MM} • {showtime.RoomName}",
             $"Còn {free.Count}/{seats.Count} ghế",
             showtime.PosterUrl,
             $"/booking/{showtime.ShowtimeId}"
@@ -397,7 +398,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     ["status"] = statusText,
                     ["movieTitle"] = r.MovieTitle,
                     ["room"] = r.RoomName,
-                    ["startTime"] = r.StartTime.ToString("dd/MM/yyyy HH:mm"),
+                    ["startTime"] = VietnamTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
                     ["seats"] = new JsonArray(seats.Select(s => (JsonNode?)s).ToArray()),
                     ["finalAmountVnd"] = r.FinalAmount,
                 }
@@ -406,7 +407,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                 new AiCardDto(
                     "booking",
                     r.MovieTitle,
-                    $"{r.StartTime:HH:mm dd/MM} • {r.RoomName} • Ghế {string.Join(", ", seats)}",
+                    $"{VietnamTime.ToLocal(r.StartTime):HH:mm dd/MM} • {r.RoomName} • Ghế {string.Join(", ", seats)}",
                     $"{r.BookingCode} • {statusText} • {r.FinalAmount:N0} VNĐ",
                     r.PosterUrl,
                     $"/account/tickets/{r.BookingId}"

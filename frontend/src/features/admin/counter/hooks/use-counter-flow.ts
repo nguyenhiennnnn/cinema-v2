@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "@/components/ui/toast";
+import { getBusinessToday } from "@/lib/formatters";
 import { ShowtimeSeatStatus } from "@/types/enum";
 import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
 import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";
@@ -17,9 +18,7 @@ export type CounterStep = "showtime" | "seats" | "checkout" | "done";
 
 export function useCounterFlow() {
   const [step, setStep] = useState<CounterStep>("showtime");
-  const [selectedDate, setSelectedDate] = useState(() =>
-    new Date().toISOString().slice(0, 10),
-  );
+  const [selectedDate, setSelectedDate] = useState(() => getBusinessToday());
   const [showtimeId, setShowtimeId] = useState<number | null>(null);
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(
     new Set(),

@@ -66,6 +66,18 @@ public class ReportServiceTests : IDisposable
         _handle.Db.Bookings.Add(booking);
         await _handle.Db.SaveChangesAsync();
 
+        _handle.Db.Payments.Add(
+            new Payment
+            {
+                BookingId = booking.BookingId,
+                PaymentMethod = PaymentMethod.Cash,
+                Amount = finalAmount,
+                Status = PaymentStatus.Success,
+                PaidAt = createdAt,
+                CreatedAt = createdAt,
+            }
+        );
+
         _handle.Db.BookingTickets.Add(
             new BookingTicket
             {
@@ -204,6 +216,77 @@ public class ReportServiceTests : IDisposable
 
         report.Summary.TotalRevenue.ShouldBe(confirmed.FinalAmount);
         report.Summary.TotalBookings.ShouldBe(1);
+    }
+
+    private async Task SetPaymentAsync(
+        Booking booking,
+        BookingStatus status,
+        PaymentStatus paymentStatus,
+        decimal? refunded,
+        DateTime paidAt
+    )
+    {
+        var payment = await _handle.Db.Payments.SingleAsync(p => p.BookingId == booking.BookingId);
+        payment.Status = paymentStatus;
+        payment.RefundedAmount = refunded;
+        payment.PaidAt = paidAt;
+        var tracked = await _handle.Db.Bookings.SingleAsync(b => b.BookingId == booking.BookingId);
+        tracked.Status = status;
+        await _handle.Db.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task GetRevenueReportAsync_CancelledBookingWithPartialRefund_CountsRetainedAmount()
+    {
+        var paidAt = DateTime.UtcNow.Date.AddHours(9);
+        var booking = await SeedConfirmedBookingAsync(paidAt, ticketPrice: 100_000m);
+        await SetPaymentAsync(booking, BookingStatus.Cancelled, PaymentStatus.Refunded, 40_000m, paidAt);
+        var sut = CreateSut();
+
+        var report = await sut.GetRevenueReportAsync(
+            DateOnly.FromDateTime(paidAt),
+            DateOnly.FromDateTime(paidAt),
+            "day",
+            CancellationToken.None
+        );
+
+        report.Summary.TotalRevenue.ShouldBe(60_000m);
+        report.Summary.TotalBookings.ShouldBe(1);
+        report.Items.Single().TicketRevenue.ShouldBe(60_000m);
+    }
+
+    [Fact]
+    public async Task GetRevenueReportAsync_FullyRefundedBooking_ContributesNothing()
+    {
+        var paidAt = DateTime.UtcNow.Date.AddHours(9);
+        var booking = await SeedConfirmedBookingAsync(paidAt, ticketPrice: 100_000m);
+        await SetPaymentAsync(booking, BookingStatus.Cancelled, PaymentStatus.Refunded, 100_000m, paidAt);
+        var sut = CreateSut();
+
+        var report = await sut.GetRevenueReportAsync(
+            DateOnly.FromDateTime(paidAt),
+            DateOnly.FromDateTime(paidAt),
+            "day",
+            CancellationToken.None
+        );
+
+        report.Summary.TotalRevenue.ShouldBe(0m);
+        report.Summary.TotalBookings.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task GetRevenueReportAsync_GroupsByPaidAtInVietnamTime()
+    {
+        var day = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var paidAt = new DateTime(day.Year, day.Month, day.Day, 18, 0, 0, DateTimeKind.Utc);
+        var booking = await SeedConfirmedBookingAsync(paidAt.AddDays(-3), ticketPrice: 100_000m);
+        await SetPaymentAsync(booking, BookingStatus.Confirmed, PaymentStatus.Success, null, paidAt);
+        var sut = CreateSut();
+
+        var report = await sut.GetRevenueReportAsync(day.AddDays(1), day.AddDays(1), "day", CancellationToken.None);
+
+        report.Summary.TotalRevenue.ShouldBe(100_000m);
+        report.Items.Single().Period.ShouldBe(day.AddDays(1).ToString("dd/MM/yyyy"));
     }
 
     [Fact]

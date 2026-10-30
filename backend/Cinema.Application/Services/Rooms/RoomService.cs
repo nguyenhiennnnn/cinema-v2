@@ -103,6 +103,15 @@ public class RoomService(IAppDbContext db) : IRoomService
                 }
             );
 
+        if (room.IsActive && !request.IsActive)
+        {
+            var seatIdsInRoom = db.Seats.Where(s => s.RoomId == roomId).Select(s => s.SeatId);
+            if (await HasLiveFutureSeatsAsync(seatIdsInRoom, cancellationToken))
+                throw new ConflictAppException(
+                    "Phòng đang có ghế đã đặt hoặc đang được giữ ở suất chiếu sắp tới, không thể ngừng hoạt động."
+                );
+        }
+
         room.RoomName = request.RoomName;
         room.ScreenTypeId = request.ScreenTypeId;
         room.IsActive = request.IsActive;
@@ -224,11 +233,36 @@ public class RoomService(IAppDbContext db) : IRoomService
             deactivated = 0,
             removed = 0;
         var finalSeats = new List<Seat>();
+        var touchedSeats = new List<Seat>();
 
         var seatsToDrop = currentSeats
             .Where(s => !requestMap.ContainsKey((s.SeatRow, s.SeatNumber)))
             .ToList();
         var dropIds = seatsToDrop.Select(s => s.SeatId).ToList();
+
+        var changedIds = request
+            .Seats.Where(item =>
+                currentMap.TryGetValue((item.SeatRow, item.SeatNumber), out var existing)
+                && (
+                    existing.SeatTypeId != item.SeatTypeId
+                    || existing.IsActive != item.IsActive
+                    || existing.IsAisle != item.IsAisle
+                    || existing.CoupleId != item.CoupleId
+                )
+            )
+            .Select(item => currentMap[(item.SeatRow, item.SeatNumber)].SeatId)
+            .Concat(dropIds)
+            .ToList();
+        if (
+            changedIds.Count > 0
+            && await HasLiveFutureSeatsAsync(
+                db.Seats.Where(s => changedIds.Contains(s.SeatId)).Select(s => s.SeatId),
+                cancellationToken
+            )
+        )
+            throw new ConflictAppException(
+                "Không thể thay đổi ghế đang được đặt hoặc giữ ở suất chiếu sắp tới."
+            );
         var idsWithHistory = (
             await db
                 .ShowtimeSeats.Where(ss => dropIds.Contains(ss.SeatId))
@@ -247,6 +281,7 @@ public class RoomService(IAppDbContext db) : IRoomService
                     deactivated++;
                 }
                 finalSeats.Add(seat);
+                touchedSeats.Add(seat);
             }
             else
             {
@@ -271,6 +306,7 @@ public class RoomService(IAppDbContext db) : IRoomService
                     existing.IsAisle = item.IsAisle;
                     existing.CoupleId = item.CoupleId;
                     updated++;
+                    touchedSeats.Add(existing);
                 }
                 finalSeats.Add(existing);
             }
@@ -289,6 +325,7 @@ public class RoomService(IAppDbContext db) : IRoomService
                 db.Seats.Add(newSeat);
                 created++;
                 finalSeats.Add(newSeat);
+                touchedSeats.Add(newSeat);
             }
         }
 
@@ -296,7 +333,10 @@ public class RoomService(IAppDbContext db) : IRoomService
         room.Rows = request.Rows;
         room.Cols = request.Cols;
 
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
+        await SyncFutureShowtimeSeatsAsync(roomId, touchedSeats, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return new UpdateSeatLayoutResponse(
             created,
@@ -319,6 +359,90 @@ public class RoomService(IAppDbContext db) : IRoomService
             ?? throw new NotFoundException("Không tìm thấy phòng chiếu.");
 
         return room.Adapt<AdminRoomDto>();
+    }
+
+    private async Task<bool> HasLiveFutureSeatsAsync(
+        IQueryable<int> seatIds,
+        CancellationToken cancellationToken
+    )
+    {
+        var now = DateTime.UtcNow;
+        return await db.ShowtimeSeats.AnyAsync(
+            ss =>
+                seatIds.Contains(ss.SeatId)
+                && (ss.Status == ShowtimeSeatStatus.Booked || ss.Status == ShowtimeSeatStatus.Held)
+                && ss.Showtime.Status == ShowtimeStatus.Scheduled
+                && ss.Showtime.StartTime > now,
+            cancellationToken
+        );
+    }
+
+    private async Task SyncFutureShowtimeSeatsAsync(
+        int roomId,
+        List<Seat> touchedSeats,
+        CancellationToken cancellationToken
+    )
+    {
+        if (touchedSeats.Count == 0)
+            return;
+
+        var now = DateTime.UtcNow;
+        var showtimes = await db
+            .Showtimes.Where(s =>
+                s.RoomId == roomId && s.Status == ShowtimeStatus.Scheduled && s.StartTime > now
+            )
+            .Select(s => new { s.ShowtimeId, s.BasePrice })
+            .ToListAsync(cancellationToken);
+        if (showtimes.Count == 0)
+            return;
+
+        var showtimeIds = showtimes.Select(s => s.ShowtimeId).ToList();
+        var seatIds = touchedSeats.Select(s => s.SeatId).ToList();
+        var seatTypeIds = touchedSeats
+            .Where(s => s.SeatTypeId is not null)
+            .Select(s => s.SeatTypeId!.Value)
+            .Distinct()
+            .ToList();
+        var multipliers = await db
+            .SeatTypes.Where(st => seatTypeIds.Contains(st.SeatTypeId))
+            .ToDictionaryAsync(st => st.SeatTypeId, st => st.PriceMultiplier, cancellationToken);
+        var existing = await db
+            .ShowtimeSeats.Where(ss => showtimeIds.Contains(ss.ShowtimeId) && seatIds.Contains(ss.SeatId))
+            .ToListAsync(cancellationToken);
+        var existingMap = existing.ToDictionary(ss => (ss.ShowtimeId, ss.SeatId));
+
+        foreach (var showtime in showtimes)
+        foreach (var seat in touchedSeats)
+        {
+            var eligible = seat.IsActive && !seat.IsAisle;
+            var multiplier =
+                seat.SeatTypeId is not null && multipliers.TryGetValue(seat.SeatTypeId.Value, out var m)
+                    ? m
+                    : 1.0m;
+            if (existingMap.TryGetValue((showtime.ShowtimeId, seat.SeatId), out var showtimeSeat))
+            {
+                if (showtimeSeat.Status != ShowtimeSeatStatus.Available)
+                    continue;
+                if (eligible)
+                    showtimeSeat.Price = showtime.BasePrice * multiplier;
+                else
+                    db.ShowtimeSeats.Remove(showtimeSeat);
+            }
+            else if (eligible)
+            {
+                db.ShowtimeSeats.Add(
+                    new ShowtimeSeat
+                    {
+                        ShowtimeId = showtime.ShowtimeId,
+                        SeatId = seat.SeatId,
+                        Status = ShowtimeSeatStatus.Available,
+                        Price = showtime.BasePrice * multiplier,
+                    }
+                );
+            }
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     private Task<AdminRoomDto> LoadRoomDtoAsync(
