@@ -1,53 +1,88 @@
+using System.Globalization;
 using System.Net;
 using Cinema.Application.Options;
 
 namespace Cinema.Application.Utils;
 
+/// <summary>
+/// Email giao dịch của Perfo, dựng theo design system trong
+/// .agents/skills/perfo-design-system (vẽ lại bằng HTML table + inline style cho email client).
+///
+/// Quy ước:
+/// - Màu là HEX quy đổi từ token OKLCH ở frontend/src/index.css (:root và .dark), vì email client
+///   không đọc được oklch(). Đổi token thì đổi các hằng số màu bên dưới.
+/// - Chữ tối thiểu 13px, câu thường, không viết hoa cả chuỗi, không monospace (mã dùng kiểu t-code).
+/// - Phẳng và đặc: không viền bao khối, không bóng, không gradient, không bo góc (trừ chấm của logo).
+/// - Mỗi email một khối primary đặc: nút chính (ActionLink) hoặc cuống vé (BookingConfirmed).
+/// - Khấc và đục lỗ chỉ dùng ở vé điện tử trong BookingConfirmed.
+/// - Trạng thái luôn có ký hiệu và chữ đi kèm, không chỉ dựa vào màu.
+/// </summary>
 public static class EmailTemplates
 {
-    private const string ColorBackground = "#f8f3eb";
-    private const string ColorCard = "#fefbf7";
-    private const string ColorForeground = "#1e1311";
-    private const string ColorMuted = "#6a5a51";
-    private const string ColorBorder = "#dad3ca";
-    private const string ColorPrimary = "#a50013";
-    private const string ColorPrimaryForeground = "#fdfaf4";
-    private const string ColorSuccess = "#187c49";
-    private const string ColorSuccessBg = "#e7eee6";
-    private const string ColorSuccessBorder = "#b9d5c3";
-    private const string ColorDestructive = "#d41101";
-    private const string ColorDestructiveBg = "#fae4de";
-    private const string ColorDestructiveBorder = "#f1b5ad";
-    private const string ColorWarningForeground = "#211201";
-    private const string ColorWarningBg = "#faf0df";
-    private const string ColorWarningBorder = "#f3d9b0";
+    // Light: :root. Dark: .dark (chỉ khai báo ở khối @media trong Layout).
+    private const string ColorBackground = "#f8f3eb"; // --background
+    private const string ColorCard = "#fefbf7"; // --card
+    private const string ColorSecondary = "#ece5dc"; // --secondary
+    private const string ColorForeground = "#1e1311"; // --foreground
+    private const string ColorMuted = "#6a5a51"; // --muted-foreground
+    private const string ColorBorder = "#dad3ca"; // --border
+    private const string ColorPrimary = "#a50013"; // --primary
+    private const string ColorPrimaryForeground = "#fdfaf4"; // --primary-foreground
+    private const string ColorSuccess = "#187c49"; // --success
+    private const string ColorDestructive = "#d41101"; // --destructive
+    private const string ColorWarningForeground = "#211201"; // --warning-foreground
 
-    private const string FontFamily = "'Be Vietnam Pro', 'Segoe UI', Helvetica, Arial, sans-serif";
+    // Nền huy hiệu: giống badge ở frontend (màu trạng thái 10% trên card ở light, 20% trên card ở dark).
+    private const string TintSuccess = "#e7eee6";
+    private const string TintDestructive = "#fae4de";
+    private const string TintWarning = "#faf0df";
+
+    private const string FontBody = "'Be Vietnam Pro', 'Segoe UI', Helvetica, Arial, sans-serif";
     private const string FontHeading = "'Archivo', 'Arial Narrow', Arial, sans-serif";
-    private const string FontMono = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace";
+    private const string FontSymbol = "'Segoe UI Symbol', 'Apple Symbols', Arial, sans-serif";
 
-    private sealed record Tone(string Fg, string Bg, string Border, string Css);
+    // Kiểu chữ tương ứng t-h2, t-numeral, t-code trong frontend/src/index.css.
+    // font-stretch là phương án dự phòng cho client không đọc font-variation-settings.
+    private const string StyleH2 =
+        $"font-family:{FontHeading}; font-stretch:100%; font-weight:700; font-size:28px; line-height:1.15; letter-spacing:-0.01em;";
+    private const string StyleNumeral =
+        $"font-family:{FontHeading}; font-stretch:75%; font-variation-settings:'wdth' 75; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.05;";
+    private const string StyleCode =
+        $"font-family:{FontHeading}; font-stretch:80%; font-variation-settings:'wdth' 80; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:0.04em;";
 
-    private static readonly Tone Success =
-        new(ColorSuccess, ColorSuccessBg, ColorSuccessBorder, "ok");
-    private static readonly Tone Danger =
-        new(ColorDestructive, ColorDestructiveBg, ColorDestructiveBorder, "err");
-    private static readonly Tone Warning =
-        new(ColorWarningForeground, ColorWarningBg, ColorWarningBorder, "warn");
-    private static readonly Tone Neutral =
-        new(ColorForeground, ColorBackground, ColorBorder, "neutral");
+    // Ký hiệu trạng thái. &#xFE0E; ép hiển thị dạng chữ, tránh bị đổi thành emoji.
+    private const string SymbolCheck = "&#10003;&#xFE0E;";
+    private const string SymbolCross = "&#10005;&#xFE0E;";
+    private const string SymbolAlert = "!";
+
+    private static readonly NumberFormatInfo MoneyFormat = new() { NumberGroupSeparator = "." };
+
+    private sealed record Tone(string Css, string Bg, string Mark, string MarkCss);
+
+    private static readonly Tone Success = new("ok", TintSuccess, ColorSuccess, "mk-ok");
+    private static readonly Tone Danger = new("err", TintDestructive, ColorDestructive, "mk-err");
+    private static readonly Tone Warning = new("warn", TintWarning, ColorWarningForeground, "mk-warn");
+    private static readonly Tone Neutral = new("neutral", ColorSecondary, ColorForeground, "tx");
+
+    private static string Enc(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
+
+    // Backend chạy invariant globalization (Alpine), nên không dựa vào culture: luôn ra 120.000 như frontend.
+    private static string MoneyDigits(decimal amount) => amount.ToString("N0", MoneyFormat);
+
+    private static string Money(decimal amount) => $"{MoneyDigits(amount)} VNĐ";
 
     private static string Layout(
         BrandOptions brand,
         string preheader,
-        string kicker,
-        string bodyHtml
+        string bodyHtml,
+        string ticketHtml = ""
     )
     {
         var year = DateTime.UtcNow.Year;
+        var name = Enc(brand.DisplayName);
         var support = string.IsNullOrWhiteSpace(brand.SupportEmail)
             ? string.Empty
-            : $"<br />Cần hỗ trợ? Liên hệ {WebUtility.HtmlEncode(brand.SupportEmail)}.";
+            : $"<br />Cần hỗ trợ? Liên hệ <a href=\"mailto:{Enc(brand.SupportEmail)}\" class=\"tx\" style=\"color:{ColorForeground}; text-decoration:underline;\">{Enc(brand.SupportEmail)}</a>.";
 
         return $$"""
             <!DOCTYPE html>
@@ -57,84 +92,59 @@ public static class EmailTemplates
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <meta name="color-scheme" content="light dark" />
                 <meta name="supported-color-schemes" content="light dark" />
-                <title>{{brand.DisplayName}}</title>
+                <title>{{name}}</title>
                 <!--[if !mso]><!-->
-                <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+                <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
                 <!--<![endif]-->
                 <style>
                   @media (prefers-color-scheme: dark) {
                     .bg-page { background-color:#0a0404 !important; }
                     .bg-card { background-color:#1a0e0c !important; }
+                    .bg-sec { background-color:#221816 !important; }
                     .bg-pri { background-color:#d4212d !important; }
                     .tx { color:#f2eee7 !important; }
                     .tx-mut { color:#a89c92 !important; }
-                    .tx-pri { color:#d4212d !important; }
                     .bd { border-color:#322523 !important; }
-                    .tone-ok { background-color:#1d261a !important; border-color:#22472e !important; color:#2fa465 !important; }
-                    .tone-err { background-color:#3c1510 !important; border-color:#6a1e16 !important; color:#ed3726 !important; }
-                    .tone-warn { background-color:#3b2410 !important; border-color:#684216 !important; color:#e69825 !important; }
-                    .tone-neutral { background-color:#0a0404 !important; border-color:#322523 !important; color:#f2eee7 !important; }
-                    .stripe-err { border-left-color:#ed3726 !important; }
-                    .stripe-ok { border-left-color:#2fa465 !important; }
-                    .stripe-warn { border-left-color:#e69825 !important; }
+                    .tone-ok { background-color:#1e2c1e !important; }
+                    .tone-err { background-color:#441611 !important; }
+                    .tone-warn { background-color:#432a11 !important; }
+                    .tone-neutral { background-color:#221816 !important; }
+                    .mk-ok { color:#2fa465 !important; }
+                    .mk-err { color:#ed3726 !important; }
+                    .mk-warn { color:#e69825 !important; }
                   }
                 </style>
               </head>
-              <body class="bg-page tx" style="margin:0; padding:0; background-color:{{ColorBackground}}; font-family:{{FontFamily}}; color:{{ColorForeground}};">
-                <span style="display:none; max-height:0; overflow:hidden; opacity:0;">{{WebUtility.HtmlEncode(preheader)}}</span>
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="bg-page" style="background-color:{{ColorBackground}}; padding:32px 16px;">
+              <body class="bg-page tx" style="margin:0; padding:0; background-color:{{ColorBackground}}; font-family:{{FontBody}}; font-size:15px; line-height:1.55; color:{{ColorForeground}};">
+                <span style="display:none; max-height:0; overflow:hidden; opacity:0; mso-hide:all;">{{Enc(preheader)}}</span>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="bg-page" style="background-color:{{ColorBackground}};">
                   <tr>
-                    <td align="center">
+                    <td align="center" style="padding:32px 16px;">
                       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
                         <tr>
-                          <td style="padding:0 0 18px 0;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                              <tr>
-                                <td class="tx" style="font-family:{{FontHeading}}; font-size:22px; font-weight:700; letter-spacing:0.02em; line-height:1; color:{{ColorForeground}};">{{brand.DisplayName}}<span class="bg-pri" style="display:inline-block; width:7px; height:7px; border-radius:50%; background-color:{{ColorPrimary}}; margin-left:3px;"></span></td>
-                              </tr>
-                            </table>
-                          </td>
+                          <td class="tx" style="padding:0 0 16px 0; {{StyleNumeral}} font-size:24px; color:{{ColorForeground}};">{{name}}<span class="bg-pri" style="display:inline-block; width:7px; height:7px; border-radius:50%; background-color:{{ColorPrimary}}; margin-left:3px;"></span></td>
                         </tr>
-
                         <tr>
                           <td>
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="bg-card bd" style="background-color:{{ColorCard}}; border:1px solid {{ColorBorder}};">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                               <tr>
-                                <td class="bg-pri" style="background-color:{{ColorPrimary}}; padding:20px 28px;">
-                                  <span style="font-family:{{FontHeading}}; font-size:12px; font-weight:600; letter-spacing:0.14em; color:{{ColorPrimaryForeground}}; text-transform:uppercase;">{{WebUtility.HtmlEncode(kicker)}}</span>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td style="padding:0;">
-                                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                      <td class="bg-page" width="10" style="width:10px; height:20px; background-color:{{ColorBackground}}; border-radius:0 10px 10px 0; font-size:0; line-height:0;">&nbsp;</td>
-                                      <td style="height:20px; padding:0 10px; vertical-align:middle;">
-                                        <div class="bd" style="border-top:2px dashed {{ColorBorder}}; font-size:0; line-height:0;">&nbsp;</div>
-                                      </td>
-                                      <td class="bg-page" width="10" style="width:10px; height:20px; background-color:{{ColorBackground}}; border-radius:10px 0 0 10px; font-size:0; line-height:0;">&nbsp;</td>
-                                    </tr>
-                                  </table>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td style="padding:20px 28px 32px 28px;">
+                                <td class="bg-card" style="background-color:{{ColorCard}}; padding:32px 28px;">
                                   {{bodyHtml}}
                                 </td>
                               </tr>
+                              {{ticketHtml}}
                             </table>
                           </td>
                         </tr>
-
                         <tr>
-                          <td class="tx-mut" style="padding:22px 8px 0 8px; text-align:center; font-family:{{FontHeading}}; font-size:11px; font-weight:600; letter-spacing:0.1em; color:{{ColorMuted}}; text-transform:uppercase;">
-                            {{WebUtility.HtmlEncode(brand.Tagline)}}
+                          <td class="tx-mut" style="padding:24px 0 0 0; font-size:13px; line-height:1.5; font-weight:600; color:{{ColorMuted}};">
+                            {{Enc(brand.Tagline)}}
                           </td>
                         </tr>
                         <tr>
-                          <td class="tx-mut" style="padding:10px 8px 0 8px; text-align:center; font-size:12px; line-height:1.6; color:{{ColorMuted}};">
-                            Email này được gửi tự động từ hệ thống {{brand.DisplayName}}, vui lòng không trả lời trực tiếp email này.{{support}}<br />
-                            &copy; {{year}} {{brand.DisplayName}}. Đã đăng ký bản quyền.
+                          <td class="tx-mut" style="padding:8px 0 0 0; font-size:13px; line-height:1.5; color:{{ColorMuted}};">
+                            Email này được gửi tự động từ hệ thống {{name}}, vui lòng không trả lời trực tiếp email này.{{support}}<br />
+                            &copy; {{year}} {{name}}. Đã đăng ký bản quyền.
                           </td>
                         </tr>
                       </table>
@@ -147,63 +157,110 @@ public static class EmailTemplates
     }
 
     private static string Heading(string text) =>
-        $"""<h1 class="tx" style="margin:0 0 16px 0; font-family:{FontHeading}; font-size:24px; line-height:1.25; font-weight:600; letter-spacing:-0.01em; color:{ColorForeground};">{text}</h1>""";
+        $"""<h1 class="tx" style="margin:0 0 16px 0; {StyleH2} color:{ColorForeground};">{text}</h1>""";
 
     private static string Paragraph(string html) =>
-        $"""<p class="tx" style="margin:0 0 16px 0; font-size:15px; line-height:1.65; color:{ColorForeground};">{html}</p>""";
+        $"""<p class="tx" style="margin:0 0 16px 0; font-size:15px; line-height:1.55; color:{ColorForeground};">{html}</p>""";
 
     private static string MutedParagraph(string html) =>
-        $"""<p class="tx-mut" style="margin:0; font-size:13px; line-height:1.6; color:{ColorMuted};">{html}</p>""";
+        $"""<p class="tx-mut" style="margin:0; font-size:13px; line-height:1.5; color:{ColorMuted};">{html}</p>""";
 
+    // Nút chính: bg-primary, chữ primary-foreground, cao 44px, nhãn câu thường, không mũi tên.
     private static string Button(string label, string url) =>
         $"""
-            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 18px 0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 20px 0;">
               <tr>
                 <td class="bg-pri" style="background-color:{ColorPrimary};">
-                  <a href="{WebUtility.HtmlEncode(url)}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:{FontHeading}; font-size:14px; font-weight:600; letter-spacing:0.08em; color:{ColorPrimaryForeground}; text-decoration:none; text-transform:uppercase;">{label}</a>
+                  <a href="{Enc(url)}" target="_blank" style="display:inline-block; padding:13px 24px; font-family:{FontBody}; font-size:15px; line-height:18px; font-weight:500; color:{ColorPrimaryForeground}; text-decoration:none;">{label}</a>
                 </td>
               </tr>
             </table>
-            <p class="tx-mut" style="margin:0 0 20px 0; font-size:12px; line-height:1.6; color:{ColorMuted}; word-break:break-all;">Nếu nút không hoạt động, hãy sao chép liên kết sau vào trình duyệt:<br /><a href="{WebUtility.HtmlEncode(url)}" target="_blank" class="tx-pri" style="color:{ColorPrimary};">{WebUtility.HtmlEncode(url)}</a></p>
+            <p class="tx-mut" style="margin:0 0 20px 0; font-size:13px; line-height:1.5; color:{ColorMuted};">Nếu nút không mở được, hãy sao chép liên kết này vào trình duyệt:<br /><a href="{Enc(url)}" target="_blank" class="tx" style="color:{ColorForeground}; text-decoration:underline; word-break:break-all;">{Enc(url)}</a></p>
             """;
 
-    private static string Badge(string text, Tone tone) =>
-        $"""<div class="tone-{tone.Css}" style="display:inline-block; padding:5px 12px; border:1px solid {tone.Border}; background-color:{tone.Bg}; color:{tone.Fg}; font-family:{FontHeading}; font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px;">{text}</div>""";
-
-    private static string Callout(string html, Tone tone) =>
+    // Huy hiệu: nền tint, ký hiệu màu trạng thái, nhãn màu foreground (tương phản cao).
+    private static string Badge(string text, Tone tone, string symbol) =>
         $"""
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="tone-{tone.Css} stripe-{tone.Css}" style="background-color:{tone.Bg}; border:1px solid {tone.Border}; border-left:3px solid {tone.Fg}; margin:0 0 20px 0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px 0;">
               <tr>
-                <td class="tx" style="padding:14px 16px; font-size:14px; line-height:1.6; color:{ColorForeground};">{html}</td>
+                <td class="tone-{tone.Css}" style="background-color:{tone.Bg}; padding:6px 12px; font-size:13px; line-height:1.4; font-weight:600; color:{ColorForeground};"><span class="{tone.MarkCss}" style="font-family:{FontSymbol}; font-weight:700; color:{tone.Mark};">{symbol}</span><span class="tx" style="padding-left:8px; color:{ColorForeground};">{text}</span></td>
               </tr>
             </table>
             """;
 
-    private static string DetailRow(string label, string value, bool isLast = false, bool mono = false) =>
+    // Khối cần chú ý: nền tint phẳng, không viền, không vạch viền trái. Ký hiệu đứng đầu dòng.
+    private static string Callout(string html, Tone tone, string symbol) =>
         $"""
-            <tr>
-              <td class="tx-mut bd" style="padding:12px 0; {(
-                isLast ? "" : $"border-bottom:1px dashed {ColorBorder};"
-            )} font-family:{FontHeading}; font-size:11px; font-weight:600; letter-spacing:0.1em; color:{ColorMuted}; text-transform:uppercase;">{label}</td>
-              <td class="tx bd" style="padding:12px 0; {(
-                isLast ? "" : $"border-bottom:1px dashed {ColorBorder};"
-            )} {(mono ? $"font-family:{FontMono}; letter-spacing:0.04em;" : "")} font-size:14px; font-weight:600; color:{ColorForeground}; text-align:right;">{value}</td>
-            </tr>
-            """;
-
-    private static string DetailRowEmphasis(string label, string value) =>
-        $"""
-            <tr>
-              <td class="tx" style="padding:14px 0 14px 0; font-family:{FontHeading}; font-size:12px; font-weight:600; letter-spacing:0.1em; color:{ColorForeground}; text-transform:uppercase;">{label}</td>
-              <td class="tx-pri" style="padding:14px 0 14px 0; font-family:{FontHeading}; font-size:22px; font-weight:700; color:{ColorPrimary}; text-align:right;">{value}</td>
-            </tr>
-            """;
-
-    private static string DetailCard(Tone tone, params string[] rows) =>
-        $"""
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="tone-{tone.Css}" style="background-color:{tone.Bg}; border:1px solid {tone.Border}; padding:2px 18px; margin:4px 0 20px 0;">
-              {string.Concat(rows)}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="tone-{tone.Css}" style="background-color:{tone.Bg}; margin:0 0 20px 0;">
+              <tr>
+                <td class="{tone.MarkCss}" width="20" valign="top" style="width:20px; padding:14px 0 14px 16px; font-family:{FontSymbol}; font-size:15px; line-height:1.55; font-weight:700; color:{tone.Mark};">{symbol}</td>
+                <td class="tx" style="padding:14px 16px 14px 8px; font-size:15px; line-height:1.55; color:{ColorForeground};">{html}</td>
+              </tr>
             </table>
+            """;
+
+    private static string DetailRow(string label, string value, bool isLast = false, bool code = false)
+    {
+        var line = isLast ? string.Empty : $"border-bottom:1px solid {ColorBorder};";
+        var valueStyle = code ? $"{StyleCode} font-size:15px;" : "font-size:15px; font-weight:600;";
+
+        return $"""
+            <tr>
+              <td class="tx-mut bd" style="padding:12px 16px 12px 0; {line} vertical-align:baseline; font-size:13px; line-height:1.4; font-weight:500; color:{ColorMuted};">{label}</td>
+              <td class="tx bd" style="padding:12px 0; {line} vertical-align:baseline; {valueStyle} line-height:1.4; color:{ColorForeground}; text-align:right;">{value}</td>
+            </tr>
+            """;
+    }
+
+    // Số tiền là nhân vật chính: t-numeral cỡ lớn, đơn vị nhỏ hơn.
+    private static string DetailRowTotal(string label, decimal amount) =>
+        $"""
+            <tr>
+              <td class="tx" style="padding:16px 16px 12px 0; vertical-align:baseline; font-size:15px; line-height:1.4; font-weight:600; color:{ColorForeground};">{label}</td>
+              <td class="tx" style="padding:12px 0; vertical-align:baseline; white-space:nowrap; {StyleNumeral} font-size:28px; color:{ColorForeground}; text-align:right;">{MoneyDigits(amount)}<span style="font-family:{FontBody}; font-size:15px; font-weight:600; letter-spacing:0;">&nbsp;VNĐ</span></td>
+            </tr>
+            """;
+
+    // Khối chi tiết: nền secondary (bậc tông, không viền), đường kẻ border giữa các dòng như đường kẻ bảng.
+    private static string DetailCard(params string[] rows) =>
+        $"""
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="bg-sec" style="background-color:{ColorSecondary}; margin:4px 0 20px 0;">
+              <tr>
+                <td style="padding:4px 16px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                    {string.Concat(rows)}
+                  </table>
+                </td>
+              </tr>
+            </table>
+            """;
+
+    // Cuống vé: chỗ duy nhất dùng khấc và đục lỗ. Khấc là hai nửa hình tròn màu nền trang cắt vào mép
+    // tại đường xé; dải chấm nằm trên nền primary. Bố cục xếp dọc (kiểu mobile) để chạy ổn ở mọi client.
+    private static string TicketStub(string bookingCode) =>
+        $"""
+            <tr>
+              <td style="padding:0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td class="bg-card" width="10" style="width:10px; height:10px; padding:0; background-color:{ColorCard}; font-size:0; line-height:0;"><div class="bg-page" style="width:10px; height:10px; background-color:{ColorBackground}; border-radius:0 10px 0 0; font-size:0; line-height:0;">&nbsp;</div></td>
+                    <td class="bg-card" style="height:10px; padding:0; background-color:{ColorCard}; font-size:0; line-height:0;">&nbsp;</td>
+                    <td class="bg-card" width="10" style="width:10px; height:10px; padding:0; background-color:{ColorCard}; font-size:0; line-height:0;"><div class="bg-page" style="width:10px; height:10px; background-color:{ColorBackground}; border-radius:10px 0 0 0; font-size:0; line-height:0;">&nbsp;</div></td>
+                  </tr>
+                  <tr>
+                    <td class="bg-pri" width="10" style="width:10px; height:10px; padding:0; background-color:{ColorPrimary}; font-size:0; line-height:0;"><div class="bg-page" style="width:10px; height:10px; background-color:{ColorBackground}; border-radius:0 0 10px 0; font-size:0; line-height:0;">&nbsp;</div></td>
+                    <td class="bg-pri" style="height:7px; padding:3px 0 0 0; background-color:{ColorPrimary}; font-size:0; line-height:0;"><div style="height:0; border-top:3px dotted {ColorPrimaryForeground}; font-size:0; line-height:0;">&nbsp;</div></td>
+                    <td class="bg-pri" width="10" style="width:10px; height:10px; padding:0; background-color:{ColorPrimary}; font-size:0; line-height:0;"><div class="bg-page" style="width:10px; height:10px; background-color:{ColorBackground}; border-radius:0 0 0 10px; font-size:0; line-height:0;">&nbsp;</div></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-pri" style="background-color:{ColorPrimary}; padding:8px 28px 28px 28px;">
+                <p style="margin:0 0 4px 0; font-size:13px; line-height:1.5; font-weight:500; color:{ColorPrimaryForeground};">Mã đặt vé</p>
+                <p style="margin:0; {StyleNumeral} font-size:32px; letter-spacing:0.04em; word-break:break-all; color:{ColorPrimaryForeground};">{Enc(bookingCode)}</p>
+              </td>
+            </tr>
             """;
 
     public static string ActionLink(
@@ -218,15 +275,15 @@ public static class EmailTemplates
     {
         var body = $"""
             {Heading(title)}
-            {Paragraph($"Xin chào <strong>{WebUtility.HtmlEncode(fullName)}</strong>,")}
+            {Paragraph($"Xin chào <strong>{Enc(fullName)}</strong>,")}
             {Paragraph(introText)}
             {Button(buttonLabel, link)}
             {MutedParagraph(
-                $"Liên kết sẽ hết hạn sau <strong>{expiresIn}</strong>. Nếu không phải bạn yêu cầu, vui lòng bỏ qua email này."
+                $"Liên kết hết hạn sau <strong>{expiresIn}</strong>. Nếu bạn không yêu cầu, hãy bỏ qua email này."
             )}
             """;
 
-        return Layout(brand, title, "Tài khoản", body);
+        return Layout(brand, title, body);
     }
 
     public static string BookingConfirmed(
@@ -237,24 +294,29 @@ public static class EmailTemplates
         int seatCount
     )
     {
-        var rows = new List<string> { DetailRow("Mã đặt vé", bookingCode, mono: true) };
+        var rows = new List<string>();
         if (!string.IsNullOrWhiteSpace(movieTitle))
-            rows.Add(DetailRow("Phim", WebUtility.HtmlEncode(movieTitle)));
+            rows.Add(DetailRow("Phim", Enc(movieTitle)));
         rows.Add(DetailRow("Số ghế", $"{seatCount} ghế", isLast: true));
 
         var body = $"""
-            {Badge("Đặt vé thành công", Success)}
-            {Heading($"Cảm ơn bạn, {WebUtility.HtmlEncode(customerName)}!")}
+            {Badge("Đã xác nhận", Success, SymbolCheck)}
+            {Heading("Vé của bạn đã sẵn sàng")}
             {Paragraph(
-                "Vé của bạn đã được xác nhận và sẵn sàng sử dụng. Vui lòng vào mục <strong>\"Vé của tôi\"</strong> trên hệ thống để xem chi tiết và mã QR check-in tại rạp."
+                $"Xin chào <strong>{Enc(customerName)}</strong>, đơn đặt vé của bạn đã được xác nhận. Vào mục <strong>Vé của tôi</strong> trên hệ thống để xem chi tiết và mã QR."
             )}
-            {DetailCard(Success, [.. rows])}
+            {DetailCard([.. rows])}
             {MutedParagraph(
-                "Vui lòng có mặt trước giờ chiếu ít nhất 15 phút và xuất trình mã QR tại quầy soát vé."
+                "Có mặt trước giờ chiếu ít nhất 15 phút và xuất trình mã QR tại quầy soát vé."
             )}
             """;
 
-        return Layout(brand, $"Vé xem phim {bookingCode} đã được xác nhận", "Vé điện tử", body);
+        return Layout(
+            brand,
+            $"Vé {bookingCode} đã được xác nhận",
+            body,
+            TicketStub(bookingCode)
+        );
     }
 
     public static string BookingCancelledRefunded(
@@ -265,19 +327,23 @@ public static class EmailTemplates
     )
     {
         var body = $"""
-            {Badge("Đã hủy vé", Warning)}
-            {Heading($"Booking của {WebUtility.HtmlEncode(customerName)} đã được hủy")}
-            {Paragraph($"Booking mã <strong>{bookingCode}</strong> đã được hủy thành công theo yêu cầu của bạn.")}
-            {DetailCard(Neutral,
-                DetailRow("Mã đặt vé", bookingCode, mono: true),
-                DetailRowEmphasis("Số tiền hoàn lại", $"{refundAmount:N0} VNĐ"))}
-            {MutedParagraph("Khoản hoàn tiền sẽ được chuyển về tài khoản/thẻ đã thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng.")}
+            {Badge("Đã hủy vé", Danger, SymbolCross)}
+            {Heading("Đơn đặt vé đã được hủy")}
+            {Paragraph(
+                $"Xin chào <strong>{Enc(customerName)}</strong>, đơn đặt vé <strong>{Enc(bookingCode)}</strong> đã được hủy theo yêu cầu của bạn."
+            )}
+            {DetailCard(
+                DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
+                DetailRowTotal("Số tiền hoàn lại", refundAmount)
+            )}
+            {MutedParagraph(
+                "Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng."
+            )}
             """;
 
         return Layout(
             brand,
-            $"Booking {bookingCode} đã hủy — hoàn {refundAmount:N0} VNĐ",
-            "Thông báo hoàn tiền",
+            $"Đơn đặt vé {bookingCode} đã hủy, hoàn {Money(refundAmount)}",
             body
         );
     }
@@ -290,21 +356,23 @@ public static class EmailTemplates
     )
     {
         var body = $"""
-            {Badge("Suất chiếu đã bị hủy", Warning)}
-            {Heading($"Rất tiếc, {WebUtility.HtmlEncode(customerName)}")}
+            {Badge("Suất chiếu bị hủy", Danger, SymbolCross)}
+            {Heading("Suất chiếu của bạn đã bị hủy")}
             {Paragraph(
-                $"Suất chiếu trong booking mã <strong>{bookingCode}</strong> của bạn đã bị rạp hủy. Chúng tôi thành thật xin lỗi vì sự bất tiện này và đã hoàn lại 100% số tiền vào phương thức thanh toán bạn đã sử dụng."
+                $"Xin chào <strong>{Enc(customerName)}</strong>, rạp đã hủy suất chiếu trong đơn đặt vé <strong>{Enc(bookingCode)}</strong>. Chúng tôi đã hoàn 100% số tiền về phương thức thanh toán bạn đã dùng."
             )}
-            {DetailCard(Neutral,
-                DetailRow("Mã đặt vé", bookingCode, mono: true),
-                DetailRowEmphasis("Số tiền đã hoàn", $"{refundAmount:N0} VNĐ"))}
-            {MutedParagraph("Khoản hoàn tiền sẽ được chuyển về tài khoản/thẻ đã thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng/cổng thanh toán.")}
+            {DetailCard(
+                DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
+                DetailRowTotal("Số tiền đã hoàn", refundAmount)
+            )}
+            {MutedParagraph(
+                "Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng hoặc cổng thanh toán."
+            )}
             """;
 
         return Layout(
             brand,
-            $"Suất chiếu {bookingCode} đã bị hủy — đã hoàn {refundAmount:N0} VNĐ",
-            "Thông báo từ rạp",
+            $"Suất chiếu của đơn {bookingCode} đã bị hủy, đã hoàn {Money(refundAmount)}",
             body
         );
     }
@@ -317,21 +385,23 @@ public static class EmailTemplates
     )
     {
         var body = $"""
-            {Badge("Suất chiếu đã bị hủy", Warning)}
-            {Heading($"Rất tiếc, {WebUtility.HtmlEncode(customerName)}")}
+            {Badge("Suất chiếu bị hủy", Danger, SymbolCross)}
+            {Heading("Suất chiếu của bạn đã bị hủy")}
             {Paragraph(
-                $"Suất chiếu trong booking mã <strong>{bookingCode}</strong> của bạn đã bị rạp hủy. Chúng tôi thành thật xin lỗi vì sự bất tiện này."
+                $"Xin chào <strong>{Enc(customerName)}</strong>, rạp đã hủy suất chiếu trong đơn đặt vé <strong>{Enc(bookingCode)}</strong>. Khoản hoàn tiền cần nhân viên rạp xử lý thủ công."
             )}
-            {DetailCard(Neutral,
-                DetailRow("Mã đặt vé", bookingCode, mono: true),
-                DetailRowEmphasis("Số tiền cần hoàn", $"{amountDue:N0} VNĐ"))}
-            {MutedParagraph("Giao dịch của bạn cần được nhân viên rạp hỗ trợ hoàn tiền thủ công. Vui lòng mang theo mã đặt vé đến quầy hoặc liên hệ hotline rạp để được hoàn tiền trong thời gian sớm nhất.")}
+            {DetailCard(
+                DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
+                DetailRowTotal("Số tiền cần hoàn", amountDue)
+            )}
+            {MutedParagraph(
+                "Mang mã đặt vé đến quầy hoặc liên hệ rạp để được hoàn tiền sớm nhất."
+            )}
             """;
 
         return Layout(
             brand,
-            $"Suất chiếu {bookingCode} đã bị hủy — cần hoàn {amountDue:N0} VNĐ",
-            "Thông báo từ rạp",
+            $"Suất chiếu của đơn {bookingCode} đã bị hủy, cần hoàn {Money(amountDue)}",
             body
         );
     }
@@ -346,37 +416,37 @@ public static class EmailTemplates
     {
         var rows = new[]
         {
-            DetailRow("Mã đặt vé", bookingCode, mono: true),
-            DetailRowEmphasis(
-                autoRefunded ? "Số tiền đã hoàn" : "Số tiền sẽ được hoàn",
-                $"{amount:N0} VNĐ"
-            ),
+            DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
+            DetailRowTotal(autoRefunded ? "Số tiền đã hoàn" : "Số tiền sẽ được hoàn", amount),
         };
 
         var body = autoRefunded
             ? $"""
-                {Badge("Đã hoàn tiền tự động", Warning)}
-                {Heading($"Rất tiếc, {WebUtility.HtmlEncode(customerName)}")}
+                {Badge("Đã hoàn tiền", Neutral, SymbolCheck)}
+                {Heading("Không xuất được vé")}
                 {Paragraph(
-                    $"Thanh toán cho booking <strong>{bookingCode}</strong> đã thành công nhưng ghế đã hết thời gian giữ chỗ nên chúng tôi không thể xuất vé. Chúng tôi đã tự động hoàn lại toàn bộ số tiền vào phương thức thanh toán bạn đã sử dụng."
+                    $"Xin chào <strong>{Enc(customerName)}</strong>, thanh toán cho đơn đặt vé <strong>{Enc(bookingCode)}</strong> đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Chúng tôi đã hoàn toàn bộ số tiền về phương thức thanh toán bạn đã dùng."
                 )}
-                {DetailCard(Neutral, [.. rows])}
-                {MutedParagraph("Khoản hoàn tiền sẽ về tài khoản/thẻ trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng.")}
+                {DetailCard([.. rows])}
+                {MutedParagraph(
+                    "Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng."
+                )}
                 """
             : $"""
-                {Badge("Chờ hoàn tiền", Warning)}
-                {Heading($"Rất tiếc, {WebUtility.HtmlEncode(customerName)}")}
+                {Badge("Chờ hoàn tiền", Warning, SymbolAlert)}
+                {Heading("Không xuất được vé")}
                 {Paragraph(
-                    $"Thanh toán cho booking <strong>{bookingCode}</strong> đã thành công nhưng ghế đã hết thời gian giữ chỗ nên chúng tôi không thể xuất vé. Rạp sẽ hoàn lại toàn bộ số tiền cho bạn thủ công trong thời gian sớm nhất."
+                    $"Xin chào <strong>{Enc(customerName)}</strong>, thanh toán cho đơn đặt vé <strong>{Enc(bookingCode)}</strong> đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Rạp sẽ hoàn toàn bộ số tiền cho bạn sớm nhất."
                 )}
-                {DetailCard(Neutral, [.. rows])}
-                {MutedParagraph("Nếu cần hỗ trợ, vui lòng liên hệ trực tiếp rạp và cung cấp mã đặt vé ở trên.")}
+                {DetailCard([.. rows])}
+                {MutedParagraph(
+                    "Cần hỗ trợ thì liên hệ trực tiếp rạp và cung cấp mã đặt vé ở trên."
+                )}
                 """;
 
         return Layout(
             brand,
-            $"Booking {bookingCode} chưa xuất được vé — {(autoRefunded ? "đã hoàn tiền" : "chờ hoàn tiền")}",
-            "Thông báo hoàn tiền",
+            $"Đơn đặt vé {bookingCode} chưa xuất được vé, {(autoRefunded ? "đã hoàn tiền" : "chờ hoàn tiền")}",
             body
         );
     }
@@ -391,45 +461,42 @@ public static class EmailTemplates
     {
         var rows = new[]
         {
-            DetailRow("Booking", $"#{bookingId}", mono: true),
-            DetailRow("Payment", $"#{paymentId}", mono: true),
-            DetailRowEmphasis(
-                autoRefunded ? "Số tiền đã hoàn" : "Số tiền cần hoàn",
-                $"{amount:N0} VNĐ"
-            ),
+            DetailRow("Đơn đặt vé", $"#{bookingId}", code: true),
+            DetailRow("Thanh toán", $"#{paymentId}", code: true),
+            DetailRowTotal(autoRefunded ? "Số tiền đã hoàn" : "Số tiền cần hoàn", amount),
         };
 
         var body = autoRefunded
             ? $"""
-                {Badge("Đã tự động hoàn tiền", Success)}
+                {Badge("Đã tự động hoàn tiền", Success, SymbolCheck)}
                 {Heading("Ghế hết hạn giữ ngay sau khi thanh toán")}
                 {Paragraph(
-                    "Booking đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng thời điểm đó."
+                    "Đơn đặt vé đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng lúc đó."
                 )}
                 {Paragraph(
-                    "Hệ thống đã <strong>tự động hoàn tiền</strong> cho khách qua cổng thanh toán. Vui lòng kiểm tra lại giao dịch hoàn tiền để chắc chắn."
+                    "Hệ thống đã <strong>tự động hoàn tiền</strong> cho khách qua cổng thanh toán. Kiểm tra lại giao dịch hoàn tiền để chắc chắn."
                 )}
-                {DetailCard(Success, [.. rows])}
+                {DetailCard([.. rows])}
                 """
             : $"""
-                {Badge("Cần xử lý thủ công", Danger)}
+                {Badge("Cần xử lý thủ công", Danger, SymbolAlert)}
                 {Heading("Ghế hết hạn giữ ngay sau khi thanh toán")}
                 {Paragraph(
-                    "Booking đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng thời điểm đó."
+                    "Đơn đặt vé đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng lúc đó."
                 )}
                 {Callout(
-                    "<strong>Hoàn tiền tự động qua cổng thanh toán thất bại hoặc không khả dụng.</strong> Vui lòng hoàn tiền thủ công cho khách.",
-                    Danger
+                    "<strong>Hoàn tiền tự động qua cổng thanh toán thất bại hoặc không khả dụng.</strong> Hoàn tiền thủ công cho khách.",
+                    Danger,
+                    SymbolAlert
                 )}
-                {DetailCard(Neutral, [.. rows])}
+                {DetailCard([.. rows])}
                 """;
 
         return Layout(
             brand,
             autoRefunded
-                ? $"Đã tự động hoàn tiền — Booking #{bookingId}"
-                : $"CẦN HOÀN TIỀN THỦ CÔNG — Booking #{bookingId}",
-            "Thông báo hệ thống",
+                ? $"Đã tự động hoàn tiền cho đơn đặt vé #{bookingId}"
+                : $"Cần hoàn tiền thủ công cho đơn đặt vé #{bookingId}",
             body
         );
     }

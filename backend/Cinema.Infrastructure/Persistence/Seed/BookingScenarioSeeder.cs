@@ -21,6 +21,8 @@ namespace Cinema.Infrastructure.Persistence.Seed;
 /// Check-in: đã check-in toàn bộ / một phần / chưa check-in / no-show
 /// Loyalty : giảm giá theo hạng tại thời điểm đặt, cộng điểm + TotalSpent + nâng hạng theo thứ tự thời gian
 /// Review  : chỉ khách đã check-in suất Completed của phim đó; AverageRating tính lại từ review
+/// Review-ready: mỗi khách trong pool luôn có sẵn <see cref="ReviewReadyPerUser"/> phim đã đi hết các bước trước
+///               (đặt vé, thanh toán thành công, check-in suất Completed) và CHƯA có review -> đăng nhập là đánh giá được ngay.
 /// Suất đặc biệt (ShowtimeSeeder.Special*): đang chiếu, sắp chiếu, quá hạn hoàn tiền, hết vé, bị hủy.
 ///
 /// Mã booking dạng "BKD{yyyyMMdd}{nnnn}" (tiền tố BKD để phân biệt và làm dấu idempotent).
@@ -30,6 +32,9 @@ internal static class BookingScenarioSeeder
     internal const string CodePrefix = "BKD";
 
     private const int HoldMinutes = 15; // = BookingOptions.HoldDurationMinutes mặc định
+
+    /// <summary>Số phim "đã xem, chưa review" được đảm bảo cho mỗi khách trong pool.</summary>
+    internal const int ReviewReadyPerUser = 3;
 
     public static async Task SeedAsync(
         AppDbContext db,
@@ -100,6 +105,10 @@ internal static class BookingScenarioSeeder
         private readonly Random _rng = new(20261028);
         private readonly List<Plan> _plans = [];
         private readonly List<ReviewCandidate> _reviewCandidates = [];
+
+        // (khách, phim) đã check-in nhưng cố tình KHÔNG seed review để khách đánh giá được ngay.
+        private readonly HashSet<(int UserId, int MovieId)> _reviewReady = [];
+        private HashSet<int> _nowShowingMovieIds = [];
         private int _seq;
 
         private CinemaSettings _settings = null!;
@@ -134,6 +143,7 @@ internal static class BookingScenarioSeeder
 
             BuildSpecialScenarios(specials, contexts);
             BuildUpcomingScenarios(contexts, specialIds);
+            BuildReviewReadyScenarios(contexts, specialIds); // trước lấp ghế ngẫu nhiên để còn ghế trống ở suất đã chiếu
             BuildRandomOccupancy(contexts, specialIds);
 
             // Xử lý theo thứ tự thời gian để giảm giá/hạng thành viên khớp thời điểm đặt.
@@ -143,6 +153,10 @@ internal static class BookingScenarioSeeder
             await db.SaveChangesAsync(cancellationToken);
             await SeedReviewsAsync(cancellationToken);
 
+            logger.LogInformation(
+                "Review-ready: {Pairs} cặp (khách, phim) đã check-in và chưa có review.",
+                _reviewReady.Count
+            );
             logger.LogInformation(
                 "Seeded {Bookings} bookings (confirmed {Confirmed}, pending {Pending}, expired {Expired}, cancelled {Cancelled}).",
                 _plans.Count,
@@ -166,6 +180,9 @@ internal static class BookingScenarioSeeder
             _tiersDesc = await db.MembershipTiers.OrderByDescending(t => t.MinPoints).ToListAsync(ct);
             _tiersById = _tiersDesc.ToDictionary(t => t.TierId);
             _combos = await db.Combos.OrderBy(c => c.ComboId).ToListAsync(ct);
+            _nowShowingMovieIds = (
+                await db.Movies.Where(m => m.Status == MovieStatus.NowShowing).Select(m => m.MovieId).ToListAsync(ct)
+            ).ToHashSet();
 
             var emails = new[]
             {
@@ -368,6 +385,58 @@ internal static class BookingScenarioSeeder
                 cancel: CancelKind.RefundedByUser);
             Online(u2, c2, Pick(u2, 2, 1), BookingStatus.Cancelled, now.AddHours(-4), PaymentMethod.VNPay,
                 cancel: CancelKind.LatePaymentRefund);
+        }
+
+        // ───────────────────────── Kịch bản: khách đã xem, chưa review ─────────────────────────
+
+        /// <summary>
+        /// Với mỗi khách trong pool, tạo sẵn <see cref="ReviewReadyPerUser"/> booking Confirmed đã thanh toán và
+        /// check-in ở các suất Completed của những phim khác nhau (ưu tiên phim đang chiếu). Các cặp (khách, phim)
+        /// này bị loại khỏi <see cref="SeedReviewsAsync"/> nên khách vào trang phim là thấy form đánh giá ngay,
+        /// khớp điều kiện của ReviewService (có BookingTicket.IsCheckedIn của phim và chưa review).
+        /// Mỗi khách bắt đầu ở một vị trí khác nhau trong danh sách phim để bộ phim được review không trùng hệt nhau.
+        /// </summary>
+        private void BuildReviewReadyScenarios(Dictionary<int, ShowtimeCtx> contexts, HashSet<int> specialIds)
+        {
+            var moviesWithPastShows = contexts
+                .Values.Where(c =>
+                    c.Showtime.Status == ShowtimeStatus.Completed
+                    && c.Showtime.StartTime < now
+                    && !specialIds.Contains(c.Showtime.ShowtimeId)
+                )
+                .GroupBy(c => c.Showtime.MovieId)
+                .OrderByDescending(g => _nowShowingMovieIds.Contains(g.Key))
+                .ThenBy(g => g.Key)
+                .ToList();
+            if (moviesWithPastShows.Count == 0)
+                return;
+
+            for (var k = 0; k < _pool.Count; k++)
+            {
+                var user = _pool[k];
+                var assigned = 0;
+
+                for (var j = 0; j < moviesWithPastShows.Count && assigned < ReviewReadyPerUser; j++)
+                {
+                    var movie = moviesWithPastShows[(k * 2 + j) % moviesWithPastShows.Count];
+
+                    // Suất gần đây nhất còn ghế trống.
+                    foreach (var st in movie.OrderByDescending(c => c.Showtime.StartTime))
+                    {
+                        var seats = Pick(st, 2, null) ?? Pick(st, 1, null);
+                        if (seats is null)
+                            continue;
+
+                        var createdAt = st.Showtime.StartTime.AddHours(-_rng.Next(2, 48));
+                        Online(st, user, seats, BookingStatus.Confirmed, createdAt,
+                            OnlineMethods[(k + assigned) % OnlineMethods.Length], checkIn: CheckIn.All);
+
+                        _reviewReady.Add((user.UserId, movie.Key));
+                        assigned++;
+                        break;
+                    }
+                }
+            }
         }
 
         // ───────────────────────── Kịch bản: lấp ghế ngẫu nhiên ─────────────────────────
@@ -961,6 +1030,7 @@ internal static class BookingScenarioSeeder
         {
             // Mỗi (user, phim) tối đa 1 review (UQ_User_Movie_Review); chỉ user đã check-in suất Completed.
             var candidates = _reviewCandidates
+                .Where(c => !_reviewReady.Contains((c.UserId, c.MovieId))) // giữ lại để khách tự review
                 .GroupBy(c => (c.UserId, c.MovieId))
                 .Select(g => g.OrderBy(x => x.ShowtimeEnd).First())
                 .OrderBy(c => c.UserId)
