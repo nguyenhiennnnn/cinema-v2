@@ -25,6 +25,13 @@ services:
         value: Production
       - key: RunMigrationsOnStartup
         value: "true"
+      # GC tuning cho Render Free Plan (512 MB RAM limit)
+      - key: DOTNET_GCConserveMemory
+        value: "9"
+      - key: DOTNET_GCHeapHardLimit
+        value: "402653184"
+      - key: DOTNET_GCDynamicAdaptationMode
+        value: "0"
       - key: Jwt__Secret
         generateValue: true
       - key: Jwt__Issuer

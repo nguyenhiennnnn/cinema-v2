@@ -107,7 +107,7 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
         <p className="text-sm text-foreground">
           Đã tạo <strong>{result.totalCreated}</strong> suất · bỏ qua <strong>{result.totalSkipped}</strong> suất:
         </p>
-        <ul className="max-h-72 divide-y divide-border overflow-y-auto rounded-lg border border-border">
+        <ul className="max-h-72 divide-y divide-border overflow-y-auto border border-border">
           {result.skipped.map((s, i) => (
             <li key={`${s.date}-${s.time}-${i}`} className="flex items-start gap-3 px-3 py-2 text-sm">
               <span className="w-32 shrink-0 font-mono tabular-nums text-foreground">
@@ -142,7 +142,7 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
         />
 
         {targetRangeLabel && (
-          <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+          <p className="border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
             Lịch mới sẽ được tạo cho <span className="font-medium text-foreground">{targetRangeLabel}</span>. Suất trùng
             giờ với lịch đã có sẽ được bỏ qua, các suất đã hủy không được sao chép.
           </p>

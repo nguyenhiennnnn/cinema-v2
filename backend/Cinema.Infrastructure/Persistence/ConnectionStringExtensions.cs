@@ -11,22 +11,51 @@ public static class ConnectionStringExtensions
             configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection");
 
+        // Strip surrounding quotes that may be added when pasting into Render Dashboard
+        // e.g. "postgresql://..." -> postgresql://...
+        raw = raw.Trim().Trim('"').Trim('\'');
+
         if (
             !raw.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase)
             && !raw.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
         )
             return raw;
 
-        var uri = new Uri(raw);
+        // Parse URI-format connection string (e.g. from Render / Neon / Supabase)
+        // Strip query string before parsing as Uri, then re-apply SSL options manually
+        var queryIndex = raw.IndexOf('?');
+        var baseUri = queryIndex >= 0 ? raw[..queryIndex] : raw;
+        var queryString = queryIndex >= 0 ? raw[(queryIndex + 1)..] : string.Empty;
+
+        var uri = new Uri(baseUri);
         var userInfo = uri.UserInfo.Split(':', 2);
 
-        return new NpgsqlConnectionStringBuilder
+        var builder = new NpgsqlConnectionStringBuilder
         {
             Host = uri.Host,
             Port = uri.Port > 0 ? uri.Port : 5432,
             Username = Uri.UnescapeDataString(userInfo[0]),
             Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : null,
             Database = uri.AbsolutePath.TrimStart('/'),
-        }.ConnectionString;
+        };
+
+        // Apply sslmode from query string if present (e.g. ?sslmode=require)
+        if (!string.IsNullOrEmpty(queryString))
+        {
+            var sslMode = queryString
+                .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Split('=', 2))
+                .Where(p => p.Length == 2 && p[0].Equals("sslmode", StringComparison.OrdinalIgnoreCase))
+                .Select(p => Uri.UnescapeDataString(p[1]))
+                .FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(sslMode) &&
+                Enum.TryParse<Npgsql.SslMode>(sslMode, ignoreCase: true, out var parsedSslMode))
+            {
+                builder.SslMode = parsedSslMode;
+            }
+        }
+
+        return builder.ConnectionString;
     }
 }

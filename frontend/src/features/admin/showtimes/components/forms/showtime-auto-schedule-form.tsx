@@ -112,7 +112,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
     return (
       <div className="space-y-4">
         {draft.unplaced.length > 0 && (
-          <div className="space-y-1 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          <div className="space-y-1 border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
             {draft.unplaced.map((u) => (
               <p key={u.movieId}>
                 {u.movieTitle}: chỉ xếp được {u.placed}/{u.requested} suất.
@@ -124,7 +124,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
         {draft.items.length === 0 ? (
           <p className="text-sm text-muted-foreground">Không có suất chiếu nào để áp dụng.</p>
         ) : (
-          <ul className="divide-y divide-border rounded-lg border border-border">
+          <ul className="divide-y divide-border border border-border">
             {draft.items.map((item, index) => (
               <li key={`${item.roomId}-${item.startTime}`} className="flex items-center gap-3 px-3 py-2">
                 <span className="w-28 shrink-0 font-mono text-sm font-medium tabular-nums text-foreground">

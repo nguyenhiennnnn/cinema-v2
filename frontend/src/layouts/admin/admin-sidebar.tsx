@@ -18,118 +18,127 @@ import {
   MessageSquare,
   Layers,
   Settings,
+  type LucideIcon,
 } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ROUTES } from "@/config/routes";
 
-const NAV_GROUPS = [
-  {
-    label: "Tổng quan",
-    items: [
-      {
-        to: ROUTES.admin.dashboard,
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        roles: [Role.Admin],
-      },
-    ],
-  },
-  {
-    label: "Nghiệp vụ rạp",
-    items: [
-      {
-        to: ROUTES.admin.bookingCounter,
-        label: "Bán vé tại quầy",
-        icon: ShoppingBag,
-        roles: [Role.Admin, Role.Employee],
-      },
-      {
-        to: ROUTES.admin.checkin,
-        label: "Soát vé",
-        icon: ScanLine,
-        roles: [Role.Admin, Role.Employee],
-      },
-    ],
-  },
-  {
-    label: "Quản lý rạp & phim",
-    items: [
-      {
-        to: ROUTES.admin.movies,
-        label: "Quản lý phim",
-        icon: Film,
-        roles: [Role.Admin, Role.Employee],
-      },
-      {
-        to: ROUTES.admin.showtimes,
-        label: "Suất chiếu",
-        icon: Calendar,
-        roles: [Role.Admin, Role.Employee],
-      },
-      { to: ROUTES.admin.rooms, label: "Phòng chiếu", icon: Tv, roles: [Role.Admin] },
-      {
-        to: ROUTES.admin.combos,
-        label: "Bắp nước & Combo",
-        icon: Popcorn,
-        roles: [Role.Admin],
-      },
-    ],
-  },
-  {
-    label: "Đơn hàng & tài chính",
-    items: [
-      {
-        to: ROUTES.admin.bookings,
-        label: "Quản lý đặt vé",
-        icon: Ticket,
-        roles: [Role.Admin, Role.Employee],
-      },
-      {
-        to: ROUTES.admin.payments,
-        label: "Giao dịch & thanh toán",
-        icon: CreditCard,
-        roles: [Role.Admin],
-      },
-      {
-        to: ROUTES.admin.reports,
-        label: "Báo cáo & doanh thu",
-        icon: BarChart3,
-        roles: [Role.Admin],
-      },
-    ],
-  },
-  {
-    label: "Người dùng & đánh giá",
-    items: [
-      { to: ROUTES.admin.users, label: "Khách hàng", icon: Users, roles: [Role.Admin] },
-      {
-        to: ROUTES.admin.employees,
-        label: "Nhân viên",
-        icon: ShieldAlert,
-        roles: [Role.Admin],
-      },
-      {
-        to: ROUTES.admin.reviews,
-        label: "Đánh giá phim",
-        icon: MessageSquare,
-        roles: [Role.Admin],
-      },
-    ],
-  },
-  {
-    label: "Hệ thống & danh mục",
-    items: [
-      { to: ROUTES.admin.catalog, label: "Trung tâm danh mục", icon: Layers, roles: [Role.Admin] },
-      {
-        to: ROUTES.admin.settings,
-        label: "Cài đặt hệ thống",
-        icon: Settings,
-        roles: [Role.Admin],
-      },
-    ],
-  },
-];
+const NAV_GROUPS: {
+  label: string,
+  items: {
+    to: string,
+    label: string,
+    icon: LucideIcon,
+    roles: Role[],
+  }[]
+}[] = [
+    {
+      label: "Tổng quan",
+      items: [
+        {
+          to: ROUTES.admin.dashboard,
+          label: "Dashboard",
+          icon: LayoutDashboard,
+          roles: [Role.Admin],
+        },
+      ],
+    },
+    {
+      label: "Nghiệp vụ rạp",
+      items: [
+        {
+          to: ROUTES.admin.bookingCounter,
+          label: "Bán vé tại quầy",
+          icon: ShoppingBag,
+          roles: [Role.Admin, Role.Employee],
+        },
+        {
+          to: ROUTES.admin.checkin,
+          label: "Soát vé",
+          icon: ScanLine,
+          roles: [Role.Admin, Role.Employee],
+        },
+      ],
+    },
+    {
+      label: "Quản lý rạp & phim",
+      items: [
+        {
+          to: ROUTES.admin.movies,
+          label: "Quản lý phim",
+          icon: Film,
+          roles: [Role.Admin, Role.Employee],
+        },
+        {
+          to: ROUTES.admin.showtimes,
+          label: "Suất chiếu",
+          icon: Calendar,
+          roles: [Role.Admin, Role.Employee],
+        },
+        { to: ROUTES.admin.rooms, label: "Phòng chiếu", icon: Tv, roles: [Role.Admin] },
+        {
+          to: ROUTES.admin.combos,
+          label: "Bắp nước & Combo",
+          icon: Popcorn,
+          roles: [Role.Admin],
+        },
+      ],
+    },
+    {
+      label: "Đơn hàng & tài chính",
+      items: [
+        {
+          to: ROUTES.admin.bookings,
+          label: "Quản lý đặt vé",
+          icon: Ticket,
+          roles: [Role.Admin, Role.Employee],
+        },
+        {
+          to: ROUTES.admin.payments,
+          label: "Giao dịch & thanh toán",
+          icon: CreditCard,
+          roles: [Role.Admin],
+        },
+        {
+          to: ROUTES.admin.reports,
+          label: "Báo cáo & doanh thu",
+          icon: BarChart3,
+          roles: [Role.Admin],
+        },
+      ],
+    },
+    {
+      label: "Người dùng & đánh giá",
+      items: [
+        { to: ROUTES.admin.users, label: "Khách hàng", icon: Users, roles: [Role.Admin] },
+        {
+          to: ROUTES.admin.employees,
+          label: "Nhân viên",
+          icon: ShieldAlert,
+          roles: [Role.Admin],
+        },
+        {
+          to: ROUTES.admin.reviews,
+          label: "Đánh giá phim",
+          icon: MessageSquare,
+          roles: [Role.Admin],
+        },
+      ],
+    },
+    {
+      label: "Hệ thống & danh mục",
+      items: [
+        { to: ROUTES.admin.catalog, label: "Trung tâm danh mục", icon: Layers, roles: [Role.Admin] },
+        {
+          to: ROUTES.admin.settings,
+          label: "Cài đặt hệ thống",
+          icon: Settings,
+          roles: [Role.Admin],
+        },
+      ],
+    },
+  ];
 
 export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
   const { user } = useAuthStore();

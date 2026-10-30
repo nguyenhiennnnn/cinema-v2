@@ -32,6 +32,13 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:a
 USER appuser
 ENV ASPNETCORE_ENVIRONMENT=Production \
     ASPNETCORE_URLS=http://+:8080 \
-    DOTNET_CLI_TELEMETRY_OPTOUT=1
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    # GC tuning cho môi trường free-tier RAM giới hạn (~512 MB)
+    # ConserveMemory=9: GC aggressively thu hồi bộ nhớ sau mỗi collection
+    DOTNET_GCConserveMemory=9 \
+    # GCHeapHardLimit: giới hạn cứng heap = 384 MB (để OS & stack dùng 128 MB còn lại)
+    DOTNET_GCHeapHardLimit=402653184 \
+    # Server GC tắt: dùng Workstation GC tiết kiệm hơn cho single-service container
+    DOTNET_GCDynamicAdaptationMode=0
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Cinema.Api.dll"]
