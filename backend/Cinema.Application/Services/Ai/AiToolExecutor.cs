@@ -4,6 +4,7 @@ using Cinema.Application.DTOs.Ai;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -172,7 +173,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
         }
         else
         {
-            var end = now.AddDays(7);
+            var end = now.AddDays(ShowtimeLookahead.Days);
             query = query.Where(s => s.StartTime <= end);
         }
 

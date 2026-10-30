@@ -11,6 +11,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { useLogin } from "../hooks/use-auth";
 import { extractApiError } from "@/lib/error";
 import { GoogleSignInButton } from "./google-sign-in-button";
+import { ROUTES } from "@/config/routes";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
@@ -102,7 +103,7 @@ export const LoginForm = () => {
       <p className="text-center text-sm text-muted-foreground">
         Chưa có tài khoản?{" "}
         <Link
-          to="/auth/register"
+          to={ROUTES.auth.register}
           className="font-medium text-primary hover:underline"
         >
           Đăng ký ngay

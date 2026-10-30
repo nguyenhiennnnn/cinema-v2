@@ -35,11 +35,12 @@ import AdminMoviesPage from "@/features/admin/movies/pages/movies-page";
 import AdminBookingsPage from "@/features/admin/bookings/pages/bookings-page";
 import AdminBookingDetailPage from "@/features/admin/bookings/pages/booking-detail-page";
 import AdminAuthLayout from "@/layouts/admin/admin-auth-layout";
+import { ROUTES } from "@/config/routes";
 
 export const adminRoutes: RouteObject[] = [
   {
-    path: "/admin/login",
-    element: <GuestRoute redirectTo="/admin/dashboard" />,
+    path: ROUTES.admin.login,
+    element: <GuestRoute redirectTo={ROUTES.admin.dashboard} />,
     children: [
       {
         element: <AdminAuthLayout />,

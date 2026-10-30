@@ -1,12 +1,13 @@
 import { NavLink } from "react-router";
 import { User, Ticket, Star, KeyRound, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/config/routes";
 
 const ACCOUNT_NAV = [
-  { to: "/account/profile", label: "Thông tin cá nhân", icon: User },
-  { to: "/account/tickets", label: "Vé đã mua", icon: Ticket },
-  { to: "/account/reviews", label: "Đánh giá của tôi", icon: Star },
-  { to: "/account/change-password", label: "Đổi mật khẩu", icon: KeyRound },
+  { to: ROUTES.account.profile, label: "Thông tin cá nhân", icon: User },
+  { to: ROUTES.account.tickets, label: "Vé đã mua", icon: Ticket },
+  { to: ROUTES.account.reviews, label: "Đánh giá của tôi", icon: Star },
+  { to: ROUTES.account.changePassword, label: "Đổi mật khẩu", icon: KeyRound },
 ];
 
 interface AccountNavProps {

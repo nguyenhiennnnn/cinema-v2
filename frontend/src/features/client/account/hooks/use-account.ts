@@ -3,6 +3,7 @@ import { accountApi } from "../api/account-api";
 import { queryKeys } from "@/api/query-keys";
 import { queryClient } from "@/api/query-client";
 import { useAuthStore } from "@/stores/auth-store";
+import { Role } from "@/types/enum";
 import { toast } from "@/components/ui/toast";
 import type { MyReviewListParams, UpdateProfileRequest } from "../types";
 import type { ChangePasswordRequest } from "@/features/auth/types";
@@ -28,7 +29,7 @@ export function useUpdateMyProfile() {
           userId: user.userId,
           email: user.email,
           fullName: user.fullName,
-          role: "Customer",
+          role: Role.Customer,
           avatar: user.avatar,
         });
       }

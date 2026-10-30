@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Confetti } from "@/components/common/confetti";
 import { BookingStatus } from "@/types/enum";
+import { BOOKING_RESULT_POLL_INTERVAL_MS } from "@/config/default-constants";
 
 import { useBookingDetail } from "../hooks/use-bookings";
 import { BookingResultStatus } from "../components/result/booking-result-status";
 import { BookingResultTickets } from "../components/result/booking-result-tickets";
+import { ROUTES } from "@/config/routes";
 
 const BookingResultPage = () => {
   const [searchParams] = useSearchParams();
@@ -24,7 +26,10 @@ const BookingResultPage = () => {
 
   useEffect(() => {
     if (!isPending) return;
-    const interval = setInterval(() => bookingDetail.refetch(), 3000);
+    const interval = setInterval(
+      () => bookingDetail.refetch(),
+      BOOKING_RESULT_POLL_INTERVAL_MS,
+    );
     return () => clearInterval(interval);
   }, [isPending, bookingDetail]);
 
@@ -57,7 +62,7 @@ const BookingResultPage = () => {
           )}
           <div className="flex gap-3">
             <Button>
-              <Link to="/account/tickets">Xem vé của tôi</Link>
+              <Link to={ROUTES.account.tickets}>Xem vé của tôi</Link>
             </Button>
             <Button variant="outline">
               <Link to="/">Về trang chủ</Link>

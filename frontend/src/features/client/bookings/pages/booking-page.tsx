@@ -7,6 +7,7 @@ import { BookingSelectionStep } from "../components/booking/booking-selection-st
 import { BookingPaymentStep } from "../components/booking/booking-payment-step";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/config/routes";
 
 const RESUME_INVALID_MESSAGE: Record<string, string> = {
   "not-pending":
@@ -42,7 +43,7 @@ const BookingPage = () => {
           </p>
           <div className="flex gap-2">
             <Button variant="outline">
-              <Link to="/account/tickets">Xem vé của tôi</Link>
+              <Link to={ROUTES.account.tickets}>Xem vé của tôi</Link>
             </Button>
             <Button>
               <Link to={`/booking/${showtimeId}`}>Đặt vé mới</Link>

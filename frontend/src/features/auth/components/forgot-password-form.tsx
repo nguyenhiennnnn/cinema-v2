@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { useForgotPassword } from "../hooks/use-auth";
 import { getDisplayMessage } from "@/lib/error";
+import { ROUTES } from "@/config/routes";
 
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
@@ -36,7 +37,7 @@ export const ForgotPasswordForm = () => {
           của bạn.
         </p>
         <Button variant="outline">
-          <Link to="/auth/login">Về trang đăng nhập</Link>
+          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
         </Button>
       </div>
     );
@@ -72,7 +73,7 @@ export const ForgotPasswordForm = () => {
       <p className="text-center text-sm text-muted-foreground">
         Nhớ mật khẩu?{" "}
         <Link
-          to="/auth/login"
+          to={ROUTES.auth.login}
           className="font-medium text-primary hover:underline"
         >
           Đăng nhập

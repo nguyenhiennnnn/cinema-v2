@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogoutConfirm } from "@/hooks/use-logout-confirm";
+import { ROUTES } from "@/config/routes";
+import { Role } from "@/types/enum";
 
 interface HeaderUserMenuUser {
   avatar?: string | null;
@@ -46,20 +48,20 @@ export const HeaderUserMenu = ({ user }: HeaderUserMenuProps) => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <Link to="/account/profile">Thông tin tài khoản</Link>
+            <Link to={ROUTES.account.profile}>Thông tin tài khoản</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link to="/account/tickets">Vé của tôi</Link>
+            <Link to={ROUTES.account.tickets}>Vé của tôi</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link to="/account/reviews">Đánh giá của tôi</Link>
+            <Link to={ROUTES.account.reviews}>Đánh giá của tôi</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link to="/account/change-password">Đổi mật khẩu</Link>
+            <Link to={ROUTES.account.changePassword}>Đổi mật khẩu</Link>
           </DropdownMenuItem>
-          {user.role === "Admin" && (
+          {user.role === Role.Admin && (
             <DropdownMenuItem>
-              <Link to="/admin/dashboard">Trang quản trị</Link>
+              <Link to={ROUTES.admin.dashboard}>Trang quản trị</Link>
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />

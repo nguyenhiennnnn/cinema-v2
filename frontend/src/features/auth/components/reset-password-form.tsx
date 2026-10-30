@@ -10,6 +10,7 @@ import { useResetPassword } from "../hooks/use-auth";
 import { getDisplayMessage } from "@/lib/error";
 import { passwordSchema } from "@/lib/validators";
 import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
+import { ROUTES } from "@/config/routes";
 
 const resetPasswordSchema = z
   .object({
@@ -56,7 +57,7 @@ export const ResetPasswordForm = () => {
   const onSubmit = (data: ResetPasswordFormValues) => {
     resetPassword(
       { token, newPassword: data.newPassword },
-      { onSuccess: () => navigate("/auth/login", { replace: true }) },
+      { onSuccess: () => navigate(ROUTES.auth.login, { replace: true }) },
     );
   };
 

@@ -21,6 +21,7 @@ import { SeatEditorValidationPanel } from "../components/seat-editor-validation-
 import type { AdminRoomDto, SeatDto } from "../types";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
 import type { ValidationIssue } from "../hooks/use-seat-editor-state";
+import { ROUTES } from "@/config/routes";
 
 const SeatEditorReady = ({
   room,
@@ -184,7 +185,7 @@ const SeatEditorReady = ({
         copySourceRow={editor.copiedRow?.sourceRow ?? null}
         isPickingCopySource={isPickingCopySource}
       />
-      <Button variant="outline" className="w-fit" onClick={() => navigate("/admin/rooms")}>
+      <Button variant="outline" className="w-fit" onClick={() => navigate(ROUTES.admin.rooms)}>
         <ArrowLeft className="size-4" />
         <span>Quay lại danh sách phòng chiếu</span>
       </Button>
@@ -231,7 +232,7 @@ const AdminRoomSeatsPage = () => {
       ) : !room.data ? (
         <div className="flex flex-col items-center gap-3 border border-dashed border-border py-16 text-center">
           <p className="text-sm text-muted-foreground">Không tìm thấy phòng chiếu này.</p>
-          <Button onClick={() => navigate("/admin/rooms")}>
+          <Button onClick={() => navigate(ROUTES.admin.rooms)}>
             <ArrowLeft className="size-4" />
             <span>Về danh sách phòng chiếu</span>
           </Button>

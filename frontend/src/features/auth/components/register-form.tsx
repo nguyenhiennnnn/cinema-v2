@@ -12,6 +12,7 @@ import { getDisplayMessage, getFieldErrors } from "@/lib/error";
 import { passwordSchema } from "@/lib/validators";
 import type { RegisterRequest } from "../types";
 import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
+import { ROUTES } from "@/config/routes";
 
 const registerSchema = z
   .object({
@@ -85,7 +86,7 @@ export const RegisterForm = () => {
           để xác thực tài khoản.
         </p>
         <Button variant="outline">
-          <Link to="/auth/login">Về trang đăng nhập</Link>
+          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
         </Button>
       </div>
     );
@@ -154,7 +155,7 @@ export const RegisterForm = () => {
       <p className="text-center text-sm text-muted-foreground">
         Đã có tài khoản?{" "}
         <Link
-          to="/auth/login"
+          to={ROUTES.auth.login}
           className="font-medium text-primary hover:underline"
         >
           Đăng nhập

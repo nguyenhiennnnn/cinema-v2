@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConfirmEmail, useResendConfirmation } from "../hooks/use-auth";
 import { getDisplayMessage } from "@/lib/error";
+import { ROUTES } from "@/config/routes";
 
 const resendSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
@@ -55,7 +56,7 @@ const ConfirmEmailPage = () => {
           Thiếu mã xác thực trong đường dẫn.
         </p>
         <Button variant="outline">
-          <Link to="/auth/login">Về trang đăng nhập</Link>
+          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
         </Button>
       </div>
     );
@@ -81,7 +82,7 @@ const ConfirmEmailPage = () => {
           Bạn có thể đăng nhập ngay bây giờ.
         </p>
         <Button>
-          <Link to="/auth/login">Đăng nhập</Link>
+          <Link to={ROUTES.auth.login}>Đăng nhập</Link>
         </Button>
       </div>
     );
@@ -134,7 +135,7 @@ const ConfirmEmailPage = () => {
         )}
 
         <Button variant="ghost">
-          <Link to="/auth/login">Về trang đăng nhập</Link>
+          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
         </Button>
       </div>
     );

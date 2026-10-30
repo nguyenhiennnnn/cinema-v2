@@ -9,6 +9,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { useAdminLogin } from "@/features/auth/hooks/use-auth";
 import { extractApiError } from "@/lib/error";
 import { BRAND } from "@/config/brand";
+import { getAdminHomePath } from "@/config/routes";
 
 const adminLoginSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
@@ -30,9 +31,7 @@ export const AdminLoginForm = () => {
   const onSubmit = (data: AdminLoginFormValues) => {
     adminLogin(data, {
       onSuccess: (res) => {
-        const defaultTarget =
-          res.data.user.role === "Employee" ? "/admin/bookings/counter" : "/admin/dashboard";
-        const redirect = searchParams.get("redirect") || defaultTarget;
+        const redirect = searchParams.get("redirect") || getAdminHomePath(res.data.user.role);
         navigate(redirect, { replace: true });
       },
     });

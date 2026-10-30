@@ -13,6 +13,8 @@ namespace Cinema.Application.Services.Combos;
 
 public class ComboService(IAppDbContext db) : IComboService
 {
+    private const int MaxComboSuggestions = 3;
+
     private static readonly Regex DrinkRegex = new(
         @"(\d+)\s*(?:Coca|Pepsi|Sprite|Fanta|Nước|Trà|Cà phê)",
         RegexOptions.IgnoreCase | RegexOptions.Compiled
@@ -106,7 +108,7 @@ public class ComboService(IAppDbContext db) : IComboService
             .Where(x => x.Keep)
             .OrderByDescending(x => x.Score)
             .ThenBy(x => x.Price)
-            .Take(3)
+            .Take(MaxComboSuggestions)
             .Select(x => x.Dto)
             .ToList();
     }

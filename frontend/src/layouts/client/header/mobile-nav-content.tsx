@@ -3,6 +3,7 @@ import { useIsAuthenticated } from "@/stores/auth-store";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "./header-desktop-nav";
+import { ROUTES } from "@/config/routes";
 
 interface MobileNavContent {
   onNavigate: () => void;
@@ -26,14 +27,14 @@ export const MobileNavContent = ({ onNavigate }: MobileNavContent) => {
       {!isAuthenticated && (
         <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-border/40">
           <Link
-            to="/auth/login"
+            to={ROUTES.auth.login}
             onClick={onNavigate}
             className={cn(buttonVariants({ variant: "outline" }), "w-full justify-center h-10")}
           >
             Đăng nhập
           </Link>
           <Link
-            to="/auth/register"
+            to={ROUTES.auth.register}
             onClick={onNavigate}
             className={cn(buttonVariants({ variant: "default" }), "w-full justify-center h-10")}
           >

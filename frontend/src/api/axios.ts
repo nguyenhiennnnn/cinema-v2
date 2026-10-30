@@ -10,6 +10,7 @@ import {
 } from "@/stores/auth-store";
 import { logDevError } from "@/lib/error";
 import { ENV } from "@/config/env";
+import { ROUTES } from "@/config/routes";
 import { API_TIMEOUT_MS } from "@/config/default-constants";
 
 const BASE_URL = ENV.API_BASE_URL;
@@ -100,12 +101,12 @@ function isAuthExcludedUrl(url?: string): boolean {
 function redirectToLogin() {
   const currentPath = window.location.pathname + window.location.search;
   const isAuthRoute =
-    currentPath.startsWith("/auth") || currentPath.startsWith("/admin/login");
+    currentPath.startsWith("/auth") || currentPath.startsWith(ROUTES.admin.login);
   if (isAuthRoute) return;
   const isAdminRoute = currentPath.startsWith("/admin");
   window.location.href = isAdminRoute
-    ? "/admin/login"
-    : `/auth/login?redirect=${encodeURIComponent(currentPath)}`;
+    ? ROUTES.admin.login
+    : `${ROUTES.auth.login}?redirect=${encodeURIComponent(currentPath)}`;
 }
 
 // ─── Response Interceptor ─────────────────────────────────────────────────────

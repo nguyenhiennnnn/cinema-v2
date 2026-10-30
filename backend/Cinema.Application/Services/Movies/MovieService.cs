@@ -4,6 +4,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -84,7 +85,7 @@ public class MovieService(IAppDbContext db) : IMovieService
                 s.MovieId == movieId
                 && s.Status == ShowtimeStatus.Scheduled
                 && s.StartTime >= now
-                && s.StartTime <= now.AddDays(7)
+                && s.StartTime <= now.AddDays(ShowtimeLookahead.Days)
             )
             .OrderBy(s => s.StartTime)
             .ToListAsync(cancellationToken);

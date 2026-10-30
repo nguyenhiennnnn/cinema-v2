@@ -11,6 +11,8 @@ namespace Cinema.Application.Services.Employees;
 
 public class EmployeeService(IAppDbContext db) : IEmployeeService
 {
+    private const int UserLookupLimit = 50;
+
     public async Task<OffsetPageResult<AdminUserListItemDto>> GetUsersAdminAsync(
         int? roleId,
         string? search,
@@ -68,7 +70,7 @@ public class EmployeeService(IAppDbContext db) : IEmployeeService
 
         return await query
             .OrderBy(u => u.FullName)
-            .Take(50)
+            .Take(UserLookupLimit)
             .Select(u => new AdminUserSelectDto(u.UserId, u.FullName, u.Email))
             .ToListAsync(cancellationToken);
     }

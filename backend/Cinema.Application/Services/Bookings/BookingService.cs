@@ -142,7 +142,7 @@ public class BookingService(
             throw new BusinessRuleException("Booking không ở trạng thái Pending hoặc đã hết hạn.");
 
         var gateway =
-            paymentGateways.FirstOrDefault(g => g.MethodName == request.PaymentMethod)
+            paymentGateways.FindByMethod(request.PaymentMethod)
             ?? throw new BusinessRuleException(
                 $"Payment gateway '{request.PaymentMethod}' chưa được cấu hình."
             );
@@ -283,7 +283,7 @@ public class BookingService(
             throw new BusinessRuleException(eligibility.IneligibleReason!);
 
         var gateway =
-            paymentGateways.FirstOrDefault(g => g.MethodName == payment.PaymentMethod.ToString())
+            paymentGateways.FindByMethod(payment.PaymentMethod.ToString())
             ?? throw new BusinessRuleException(
                 $"Payment gateway '{payment.PaymentMethod}' chưa được cấu hình."
             );

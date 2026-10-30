@@ -1,6 +1,4 @@
 using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
@@ -39,7 +37,7 @@ public class MomoGateway(IOptions<MomoOptions> options, HttpClient httpClient) :
             + $"&ipnUrl={_options.IpnUrl}&orderId={orderId}&orderInfo={request.OrderInfo}"
             + $"&partnerCode={_options.PartnerCode}&redirectUrl={returnUrl}&requestId={requestId}&requestType={requestType}";
 
-        var signature = HmacSha256(_options.SecretKey, rawSignature);
+        var signature = HmacSigner.Sha256Hex(_options.SecretKey, rawSignature);
 
         var payload = new
         {
@@ -89,7 +87,7 @@ public class MomoGateway(IOptions<MomoOptions> options, HttpClient httpClient) :
             + $"&responseTime={queryOrFormParams.GetValueOrDefault("responseTime")}&resultCode={queryOrFormParams.GetValueOrDefault("resultCode")}"
             + $"&transId={queryOrFormParams.GetValueOrDefault("transId")}";
 
-        var computedSignature = HmacSha256(_options.SecretKey, rawSignature);
+        var computedSignature = HmacSigner.Sha256Hex(_options.SecretKey, rawSignature);
         var signatureValid = string.Equals(
             computedSignature,
             receivedSignature,
@@ -128,7 +126,7 @@ public class MomoGateway(IOptions<MomoOptions> options, HttpClient httpClient) :
         var rawSignature =
             $"accessKey={_options.AccessKey}&amount={amount}&description={request.OrderInfo}"
             + $"&orderId={orderId}&partnerCode={_options.PartnerCode}&requestId={requestId}&transId={transId}";
-        var signature = HmacSha256(_options.SecretKey, rawSignature);
+        var signature = HmacSigner.Sha256Hex(_options.SecretKey, rawSignature);
 
         var payload = new
         {
@@ -174,12 +172,4 @@ public class MomoGateway(IOptions<MomoOptions> options, HttpClient httpClient) :
     private record MomoCreateResponse(int ResultCode, string? Message, string? PayUrl);
 
     private record MomoRefundResponse(int ResultCode, string? Message);
-
-    private static string HmacSha256(string key, string data)
-    {
-        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key));
-        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
-
-        return Convert.ToHexString(hash).ToLowerInvariant();
-    }
 }

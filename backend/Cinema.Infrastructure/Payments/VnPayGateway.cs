@@ -1,10 +1,9 @@
 using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using System.Web;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Cinema.Application.Utils;
 using Cinema.Shared.Constants;
 using Microsoft.Extensions.Options;
 
@@ -21,12 +20,16 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
 
     public string MethodName => PaymentMethodNames.VnPay;
 
-    private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById(
-        OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh"
-    );
+    private const string ApiVersion = "2.1.0";
+    private const string DateFormat = "yyyyMMddHHmmss";
+    private const string SuccessResponseCode = "00";
+    private const string DefaultIpAddress = "127.0.0.1";
+    private const decimal AmountScale = 100m;
 
-    private static DateTime NowVietnam() =>
-        TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
+    private static string FormatVietnamDate(DateTime utc) =>
+        VietnamTime.ToLocal(utc).ToString(DateFormat);
+
+    private static string ToVnpAmount(decimal amount) => ((long)(amount * AmountScale)).ToString();
 
     public Task<CreatePaymentResult> CreatePaymentAsync(
         CreatePaymentRequest request,
@@ -37,22 +40,22 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
 
         var vnpParams = new SortedDictionary<string, string>(StringComparer.Ordinal)
         {
-            ["vnp_Version"] = "2.1.0",
+            ["vnp_Version"] = ApiVersion,
             ["vnp_Command"] = "pay",
             ["vnp_TmnCode"] = _options.TmnCode,
-            ["vnp_Amount"] = ((long)(request.Amount * 100)).ToString(),
+            ["vnp_Amount"] = ToVnpAmount(request.Amount),
             ["vnp_CurrCode"] = "VND",
             ["vnp_TxnRef"] = request.TransactionId,
             ["vnp_OrderInfo"] = request.OrderInfo,
             ["vnp_OrderType"] = "other",
             ["vnp_Locale"] = "vn",
             ["vnp_ReturnUrl"] = returnUrl,
-            ["vnp_IpAddr"] = "127.0.0.1",
-            ["vnp_CreateDate"] = NowVietnam().ToString("yyyyMMddHHmmss"),
+            ["vnp_IpAddr"] = DefaultIpAddress,
+            ["vnp_CreateDate"] = FormatVietnamDate(DateTime.UtcNow),
         };
 
         var signData = BuildSignData(vnpParams);
-        var secureHash = HmacSha512(_options.HashSecret, signData);
+        var secureHash = HmacSigner.Sha512Hex(_options.HashSecret, signData);
 
         var query = string.Join(
             "&",
@@ -80,7 +83,7 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
         }
 
         var signData = BuildSignData(paramsForSigning);
-        var computedHash = HmacSha512(_options.HashSecret, signData);
+        var computedHash = HmacSigner.Sha512Hex(_options.HashSecret, signData);
         var signatureValid = string.Equals(
             computedHash,
             receivedHash,
@@ -89,7 +92,7 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
 
         var responseCode = queryOrFormParams.GetValueOrDefault("vnp_ResponseCode", string.Empty);
         var amountRaw = queryOrFormParams.GetValueOrDefault("vnp_Amount", "0");
-        var amount = long.TryParse(amountRaw, out var amountLong) ? amountLong / 100m : 0m;
+        var amount = long.TryParse(amountRaw, out var amountLong) ? amountLong / AmountScale : 0m;
         var txnRef = queryOrFormParams.GetValueOrDefault("vnp_TxnRef", string.Empty);
         var vnpTransactionNo = queryOrFormParams.GetValueOrDefault(
             "vnp_TransactionNo",
@@ -98,7 +101,7 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
 
         return new GatewayCallbackResult(
             signatureValid,
-            responseCode == "00",
+            responseCode == SuccessResponseCode,
             txnRef,
             responseCode,
             amount,
@@ -113,23 +116,19 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
     )
     {
         var requestId = Guid.NewGuid().ToString("N")[..16];
-        var createDate = NowVietnam().ToString("yyyyMMddHHmmss");
+        var createDate = FormatVietnamDate(DateTime.UtcNow);
         var vnpTxnRef = request.OriginalTransactionId;
-        var vnpAmount = ((long)(request.Amount * 100)).ToString();
-        var originalPaymentDateVn = TimeZoneInfo.ConvertTimeFromUtc(
-            DateTime.SpecifyKind(request.OriginalPaymentDate, DateTimeKind.Utc),
-            VietnamTimeZone
-        );
-        var vnpTransactionDate = originalPaymentDateVn.ToString("yyyyMMddHHmmss");
+        var vnpAmount = ToVnpAmount(request.Amount);
+        var vnpTransactionDate = FormatVietnamDate(request.OriginalPaymentDate);
         var vnpTransactionNo = request.GatewayTransactionId ?? string.Empty;
         const string transactionType = "02";
         const string createBy = "System";
-        const string ipAddr = "127.0.0.1";
+        const string ipAddr = DefaultIpAddress;
 
         var signData = string.Join(
             "|",
             requestId,
-            "2.1.0",
+            ApiVersion,
             "refund",
             _options.TmnCode,
             transactionType,
@@ -142,12 +141,12 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
             ipAddr,
             request.OrderInfo
         );
-        var secureHash = HmacSha512(_options.HashSecret, signData);
+        var secureHash = HmacSigner.Sha512Hex(_options.HashSecret, signData);
 
         var payload = new
         {
             vnp_RequestId = requestId,
-            vnp_Version = "2.1.0",
+            vnp_Version = ApiVersion,
             vnp_Command = "refund",
             vnp_TmnCode = _options.TmnCode,
             vnp_TransactionType = transactionType,
@@ -177,7 +176,7 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
             if (result is null)
                 return new RefundResult(false, null, "VNPay trả về response rỗng/không hợp lệ.");
 
-            return result.vnp_ResponseCode == "00"
+            return result.vnp_ResponseCode == SuccessResponseCode
                 ? new RefundResult(true, result.vnp_TransactionNo, null)
                 : new RefundResult(
                     false,
@@ -199,12 +198,4 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
 
     private static string BuildSignData(SortedDictionary<string, string> sortedParams) =>
         string.Join("&", sortedParams.Select(kv => $"{kv.Key}={HttpUtility.UrlEncode(kv.Value)}"));
-
-    private static string HmacSha512(string key, string data)
-    {
-        using var hmac = new HMACSHA512(Encoding.UTF8.GetBytes(key));
-        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
-
-        return Convert.ToHexString(hash).ToLowerInvariant();
-    }
 }

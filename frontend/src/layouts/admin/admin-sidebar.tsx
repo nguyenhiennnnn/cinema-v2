@@ -21,13 +21,14 @@ import {
 } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ROUTES } from "@/config/routes";
 
 const NAV_GROUPS = [
   {
     label: "Tổng quan",
     items: [
       {
-        to: "/admin/dashboard",
+        to: ROUTES.admin.dashboard,
         label: "Dashboard",
         icon: LayoutDashboard,
         roles: [Role.Admin],
@@ -38,13 +39,13 @@ const NAV_GROUPS = [
     label: "Nghiệp vụ rạp",
     items: [
       {
-        to: "/admin/bookings/counter",
+        to: ROUTES.admin.bookingCounter,
         label: "Bán vé tại quầy",
         icon: ShoppingBag,
         roles: [Role.Admin, Role.Employee],
       },
       {
-        to: "/admin/checkin",
+        to: ROUTES.admin.checkin,
         label: "Soát vé",
         icon: ScanLine,
         roles: [Role.Admin, Role.Employee],
@@ -55,20 +56,20 @@ const NAV_GROUPS = [
     label: "Quản lý rạp & phim",
     items: [
       {
-        to: "/admin/movies",
+        to: ROUTES.admin.movies,
         label: "Quản lý phim",
         icon: Film,
         roles: [Role.Admin, Role.Employee],
       },
       {
-        to: "/admin/showtimes",
+        to: ROUTES.admin.showtimes,
         label: "Suất chiếu",
         icon: Calendar,
         roles: [Role.Admin, Role.Employee],
       },
-      { to: "/admin/rooms", label: "Phòng chiếu", icon: Tv, roles: [Role.Admin] },
+      { to: ROUTES.admin.rooms, label: "Phòng chiếu", icon: Tv, roles: [Role.Admin] },
       {
-        to: "/admin/combos",
+        to: ROUTES.admin.combos,
         label: "Bắp nước & Combo",
         icon: Popcorn,
         roles: [Role.Admin],
@@ -79,19 +80,19 @@ const NAV_GROUPS = [
     label: "Đơn hàng & tài chính",
     items: [
       {
-        to: "/admin/bookings",
+        to: ROUTES.admin.bookings,
         label: "Quản lý đặt vé",
         icon: Ticket,
         roles: [Role.Admin, Role.Employee],
       },
       {
-        to: "/admin/payments",
+        to: ROUTES.admin.payments,
         label: "Giao dịch & thanh toán",
         icon: CreditCard,
         roles: [Role.Admin],
       },
       {
-        to: "/admin/reports",
+        to: ROUTES.admin.reports,
         label: "Báo cáo & doanh thu",
         icon: BarChart3,
         roles: [Role.Admin],
@@ -101,15 +102,15 @@ const NAV_GROUPS = [
   {
     label: "Người dùng & đánh giá",
     items: [
-      { to: "/admin/users", label: "Khách hàng", icon: Users, roles: [Role.Admin] },
+      { to: ROUTES.admin.users, label: "Khách hàng", icon: Users, roles: [Role.Admin] },
       {
-        to: "/admin/employees",
+        to: ROUTES.admin.employees,
         label: "Nhân viên",
         icon: ShieldAlert,
         roles: [Role.Admin],
       },
       {
-        to: "/admin/reviews",
+        to: ROUTES.admin.reviews,
         label: "Đánh giá phim",
         icon: MessageSquare,
         roles: [Role.Admin],
@@ -119,9 +120,9 @@ const NAV_GROUPS = [
   {
     label: "Hệ thống & danh mục",
     items: [
-      { to: "/admin/catalog", label: "Trung tâm danh mục", icon: Layers, roles: [Role.Admin] },
+      { to: ROUTES.admin.catalog, label: "Trung tâm danh mục", icon: Layers, roles: [Role.Admin] },
       {
-        to: "/admin/settings",
+        to: ROUTES.admin.settings,
         label: "Cài đặt hệ thống",
         icon: Settings,
         roles: [Role.Admin],

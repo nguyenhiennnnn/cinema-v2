@@ -31,7 +31,7 @@ public class PaymentService(
         CancellationToken cancellationToken
     )
     {
-        var gateway = paymentGateways.FirstOrDefault(g => g.MethodName == PaymentMethodNames.VnPay);
+        var gateway = paymentGateways.FindByMethod(PaymentMethodNames.VnPay);
         if (gateway is null)
         {
             logger.LogWarning("PaymentWebhookReceived VNPay nhưng gateway chưa đăng ký trong DI.");
@@ -97,7 +97,7 @@ public class PaymentService(
         CancellationToken cancellationToken
     )
     {
-        var gateway = paymentGateways.FirstOrDefault(g => g.MethodName == PaymentMethodNames.Momo);
+        var gateway = paymentGateways.FindByMethod(PaymentMethodNames.Momo);
         if (gateway is null)
         {
             logger.LogWarning("PaymentWebhookReceived MoMo nhưng gateway chưa đăng ký trong DI.");
@@ -156,9 +156,7 @@ public class PaymentService(
         CancellationToken cancellationToken
     )
     {
-        var gateway = paymentGateways.FirstOrDefault(g =>
-            g.MethodName == PaymentMethodNames.Stripe
-        );
+        var gateway = paymentGateways.FindByMethod(PaymentMethodNames.Stripe);
         if (gateway is null)
         {
             logger.LogWarning("PaymentWebhookReceived Stripe nhưng gateway chưa đăng ký trong DI.");
@@ -314,9 +312,7 @@ public class PaymentService(
             payment.Amount
         );
 
-        var gateway = paymentGateways.FirstOrDefault(g =>
-            g.MethodName == payment.PaymentMethod.ToString()
-        );
+        var gateway = paymentGateways.FindByMethod(payment.PaymentMethod.ToString());
 
         RefundResult? refundResult = null;
         if (gateway is not null && payment.TransactionId is not null)

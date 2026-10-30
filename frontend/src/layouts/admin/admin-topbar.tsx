@@ -14,6 +14,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router";
 import { useLogoutConfirm } from "@/hooks/use-logout-confirm";
+import { ROUTES } from "@/config/routes";
 
 export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
   const user = useAuthUser();
@@ -73,7 +74,7 @@ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link to="/admin/settings">Cài đặt hệ thống</Link>
+              <Link to={ROUTES.admin.settings}>Cài đặt hệ thống</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onClick={confirmLogout}>

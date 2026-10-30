@@ -60,9 +60,7 @@ public class ShowtimeRefundJob(
             return;
 
         var booking = payment.Booking;
-        var gateway = paymentGateways.FirstOrDefault(g =>
-            g.MethodName == payment.PaymentMethod.ToString()
-        );
+        var gateway = paymentGateways.FindByMethod(payment.PaymentMethod.ToString());
 
         RefundResult refundResult;
         if (gateway is null)
