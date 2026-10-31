@@ -4,6 +4,8 @@ public static class VietnamTime
 {
     private static TimeZoneInfo _zone = ResolveZone("Asia/Ho_Chi_Minh")!;
 
+    public static TimeZoneInfo Zone => _zone;
+
     public static void Configure(string timeZoneId)
     {
         if (string.IsNullOrWhiteSpace(timeZoneId))

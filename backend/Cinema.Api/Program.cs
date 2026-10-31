@@ -496,12 +496,14 @@ if (!app.Environment.IsEnvironment("Testing"))
     RecurringJob.AddOrUpdate<ReleaseExpiredSeatsJob>(
         RecurringJobIds.ReleaseExpiredSeats,
         j => j.RunAsync(CancellationToken.None),
-        backgroundJobOptions.ReleaseExpiredSeatsCron
+        backgroundJobOptions.ReleaseExpiredSeatsCron,
+        new RecurringJobOptions { TimeZone = Cinema.Application.Utils.VietnamTime.Zone }
     );
     RecurringJob.AddOrUpdate<ShowtimeLifecycleJob>(
         RecurringJobIds.UpdateShowtimeLifecycle,
         j => j.RunAsync(CancellationToken.None),
-        backgroundJobOptions.ShowtimeLifecycleCron
+        backgroundJobOptions.ShowtimeLifecycleCron,
+        new RecurringJobOptions { TimeZone = Cinema.Application.Utils.VietnamTime.Zone }
     );
 }
 

@@ -215,8 +215,8 @@ internal static class BookingScenarioSeeder
             CancellationToken ct
         )
         {
-            var from = now.Date.AddDays(-ShowtimeSeeder.PastDays - 1);
-            var to = now.Date.AddDays(5);
+            var from = ShowtimeSeeder.LocalDayStartUtc(now, -ShowtimeSeeder.PastDays - 1);
+            var to = ShowtimeSeeder.LocalDayStartUtc(now, 5);
             var specialIds = specials.Values.Select(s => s.ShowtimeId).ToList();
 
             var showtimes = await db

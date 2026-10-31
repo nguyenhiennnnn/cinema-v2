@@ -1,3 +1,4 @@
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,10 @@ internal static class ShowtimeSeeder
     private const int MinShowsPerRoomDay = 3;
     private const int BufferMinutes = 15; // = BookingOptions.RoomBufferMinutes mặc định
     private const double SafetyBufferHours = 0.5;
+
+    /// <summary>0h (giờ VN) của ngày VN chứa <paramref name="now"/>, cộng <paramref name="offsetDays"/> ngày, tính bằng UTC.</summary>
+    internal static DateTime LocalDayStartUtc(DateTime now, int offsetDays = 0) =>
+        VietnamTime.StartOfDayUtc(VietnamTime.LocalDate(now).AddDays(offsetDays));
 
     private readonly record struct Busy(int RoomId, DateTime Start, DateTime End);
 
@@ -63,7 +68,7 @@ internal static class ShowtimeSeeder
 
         for (var offset = 0; offset <= FutureDays; offset++)
         {
-            var day = now.Date.AddDays(offset);
+            var day = LocalDayStartUtc(now, offset);
             var rotation = offset * 3;
             created.AddRange(
                 PlanDay(ctx, day, offset == 0 ? cutoff : null, ctx.NowShowing, ref rotation, now)
@@ -97,7 +102,7 @@ internal static class ShowtimeSeeder
         var created = new List<Showtime>();
         for (var offset = -PastDays; offset <= -1; offset++)
         {
-            var day = now.Date.AddDays(offset);
+            var day = LocalDayStartUtc(now, offset);
             var rotation = (offset + PastDays) * 3;
             created.AddRange(PlanDay(ctx, day, null, ctx.PastPool, ref rotation, now));
         }
@@ -131,7 +136,7 @@ internal static class ShowtimeSeeder
             return result;
 
         var nowMinute = new DateTime(now.Ticks - now.Ticks % TimeSpan.TicksPerMinute, now.Kind);
-        var today = now.Date;
+        var today = LocalDayStartUtc(now);
 
         // (key, movieId ưu tiên, giờ bắt đầu, phòng ưu tiên, status)
         var specs = new (string Key, int MovieId, DateTime Start, int PreferredRoomId, ShowtimeStatus Status)[]
@@ -240,8 +245,8 @@ internal static class ShowtimeSeeder
             .GroupBy(s => s.RoomId)
             .ToDictionary(g => g.Key, g => g.ToList());
 
-        var from = now.Date.AddDays(-PastDays - 1);
-        var to = now.Date.AddDays(FutureDays + 2);
+        var from = LocalDayStartUtc(now, -PastDays - 1);
+        var to = LocalDayStartUtc(now, FutureDays + 2);
         var busyRows = await db
             .Showtimes.Where(s =>
                 s.Status != ShowtimeStatus.Cancelled && s.EndTime > from && s.StartTime < to
@@ -293,7 +298,7 @@ internal static class ShowtimeSeeder
         {
             var room = ctx.Rooms[roomIndex];
             var roomId = room.RoomId;
-            var existing = ctx.Busy.Count(b => b.RoomId == roomId && b.Start.Date == day.Date);
+            var existing = ctx.Busy.Count(b => b.RoomId == roomId && b.Start >= day && b.Start < day.AddDays(1));
             if (existing >= MinShowsPerRoomDay)
                 continue;
 

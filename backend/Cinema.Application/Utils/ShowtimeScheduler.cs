@@ -176,9 +176,19 @@ public static class ShowtimeScheduler
         return !intervals.Any(i => start < i.End && end > i.Start);
     }
 
-    private static DateTime Up(DateTime value, int step) =>
-        value.Date.AddMinutes(Math.Ceiling((value - value.Date).TotalMinutes / step) * step);
+    // Làm tròn theo mốc 0h giờ VN (không phải 0h UTC) để step bất kỳ (vd 45) vẫn khớp giờ VN.
+    private static DateTime LocalMidnight(DateTime value) =>
+        DateTime.SpecifyKind(VietnamTime.StartOfDayUtc(VietnamTime.LocalDate(value)), value.Kind);
 
-    private static DateTime Down(DateTime value, int step) =>
-        value.Date.AddMinutes(Math.Floor((value - value.Date).TotalMinutes / step) * step);
+    private static DateTime Up(DateTime value, int step)
+    {
+        var origin = LocalMidnight(value);
+        return origin.AddMinutes(Math.Ceiling((value - origin).TotalMinutes / step) * step);
+    }
+
+    private static DateTime Down(DateTime value, int step)
+    {
+        var origin = LocalMidnight(value);
+        return origin.AddMinutes(Math.Floor((value - origin).TotalMinutes / step) * step);
+    }
 }

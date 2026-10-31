@@ -20,7 +20,7 @@ public static class CodeGenerator
             Enumerable.Range(0, 4).Select(_ => Chars[Random.Shared.Next(Chars.Length)]).ToArray()
         );
 
-        return $"{_bookingCodePrefix}{DateTime.UtcNow:yyyyMMdd}{suffix}";
+        return $"{_bookingCodePrefix}{VietnamTime.Today():yyyyMMdd}{suffix}";
     }
 
     public static string GenerateTicketQrPayload(
