@@ -1,6 +1,6 @@
 import { apiDelete, apiGet } from "@/api/axios";
 import type { ApiResponse, OffsetPageResult } from "@/types/api";
-import type { AdminReviewListParams, AdminReviewDto, DeleteReviewResponse } from "../types";
+import type { AdminReviewListParams, AdminReviewDto, DeleteReviewResponse, BulkDeleteReviewsRequest, BulkDeleteReviewsResponse } from "../types";
 
 const BASE = "/admin/reviews";
 
@@ -10,4 +10,9 @@ export const reviewsAdminApi = {
 
   deleteReview: (id: number) =>
     apiDelete<ApiResponse<DeleteReviewResponse>>(`${BASE}/${id}`),
+
+  bulkDeleteReviews: (body: BulkDeleteReviewsRequest) =>
+    apiDelete<ApiResponse<BulkDeleteReviewsResponse>>(`${BASE}/bulk`, {
+      data: body,
+    }),
 };

@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
+import { formatCurrency } from "@/lib/formatters";
 
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import {
@@ -46,7 +47,6 @@ const hhmm = (iso: string) => iso.slice(11, 16);
 
 const ddmm = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 
-const vnd = (value: number) => `${value.toLocaleString("vi-VN")} ₫`;
 
 interface ShowtimeAutoScheduleFormProps {
   onSuccess: () => void;
@@ -136,7 +136,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
                   <p className="text-xs text-muted-foreground">{item.roomName}</p>
                 </div>
                 <p className="shrink-0 text-sm font-medium tabular-nums text-foreground">
-                  {vnd(item.basePrice)}
+                  {formatCurrency(item.basePrice)}
                 </p>
                 <Button
                   type="button"

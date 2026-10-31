@@ -23,3 +23,18 @@ export interface DeleteReviewResponse {
   reviewId: number;
   deleted: boolean;
 }
+
+// ── Bulk delete reviews ───────────────────────────────────────────────────────
+export interface BulkDeleteReviewsRequest {
+  reviewIds: number[];
+}
+export interface BulkDeleteReviewsResultItem {
+  reviewId: number;
+  success: boolean;
+  reason?: string | null;
+}
+export interface BulkDeleteReviewsResponse {
+  results: BulkDeleteReviewsResultItem[];
+  totalSuccess: number;
+  totalFailed: number;
+}

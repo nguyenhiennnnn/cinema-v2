@@ -1,3 +1,4 @@
+using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Shouldly;
 
@@ -9,6 +10,9 @@ public class ShowtimeSchedulerTests
     private static readonly TimeOnly Open = new(8, 0);
     private static readonly TimeOnly Close = new(23, 59);
     private static readonly SchedulerRoom[] Rooms = [new(1, 120), new(2, 80), new(3, 60)];
+
+    private static DateTime LocalAt(int day, TimeOnly time) =>
+        VietnamTime.ToUtc(Day.AddDays(day), time);
 
     private static List<SchedulerSlot> Build(
         IReadOnlyList<SchedulerMovie> movies,
@@ -37,17 +41,21 @@ public class ShowtimeSchedulerTests
 
         slots.Count(s => s.MovieId == 10).ShouldBe(5);
         for (var i = 0; i < slots.Count; i++)
-            for (var j = i + 1; j < slots.Count; j++)
-                Overlap(slots[i], slots[j]).ShouldBeFalse();
-        slots.ShouldAllBe(s =>
-            s.Start >= Day.ToDateTime(Open) && s.End.AddMinutes(-15) <= Day.ToDateTime(Close)
-        );
+        for (var j = i + 1; j < slots.Count; j++)
+            Overlap(slots[i], slots[j]).ShouldBeFalse();
+
+        var openUtc = LocalAt(0, Open);
+        var closeUtc = LocalAt(0, Close);
+        slots.ShouldAllBe(s => s.Start >= openUtc && s.End.AddMinutes(-15) <= closeUtc);
     }
 
     [Fact]
     public void Build_HotMovieGetsLargerRoomThanColdMovie()
     {
-        var slots = Build([new(1, 100, 0.1, 1), new(2, 100, 1.0, 1)], rooms: [new(1, 60), new(2, 120)]);
+        var slots = Build(
+            [new(1, 100, 0.1, 1), new(2, 100, 1.0, 1)],
+            rooms: [new(1, 60), new(2, 120)]
+        );
 
         slots.Single(s => s.MovieId == 2).RoomId.ShouldBe(2);
         slots.Single(s => s.MovieId == 1).RoomId.ShouldBe(1);
@@ -66,18 +74,29 @@ public class ShowtimeSchedulerTests
     [Fact]
     public void Build_RespectsExistingShowtimes()
     {
-        SchedulerBusy[] busy = [new(1, Day.ToDateTime(new TimeOnly(8, 0)), Day.ToDateTime(new TimeOnly(23, 0)))];
+        var busyStart = LocalAt(0, new TimeOnly(8, 0));
+        var busyEnd = LocalAt(0, new TimeOnly(23, 0));
+        SchedulerBusy[] busy = [new(1, busyStart, busyEnd)];
 
         var slots = Build([new(1, 120, 0.5, 3)], busy, [new(1, 100)]);
 
         slots.Count.ShouldBeLessThanOrEqualTo(1);
-        slots.ShouldAllBe(s => s.Start >= Day.ToDateTime(new TimeOnly(23, 0)));
+        slots.ShouldAllBe(s => s.Start >= busyEnd);
     }
 
     [Fact]
     public void Build_MovieLongerThanWindow_PlacesNothing() =>
         ShowtimeScheduler
-            .Build(Day, new TimeOnly(10, 0), new TimeOnly(11, 0), false, 15, Rooms, [new(1, 120, 1, 3)], [])
+            .Build(
+                Day,
+                new TimeOnly(10, 0),
+                new TimeOnly(11, 0),
+                false,
+                15,
+                Rooms,
+                [new(1, 120, 1, 3)],
+                []
+            )
             .ShouldBeEmpty();
 
     [Fact]
@@ -85,8 +104,9 @@ public class ShowtimeSchedulerTests
     {
         var slots = Build([new(1, 120, 1, 20)], rooms: [new(1, 100)], allowAfterHours: true);
 
-        slots.ShouldAllBe(s => s.Start < Day.ToDateTime(Close));
-        slots.Max(s => s.End).ShouldBeGreaterThan(Day.ToDateTime(Close));
+        var closeUtc = LocalAt(0, Close);
+        slots.ShouldAllBe(s => s.Start < closeUtc);
+        slots.Max(s => s.End).ShouldBeGreaterThan(closeUtc);
     }
 
     [Fact]
@@ -101,7 +121,7 @@ public class ShowtimeSchedulerTests
             Rooms,
             [new(10, 100, 0.8, 4)],
             [],
-            new Cinema.Application.Options.SchedulerOptions { StepMinutes = 15 }
+            new SchedulerOptions { StepMinutes = 15 }
         );
 
         slots.ShouldNotBeEmpty();

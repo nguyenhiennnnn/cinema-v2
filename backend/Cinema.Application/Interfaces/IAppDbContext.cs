@@ -39,3 +39,13 @@ public interface IAppDbContext
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<UserVerificationToken> UserVerificationTokens { get; }
 }
+
+public static class AppDbContextExtensions
+{
+    public const int CinemaSettingsId = 1;
+
+    public static Task<CinemaSettings> GetCinemaSettingsAsync(
+        this IAppDbContext db,
+        CancellationToken cancellationToken
+    ) => db.CinemaSettings.FirstAsync(s => s.Id == CinemaSettingsId, cancellationToken);
+}

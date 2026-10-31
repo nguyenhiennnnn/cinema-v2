@@ -19,3 +19,11 @@ public record UserMyReviewDto(
     string? Comment,
     DateTime CreatedAt
 );
+
+public record BulkDeleteReviewsRequest(List<int> ReviewIds);
+public record BulkDeleteReviewsResultItem(int ReviewId, bool Success, string? Reason);
+public record BulkDeleteReviewsResponse(
+    List<BulkDeleteReviewsResultItem> Results,
+    int TotalSuccess,
+    int TotalFailed
+);

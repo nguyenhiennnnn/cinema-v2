@@ -700,7 +700,7 @@ public class ShowtimeService(
             );
 
         var hours = await db
-            .CinemaSettings.Where(s => s.Id == 1)
+            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
             .Select(s => new { s.OpeningTime, s.ClosingTime })
             .FirstOrDefaultAsync(cancellationToken);
         var (open, _) = OperatingHours.Window(request.Date, hours?.OpeningTime, hours?.ClosingTime);
@@ -1192,7 +1192,7 @@ public class ShowtimeService(
             .ToDictionaryAsync(r => r.RoomId, cancellationToken);
         var seatTemplates = await LoadSeatTemplatesAsync(roomIds, cancellationToken);
         var hours = await db
-            .CinemaSettings.Where(s => s.Id == 1)
+            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
             .Select(s => new { s.OpeningTime, s.ClosingTime })
             .FirstOrDefaultAsync(cancellationToken);
         var intervals = await LoadScheduledIntervalsAsync(
@@ -1377,7 +1377,7 @@ public class ShowtimeService(
     )
     {
         var hours = await db
-            .CinemaSettings.Where(s => s.Id == 1)
+            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
             .Select(s => new { s.OpeningTime, s.ClosingTime })
             .FirstOrDefaultAsync(cancellationToken);
 

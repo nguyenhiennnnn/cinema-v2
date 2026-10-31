@@ -12,6 +12,15 @@ public record AdminUserListItemDto(
 
 public record AdminUserSelectDto(int UserId, string FullName, string Email);
 
+public record CustomerLookupItemDto(
+    int UserId,
+    string FullName,
+    string? PhoneLast4,
+    string MaskedEmail,
+    string? TierName,
+    decimal DiscountPercent
+);
+
 public record UpdateUserStatusRequest(bool IsActive);
 
 public record UpdateUserStatusResponse(int UserId, bool IsActive);

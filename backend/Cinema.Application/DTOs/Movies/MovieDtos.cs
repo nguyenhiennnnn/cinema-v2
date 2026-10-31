@@ -79,3 +79,11 @@ public record UpsertMovieRequest(
 );
 
 public record DeleteMovieResponse(int MovieId, bool Deleted, bool SoftDeleted);
+
+public record BulkDeleteMoviesRequest(List<int> MovieIds);
+public record BulkDeleteMoviesResultItem(int MovieId, bool Success, string? Reason);
+public record BulkDeleteMoviesResponse(
+    List<BulkDeleteMoviesResultItem> Results,
+    int TotalSuccess,
+    int TotalFailed
+);

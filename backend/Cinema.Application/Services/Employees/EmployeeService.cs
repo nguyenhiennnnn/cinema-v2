@@ -1,17 +1,29 @@
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Options;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Services.Employees;
 
-public class EmployeeService(IAppDbContext db) : IEmployeeService
+public class EmployeeService : IEmployeeService
 {
     private const int UserLookupLimit = 50;
+
+    private readonly IAppDbContext db;
+    private readonly IOptions<BookingOptions> bookingOptions;
+
+    public EmployeeService(IAppDbContext db, IOptions<BookingOptions>? bookingOptions = null)
+    {
+        this.db = db;
+        this.bookingOptions =
+            bookingOptions ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
+    }
 
     public async Task<OffsetPageResult<AdminUserListItemDto>> GetUsersAdminAsync(
         int? roleId,
@@ -139,6 +151,17 @@ public class EmployeeService(IAppDbContext db) : IEmployeeService
 
         user.RoleId = request.RoleId;
         user.UpdatedAt = DateTime.UtcNow;
+
+        var now = DateTime.UtcNow;
+        var activeTokens = await db
+            .RefreshTokens.Where(rt => rt.UserId == userId && !rt.IsRevoked)
+            .ToListAsync(cancellationToken);
+        foreach (var token in activeTokens)
+        {
+            token.IsRevoked = true;
+            token.RevokedAt = now;
+        }
+
         await db.SaveChangesAsync(cancellationToken);
 
         return new UpdateUserRoleResponse(userId, newRole.RoleId, newRole.RoleName);
@@ -234,12 +257,83 @@ public class EmployeeService(IAppDbContext db) : IEmployeeService
                 new Dictionary<string, string[]> { ["positionId"] = ["positionId không tồn tại."] }
             );
 
+        var wasActive = employee.IsActive;
         employee.PositionId = request.PositionId;
         employee.HireDate = request.HireDate;
         employee.IsActive = request.IsActive;
+
+        if (wasActive && !request.IsActive)
+        {
+            var now = DateTime.UtcNow;
+            var activeTokens = await db
+                .RefreshTokens.Where(rt => rt.UserId == employee.UserId && !rt.IsRevoked)
+                .ToListAsync(cancellationToken);
+            foreach (var token in activeTokens)
+            {
+                token.IsRevoked = true;
+                token.RevokedAt = now;
+            }
+        }
+
         await db.SaveChangesAsync(cancellationToken);
 
         return await LoadEmployeeDtoAsync(employee.EmployeeId, cancellationToken);
+    }
+
+    public async Task<List<CustomerLookupItemDto>> SearchCustomersForCounterAsync(
+        string? query,
+        CancellationToken cancellationToken
+    )
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return [];
+
+        var trimmed = query.Trim();
+        var limit = bookingOptions.Value.CustomerLookupLimit;
+
+        var users = await db
+            .Users.AsNoTracking()
+            .Include(u => u.Role)
+            .Include(u => u.CustomerProfile)
+                .ThenInclude(cp => cp!.Tier)
+            .Where(u =>
+                u.Role.RoleName == Roles.Customer
+                && u.IsActive
+                && (
+                    (u.Phone != null && u.Phone.Contains(trimmed))
+                    || u.Email.Contains(trimmed)
+                    || u.FullName.Contains(trimmed)
+                )
+            )
+            .OrderBy(u => u.FullName)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+
+        return users
+            .Select(u => new CustomerLookupItemDto(
+                UserId: u.UserId,
+                FullName: u.FullName,
+                PhoneLast4: u.Phone?.Length >= 4 ? u.Phone[^4..] : null,
+                MaskedEmail: MaskEmail(u.Email),
+                TierName: u.CustomerProfile?.Tier?.TierName,
+                DiscountPercent: u.CustomerProfile?.Tier?.DiscountPercent ?? 0m
+            ))
+            .ToList();
+    }
+
+    private static string MaskEmail(string email)
+    {
+        var atIndex = email.IndexOf('@');
+        if (atIndex < 0)
+            return email;
+
+        var local = email[..atIndex];
+        var domain = email[atIndex..]; // includes '@'
+
+        if (local.Length <= 2)
+            return local[..1] + "***" + domain;
+
+        return local[..2] + "***" + domain;
     }
 
     private async Task<AdminEmployeeDto> LoadEmployeeDtoAsync(

@@ -1,4 +1,5 @@
-﻿using Cinema.Application.Interfaces;
+using Cinema.Application.DTOs.Reviews;
+using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,4 +34,10 @@ public class AdminReviewsController(IReviewService reviewService) : ControllerBa
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken) =>
         Ok(await reviewService.DeleteReviewAsync(id, cancellationToken));
+    [HttpDelete("bulk")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> BulkDelete(
+        [FromBody] BulkDeleteReviewsRequest request,
+        CancellationToken cancellationToken
+    ) => Ok(await reviewService.BulkDeleteReviewsAsync(request, cancellationToken));
 }

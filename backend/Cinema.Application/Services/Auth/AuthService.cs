@@ -133,7 +133,8 @@ public class AuthService(
         var user = await db
             .Users.Include(u => u.Role)
             .Include(u => u.Employee)
-            .Include(u => u.CustomerProfile!).ThenInclude(cp => cp.Tier)
+            .Include(u => u.CustomerProfile!)
+                .ThenInclude(cp => cp.Tier)
             .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
         if (user is null)
@@ -159,6 +160,10 @@ public class AuthService(
         if (!adminOnly && !isCustomer)
             throw new ForbiddenAppException(
                 "Vui lòng đăng nhập qua cổng quản trị (/auth/admin/login)."
+            );
+        if (adminOnly && isCustomer)
+            throw new ForbiddenAppException(
+                "Tài khoản Customer không thể đăng nhập qua cổng quản trị."
             );
 
         if (verifyResult == PasswordVerificationResult.SuccessRehashNeeded)
@@ -196,7 +201,8 @@ public class AuthService(
         var user = await db
             .Users.Include(u => u.Role)
             .Include(u => u.Employee)
-            .Include(u => u.CustomerProfile!).ThenInclude(cp => cp.Tier)
+            .Include(u => u.CustomerProfile!)
+                .ThenInclude(cp => cp.Tier)
             .FirstOrDefaultAsync(
                 u => u.GoogleId == googleUser.GoogleId || u.Email == googleUser.Email,
                 cancellationToken
@@ -245,7 +251,8 @@ public class AuthService(
             user = await db
                 .Users.Include(u => u.Role)
                 .Include(u => u.Employee)
-                .Include(u => u.CustomerProfile!).ThenInclude(cp => cp.Tier)
+                .Include(u => u.CustomerProfile!)
+                    .ThenInclude(cp => cp.Tier)
                 .FirstAsync(u => u.UserId == user.UserId, cancellationToken);
 
             logger.LogInformation("GoogleUserRegistered UserId {UserId}", user.UserId);
@@ -306,7 +313,8 @@ public class AuthService(
             .Include(rt => rt.User)
                 .ThenInclude(rt => rt.Employee)
             .Include(rt => rt.User)
-                .ThenInclude(u => u.CustomerProfile!).ThenInclude(cp => cp.Tier)
+                .ThenInclude(u => u.CustomerProfile!)
+                    .ThenInclude(cp => cp.Tier)
             .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash, cancellationToken);
 
         if (existing is null)
@@ -340,13 +348,14 @@ public class AuthService(
             CreatedAt = DateTime.UtcNow,
         };
 
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         db.RefreshTokens.Add(newRefreshTokenEntity);
-        await db.SaveChangesAsync(cancellationToken);
-
         existing.IsRevoked = true;
         existing.RevokedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
         existing.ReplacedByTokenId = newRefreshTokenEntity.RefreshTokenId;
         await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         var userDto = existing.User.Adapt<LoginUserDto>();
 
@@ -447,7 +456,22 @@ public class AuthService(
 
         user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
         user.UpdatedAt = DateTime.UtcNow;
+
+        var activeTokens = await db
+            .RefreshTokens.Where(rt => rt.UserId == userId && !rt.IsRevoked)
+            .ToListAsync(cancellationToken);
+        foreach (var rt in activeTokens)
+        {
+            rt.IsRevoked = true;
+            rt.RevokedAt = DateTime.UtcNow;
+        }
+
         await db.SaveChangesAsync(cancellationToken);
+        logger.LogInformation(
+            "PasswordChanged UserId {UserId} — đã thu hồi {Count} refresh token cũ.",
+            userId,
+            activeTokens.Count
+        );
 
         return new MessageResponse("Đổi mật khẩu thành công");
     }
@@ -470,6 +494,19 @@ public class AuthService(
             );
             return new MessageResponse(standardMessage);
         }
+
+        var oldTokens = await db
+            .UserVerificationTokens.Where(t =>
+                t.UserId == user.UserId
+                && t.Purpose == VerificationTokenPurpose.PasswordReset
+                && !t.Used
+                && t.ExpiresAt > DateTime.UtcNow
+            )
+            .ToListAsync(cancellationToken);
+        foreach (var t in oldTokens)
+            t.Used = true;
+        if (oldTokens.Count > 0)
+            await db.SaveChangesAsync(cancellationToken);
 
         await IssueVerificationTokenAndSendEmailAsync(
             user,

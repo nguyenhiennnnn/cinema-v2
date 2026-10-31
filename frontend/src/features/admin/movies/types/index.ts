@@ -1,8 +1,6 @@
 import type { MovieStatus } from "@/types/enum";
 
 // ── Admin movie list ──────────────────────────────────────────────────────────
-// AdminMovieListFilter matches backend record exactly:
-// record AdminMovieListFilter(string? Search, string? Status, int? DirectorId, int? LanguageId, int? AgeRatingId, int? GenreId)
 
 export interface AdminMovieListParams {
   search?: string;
@@ -67,3 +65,18 @@ export type {
   CanReviewResponse,
   DeleteReviewResponse,
 } from "@/features/client/movies/types";
+
+// ── Bulk delete movies ────────────────────────────────────────────────────────
+export interface BulkDeleteMoviesRequest {
+  movieIds: number[];
+}
+export interface BulkDeleteMoviesResultItem {
+  movieId: number;
+  success: boolean;
+  reason?: string | null;
+}
+export interface BulkDeleteMoviesResponse {
+  results: BulkDeleteMoviesResultItem[];
+  totalSuccess: number;
+  totalFailed: number;
+}

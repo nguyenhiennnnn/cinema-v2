@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
+import type { RowSelectionState } from "@tanstack/react-table";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkDeleteButton } from "@/components/common/data-table/bulk-delete-button";
 import { EnumSelectFilter } from "@/components/common/filter/enum-select-filter";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 import { useAdminMovieParams } from "@/hooks/use-query-params";
@@ -12,9 +15,14 @@ import { stripNulls } from "@/lib/query-params";
 import { movieStatusOptions } from "@/lib/enum-options";
 import { DEFAULT_PAGE } from "@/config/default-constants";
 
-import { useAdminMovies, useAdminDeleteMovie } from "../hooks/use-admin-movies";
+import {
+  useAdminMovies,
+  useAdminDeleteMovie,
+  useAdminBulkDeleteMovies,
+} from "../hooks/use-admin-movies";
 import type { AdminMovieListItemDto } from "../types";
 import { createMovieColumns } from "../components/movie-columns";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
 import { MovieCreateForm } from "../components/forms/movie-create-form";
 import { MovieUpdateForm } from "../components/forms/movie-update-form";
 import { useSheetClose, useSheetOpen } from "@/stores/sheet-store";
@@ -27,8 +35,11 @@ const AdminMoviesPage = () => {
   const role = useAuthRole();
   const canManage = role === Role.Admin;
 
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
   const movies = useAdminMovies(stripNulls(params));
   const deleteMovie = useAdminDeleteMovie();
+  const bulkDeleteMovies = useAdminBulkDeleteMovies();
 
   const openAlertDialog = useAlertDialogOpen();
   const openSheet = useSheetOpen();
@@ -63,11 +74,34 @@ const AdminMoviesPage = () => {
     });
   };
 
-  const columns = createMovieColumns({
-    onEdit: handleEdit,
-    onDelete: handleDelete,
-    canManage,
-  });
+  const handleBulkDelete = async (selectedIds: string[]) => {
+    const ids = selectedIds.map(Number);
+    const res = await bulkDeleteMovies.mutateAsync({ movieIds: ids });
+    const result = res.data;
+    setRowSelection({});
+    if (result) {
+      const { totalSuccess, totalFailed, results } = result;
+      const failedReasons = results
+        .filter((r) => !r.success && r.reason)
+        .map((r) => `#${r.movieId}: ${r.reason}`)
+        .join("; ");
+      toast.add({
+        title: `Đã xóa ${totalSuccess} phim${totalFailed > 0 ? `, ${totalFailed} thất bại` : ""}.`,
+        description: failedReasons || undefined,
+        type: totalFailed > 0 ? "warning" : "success",
+      });
+    }
+  };
+
+  const selectionCol = createSelectionColumn<AdminMovieListItemDto>();
+  const columns = [
+    selectionCol,
+    ...createMovieColumns({
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+      canManage,
+    }),
+  ];
 
   return (
     <div>
@@ -105,6 +139,21 @@ const AdminMoviesPage = () => {
         onSearchChange={(value) => setParams({ search: value, page: DEFAULT_PAGE })}
         searchPlaceholder="Tìm theo tên phim..."
         emptyMessage="Chưa có bộ phim nào."
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(row) => String(row.movieId)}
+        bulkActions={
+          canManage
+            ? (selectedIds) => (
+                <BulkDeleteButton
+                  count={selectedIds.length}
+                  itemLabel="phim"
+                  onConfirm={() => handleBulkDelete(selectedIds)}
+                  isPending={bulkDeleteMovies.isPending}
+                />
+              )
+            : undefined
+        }
       />
     </div>
   );

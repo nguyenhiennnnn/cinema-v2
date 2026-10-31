@@ -118,6 +118,7 @@ export const queryKeys = {
     all: () => ["admin", "users"] as const,
     list: (params: object) => ["admin", "users", "list", params] as const,
     admins: (params?: object) => ["admin", "users", "admins", params] as const,
+    customers: (params?: object) => ["admin", "users", "customers", params] as const,
   },
 
   // ── Admin: Employees ─────────────────────────────────────────────────────────

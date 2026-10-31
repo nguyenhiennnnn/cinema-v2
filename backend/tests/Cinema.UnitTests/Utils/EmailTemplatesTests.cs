@@ -50,11 +50,23 @@ public class EmailTemplatesTests
         );
         yield return (
             $"{nameof(EmailTemplates.SeatsExpiredAfterPaymentCustomer)}:auto",
-            EmailTemplates.SeatsExpiredAfterPaymentCustomer(brand, customerName, "BK001", true, 120_000m)
+            EmailTemplates.SeatsExpiredAfterPaymentCustomer(
+                brand,
+                customerName,
+                "BK001",
+                true,
+                120_000m
+            )
         );
         yield return (
             $"{nameof(EmailTemplates.SeatsExpiredAfterPaymentCustomer)}:manual",
-            EmailTemplates.SeatsExpiredAfterPaymentCustomer(brand, customerName, "BK001", false, 120_000m)
+            EmailTemplates.SeatsExpiredAfterPaymentCustomer(
+                brand,
+                customerName,
+                "BK001",
+                false,
+                120_000m
+            )
         );
         yield return (
             $"{nameof(EmailTemplates.SeatsExpiredAfterPayment)}:auto",
@@ -89,8 +101,6 @@ public class EmailTemplatesTests
     [Fact]
     public void AllTemplates_FollowDesignSystemRules()
     {
-        // Quy tắc trong .agents/skills/perfo-design-system: không viết hoa cả chuỗi, không monospace,
-        // không vạch viền trái, không bóng và gradient, không dấu gạch dài và dấu chấm giữa.
         string[] forbidden =
         [
             "text-transform",
@@ -107,9 +117,8 @@ public class EmailTemplatesTests
         foreach (var (name, html) in AllTemplates(Brand))
         {
             foreach (var token in forbidden)
-                html.ShouldNotContain(token, name);
+                html.ShouldNotContain(token, customMessage: name);
 
-            // Không có cỡ chữ dưới 13px (font-size:0 dùng cho ô đệm không tính).
             var sizes = Regex
                 .Matches(html, @"font-size:\s*(\d+)px")
                 .Select(m => int.Parse(m.Groups[1].Value))
@@ -124,9 +133,9 @@ public class EmailTemplatesTests
         foreach (var (name, html) in AllTemplates(Brand))
         {
             if (name == nameof(EmailTemplates.BookingConfirmed))
-                html.ShouldContain("dotted", name);
+                html.ShouldContain("dotted", customMessage: name);
             else
-                html.ShouldNotContain("dotted", name);
+                html.ShouldNotContain("dotted", customMessage: name);
         }
     }
 
@@ -162,6 +171,6 @@ public class EmailTemplatesTests
     public void AllTemplates_EncodeCustomerName()
     {
         foreach (var (name, html) in AllTemplates(Brand, "<script>alert(1)</script>"))
-            html.ShouldNotContain("<script>", name);
+            html.ShouldNotContain("<script>", customMessage: name);
     }
 }

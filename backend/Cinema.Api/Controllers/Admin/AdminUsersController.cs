@@ -45,6 +45,13 @@ public class AdminUsersController(IEmployeeService employeeService) : Controller
             )
         );
 
+    [HttpGet("customers")]
+    [Authorize(Policy = Policies.StaffOnly)]
+    public async Task<IActionResult> SearchCustomers(
+        [FromQuery] string? q,
+        CancellationToken cancellationToken
+    ) => Ok(await employeeService.SearchCustomersForCounterAsync(q, cancellationToken));
+
     [HttpPut("{id:int}/status")]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> UpdateStatus(

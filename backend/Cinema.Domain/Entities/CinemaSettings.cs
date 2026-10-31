@@ -15,7 +15,7 @@ public class CinemaSettings
 
     public decimal PointsPerAmount { get; set; } = 10000m;
 
-    public decimal CancelRefundPercent { get; set; } = 100m;
+    public decimal CancelRefundPercent { get; set; } = 0m;
 
     public int CancelDeadlineHours { get; set; } = 2;
 

@@ -49,3 +49,18 @@ export interface UpdateUserRoleResponse {
   roleId: number;
   roleName: string;
 }
+
+// ── Customer lookup (counter) ──────────────────────────────────────────────
+
+export interface CustomerLookupItemDto {
+  userId: number;
+  fullName: string;
+  phoneLast4?: string | null;
+  maskedEmail: string;
+  tierName?: string | null;
+  discountPercent: number;
+}
+
+export interface CustomerLookupParams {
+  q?: string;
+}

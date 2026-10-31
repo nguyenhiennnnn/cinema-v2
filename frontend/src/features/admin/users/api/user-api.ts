@@ -9,6 +9,8 @@ import type {
   UpdateUserStatusResponse,
   UpdateUserRoleRequest,
   UpdateUserRoleResponse,
+  CustomerLookupItemDto,
+  CustomerLookupParams,
 } from "../types";
 
 const BASE = "/admin/users";
@@ -19,6 +21,9 @@ export const usersAdminApi = {
 
   getAdminUsers: (params?: AdminUserSelectParams) =>
     apiGet<ApiResponse<AdminUserSelectDto[]>>(`${BASE}/admins`, { params }),
+
+  searchCustomers: (params: CustomerLookupParams) =>
+    apiGet<ApiResponse<CustomerLookupItemDto[]>>(`${BASE}/customers`, { params }),
 
   updateStatus: (id: number, body: UpdateUserStatusRequest) =>
     apiPut<ApiResponse<UpdateUserStatusResponse>>(`${BASE}/${id}/status`, body),

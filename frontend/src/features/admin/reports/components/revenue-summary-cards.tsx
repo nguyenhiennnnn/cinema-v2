@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
 import type { RevenueSummaryDto } from "../types";
 import { Wallet, Receipt } from "lucide-react";
 
@@ -12,7 +12,7 @@ interface RevenueSummaryCardsProps {
 export const RevenueSummaryCards = ({ summary, isLoading }: RevenueSummaryCardsProps) => {
   const items = [
     { label: "Tổng doanh thu", value: summary ? formatCurrency(summary.totalRevenue) : "—", icon: Wallet },
-    { label: "Tổng đơn đặt vé", value: summary ? summary.totalBookings.toLocaleString("vi-VN") : "—", icon: Receipt },
+    { label: "Tổng đơn đặt vé", value: summary ? formatNumber(summary.totalBookings) : "—", icon: Receipt },
   ];
 
   return (
@@ -37,3 +37,4 @@ export const RevenueSummaryCards = ({ summary, isLoading }: RevenueSummaryCardsP
     </div>
   );
 }
+

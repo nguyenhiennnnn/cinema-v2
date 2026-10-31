@@ -12,7 +12,7 @@ public class SettingsService(IAppDbContext db) : ISettingsService
     public async Task<CinemaSettingsDto> GetSettingsAsync(CancellationToken cancellationToken)
     {
         var settings =
-            await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == 1, cancellationToken)
+            await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == AppDbContextExtensions.CinemaSettingsId, cancellationToken)
             ?? throw new NotFoundException("Chưa có cấu hình rạp — liên hệ Admin khởi tạo.");
 
         return settings.Adapt<CinemaSettingsDto>();
@@ -24,7 +24,7 @@ public class SettingsService(IAppDbContext db) : ISettingsService
     )
     {
         var settings =
-            await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == 1, cancellationToken)
+            await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == AppDbContextExtensions.CinemaSettingsId, cancellationToken)
             ?? throw new NotFoundException("Chưa có cấu hình rạp — liên hệ Admin khởi tạo.");
 
         if (request.CancelRefundPercent is < 0 or > 100)

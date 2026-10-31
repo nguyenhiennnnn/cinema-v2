@@ -294,4 +294,110 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
             sut.ReverseLoyaltyAsync(employeeUser.UserId, 100_000m, CancellationToken.None)
         );
     }
+
+    // ── CounterHold + UserId tests (Task A) ──────────────────────────────────
+
+    [Fact]
+    public async Task CounterHoldSeatsAsync_WithUserId_UserNotFound_ThrowsNotFoundException()
+    {
+        var (employeeUser, employee) = TestDataSeeder.AddEmployee(Db);
+        var room = TestDataSeeder.AddRoom(Db);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
+        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var sut = CreateSut();
+
+        await Should.ThrowAsync<NotFoundException>(() =>
+            sut.CounterHoldSeatsAsync(
+                employee.EmployeeId, employeeUser.UserId,
+                new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, 99999, "ignored", null),
+                CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task CounterHoldSeatsAsync_WithUserId_UserInactive_ThrowsBusinessRuleException()
+    {
+        var (employeeUser, employee) = TestDataSeeder.AddEmployee(Db);
+        var customer = TestDataSeeder.AddCustomer(Db, email: "inactive@test.local", isActive: false);
+        var room = TestDataSeeder.AddRoom(Db);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
+        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var sut = CreateSut();
+
+        await Should.ThrowAsync<BusinessRuleException>(() =>
+            sut.CounterHoldSeatsAsync(
+                employee.EmployeeId, employeeUser.UserId,
+                new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, customer.UserId, "ignored", null),
+                CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task CounterHoldSeatsAsync_WithUserId_UserNotCustomerRole_ThrowsBusinessRuleException()
+    {
+        var (employeeUser, employee) = TestDataSeeder.AddEmployee(Db);
+        var room = TestDataSeeder.AddRoom(Db);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
+        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var sut = CreateSut();
+
+        // employeeUser has AdminRoleId, not CustomerRoleId
+        await Should.ThrowAsync<BusinessRuleException>(() =>
+            sut.CounterHoldSeatsAsync(
+                employee.EmployeeId, employeeUser.UserId,
+                new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, employeeUser.UserId, "ignored", null),
+                CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task CounterHoldSeatsAsync_WithUserId_ValidCustomer_UsesUserNameAndPhone()
+    {
+        var (employeeUser, employee) = TestDataSeeder.AddEmployee(Db);
+        var customer = TestDataSeeder.AddCustomer(Db, email: "linked@test.local");
+        customer.FullName = "Nguyen Thi B";
+        customer.Phone = "0912345678";
+        await Db.SaveChangesAsync();
+        var room = TestDataSeeder.AddRoom(Db);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
+        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var sut = CreateSut();
+
+        var response = await sut.CounterHoldSeatsAsync(
+            employee.EmployeeId, employeeUser.UserId,
+            new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, customer.UserId, "ignored-name", "ignored-phone"),
+            CancellationToken.None);
+
+        var booking = await Db.Bookings.SingleAsync(b => b.BookingId == response.BookingId);
+        booking.CustomerName.ShouldBe("Nguyen Thi B");
+        booking.CustomerPhone.ShouldBe("0912345678");
+        booking.UserId.ShouldBe(customer.UserId);
+    }
+
+    [Fact]
+    public async Task CounterHoldSeatsAsync_WithoutUserId_UsesRequestNameAndPhone()
+    {
+        var (employeeUser, employee) = TestDataSeeder.AddEmployee(Db);
+        var room = TestDataSeeder.AddRoom(Db);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
+        var movie = TestDataSeeder.AddMovie(Db);
+        var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
+        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var sut = CreateSut();
+
+        var response = await sut.CounterHoldSeatsAsync(
+            employee.EmployeeId, employeeUser.UserId,
+            new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, null, "Khach Le", "0900000001"),
+            CancellationToken.None);
+
+        var booking = await Db.Bookings.SingleAsync(b => b.BookingId == response.BookingId);
+        booking.CustomerName.ShouldBe("Khach Le");
+        booking.CustomerPhone.ShouldBe("0900000001");
+        booking.UserId.ShouldBeNull();
+    }
 }

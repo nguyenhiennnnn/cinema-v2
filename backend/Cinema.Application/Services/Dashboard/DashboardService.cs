@@ -74,7 +74,9 @@ public class DashboardService(IAppDbContext db, IReportService reportService) : 
 
         var todaySeatCounts = await db
             .ShowtimeSeats.Where(ss =>
-                ss.Showtime.StartTime >= todayStart && ss.Showtime.StartTime < todayEnd
+                ss.Showtime.StartTime >= todayStart
+                && ss.Showtime.StartTime < todayEnd
+                && ss.Showtime.Status != ShowtimeStatus.Cancelled
             )
             .GroupBy(_ => 1)
             .Select(g => new

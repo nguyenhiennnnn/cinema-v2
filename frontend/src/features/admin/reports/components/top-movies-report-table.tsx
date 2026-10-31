@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
 import type { TopMovieDto } from "../types";
 
 interface TopMoviesReportTableProps {
@@ -11,7 +11,7 @@ interface TopMoviesReportTableProps {
   isLoading: boolean;
 }
 
-export function TopMoviesReportTable({ movies, isLoading }: TopMoviesReportTableProps) {
+export const TopMoviesReportTable = ({ movies, isLoading }: TopMoviesReportTableProps) => {
   return (
     <Card>
       <CardHeader>
@@ -42,7 +42,7 @@ export function TopMoviesReportTable({ movies, isLoading }: TopMoviesReportTable
                 <TableRow key={movie.movieId}>
                   <TableCell className="text-muted-foreground">{index + 1}</TableCell>
                   <TableCell className="font-medium text-foreground">{movie.title}</TableCell>
-                  <TableCell className="text-right tabular-nums">{movie.ticketsSold.toLocaleString("vi-VN")}</TableCell>
+                  <TableCell className="text-right tabular-nums">{formatNumber(movie.ticketsSold)}</TableCell>
                   <TableCell className="text-right tabular-nums font-medium text-primary">
                     {formatCurrency(movie.revenue)}
                   </TableCell>
@@ -55,3 +55,4 @@ export function TopMoviesReportTable({ movies, isLoading }: TopMoviesReportTable
     </Card>
   );
 }
+

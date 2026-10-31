@@ -51,7 +51,7 @@ public class SignalRRealtimeNotifier(IHubContext<ShowtimeHub> hubContext) : IRea
                 {
                     showtimeId,
                     seatIds,
-                    heldByUserId,
+                    // Không gửi heldByUserId ra client để tránh lộ thông tin người dùng khác
                     heldUntil,
                 },
                 cancellationToken

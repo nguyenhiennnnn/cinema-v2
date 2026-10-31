@@ -1,4 +1,6 @@
 using Cinema.Application.DTOs.Movies;
+using Cinema.Application.Options;
+using Microsoft.Extensions.Options;
 using Cinema.Domain.Enums;
 using FluentValidation;
 
@@ -85,5 +87,22 @@ public class UpsertMovieRequestValidator : AbstractValidator<UpsertMovieRequest>
 
         RuleForEach(x => x.Cast)
             .SetValidator(new MovieCastItemRequestValidator());
+    }
+}
+
+public class BulkDeleteMoviesRequestValidator : AbstractValidator<BulkDeleteMoviesRequest>
+{
+    public BulkDeleteMoviesRequestValidator(IOptions<BookingOptions> options)
+    {
+        var limit = options.Value.BulkDeleteLimit;
+        RuleFor(x => x.MovieIds)
+            .NotEmpty()
+            .WithMessage("Danh s\u00e1ch movieIds kh\u00f4ng \u0111\u01b0\u1ee3c r\u1ed7ng.");
+        RuleFor(x => x.MovieIds)
+            .Must(ids => ids.Count <= limit)
+            .WithMessage($"T\u1ed1i \u0111a {{limit}} phim m\u1ed7i l\u1ea7n.");
+        RuleForEach(x => x.MovieIds)
+            .GreaterThan(0)
+            .WithMessage("movieId ph\u1ea3i l\u1edbn h\u01a1n 0.");
     }
 }

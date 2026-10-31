@@ -1,19 +1,17 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-
+import { formatNumber } from "@/lib/formatters";
 import { MembershipTierBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
+DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
-
 import type { MembershipTierDto } from "../../types";
-
 interface MembershipTierColumnsOptions {
   onEdit: (tier: MembershipTierDto) => void;
   onDelete: (tier: MembershipTierDto) => void;
@@ -49,7 +47,7 @@ export const createMembershipTierColumns = ({
       ),
       cell: ({ row }) => (
         <span className="font-semibold tabular-nums">
-          {row.original.minPoints.toLocaleString("vi-VN")}
+          {formatNumber(row.original.minPoints)}
         </span>
       ),
     }),

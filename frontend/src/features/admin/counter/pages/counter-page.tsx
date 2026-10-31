@@ -67,6 +67,8 @@ const AdminCounterPage = () => {
                 onCustomerNameChange={flow.setCustomerName}
                 customerPhone={flow.customerPhone}
                 onCustomerPhoneChange={flow.setCustomerPhone}
+                userId={flow.userId}
+                onUserIdChange={flow.setUserId}
               />
             </div>
 

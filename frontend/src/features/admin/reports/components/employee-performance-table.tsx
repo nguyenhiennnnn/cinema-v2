@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
 import type { EmployeePerformanceDto } from "../types";
 
 interface EmployeePerformanceTableProps {
@@ -41,8 +41,8 @@ export const EmployeePerformanceTable = ({ employees, isLoading }: EmployeePerfo
               {employees.map((emp) => (
                 <TableRow key={emp.employeeId}>
                   <TableCell className="font-medium text-foreground">{emp.fullName}</TableCell>
-                  <TableCell className="text-right tabular-nums">{emp.ticketsSold.toLocaleString("vi-VN")}</TableCell>
-                  <TableCell className="text-right tabular-nums">{emp.bookingCount.toLocaleString("vi-VN")}</TableCell>
+                  <TableCell className="text-right tabular-nums">{formatNumber(emp.ticketsSold)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{formatNumber(emp.bookingCount)}</TableCell>
                   <TableCell className="text-right tabular-nums font-medium text-primary">
                     {formatCurrency(emp.revenue)}
                   </TableCell>
@@ -55,3 +55,4 @@ export const EmployeePerformanceTable = ({ employees, isLoading }: EmployeePerfo
     </Card>
   );
 }
+

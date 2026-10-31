@@ -1,7 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import { queryClient } from "@/api/query-client";
-import type { AdminMovieListParams, UpsertMovieRequest } from "../types";
+import type {
+  AdminMovieListParams,
+  UpsertMovieRequest,
+  BulkDeleteMoviesRequest,
+} from "../types";
 import { moviesAdminApi } from "../api/movies-api";
 
 export function useAdminMovies(params: AdminMovieListParams) {
@@ -43,6 +47,16 @@ export function useAdminUpdateMovie() {
 export function useAdminDeleteMovie() {
   return useMutation({
     mutationFn: (id: number) => moviesAdminApi.deleteMovie(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminMovies.all() });
+    },
+  });
+}
+
+export function useAdminBulkDeleteMovies() {
+  return useMutation({
+    mutationFn: (body: BulkDeleteMoviesRequest) =>
+      moviesAdminApi.bulkDeleteMovies(body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminMovies.all() });
     },

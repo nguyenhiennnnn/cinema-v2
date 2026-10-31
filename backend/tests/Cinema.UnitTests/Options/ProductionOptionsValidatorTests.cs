@@ -1,7 +1,7 @@
 using Cinema.Application.Options;
 using Shouldly;
 
-namespace Cinema.UnitTests.Options;
+namespace Cinema.UnitTests.Validators;
 
 public class ProductionOptionsValidatorTests
 {

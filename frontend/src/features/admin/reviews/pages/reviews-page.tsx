@@ -1,15 +1,24 @@
+import { useState } from "react";
+import type { RowSelectionState } from "@tanstack/react-table";
+
 import { PageHeader } from "@/components/common/page-header";
 import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkDeleteButton } from "@/components/common/data-table/bulk-delete-button";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
+import { SelectField } from "@/components/common/select-field";
 
-import { useAdminReviews, useAdminDeleteReview } from "../hooks/use-admin-reviews";
+import {
+  useAdminReviews,
+  useAdminDeleteReview,
+  useAdminBulkDeleteReviews,
+} from "../hooks/use-admin-reviews";
 import type { AdminReviewDto } from "../types";
 import { createReviewColumns } from "../components/review-columns";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
 import { useAdminReviewParams } from "@/hooks/use-query-params";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { stripNulls } from "@/lib/query-params";
-import { SelectField } from "@/components/common/select-field";
 
 const ratingOptions = [
   { value: "all", label: "Tất cả số sao" },
@@ -20,8 +29,11 @@ const AdminReviewsPage = () => {
   const [params, setParams] = useAdminReviewParams();
   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
 
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
   const reviews = useAdminReviews(stripNulls(params));
   const deleteReview = useAdminDeleteReview();
+  const bulkDeleteReviews = useAdminBulkDeleteReviews();
 
   const openAlertDialog = useAlertDialogOpen();
 
@@ -38,9 +50,30 @@ const AdminReviewsPage = () => {
     });
   };
 
-  const columns = createReviewColumns({ onDelete: handleDelete });
+  const handleBulkDelete = async (selectedIds: string[]) => {
+    const ids = selectedIds.map(Number);
+    const res = await bulkDeleteReviews.mutateAsync({ reviewIds: ids });
+    const result = res.data;
+    setRowSelection({});
+    if (result) {
+      const { totalSuccess, totalFailed, results } = result;
+      const failedReasons = results
+        .filter((r) => !r.success && r.reason)
+        .map((r) => `#${r.reviewId}: ${r.reason}`)
+        .join("; ");
+      toast.add({
+        title: `Đã xóa ${totalSuccess} đánh giá${totalFailed > 0 ? `, ${totalFailed} thất bại` : ""}.`,
+        description: failedReasons || undefined,
+        type: totalFailed > 0 ? "warning" : "success",
+      });
+    }
+  };
 
-
+  const selectionCol = createSelectionColumn<AdminReviewDto>();
+  const columns = [
+    selectionCol,
+    ...createReviewColumns({ onDelete: handleDelete }),
+  ];
 
   return (
     <div>
@@ -70,6 +103,17 @@ const AdminReviewsPage = () => {
         pagination={pagination}
         onPaginationChange={onPaginationChange}
         emptyMessage="Chưa có đánh giá nào."
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(row) => String(row.reviewId)}
+        bulkActions={(selectedIds) => (
+          <BulkDeleteButton
+            count={selectedIds.length}
+            itemLabel="đánh giá"
+            onConfirm={() => handleBulkDelete(selectedIds)}
+            isPending={bulkDeleteReviews.isPending}
+          />
+        )}
       />
     </div>
   );

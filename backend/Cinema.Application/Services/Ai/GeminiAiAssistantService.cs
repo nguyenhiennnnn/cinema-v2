@@ -239,7 +239,7 @@ public class GeminiAiAssistantService(
     )
     {
         var settings = await db.CinemaSettings.FirstOrDefaultAsync(
-            s => s.Id == 1,
+            s => s.Id == AppDbContextExtensions.CinemaSettingsId,
             cancellationToken
         );
         var cinemaName = settings?.Name ?? _brand.Name;

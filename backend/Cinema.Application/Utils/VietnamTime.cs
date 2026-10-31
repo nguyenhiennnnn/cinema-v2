@@ -2,7 +2,22 @@ namespace Cinema.Application.Utils;
 
 public static class VietnamTime
 {
-    private static readonly TimeZoneInfo Zone = ResolveZone();
+    private static TimeZoneInfo _zone = ResolveZone("Asia/Ho_Chi_Minh")!;
+
+    public static void Configure(string timeZoneId)
+    {
+        if (string.IsNullOrWhiteSpace(timeZoneId))
+            throw new InvalidOperationException(
+                "Brand:TimeZoneId không được để trống. Kiểm tra appsettings.json."
+            );
+
+        _zone =
+            ResolveZone(timeZoneId)
+            ?? throw new InvalidOperationException(
+                $"Timezone '{timeZoneId}' (Brand:TimeZoneId) không hợp lệ hoặc không được hỗ trợ trên hệ thống này. "
+                    + "Dùng IANA ID (ví dụ: 'Asia/Ho_Chi_Minh') hoặc Windows ID ('SE Asia Standard Time')."
+            );
+    }
 
     public static DateTime ToUtc(DateTime value) =>
         value.Kind switch
@@ -10,7 +25,7 @@ public static class VietnamTime
             DateTimeKind.Utc => value,
             DateTimeKind.Local => value.ToUniversalTime(),
             _ => DateTime.SpecifyKind(
-                TimeZoneInfo.ConvertTimeToUtc(value, Zone),
+                TimeZoneInfo.ConvertTimeToUtc(value, _zone),
                 DateTimeKind.Utc
             ),
         };
@@ -19,12 +34,11 @@ public static class VietnamTime
         ToUtc(DateTime.SpecifyKind(day.ToDateTime(time), DateTimeKind.Unspecified));
 
     public static DateTime ToLocal(DateTime utc) =>
-        TimeZoneInfo.ConvertTimeFromUtc(AsUtc(utc), Zone);
+        TimeZoneInfo.ConvertTimeFromUtc(AsUtc(utc), _zone);
 
     public static DateOnly LocalDate(DateTime utc) => DateOnly.FromDateTime(ToLocal(utc));
 
-    public static DateOnly Today(DateTime? utcNow = null) =>
-        LocalDate(utcNow ?? DateTime.UtcNow);
+    public static DateOnly Today(DateTime? utcNow = null) => LocalDate(utcNow ?? DateTime.UtcNow);
 
     public static DateTime StartOfDayUtc(DateOnly localDay) => ToUtc(localDay, TimeOnly.MinValue);
 
@@ -34,23 +48,35 @@ public static class VietnamTime
     private static DateTime AsUtc(DateTime value) =>
         value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
 
-    private static TimeZoneInfo ResolveZone()
+    private static TimeZoneInfo? ResolveZone(string id)
     {
-        foreach (var id in new[] { "Asia/Ho_Chi_Minh", "SE Asia Standard Time" })
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById(id);
+        }
+        catch (TimeZoneNotFoundException) { }
+        catch (InvalidTimeZoneException) { }
+
+        if (TimeZoneInfo.TryConvertIanaIdToWindowsId(id, out var winId))
         {
             try
             {
-                return TimeZoneInfo.FindSystemTimeZoneById(id);
+                return TimeZoneInfo.FindSystemTimeZoneById(winId);
             }
             catch (TimeZoneNotFoundException) { }
             catch (InvalidTimeZoneException) { }
         }
 
-        return TimeZoneInfo.CreateCustomTimeZone(
-            "Asia/Ho_Chi_Minh",
-            TimeSpan.FromHours(7),
-            "Asia/Ho_Chi_Minh",
-            "Asia/Ho_Chi_Minh"
-        );
+        if (TimeZoneInfo.TryConvertWindowsIdToIanaId(id, out var ianaId))
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(ianaId);
+            }
+            catch (TimeZoneNotFoundException) { }
+            catch (InvalidTimeZoneException) { }
+        }
+
+        return null;
     }
 }

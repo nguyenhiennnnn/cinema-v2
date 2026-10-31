@@ -6,6 +6,7 @@ import {
   type OnChangeFn,
   type PaginationState,
   type RowData,
+  type RowSelectionState,
   type SortingState,
 } from "@tanstack/react-table";
 
@@ -41,6 +42,10 @@ interface DataTableProps<TData extends RowData> {
   onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
   toolbarFilters?: ReactNode;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+  getRowId?: (row: TData) => string;
+  bulkActions?: (selectedIds: string[]) => ReactNode;
 }
 
 export const DataTable = <TData extends RowData>({
@@ -59,7 +64,16 @@ export const DataTable = <TData extends RowData>({
   onSearchChange,
   searchPlaceholder,
   toolbarFilters,
+  rowSelection,
+  onRowSelectionChange,
+  getRowId,
+  bulkActions,
 }: DataTableProps<TData>) => {
+  const handlePaginationChange: OnChangeFn<PaginationState> = (updater) => {
+    onRowSelectionChange?.({});
+    onPaginationChange(updater);
+  };
+
   const table = useTable({
     features,
     data,
@@ -69,25 +83,33 @@ export const DataTable = <TData extends RowData>({
     manualFiltering: Boolean(onColumnFiltersChange),
     pageCount: Math.max(Math.ceil(totalItems / pagination.pageSize), 1),
     rowCount: totalItems,
-    onPaginationChange,
+    onPaginationChange: handlePaginationChange,
     onSortingChange,
     onColumnFiltersChange,
+    ...(onRowSelectionChange ? { onRowSelectionChange } : {}),
+    ...(getRowId ? { getRowId } : {}),
     state: {
       pagination,
       ...(sorting ? { sorting } : {}),
       ...(columnFilters ? { columnFilters } : {}),
+      ...(rowSelection !== undefined ? { rowSelection } : {}),
     },
   });
 
   return (
     <div className="space-y-4">
-      {onSearchChange && (
+      {(onSearchChange || bulkActions) && (
         <DataTableToolbar
           table={table}
           searchValue={searchValue ?? ""}
-          onSearchChange={onSearchChange}
+          onSearchChange={onSearchChange ?? (() => { })}
           searchPlaceholder={searchPlaceholder}
           filters={toolbarFilters}
+          bulkActions={
+            bulkActions && table.getSelectedRowModel().rows.length > 0
+              ? bulkActions(table.getSelectedRowIds())
+              : undefined
+          }
         />
       )}
 

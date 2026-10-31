@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Web;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
-using Cinema.Application.Utils;
 using Cinema.Shared.Constants;
 using Microsoft.Extensions.Options;
 
@@ -26,8 +25,34 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
     private const string DefaultIpAddress = "127.0.0.1";
     private const decimal AmountScale = 100m;
 
-    private static string FormatVietnamDate(DateTime utc) =>
-        VietnamTime.ToLocal(utc).ToString(DateFormat);
+    private static readonly TimeZoneInfo VnPayZone = ResolveVnPayZone();
+
+    private static TimeZoneInfo ResolveVnPayZone()
+    {
+        foreach (var id in new[] { "Asia/Ho_Chi_Minh", "SE Asia Standard Time" })
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException) { }
+            catch (InvalidTimeZoneException) { }
+        }
+        return TimeZoneInfo.CreateCustomTimeZone(
+            "VnPay-ICT",
+            TimeSpan.FromHours(7),
+            "Indochina Time",
+            "Indochina Time"
+        );
+    }
+
+    private static string FormatVnPayDate(DateTime utc) =>
+        TimeZoneInfo
+            .ConvertTimeFromUtc(
+                utc.Kind == DateTimeKind.Utc ? utc : DateTime.SpecifyKind(utc, DateTimeKind.Utc),
+                VnPayZone
+            )
+            .ToString(DateFormat);
 
     private static string ToVnpAmount(decimal amount) => ((long)(amount * AmountScale)).ToString();
 
@@ -51,7 +76,7 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
             ["vnp_Locale"] = "vn",
             ["vnp_ReturnUrl"] = returnUrl,
             ["vnp_IpAddr"] = DefaultIpAddress,
-            ["vnp_CreateDate"] = FormatVietnamDate(DateTime.UtcNow),
+            ["vnp_CreateDate"] = FormatVnPayDate(DateTime.UtcNow),
         };
 
         var signData = BuildSignData(vnpParams);
@@ -116,10 +141,10 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
     )
     {
         var requestId = Guid.NewGuid().ToString("N")[..16];
-        var createDate = FormatVietnamDate(DateTime.UtcNow);
+        var createDate = FormatVnPayDate(DateTime.UtcNow);
         var vnpTxnRef = request.OriginalTransactionId;
         var vnpAmount = ToVnpAmount(request.Amount);
-        var vnpTransactionDate = FormatVietnamDate(request.OriginalPaymentDate);
+        var vnpTransactionDate = FormatVnPayDate(request.OriginalPaymentDate);
         var vnpTransactionNo = request.GatewayTransactionId ?? string.Empty;
         const string transactionType = "02";
         const string createBy = "System";

@@ -28,6 +28,7 @@ export function useCounterFlow() {
   >({});
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [userId, setUserId] = useState<number | null>(null);
   const [holdResult, setHoldResult] = useState<CounterHoldResponse | null>(
     null,
   );
@@ -96,7 +97,8 @@ export function useCounterFlow() {
   const canHold =
     showtimeId != null &&
     selectedSeatIds.size > 0 &&
-    customerName.trim().length > 0;
+    // Có userId (khách đã định danh) hoặc có tên thủ công
+    (userId != null || customerName.trim().length > 0);
 
   const holdSeats = async () => {
     if (!showtimeId) return;
@@ -105,6 +107,7 @@ export function useCounterFlow() {
         showtimeId,
         seatIds: Array.from(selectedSeatIds),
         combos: combosPayload.length > 0 ? combosPayload : undefined,
+        userId: userId ?? undefined,
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim() || undefined,
       },
@@ -140,6 +143,7 @@ export function useCounterFlow() {
     setComboQuantities({});
     setCustomerName("");
     setCustomerPhone("");
+    setUserId(null);
     setHoldResult(null);
     setCheckoutResult(null);
   };
@@ -162,6 +166,8 @@ export function useCounterFlow() {
     setCustomerName,
     customerPhone,
     setCustomerPhone,
+    userId,
+    setUserId,
     estimatedTotal,
     canHold,
     holdSeats,

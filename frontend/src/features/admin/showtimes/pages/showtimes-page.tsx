@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { CalendarPlus, Copy, Plus, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkDeleteButton } from "@/components/common/data-table/bulk-delete-button";
 import { EnumSelectFilter } from "@/components/common/filter/enum-select-filter";
 import { DateFilterPicker } from "@/components/common/filter/date-filter-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,10 +16,16 @@ import { useTablePagination } from "@/hooks/use-table-pagination";
 import { stripNulls } from "@/lib/query-params";
 import { showtimeStatusOptions } from "@/lib/enum-options";
 import { DEFAULT_PAGE } from "@/config/default-constants";
+import type { RowSelectionState } from "@tanstack/react-table";
 
-import { useAdminShowtimes, useAdminDeleteShowtime } from "../hooks/use-admin-showtimes";
+import {
+  useAdminShowtimes,
+  useAdminDeleteShowtime,
+  useAdminBulkDeleteShowtimes,
+} from "../hooks/use-admin-showtimes";
 import type { AdminShowtimeDto, ShowtimeCalendarItemDto } from "../types";
 import { createShowtimeColumns } from "../components/showtime-columns";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
 import { ShowtimeCreateForm } from "../components/forms/showtime-create-form";
 import { ShowtimeUpdateForm } from "../components/forms/showtime-update-form";
 import { ShowtimeBulkCreateForm } from "../components/forms/showtime-bulk-create-form";
@@ -33,8 +41,11 @@ const AdminShowtimesPage = () => {
   const role = useAuthRole();
   const canManage = role === Role.Admin;
 
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
   const showtimes = useAdminShowtimes(stripNulls(params));
   const deleteShowtime = useAdminDeleteShowtime();
+  const bulkDeleteShowtimes = useAdminBulkDeleteShowtimes();
 
   const openDialog = useDialogOpen();
   const closeDialog = useDialogClose();
@@ -80,6 +91,25 @@ const AdminShowtimesPage = () => {
     });
   };
 
+  const handleBulkDelete = async (selectedIds: string[]) => {
+    const ids = selectedIds.map(Number);
+    const res = await bulkDeleteShowtimes.mutateAsync({ showtimeIds: ids });
+    const result = res.data;
+    setRowSelection({});
+    if (result) {
+      const { totalSuccess, totalFailed, results } = result;
+      const failedReasons = results
+        .filter((r) => !r.success && r.reason)
+        .map((r) => `#${r.showtimeId}: ${r.reason}`)
+        .join("; ");
+      toast.add({
+        title: `Đã xóa ${totalSuccess} suất chiếu${totalFailed > 0 ? `, ${totalFailed} thất bại` : ""}.`,
+        description: failedReasons || undefined,
+        type: totalFailed > 0 ? "warning" : "success",
+      });
+    }
+  };
+
   const handleBulkCreate = () => {
     openDialog({
       title: "Tạo suất chiếu hàng loạt",
@@ -120,11 +150,15 @@ const AdminShowtimesPage = () => {
     handleEdit(mapped);
   };
 
-  const columns = createShowtimeColumns({
-    onEdit: handleEdit,
-    onDelete: handleDelete,
-    canManage,
-  });
+  const selectionCol = createSelectionColumn<AdminShowtimeDto>();
+  const columns = [
+    selectionCol,
+    ...createShowtimeColumns({
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+      canManage,
+    }),
+  ];
 
   return (
     <div>
@@ -186,6 +220,21 @@ const AdminShowtimesPage = () => {
             pagination={pagination}
             onPaginationChange={onPaginationChange}
             emptyMessage="Chưa có suất chiếu nào."
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
+            getRowId={(row) => String(row.showtimeId)}
+            bulkActions={
+              canManage
+                ? (selectedIds) => (
+                    <BulkDeleteButton
+                      count={selectedIds.length}
+                      itemLabel="suất chiếu"
+                      onConfirm={() => handleBulkDelete(selectedIds)}
+                      isPending={bulkDeleteShowtimes.isPending}
+                    />
+                  )
+                : undefined
+            }
           />
         </TabsContent>
 

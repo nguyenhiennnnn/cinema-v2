@@ -356,7 +356,7 @@ public class PaymentService(
         }
 
         var settings = await db.CinemaSettings.FirstOrDefaultAsync(
-            s => s.Id == 1,
+            s => s.Id == AppDbContextExtensions.CinemaSettingsId,
             cancellationToken
         );
         if (!string.IsNullOrWhiteSpace(settings?.Email))

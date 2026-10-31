@@ -100,6 +100,13 @@ var jwtOptions =
 var brandOptions = BindSection<BrandOptions>(BrandOptions.SectionName);
 var backgroundJobOptions = BindSection<BackgroundJobOptions>(BackgroundJobOptions.SectionName);
 
+// Cấu hình múi giờ nghiệp vụ một lần khi khởi động.
+// Ném InvalidOperationException ngay tại đây nếu Brand:TimeZoneId không hợp lệ.
+Cinema.Application.Utils.VietnamTime.Configure(brandOptions.TimeZoneId);
+
+// Cấu hình tiền tố mã booking từ Brand:BookingCodePrefix (mặc định "BK").
+Cinema.Application.Utils.CodeGenerator.Configure(brandOptions.BookingCodePrefix);
+
 // MVC Controllers
 // ApiResponseFilter  — boc moi response thanh ApiResponse<T> chuan
 // ValidationActionFilter — xu ly FluentValidation truoc khi vao action

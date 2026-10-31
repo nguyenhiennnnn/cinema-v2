@@ -52,4 +52,5 @@ public interface IReviewService
         CancellationToken cancellationToken
     );
     Task<DeleteReviewResponse> DeleteReviewAsync(int reviewId, CancellationToken cancellationToken);
+    Task<BulkDeleteReviewsResponse> BulkDeleteReviewsAsync(BulkDeleteReviewsRequest request, CancellationToken cancellationToken);
 }

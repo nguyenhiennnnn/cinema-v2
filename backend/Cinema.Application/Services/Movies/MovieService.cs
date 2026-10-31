@@ -1,4 +1,6 @@
 using Cinema.Application.DTOs.Common;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Cinema.Application.DTOs.Movies;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
@@ -11,8 +13,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Application.Services.Movies;
 
-public class MovieService(IAppDbContext db) : IMovieService
+public class MovieService : IMovieService
 {
+    private readonly IAppDbContext db;
+    private readonly ILogger<MovieService> logger;
+
+    public MovieService(IAppDbContext db, ILogger<MovieService>? logger = null)
+    {
+        this.db = db;
+        this.logger = logger ?? NullLogger<MovieService>.Instance;
+    }
     public async Task<CursorPageResult<MovieListItemDto>> GetMoviesAsync(
         MovieListFilter filter,
         string? cursor,
@@ -345,5 +355,35 @@ public class MovieService(IAppDbContext db) : IMovieService
 
         if (errors.Count > 0)
             throw new ValidationAppException("Dữ liệu tham chiếu không hợp lệ.", errors);
+    }
+    public async Task<BulkDeleteMoviesResponse> BulkDeleteMoviesAsync(
+        BulkDeleteMoviesRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var results = new List<BulkDeleteMoviesResultItem>();
+        foreach (var movieId in request.MovieIds.Distinct())
+        {
+            try
+            {
+                await DeleteMovieAsync(movieId, cancellationToken);
+                results.Add(new BulkDeleteMoviesResultItem(movieId, true, null));
+            }
+            catch (NotFoundException)
+            {
+                results.Add(new BulkDeleteMoviesResultItem(movieId, false, "Kh\u00f4ng t\u00ecm th\u1ea5y phim."));
+            }
+            catch (AppException ex)
+            {
+                results.Add(new BulkDeleteMoviesResultItem(movieId, false, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "BulkDeleteMovie th\u1ea5t b\u1ea1i MovieId {MovieId}", movieId);
+                results.Add(new BulkDeleteMoviesResultItem(movieId, false, "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."));
+            }
+        }
+        var successCount = results.Count(r => r.Success);
+        return new BulkDeleteMoviesResponse(results, successCount, results.Count - successCount);
     }
 }

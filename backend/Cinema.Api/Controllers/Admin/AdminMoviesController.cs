@@ -1,4 +1,4 @@
-﻿using Cinema.Application.DTOs.Movies;
+using Cinema.Application.DTOs.Movies;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
@@ -61,4 +61,10 @@ public class AdminMoviesController(IMovieService movieService) : ControllerBase
         var result = await movieService.DeleteMovieAsync(id, cancellationToken);
         return Ok(result);
     }
+    [HttpDelete("bulk")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> BulkDelete(
+        [FromBody] BulkDeleteMoviesRequest request,
+        CancellationToken cancellationToken
+    ) => Ok(await movieService.BulkDeleteMoviesAsync(request, cancellationToken));
 }

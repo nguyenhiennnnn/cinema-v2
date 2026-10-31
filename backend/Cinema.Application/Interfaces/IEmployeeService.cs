@@ -19,6 +19,11 @@ public interface IEmployeeService
         CancellationToken cancellationToken
     );
 
+    Task<List<CustomerLookupItemDto>> SearchCustomersForCounterAsync(
+        string? query,
+        CancellationToken cancellationToken
+    );
+
     Task<UpdateUserStatusResponse> UpdateUserStatusAsync(
         int userId,
         UpdateUserStatusRequest request,

@@ -7,8 +7,14 @@ public class OperatingHoursTests
 {
     private static readonly TimeOnly Open = new(8, 0);
     private static readonly TimeOnly Close = new(23, 59);
+
     private static DateTime At(int day, int hour, int minute = 0) =>
-        new DateTime(2026, 10, 28).AddDays(day).AddHours(hour).AddMinutes(minute);
+        VietnamTime.ToUtc(
+            DateTime.SpecifyKind(
+                new DateTime(2026, 10, 28).AddDays(day).AddHours(hour).AddMinutes(minute),
+                DateTimeKind.Unspecified
+            )
+        );
 
     [Fact]
     public void Violation_StartsBeforeOpening_ReturnsMessage() =>
@@ -36,7 +42,9 @@ public class OperatingHoursTests
         var closing = new TimeOnly(2, 0);
 
         OperatingHours.Violation(At(1, 0, 30), At(1, 2), opening, closing, false).ShouldBeNull();
-        OperatingHours.Violation(At(1, 0, 30), At(1, 2, 1), opening, closing, false).ShouldNotBeNull();
+        OperatingHours
+            .Violation(At(1, 0, 30), At(1, 2, 1), opening, closing, false)
+            .ShouldNotBeNull();
         OperatingHours.Violation(At(1, 3), At(1, 5), opening, closing, false).ShouldNotBeNull();
     }
 

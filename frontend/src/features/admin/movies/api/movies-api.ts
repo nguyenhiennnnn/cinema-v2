@@ -6,6 +6,8 @@ import type {
   MovieDetailDto,
   UpsertMovieRequest,
   DeleteMovieResponse,
+  BulkDeleteMoviesRequest,
+  BulkDeleteMoviesResponse,
 } from "../types";
 
 const BASE = "/admin/movies";
@@ -25,4 +27,9 @@ export const moviesAdminApi = {
 
   deleteMovie: (id: number) =>
     apiDelete<ApiResponse<DeleteMovieResponse>>(`${BASE}/${id}`),
+
+  bulkDeleteMovies: (body: BulkDeleteMoviesRequest) =>
+    apiDelete<ApiResponse<BulkDeleteMoviesResponse>>(`${BASE}/bulk`, {
+      data: body,
+    }),
 };

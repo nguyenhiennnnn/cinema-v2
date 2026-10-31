@@ -9,4 +9,6 @@ public class BookingOptions
     public int CheckInOpenMinutes { get; set; } = 30;
     public int MaxSeatsPerBooking { get; set; } = 10;
     public int MaxComboQuantity { get; set; } = 10;
+    public int CustomerLookupLimit { get; set; } = 20;
+    public int BulkDeleteLimit { get; set; } = 50;
 }

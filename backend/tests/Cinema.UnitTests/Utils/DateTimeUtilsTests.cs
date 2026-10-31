@@ -60,18 +60,18 @@ public class DateTimeUtilsTests
     }
 
     [Fact]
-    public void GetStartOfDay_ReturnsMidnightOfGivenDate()
+    public void GetStartOfDay_ReturnsMidnightLocalDayAsUtc()
     {
         var date = new DateOnly(2026, 6, 15);
 
-        DateTimeUtils.GetStartOfDay(date).ShouldBe(new DateTime(2026, 6, 15, 0, 0, 0));
+        DateTimeUtils.GetStartOfDay(date).ShouldBe(VietnamTime.StartOfDayUtc(date));
     }
 
     [Fact]
-    public void GetStartOfNextDay_ReturnsMidnightOfFollowingDate()
+    public void GetStartOfNextDay_ReturnsMidnightNextLocalDayAsUtc()
     {
         var date = new DateOnly(2026, 6, 15);
 
-        DateTimeUtils.GetStartOfNextDay(date).ShouldBe(new DateTime(2026, 6, 16, 0, 0, 0));
+        DateTimeUtils.GetStartOfNextDay(date).ShouldBe(VietnamTime.StartOfNextDayUtc(date));
     }
 }
