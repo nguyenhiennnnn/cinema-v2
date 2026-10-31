@@ -1,5 +1,6 @@
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
+using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Showtimes;
@@ -10,17 +11,17 @@ public class AdminShowtimeCalendarFilterValidator : AbstractValidator<AdminShowt
 
     public AdminShowtimeCalendarFilterValidator()
     {
-        RuleFor(x => x.From).NotEmpty().WithMessage("from không được để trống (yyyy-MM-dd).");
+        RuleFor(x => x.From).NotEmpty().WithMessage(Messages.Validation_From_Required);
 
         RuleFor(x => x.To)
             .NotEmpty()
-            .WithMessage("to không được để trống (yyyy-MM-dd).")
+            .WithMessage(Messages.Validation_To_Required)
             .GreaterThanOrEqualTo(x => x.From)
-            .WithMessage("to phải >= from.");
+            .WithMessage(Messages.Validation_To_BeforeFrom);
 
         RuleFor(x => x)
             .Must(x => x.To.DayNumber - x.From.DayNumber <= MaxRangeDays)
-            .WithMessage($"Khoảng ngày (from → to) không được vượt quá {MaxRangeDays} ngày.");
+            .WithMessage(string.Format(Messages.Validation_DateRange_TooLong, MaxRangeDays));
     }
 }
 
@@ -28,13 +29,13 @@ public class UpsertShowtimeRequestValidator : AbstractValidator<UpsertShowtimeRe
 {
     public UpsertShowtimeRequestValidator()
     {
-        RuleFor(x => x.MovieId).GreaterThan(0).WithMessage("movieId phải lớn hơn 0.");
+        RuleFor(x => x.MovieId).GreaterThan(0).WithMessage(Messages.Validation_MovieId_Positive);
 
-        RuleFor(x => x.RoomId).GreaterThan(0).WithMessage("roomId phải lớn hơn 0.");
+        RuleFor(x => x.RoomId).GreaterThan(0).WithMessage(Messages.Validation_RoomId_Positive);
 
-        RuleFor(x => x.StartTime).NotEmpty().WithMessage("startTime không được để trống.");
+        RuleFor(x => x.StartTime).NotEmpty().WithMessage(Messages.Validation_StartTime_Required);
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage("basePrice phải >= 0.");
+        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage(Messages.Validation_BasePrice_NonNegative);
     }
 }
 
@@ -42,13 +43,13 @@ public class BulkDateRangeValidator : AbstractValidator<BulkDateRange>
 {
     public BulkDateRangeValidator()
     {
-        RuleFor(x => x.From).NotEmpty().WithMessage("dateRange.from không được để trống.");
+        RuleFor(x => x.From).NotEmpty().WithMessage(Messages.Validation_DateRangeFrom_Required);
 
         RuleFor(x => x.To)
             .NotEmpty()
-            .WithMessage("dateRange.to không được để trống.")
+            .WithMessage(Messages.Validation_DateRangeTo_Required)
             .GreaterThanOrEqualTo(x => x.From)
-            .WithMessage("dateRange.to phải >= dateRange.from.");
+            .WithMessage(Messages.Validation_DateRangeTo_BeforeFrom);
     }
 }
 
@@ -58,28 +59,28 @@ public class BulkCreateShowtimesRequestValidator : AbstractValidator<BulkCreateS
 
     public BulkCreateShowtimesRequestValidator()
     {
-        RuleFor(x => x.MovieId).GreaterThan(0).WithMessage("movieId phải lớn hơn 0.");
+        RuleFor(x => x.MovieId).GreaterThan(0).WithMessage(Messages.Validation_MovieId_Positive);
 
-        RuleFor(x => x.RoomId).GreaterThan(0).WithMessage("roomId phải lớn hơn 0.");
+        RuleFor(x => x.RoomId).GreaterThan(0).WithMessage(Messages.Validation_RoomId_Positive);
 
         RuleFor(x => x.DateRange)
             .NotNull()
-            .WithMessage("dateRange không được null.")
+            .WithMessage(Messages.Validation_DateRange_NotNull)
             .SetValidator(new BulkDateRangeValidator());
 
-        RuleFor(x => x.DaysOfWeek).NotEmpty().WithMessage("daysOfWeek không được để trống.");
+        RuleFor(x => x.DaysOfWeek).NotEmpty().WithMessage(Messages.Validation_DaysOfWeek_Required);
 
         RuleForEach(x => x.DaysOfWeek)
             .Must(d => ValidDays.Contains(d))
-            .WithMessage($"daysOfWeek chỉ chấp nhận: {string.Join(", ", ValidDays)}");
+            .WithMessage(string.Format(Messages.Validation_DaysOfWeek_AllowedValues, string.Join(", ", ValidDays)));
 
-        RuleFor(x => x.Times).NotEmpty().WithMessage("times không được để trống.");
+        RuleFor(x => x.Times).NotEmpty().WithMessage(Messages.Validation_Times_Required);
 
         RuleForEach(x => x.Times)
             .Matches(@"^([01]\d|2[0-3]):[0-5]\d$")
-            .WithMessage("times phải theo định dạng HH:mm.");
+            .WithMessage(Messages.Validation_Times_TimeFormat);
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage("basePrice phải >= 0.");
+        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage(Messages.Validation_BasePrice_NonNegative);
     }
 }
 
@@ -89,9 +90,9 @@ public class BulkDeleteShowtimesRequestValidator : AbstractValidator<BulkDeleteS
     {
         RuleFor(x => x.ShowtimeIds)
             .NotEmpty()
-            .WithMessage("Danh sách showtimeIds không được rỗng.");
+            .WithMessage(Messages.Validation_ShowtimeIds_NotEmpty);
 
-        RuleForEach(x => x.ShowtimeIds).GreaterThan(0).WithMessage("showtimeId phải lớn hơn 0.");
+        RuleForEach(x => x.ShowtimeIds).GreaterThan(0).WithMessage(Messages.Validation_ShowtimeId_Positive);
     }
 }
 
@@ -101,40 +102,40 @@ public class AutoScheduleRequestValidator : AbstractValidator<AutoScheduleReques
 
     public AutoScheduleRequestValidator()
     {
-        RuleFor(x => x.Date).NotEmpty().WithMessage("date không được để trống.");
+        RuleFor(x => x.Date).NotEmpty().WithMessage(Messages.Validation_Date_Required);
 
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
             .Must(x => x.ToDate is null || x.ToDate.Value >= x.Date)
-            .WithMessage("toDate phải >= date.")
+            .WithMessage(Messages.Invalid_ToDateBeforeDate)
             .Must(x => x.ToDate is null || x.ToDate.Value.DayNumber - x.Date.DayNumber < MaxRangeDays)
-            .WithMessage($"Khoảng ngày xếp lịch không được vượt quá {MaxRangeDays} ngày.");
+            .WithMessage(string.Format(Messages.Invalid_AutoScheduleRangeTooLong, MaxRangeDays));
 
         RuleFor(x => x.Movies)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("movies không được để trống.")
+            .WithMessage(Messages.Validation_Movies_Required)
             .Must(m => m.Count <= 20)
-            .WithMessage("Tối đa 20 phim mỗi lần xếp lịch.")
+            .WithMessage(Messages.Validation_AutoSchedule_MaxMovies)
             .Must(m => m.Select(x => x.MovieId).Distinct().Count() == m.Count)
-            .WithMessage("movies không được chứa phim trùng lặp.");
+            .WithMessage(Messages.Validation_Movies_Duplicated);
 
         RuleForEach(x => x.Movies)
             .ChildRules(m =>
             {
-                m.RuleFor(x => x.MovieId).GreaterThan(0).WithMessage("movieId phải lớn hơn 0.");
+                m.RuleFor(x => x.MovieId).GreaterThan(0).WithMessage(Messages.Validation_MovieId_Positive);
                 m.RuleFor(x => x.Shows)
                     .InclusiveBetween(1, 20)
-                    .WithMessage("shows phải từ 1 đến 20.");
+                    .WithMessage(Messages.Validation_Shows_Range1To20);
                 m.RuleFor(x => x.BasePrice)
                     .GreaterThanOrEqualTo(0)
                     .When(x => x.BasePrice.HasValue)
-                    .WithMessage("basePrice của phim phải >= 0.");
+                    .WithMessage(Messages.Validation_MovieBasePrice_NonNegative);
             });
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage("basePrice phải >= 0.");
+        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage(Messages.Validation_BasePrice_NonNegative);
 
-        RuleForEach(x => x.RoomIds).GreaterThan(0).WithMessage("roomId phải lớn hơn 0.");
+        RuleForEach(x => x.RoomIds).GreaterThan(0).WithMessage(Messages.Validation_RoomId_Positive);
     }
 }
 
@@ -145,9 +146,9 @@ public class ApplyAutoScheduleRequestValidator : AbstractValidator<ApplyAutoSche
         RuleFor(x => x.Items)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("items không được để trống.")
+            .WithMessage(Messages.Validation_Items_Required)
             .Must(i => i.Count <= 1000)
-            .WithMessage("Tối đa 1000 suất chiếu mỗi lần áp dụng.");
+            .WithMessage(Messages.Validation_Showtimes_MaxPerApply);
 
         RuleForEach(x => x.Items).SetValidator(new UpsertShowtimeRequestValidator());
     }
@@ -159,22 +160,22 @@ public class CloneShowtimesRequestValidator : AbstractValidator<CloneShowtimesRe
 
     public CloneShowtimesRequestValidator()
     {
-        RuleFor(x => x.SourceFrom).NotEmpty().WithMessage("sourceFrom không được để trống.");
+        RuleFor(x => x.SourceFrom).NotEmpty().WithMessage(Messages.Validation_SourceFrom_Required);
 
         RuleFor(x => x.SourceTo)
             .NotEmpty()
-            .WithMessage("sourceTo không được để trống.")
+            .WithMessage(Messages.Validation_SourceTo_Required)
             .GreaterThanOrEqualTo(x => x.SourceFrom)
-            .WithMessage("sourceTo phải >= sourceFrom.");
+            .WithMessage(Messages.Validation_SourceTo_BeforeSourceFrom);
 
         RuleFor(x => x)
             .Must(x => x.SourceTo.DayNumber - x.SourceFrom.DayNumber < MaxSourceRangeDays)
-            .WithMessage($"Khoảng ngày nguồn không được vượt quá {MaxSourceRangeDays} ngày.");
+            .WithMessage(string.Format(Messages.Validation_SourceRange_TooLong, MaxSourceRangeDays));
 
         RuleFor(x => x.ShiftDays)
             .InclusiveBetween(1, 366)
-            .WithMessage("shiftDays phải từ 1 đến 366.");
+            .WithMessage(Messages.Validation_ShiftDays_Range1To366);
 
-        RuleForEach(x => x.RoomIds).GreaterThan(0).WithMessage("roomId phải lớn hơn 0.");
+        RuleForEach(x => x.RoomIds).GreaterThan(0).WithMessage(Messages.Validation_RoomId_Positive);
     }
 }

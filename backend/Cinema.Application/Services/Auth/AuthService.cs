@@ -7,6 +7,7 @@ using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Hangfire;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
@@ -41,13 +42,13 @@ public class AuthService(
 
         if (emailExists)
             throw new ValidationAppException(
-                "Email đã tồn tại.",
-                new Dictionary<string, string[]> { ["email"] = ["Email đã được sử dụng."] }
+                Messages.Invalid_EmailExists,
+                new Dictionary<string, string[]> { ["email"] = [Messages.Invalid_EmailInUse] }
             );
 
         var customerRole =
             await db.Roles.FirstOrDefaultAsync(r => r.RoleName == Roles.Customer, cancellationToken)
-            ?? throw new BusinessRuleException("Role 'Customer' chưa được seed trong hệ thống.");
+            ?? throw new BusinessRuleException(Messages.Rule_CustomerRoleNotSeeded);
 
         var user = new User
         {
@@ -109,7 +110,7 @@ public class AuthService(
             || verificationToken.Used
             || verificationToken.ExpiresAt <= DateTime.UtcNow
         )
-            throw new ValidationAppException("Token hết hạn, đã dùng hoặc không hợp lệ.");
+            throw new ValidationAppException(Messages.Invalid_TokenExpiredOrUsed);
 
         verificationToken.Used = true;
 
@@ -138,7 +139,7 @@ public class AuthService(
             .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
         if (user is null)
-            throw new UnauthorizedAppException("Sai email hoặc mật khẩu.");
+            throw new UnauthorizedAppException(Messages.Unauthorized_InvalidCredentials);
 
         var verifyResult = passwordHasher.VerifyHashedPassword(
             user,
@@ -146,24 +147,24 @@ public class AuthService(
             request.Password
         );
         if (verifyResult == PasswordVerificationResult.Failed)
-            throw new UnauthorizedAppException("Sai email hoặc mật khẩu.");
+            throw new UnauthorizedAppException(Messages.Unauthorized_InvalidCredentials);
 
         if (!user.IsActive)
-            throw new ForbiddenAppException("Tài khoản đã bị khóa.");
+            throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
 
         if (!user.EmailConfirmed)
             throw new ForbiddenAppException(
-                "Tài khoản chưa được xác thực email. Vui lòng kiểm tra hộp thư."
+                Messages.Forbidden_EmailNotVerifiedCheckInbox
             );
 
         var isCustomer = user.Role.RoleName == Roles.Customer;
         if (!adminOnly && !isCustomer)
             throw new ForbiddenAppException(
-                "Vui lòng đăng nhập qua cổng quản trị (/auth/admin/login)."
+                Messages.Forbidden_UseAdminPortal
             );
         if (adminOnly && isCustomer)
             throw new ForbiddenAppException(
-                "Tài khoản Customer không thể đăng nhập qua cổng quản trị."
+                Messages.Forbidden_CustomerCannotUseAdminPortal
             );
 
         if (verifyResult == PasswordVerificationResult.SuccessRehashNeeded)
@@ -196,7 +197,7 @@ public class AuthService(
         );
 
         if (!googleUser.EmailVerified)
-            throw new UnauthorizedAppException("Email Google chưa được xác thực.");
+            throw new UnauthorizedAppException(Messages.Unauthorized_GoogleEmailNotVerified);
 
         var user = await db
             .Users.Include(u => u.Role)
@@ -216,7 +217,7 @@ public class AuthService(
                     cancellationToken
                 )
                 ?? throw new BusinessRuleException(
-                    "Role 'Customer' chưa được seed trong hệ thống."
+                    Messages.Rule_CustomerRoleNotSeeded
                 );
 
             user = new User
@@ -260,11 +261,11 @@ public class AuthService(
         else
         {
             if (!user.IsActive)
-                throw new ForbiddenAppException("Tài khoản đã bị khóa.");
+                throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
 
             if (user.Role.RoleName != Roles.Customer)
                 throw new ForbiddenAppException(
-                    "Tài khoản quản trị không thể đăng nhập bằng Google."
+                    Messages.Forbidden_AdminCannotUseGoogleLogin
                 );
 
             var isDirty = false;
@@ -318,24 +319,24 @@ public class AuthService(
             .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash, cancellationToken);
 
         if (existing is null)
-            throw new UnauthorizedAppException("Refresh token không hợp lệ.");
+            throw new UnauthorizedAppException(Messages.Unauthorized_RefreshTokenInvalid);
 
         if (existing.IsRevoked)
         {
             if (existing.ReplacedByTokenId is not null)
                 await RevokeTokenChainAsync(existing.ReplacedByTokenId, cancellationToken);
 
-            throw new UnauthorizedAppException("Refresh token đã hết hạn hoặc đã bị thu hồi.");
+            throw new UnauthorizedAppException(Messages.Unauthorized_RefreshTokenExpiredOrRevoked);
         }
 
         if (existing.ExpiresAt <= DateTime.UtcNow)
-            throw new UnauthorizedAppException("Refresh token đã hết hạn hoặc đã bị thu hồi.");
+            throw new UnauthorizedAppException(Messages.Unauthorized_RefreshTokenExpiredOrRevoked);
 
         if (!existing.User.IsActive)
-            throw new ForbiddenAppException("Tài khoản đã bị khóa.");
+            throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
 
         if (!existing.User.EmailConfirmed)
-            throw new ForbiddenAppException("Tài khoản chưa được xác thực email.");
+            throw new ForbiddenAppException(Messages.Forbidden_EmailNotVerified);
 
         var accessToken = tokenService.GenerateAccessToken(existing.User);
         var newRefreshTokenValue = tokenService.GenerateOpaqueToken();
@@ -420,7 +421,7 @@ public class AuthService(
             await db
                 .Users.Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy người dùng.");
+            ?? throw new NotFoundException(Messages.NotFound_User);
 
         return user.Adapt<MeResponse>();
     }
@@ -433,11 +434,11 @@ public class AuthService(
     {
         var user =
             await db.Users.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy người dùng.");
+            ?? throw new NotFoundException(Messages.NotFound_User);
 
         if (!user.EmailConfirmed)
             throw new ForbiddenAppException(
-                "Tài khoản chưa được xác thực email. Vui lòng kiểm tra hộp thư."
+                Messages.Forbidden_EmailNotVerifiedCheckInbox
             );
 
         var verifyResult = passwordHasher.VerifyHashedPassword(
@@ -447,10 +448,10 @@ public class AuthService(
         );
         if (verifyResult == PasswordVerificationResult.Failed)
             throw new ValidationAppException(
-                "Mật khẩu hiện tại không đúng.",
+                Messages.Invalid_CurrentPassword,
                 new Dictionary<string, string[]>
                 {
-                    ["currentPassword"] = ["Mật khẩu hiện tại không đúng."],
+                    ["currentPassword"] = [Messages.Invalid_CurrentPassword],
                 }
             );
 
@@ -541,7 +542,7 @@ public class AuthService(
             || verificationToken.Used
             || verificationToken.ExpiresAt <= DateTime.UtcNow
         )
-            throw new ValidationAppException("Token hết hạn, đã dùng hoặc không hợp lệ.");
+            throw new ValidationAppException(Messages.Invalid_TokenExpiredOrUsed);
 
         verificationToken.Used = true;
         verificationToken.User.PasswordHash = passwordHasher.HashPassword(
@@ -628,7 +629,7 @@ public class AuthService(
                 .Users.Include(u => u.Role)
                 .Include(u => u.Employee)
                 .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy người dùng.");
+            ?? throw new NotFoundException(Messages.NotFound_User);
 
         var token = tokenService.GenerateSocketToken(user);
         return new SocketTokenResponse(token.AccessToken, token.ExpiresIn);

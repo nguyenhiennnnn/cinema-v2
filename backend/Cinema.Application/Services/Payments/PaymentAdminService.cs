@@ -4,6 +4,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,7 +70,7 @@ public class PaymentAdminService(IAppDbContext db) : IPaymentAdminService
             await db
                 .Payments.Include(p => p.Booking)
                 .FirstOrDefaultAsync(p => p.PaymentId == paymentId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy giao dịch.");
+            ?? throw new NotFoundException(Messages.NotFound_Payment);
 
         return payment.Adapt<AdminPaymentDetailDto>();
     }

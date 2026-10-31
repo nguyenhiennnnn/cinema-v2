@@ -1,12 +1,5 @@
-databases:
-  - name: cinema-db
-    plan: free
-    region: singapore
-    databaseName: cinema_db
-    user: cinema_user
-    ipAllowList: []
-
 services:
+  # ─── Backend API (Docker) ─────────────────────────────────────────────────
   - type: web
     name: cinema-api
     runtime: docker
@@ -14,32 +7,51 @@ services:
     region: singapore
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
+    dockerCommand: ""
     healthCheckPath: /api/v1/health
     autoDeployTrigger: commit
     envVars:
+      # ── Database (Neon) ──────────────────────────────────────────────────
       - key: ConnectionStrings__DefaultConnection
-        fromDatabase:
-          name: cinema-db
-          property: connectionString
+        sync: false
+
+      # ── Runtime ─────────────────────────────────────────────────────────
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: RunMigrationsOnStartup
         value: "true"
-      # GC tuning cho Render Free Plan (512 MB RAM limit)
+
+      # ── GC tuning cho Render Free Plan (512 MB RAM) ──────────────────────
       - key: DOTNET_GCConserveMemory
         value: "9"
       - key: DOTNET_GCHeapHardLimit
         value: "402653184"
       - key: DOTNET_GCDynamicAdaptationMode
         value: "0"
+
+      # ── JWT ──────────────────────────────────────────────────────────────
       - key: Jwt__Secret
         generateValue: true
       - key: Jwt__Issuer
-        value: Cinema
+        value: Perfo
       - key: Jwt__Audience
-        value: Cinema.Client
+        value: Perfo.Client
+      - key: Jwt__AccessTokenExpirationSeconds
+        value: "3600"
+      - key: Jwt__RefreshTokenExpirationDays
+        value: "30"
       - key: Jwt__SocketTokenExpirationSeconds
         value: "300"
+
+      # ── CORS / URLs ──────────────────────────────────────────────────────
+      - key: Cors__AllowedOrigins__0
+        sync: false
+      - key: App__ApiBaseUrl
+        sync: false
+      - key: App__FrontendBaseUrl
+        sync: false
+
+      # ── Brand ────────────────────────────────────────────────────────────
       - key: Brand__Name
         value: Perfo
       - key: Brand__DisplayName
@@ -47,11 +59,15 @@ services:
       - key: Brand__Tagline
         value: "Vé điện tử · Không cần in"
       - key: Brand__SupportEmail
-        value: ""
+        sync: false
+
+      # ── Booking / Rate Limit ─────────────────────────────────────────────
       - key: Booking__CheckInOpenMinutes
         value: "30"
       - key: RateLimit__GlobalSegmentsPerWindow
         value: "4"
+
+      # ── Scheduler ────────────────────────────────────────────────────────
       - key: Scheduler__StepMinutes
         value: "5"
       - key: Scheduler__MinSameMovieGapMinutes
@@ -66,30 +82,32 @@ services:
         value: "0.5"
       - key: Scheduler__HeatLookbackDays
         value: "7"
+
+      # ── Background Jobs ───────────────────────────────────────────────────
       - key: BackgroundJobs__ReleaseExpiredSeatsCron
         value: "* * * * *"
       - key: BackgroundJobs__ShowtimeLifecycleCron
         value: "* * * * *"
       - key: BackgroundJobs__RetryAttempts
         value: "3"
-      - key: Cors__AllowedOrigins__0
-        sync: false
-      - key: App__ApiBaseUrl
-        sync: false
-      - key: App__FrontendBaseUrl
-        sync: false
+
+      # ── Cloudinary ────────────────────────────────────────────────────────
       - key: Cloudinary__CloudName
         sync: false
       - key: Cloudinary__ApiKey
         sync: false
       - key: Cloudinary__ApiSecret
         sync: false
+
+      # ── Email (Resend) ────────────────────────────────────────────────────
       - key: Email__ResendApiKey
         sync: false
       - key: Email__ResendFromAddress
         value: onboarding@resend.dev
       - key: Email__FromName
-        value: Perfo
+        value: Perfo Cinema
+
+      # ── VNPay ─────────────────────────────────────────────────────────────
       - key: VnPay__TmnCode
         sync: false
       - key: VnPay__HashSecret
@@ -98,6 +116,8 @@ services:
         sync: false
       - key: VnPay__IpnUrl
         sync: false
+
+      # ── MoMo ──────────────────────────────────────────────────────────────
       - key: Momo__PartnerCode
         sync: false
       - key: Momo__AccessKey
@@ -108,6 +128,8 @@ services:
         sync: false
       - key: Momo__IpnUrl
         sync: false
+
+      # ── Stripe ────────────────────────────────────────────────────────────
       - key: Stripe__SecretKey
         sync: false
       - key: Stripe__PublishableKey
@@ -116,16 +138,25 @@ services:
         sync: false
       - key: Stripe__ReturnUrl
         sync: false
+
+      # ── Google OAuth ──────────────────────────────────────────────────────
       - key: Google__ClientId
         sync: false
       - key: Google__ClientSecret
         sync: false
+
+      # ── Gemini AI ─────────────────────────────────────────────────────────
       - key: Gemini__ApiKey
         sync: false
+      - key: Gemini__Model
+        value: gemini-2.5-flash
 
+  # ─── Frontend (Static Site) ───────────────────────────────────────────────
   - type: web
     name: cinema-web
     runtime: static
+    plan: free
+    region: singapore
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: ./frontend/dist
     autoDeployTrigger: commit
@@ -133,6 +164,8 @@ services:
       - key: NODE_VERSION
         value: 22.12.0
       - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_SIGNALR_HUB_URL
         sync: false
       - key: VITE_GOOGLE_CLIENT_ID
         sync: false

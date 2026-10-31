@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- ===== Common ===== -->
+  <data name="Common_InvalidData" xml:space="preserve">
+    <value>Dữ liệu không hợp lệ.</value>
+  </data>
+
+  <!-- ===== Conflict ===== -->
+  <data name="Conflict_ActorInUse" xml:space="preserve">
+    <value>Diễn viên còn trong danh sách diễn viên của phim, không thể xóa.</value>
+  </data>
+  <data name="Conflict_AgeRatingCodeExists" xml:space="preserve">
+    <value>Mã phân loại độ tuổi đã tồn tại.</value>
+  </data>
+  <data name="Conflict_AgeRatingInUse" xml:space="preserve">
+    <value>Phân loại độ tuổi đang được phim tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_BookingBeingProcessedOrCancelled" xml:space="preserve">
+    <value>Booking đang được xử lý hoặc đã được hủy.</value>
+  </data>
+  <data name="Conflict_CannotDowngradeRoleWithActiveEmployee" xml:space="preserve">
+    <value>Không thể hạ role xuống Customer khi còn hồ sơ Employee đang hoạt động — vô hiệu hóa Employee trước.</value>
+  </data>
+  <data name="Conflict_DirectorInUse" xml:space="preserve">
+    <value>Đạo diễn đang được phim tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_EmployeeProfileExists" xml:space="preserve">
+    <value>userId đã có hồ sơ Employee.</value>
+  </data>
+  <data name="Conflict_GenreExists" xml:space="preserve">
+    <value>Thể loại đã tồn tại.</value>
+  </data>
+  <data name="Conflict_GenreInUse" xml:space="preserve">
+    <value>Thể loại đang được phim tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_LanguageExists" xml:space="preserve">
+    <value>Ngôn ngữ đã tồn tại.</value>
+  </data>
+  <data name="Conflict_LanguageInUse" xml:space="preserve">
+    <value>Ngôn ngữ đang được phim tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_MembershipTierExists" xml:space="preserve">
+    <value>Hạng thành viên đã tồn tại.</value>
+  </data>
+  <data name="Conflict_MembershipTierInUse" xml:space="preserve">
+    <value>Hạng thành viên đang được khách hàng tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_PendingBookingExistsForShowtime" xml:space="preserve">
+    <value>Đang có một booking Pending khác chưa hoàn tất cho suất chiếu này.</value>
+  </data>
+  <data name="Conflict_PositionExists" xml:space="preserve">
+    <value>Vị trí đã tồn tại.</value>
+  </data>
+  <data name="Conflict_PositionInUse" xml:space="preserve">
+    <value>Vị trí đang được nhân viên tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_ReviewAlreadyExists" xml:space="preserve">
+    <value>Bạn đã đánh giá phim này rồi.</value>
+  </data>
+  <data name="Conflict_RoomHasHeldSeatsCannotDeactivate" xml:space="preserve">
+    <value>Phòng đang có ghế đã đặt hoặc đang được giữ ở suất chiếu sắp tới, không thể ngừng hoạt động.</value>
+  </data>
+  <data name="Conflict_RoomNameExists" xml:space="preserve">
+    <value>roomName đã tồn tại.</value>
+  </data>
+  <data name="Conflict_ScreenTypeExists" xml:space="preserve">
+    <value>Loại màn hình đã tồn tại.</value>
+  </data>
+  <data name="Conflict_ScreenTypeInUse" xml:space="preserve">
+    <value>Loại màn hình đang được phòng chiếu tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_SeatTypeExists" xml:space="preserve">
+    <value>Loại ghế đã tồn tại.</value>
+  </data>
+  <data name="Conflict_SeatTypeInUse" xml:space="preserve">
+    <value>Loại ghế đang được ghế tham chiếu, không thể xóa.</value>
+  </data>
+  <data name="Conflict_SeatsAlreadyTaken" xml:space="preserve">
+    <value>Một hoặc nhiều ghế đã bị giữ/đặt bởi người khác.</value>
+  </data>
+  <data name="Conflict_SeatsHeldOrBookedCannotChange" xml:space="preserve">
+    <value>Không thể thay đổi ghế đang được đặt hoặc giữ ở suất chiếu sắp tới.</value>
+  </data>
+  <data name="Conflict_ShowtimeHasConfirmedBookings" xml:space="preserve">
+    <value>Suất chiếu đã có booking đã xác nhận (Confirmed), không thể sửa.</value>
+  </data>
+  <data name="Conflict_ShowtimeHasPendingBookings" xml:space="preserve">
+    <value>Suất chiếu đang có khách giữ ghế hoặc đang thanh toán (Pending), không thể sửa lúc này. Vui lòng thử lại sau vài phút.</value>
+  </data>
+  <data name="Conflict_ShowtimeOverlapInRoom" xml:space="preserve">
+    <value>Trùng khung giờ chiếu trong phòng này.</value>
+  </data>
+  <data name="Conflict_TicketAlreadyCheckedIn" xml:space="preserve">
+    <value>Vé đã check-in trước đó.</value>
+  </data>
+
+  <!-- ===== Db ===== -->
+  <data name="Db_CheckViolation" xml:space="preserve">
+    <value>Dữ liệu không thỏa mãn ràng buộc kiểm tra.</value>
+  </data>
+  <data name="Db_ConcurrencyConflict" xml:space="preserve">
+    <value>Dữ liệu đã bị thay đổi bởi người dùng khác. Vui lòng tải lại và thử lại.</value>
+  </data>
+  <data name="Db_ConstraintError" xml:space="preserve">
+    <value>Lỗi ràng buộc dữ liệu.</value>
+  </data>
+  <data name="Db_ExclusionViolation" xml:space="preserve">
+    <value>Dữ liệu xung đột với bản ghi đã có (vi phạm ràng buộc loại trừ).</value>
+  </data>
+  <data name="Db_ForeignKeyViolation" xml:space="preserve">
+    <value>Dữ liệu tham chiếu (khóa ngoại) không hợp lệ.</value>
+  </data>
+  <data name="Db_UniqueViolation" xml:space="preserve">
+    <value>Dữ liệu đã tồn tại (vi phạm ràng buộc duy nhất).</value>
+  </data>
+
+  <!-- ===== Forbidden ===== -->
+  <data name="Forbidden_AccountLocked" xml:space="preserve">
+    <value>Tài khoản đã bị khóa.</value>
+  </data>
+  <data name="Forbidden_AdminCannotUseGoogleLogin" xml:space="preserve">
+    <value>Tài khoản quản trị không thể đăng nhập bằng Google.</value>
+  </data>
+  <data name="Forbidden_CustomerCannotUseAdminPortal" xml:space="preserve">
+    <value>Tài khoản Customer không thể đăng nhập qua cổng quản trị.</value>
+  </data>
+  <data name="Forbidden_EmailNotVerified" xml:space="preserve">
+    <value>Tài khoản chưa được xác thực email.</value>
+  </data>
+  <data name="Forbidden_EmailNotVerifiedCheckInbox" xml:space="preserve">
+    <value>Tài khoản chưa được xác thực email. Vui lòng kiểm tra hộp thư.</value>
+  </data>
+  <data name="Forbidden_NotBookingOwner" xml:space="preserve">
+    <value>Bạn không phải chủ booking này.</value>
+  </data>
+  <data name="Forbidden_NotReviewOwner" xml:space="preserve">
+    <value>Bạn không phải chủ đánh giá này.</value>
+  </data>
+  <data name="Forbidden_UseAdminPortal" xml:space="preserve">
+    <value>Vui lòng đăng nhập qua cổng quản trị (/auth/admin/login).</value>
+  </data>
+
+  <!-- ===== Invalid ===== -->
+  <data name="Invalid_ActorIdsNotFound" xml:space="preserve">
+    <value>Một hoặc nhiều actorId không tồn tại.</value>
+  </data>
+  <data name="Invalid_AgeRatingIdNotFound" xml:space="preserve">
+    <value>ageRatingId không tồn tại.</value>
+  </data>
+  <data name="Invalid_AutoScheduleRangeTooLong" xml:space="preserve">
+    <value>Khoảng ngày xếp lịch không được vượt quá {0} ngày.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_AutoScheduleRangeTooLong, ...)</comment>
+  </data>
+  <data name="Invalid_ComboIdUnavailable" xml:space="preserve">
+    <value>comboId không hợp lệ hoặc đã ngừng bán.</value>
+  </data>
+  <data name="Invalid_ComboIdsUnavailable" xml:space="preserve">
+    <value>Một hoặc nhiều comboId không tồn tại hoặc đã ngừng bán.</value>
+  </data>
+  <data name="Invalid_CountOutOfRange" xml:space="preserve">
+    <value>count phải từ 1 đến 10.</value>
+  </data>
+  <data name="Invalid_CoupleSeatData" xml:space="preserve">
+    <value>Dữ liệu ghế đôi không hợp lệ.</value>
+  </data>
+  <data name="Invalid_CoupleSeatsUnpaired" xml:space="preserve">
+    <value>Có ghế đôi bị lẻ cặp hoặc không cùng hàng.</value>
+  </data>
+  <data name="Invalid_CurrentPassword" xml:space="preserve">
+    <value>Mật khẩu hiện tại không đúng.</value>
+  </data>
+  <data name="Invalid_CustomerNameMissing" xml:space="preserve">
+    <value>Thiếu tên khách hàng.</value>
+  </data>
+  <data name="Invalid_CustomerNameRequired" xml:space="preserve">
+    <value>customerName là bắt buộc</value>
+  </data>
+  <data name="Invalid_DateRequired" xml:space="preserve">
+    <value>date là bắt buộc (dd/MM/yyyy).</value>
+  </data>
+  <data name="Invalid_DirectorIdNotFound" xml:space="preserve">
+    <value>directorId không tồn tại.</value>
+  </data>
+  <data name="Invalid_EmailExists" xml:space="preserve">
+    <value>Email đã tồn tại.</value>
+  </data>
+  <data name="Invalid_EmailInUse" xml:space="preserve">
+    <value>Email đã được sử dụng.</value>
+  </data>
+  <data name="Invalid_FileEmpty" xml:space="preserve">
+    <value>File không được rỗng.</value>
+  </data>
+  <data name="Invalid_FileExtensionNotAllowed" xml:space="preserve">
+    <value>Sai định dạng file. Chỉ chấp nhận: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_FileExtensionNotAllowed, ...)</comment>
+  </data>
+  <data name="Invalid_VideoExtensionNotAllowed" xml:space="preserve">
+    <value>Sai định dạng video. Chỉ chấp nhận: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_VideoExtensionNotAllowed, ...)</comment>
+  </data>
+  <data name="Invalid_FileTooLarge" xml:space="preserve">
+    <value>File vượt quá giới hạn {0}MB.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_FileTooLarge, ...)</comment>
+  </data>
+  <data name="Invalid_GenreIdsNotFound" xml:space="preserve">
+    <value>Một hoặc nhiều genreId không tồn tại.</value>
+  </data>
+  <data name="Invalid_GroupBy" xml:space="preserve">
+    <value>groupBy phải là day, week hoặc month.</value>
+  </data>
+  <data name="Invalid_LanguageIdNotFound" xml:space="preserve">
+    <value>languageId không tồn tại.</value>
+  </data>
+  <data name="Invalid_MovieIdNotFound" xml:space="preserve">
+    <value>movieId không tồn tại.</value>
+  </data>
+  <data name="Invalid_MovieIdsNotFound" xml:space="preserve">
+    <value>movieId không tồn tại: {0}.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_MovieIdsNotFound, ...)</comment>
+  </data>
+  <data name="Invalid_ReferenceData" xml:space="preserve">
+    <value>Dữ liệu tham chiếu không hợp lệ.</value>
+  </data>
+  <data name="Invalid_RoleIdNotFound" xml:space="preserve">
+    <value>roleId không tồn tại.</value>
+  </data>
+  <data name="Invalid_RoomIdNotFound" xml:space="preserve">
+    <value>roomId không tồn tại.</value>
+  </data>
+  <data name="Invalid_ScreenTypeIdNotFound" xml:space="preserve">
+    <value>screenTypeId không tồn tại.</value>
+  </data>
+  <data name="Invalid_ScreenTypeNotFound" xml:space="preserve">
+    <value>screenType không tồn tại.</value>
+  </data>
+  <data name="Invalid_SeatTypeIdsNotFound" xml:space="preserve">
+    <value>Một hoặc nhiều seatTypeId không tồn tại.</value>
+  </data>
+  <data name="Invalid_ShowtimeIdAndSeatCountRequired" xml:space="preserve">
+    <value>showtimeId và seatCount (1-20) là bắt buộc.</value>
+  </data>
+  <data name="Invalid_ToDateBeforeDate" xml:space="preserve">
+    <value>toDate phải &gt;= date.</value>
+  </data>
+  <data name="Invalid_TokenExpiredOrUsed" xml:space="preserve">
+    <value>Token hết hạn, đã dùng hoặc không hợp lệ.</value>
+  </data>
+  <data name="Invalid_UploadFileMissing" xml:space="preserve">
+    <value>Thiếu file upload.</value>
+  </data>
+  <data name="Invalid_Value" xml:space="preserve">
+    <value>Giá trị '{0}' không hợp lệ.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_Value, ...)</comment>
+  </data>
+  <data name="Invalid_ValueForField" xml:space="preserve">
+    <value>Giá trị '{0}' không hợp lệ cho trường {1}.</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Invalid_ValueForField, ...)</comment>
+  </data>
+  <data name="Invalid_VideoTooLarge" xml:space="preserve">
+    <value>Video vượt quá giới hạn {0}MB.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_VideoTooLarge, ...)</comment>
+  </data>
+
+  <!-- ===== NotFound ===== -->
+  <data name="NotFound_Actor" xml:space="preserve">
+    <value>Không tìm thấy diễn viên.</value>
+  </data>
+  <data name="NotFound_AgeRating" xml:space="preserve">
+    <value>Không tìm thấy phân loại độ tuổi.</value>
+  </data>
+  <data name="NotFound_Booking" xml:space="preserve">
+    <value>Không tìm thấy booking.</value>
+  </data>
+  <data name="NotFound_CinemaSettings" xml:space="preserve">
+    <value>Chưa có cấu hình rạp — liên hệ Admin khởi tạo.</value>
+  </data>
+  <data name="NotFound_Combo" xml:space="preserve">
+    <value>Không tìm thấy combo.</value>
+  </data>
+  <data name="NotFound_Customer" xml:space="preserve">
+    <value>Không tìm thấy khách hàng.</value>
+  </data>
+  <data name="NotFound_Director" xml:space="preserve">
+    <value>Không tìm thấy đạo diễn.</value>
+  </data>
+  <data name="NotFound_Employee" xml:space="preserve">
+    <value>Không tìm thấy nhân viên.</value>
+  </data>
+  <data name="NotFound_Genre" xml:space="preserve">
+    <value>Không tìm thấy thể loại.</value>
+  </data>
+  <data name="NotFound_Language" xml:space="preserve">
+    <value>Không tìm thấy ngôn ngữ.</value>
+  </data>
+  <data name="NotFound_MembershipTier" xml:space="preserve">
+    <value>Không tìm thấy hạng thành viên.</value>
+  </data>
+  <data name="NotFound_Movie" xml:space="preserve">
+    <value>Không tìm thấy phim.</value>
+  </data>
+  <data name="NotFound_Payment" xml:space="preserve">
+    <value>Không tìm thấy giao dịch.</value>
+  </data>
+  <data name="NotFound_Position" xml:space="preserve">
+    <value>Không tìm thấy vị trí.</value>
+  </data>
+  <data name="NotFound_PositionId" xml:space="preserve">
+    <value>positionId không tồn tại.</value>
+  </data>
+  <data name="NotFound_QrCode" xml:space="preserve">
+    <value>QR không hợp lệ.</value>
+  </data>
+  <data name="NotFound_Review" xml:space="preserve">
+    <value>Không tìm thấy đánh giá.</value>
+  </data>
+  <data name="NotFound_Room" xml:space="preserve">
+    <value>Không tìm thấy phòng chiếu.</value>
+  </data>
+  <data name="NotFound_ScreenType" xml:space="preserve">
+    <value>Không tìm thấy loại màn hình.</value>
+  </data>
+  <data name="NotFound_SeatType" xml:space="preserve">
+    <value>Không tìm thấy loại ghế.</value>
+  </data>
+  <data name="NotFound_Showtime" xml:space="preserve">
+    <value>Không tìm thấy suất chiếu.</value>
+  </data>
+  <data name="NotFound_User" xml:space="preserve">
+    <value>Không tìm thấy người dùng.</value>
+  </data>
+  <data name="NotFound_UserId" xml:space="preserve">
+    <value>userId không tồn tại.</value>
+  </data>
+
+  <!-- ===== Rule ===== -->
+  <data name="Rule_AmountReceivedInsufficient" xml:space="preserve">
+    <value>Số tiền nhận không đủ.</value>
+  </data>
+  <data name="Rule_BookingCancelAtCounter" xml:space="preserve">
+    <value>Booking thanh toán tại quầy hoặc chưa xác định được giao dịch — vui lòng liên hệ trực tiếp rạp để được hỗ trợ hủy vé.</value>
+  </data>
+  <data name="Rule_BookingCodeGenerationFailed" xml:space="preserve">
+    <value>Không thể sinh mã booking duy nhất, vui lòng thử lại.</value>
+  </data>
+  <data name="Rule_BookingHasCheckedInTicket" xml:space="preserve">
+    <value>Booking đã có vé được check-in — vui lòng liên hệ trực tiếp rạp để được hỗ trợ.</value>
+  </data>
+  <data name="Rule_BookingMissingOwner" xml:space="preserve">
+    <value>Booking thiếu cả UserId lẫn CreatedByEmployeeId.</value>
+  </data>
+  <data name="Rule_BookingNotCancellable" xml:space="preserve">
+    <value>Booking không ở trạng thái có thể hủy (đã Cancelled/Expired).</value>
+  </data>
+  <data name="Rule_BookingNotPendingOrExpired" xml:space="preserve">
+    <value>Booking không ở trạng thái Pending hoặc đã hết hạn.</value>
+  </data>
+  <data name="Rule_BookingNotPendingOrHoldExpired" xml:space="preserve">
+    <value>Booking không ở trạng thái Pending hoặc đã hết hạn giữ ghế.</value>
+  </data>
+  <data name="Rule_BulkCreateBatchTooLarge" xml:space="preserve">
+    <value>Tối đa {0} suất chiếu mỗi lần tạo hàng loạt. Hãy thu hẹp khoảng ngày.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_BulkCreateBatchTooLarge, ...)</comment>
+  </data>
+  <data name="Rule_CancelDeadlineHoursNegative" xml:space="preserve">
+    <value>CancelDeadlineHours không được âm.</value>
+  </data>
+  <data name="Rule_CancelRefundPercentRange" xml:space="preserve">
+    <value>CancelRefundPercent phải trong khoảng 0-100.</value>
+  </data>
+  <data name="Rule_CannotChangeShowtimeRoom" xml:space="preserve">
+    <value>Không thể đổi phòng chiếu sau khi đã tạo suất chiếu. Hãy hủy và tạo suất chiếu mới.</value>
+  </data>
+  <data name="Rule_CheckInNotOpenYet" xml:space="preserve">
+    <value>Chưa tới giờ check-in (mở trước giờ chiếu {0} phút).</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_CheckInNotOpenYet, ...)</comment>
+  </data>
+  <data name="Rule_CloneBatchTooLarge" xml:space="preserve">
+    <value>Tối đa {0} suất chiếu mỗi lần nhân bản. Hãy thu hẹp khoảng ngày nguồn.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_CloneBatchTooLarge, ...)</comment>
+  </data>
+  <data name="Rule_CloudinaryUploadFailed" xml:space="preserve">
+    <value>Upload Cloudinary thất bại: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_CloudinaryUploadFailed, ...)</comment>
+  </data>
+  <data name="Rule_CounterPaymentOnlyForCounterBooking" xml:space="preserve">
+    <value>Chỉ có thể thu tiền tại quầy cho booking tạo tại quầy.</value>
+  </data>
+  <data name="Rule_CustomerAccountDisabled" xml:space="preserve">
+    <value>Tài khoản khách hàng đã bị vô hiệu hóa.</value>
+  </data>
+  <data name="Rule_CustomerRoleNotSeeded" xml:space="preserve">
+    <value>Role 'Customer' chưa được seed trong hệ thống.</value>
+  </data>
+  <data name="Rule_GoogleOAuthNotConfigured" xml:space="preserve">
+    <value>Google OAuth chưa được cấu hình (thiếu ClientId).</value>
+  </data>
+  <data name="Rule_MomoCreatePaymentFailed" xml:space="preserve">
+    <value>MoMo tạo thanh toán thất bại: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_MomoCreatePaymentFailed, ...)</comment>
+  </data>
+  <data name="Rule_MomoInvalidResponse" xml:space="preserve">
+    <value>MoMo trả về response rỗng/không hợp lệ.</value>
+  </data>
+  <data name="Rule_MovieEndedCannotCreateShowtime" xml:space="preserve">
+    <value>Phim đã ngừng chiếu (Ended), không thể tạo suất chiếu.</value>
+  </data>
+  <data name="Rule_MovieEndedCannotSchedule" xml:space="preserve">
+    <value>Phim "{0}" đã ngừng chiếu (Ended), không thể xếp lịch.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_MovieEndedCannotSchedule, ...)</comment>
+  </data>
+  <data name="Rule_MovieEndedCannotUpdateShowtime" xml:space="preserve">
+    <value>Phim đã ngừng chiếu (Ended), không thể cập nhật suất chiếu.</value>
+  </data>
+  <data name="Rule_NoEmployeeProfileForCounterBooking" xml:space="preserve">
+    <value>Tài khoản không có hồ sơ Employee — không thể thực hiện counter booking.</value>
+  </data>
+  <data name="Rule_NoSchedulableRooms" xml:space="preserve">
+    <value>Không có phòng chiếu hoạt động và đã có sơ đồ ghế để xếp lịch.</value>
+  </data>
+  <data name="Rule_NoShowtimesToClone" xml:space="preserve">
+    <value>Không có suất chiếu nào trong khoảng ngày nguồn để nhân bản.</value>
+  </data>
+  <data name="Rule_OnlineSalesClosed" xml:space="preserve">
+    <value>Đã ngừng bán vé online cho suất chiếu này (trước giờ chiếu {0} phút).</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_OnlineSalesClosed, ...)</comment>
+  </data>
+  <data name="Rule_PaymentGatewayNotConfigured" xml:space="preserve">
+    <value>Payment gateway '{0}' chưa được cấu hình.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_PaymentGatewayNotConfigured, ...)</comment>
+  </data>
+  <data name="Rule_RefundFailed" xml:space="preserve">
+    <value>Hoàn tiền thất bại: {0}. Vui lòng thử lại sau hoặc liên hệ rạp.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_RefundFailed, ...)</comment>
+  </data>
+  <data name="Rule_RefundGatewayNotConfigured" xml:space="preserve">
+    <value>Cổng thanh toán '{0}' chưa được cấu hình.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_RefundGatewayNotConfigured, ...)</comment>
+  </data>
+  <data name="Rule_ReviewRequiresCheckIn" xml:space="preserve">
+    <value>Bạn cần check-in xem phim này trước khi đánh giá.</value>
+  </data>
+  <data name="Rule_RoomHasNoSeatLayout" xml:space="preserve">
+    <value>Phòng chiếu chưa được thiết lập sơ đồ ghế.</value>
+  </data>
+  <data name="Rule_RoomHasUpcomingShowtimes" xml:space="preserve">
+    <value>Phòng đang có suất chiếu sắp tới, không thể xoá.</value>
+  </data>
+  <data name="Rule_RoomInactive" xml:space="preserve">
+    <value>Phòng chiếu không hoạt động (inactive).</value>
+  </data>
+  <data name="Rule_SeatsNoLongerHeld" xml:space="preserve">
+    <value>Booking {0}: ghế giữ đã hết hạn trước khi xác nhận thanh toán.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_SeatsNoLongerHeld, ...)</comment>
+  </data>
+  <data name="Rule_ShowtimeCancelled" xml:space="preserve">
+    <value>Suất chiếu đã bị hủy.</value>
+  </data>
+  <data name="Rule_ShowtimeEnded" xml:space="preserve">
+    <value>Suất chiếu đã kết thúc.</value>
+  </data>
+  <data name="Rule_ShowtimeMustBeScheduled" xml:space="preserve">
+    <value>Chỉ có thể {0} suất chiếu đang ở trạng thái Scheduled (hiện tại: {1}).</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Rule_ShowtimeMustBeScheduled, ...)</comment>
+  </data>
+  <data name="Rule_ShowtimeStartMustBeFuture" xml:space="preserve">
+    <value>Giờ bắt đầu suất chiếu phải ở tương lai.</value>
+  </data>
+  <data name="Rule_ShowtimeStartedCannotCancel" xml:space="preserve">
+    <value>Suất chiếu đã bắt đầu, không thể hủy.</value>
+  </data>
+  <data name="Rule_ShowtimeStartedOrEnded" xml:space="preserve">
+    <value>Suất chiếu đã bắt đầu hoặc đã kết thúc.</value>
+  </data>
+  <data name="Rule_ShowtimeUnavailableForBooking" xml:space="preserve">
+    <value>Suất chiếu không còn khả dụng để đặt vé.</value>
+  </data>
+  <data name="Rule_StripeSecretKeyMissing" xml:space="preserve">
+    <value>Stripe SecretKey chưa được cấu hình.</value>
+  </data>
+  <data name="Rule_TicketNoLongerValid" xml:space="preserve">
+    <value>Vé không còn hiệu lực (booking đã hủy hoặc chưa thanh toán).</value>
+  </data>
+  <data name="Rule_UserIsNotCustomer" xml:space="preserve">
+    <value>UserId không phải là tài khoản khách hàng.</value>
+  </data>
+  <data name="Rule_UserMustBeStaffRole" xml:space="preserve">
+    <value>User phải có RoleId là Admin hoặc Employee trước khi tạo hồ sơ Employee (đổi role qua PUT /admin/users/{id}/role).</value>
+  </data>
+
+  <!-- ===== System ===== -->
+  <data name="System_UnexpectedError" xml:space="preserve">
+    <value>Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.</value>
+  </data>
+
+  <!-- ===== Unauthorized ===== -->
+  <data name="Unauthorized_GoogleEmailNotVerified" xml:space="preserve">
+    <value>Email Google chưa được xác thực.</value>
+  </data>
+  <data name="Unauthorized_GoogleTokenInvalid" xml:space="preserve">
+    <value>Google ID token không hợp lệ hoặc đã hết hạn.</value>
+  </data>
+  <data name="Unauthorized_InvalidCredentials" xml:space="preserve">
+    <value>Sai email hoặc mật khẩu.</value>
+  </data>
+  <data name="Unauthorized_RefreshTokenExpiredOrRevoked" xml:space="preserve">
+    <value>Refresh token đã hết hạn hoặc đã bị thu hồi.</value>
+  </data>
+  <data name="Unauthorized_RefreshTokenInvalid" xml:space="preserve">
+    <value>Refresh token không hợp lệ.</value>
+  </data>
+
+  <!-- ===== Validation ===== -->
+  <data name="Validation_ActorId_Positive" xml:space="preserve">
+    <value>actorId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_ActorList_NotNull" xml:space="preserve">
+    <value>Danh sách diễn viên không được null.</value>
+  </data>
+  <data name="Validation_Address_MaxLength255" xml:space="preserve">
+    <value>Địa chỉ không được vượt quá 255 ký tự.</value>
+  </data>
+  <data name="Validation_Address_Required" xml:space="preserve">
+    <value>Địa chỉ không được để trống.</value>
+  </data>
+  <data name="Validation_AgeRatingId_Positive" xml:space="preserve">
+    <value>ageRatingId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_AmountReceived_Positive" xml:space="preserve">
+    <value>amountReceived phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_AutoSchedule_MaxMovies" xml:space="preserve">
+    <value>Tối đa 20 phim mỗi lần xếp lịch.</value>
+  </data>
+  <data name="Validation_BasePrice_NonNegative" xml:space="preserve">
+    <value>basePrice phải &gt;= 0.</value>
+  </data>
+  <data name="Validation_CancelDeadlineHours_NonNegative" xml:space="preserve">
+    <value>cancelDeadlineHours phải &gt;= 0.</value>
+  </data>
+  <data name="Validation_CancelRefundPercent_Range0To100" xml:space="preserve">
+    <value>cancelRefundPercent phải từ 0 đến 100.</value>
+  </data>
+  <data name="Validation_CharacterName_MaxLength150" xml:space="preserve">
+    <value>characterName không được vượt quá 150 ký tự.</value>
+  </data>
+  <data name="Validation_CheckInOpenMinutes_Range0To240" xml:space="preserve">
+    <value>checkInOpenMinutes phải từ 0 đến 240.</value>
+  </data>
+  <data name="Validation_CinemaName_MaxLength150" xml:space="preserve">
+    <value>Tên rạp không được vượt quá 150 ký tự.</value>
+  </data>
+  <data name="Validation_CinemaName_Required" xml:space="preserve">
+    <value>Tên rạp không được để trống.</value>
+  </data>
+  <data name="Validation_ClosingTime_TimeFormat" xml:space="preserve">
+    <value>closingTime phải có định dạng HH:mm.</value>
+  </data>
+  <data name="Validation_ComboId_Positive" xml:space="preserve">
+    <value>comboId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_CustomerName_MaxLength100" xml:space="preserve">
+    <value>customerName không được vượt quá 100 ký tự.</value>
+  </data>
+  <data name="Validation_CustomerName_Required" xml:space="preserve">
+    <value>customerName không được để trống.</value>
+  </data>
+  <data name="Validation_DateRangeFrom_Required" xml:space="preserve">
+    <value>dateRange.from không được để trống.</value>
+  </data>
+  <data name="Validation_DateRangeTo_BeforeFrom" xml:space="preserve">
+    <value>dateRange.to phải &gt;= dateRange.from.</value>
+  </data>
+  <data name="Validation_DateRangeTo_Required" xml:space="preserve">
+    <value>dateRange.to không được để trống.</value>
+  </data>
+  <data name="Validation_DateRange_NotNull" xml:space="preserve">
+    <value>dateRange không được null.</value>
+  </data>
+  <data name="Validation_DateRange_TooLong" xml:space="preserve">
+    <value>Khoảng ngày (from → to) không được vượt quá {0} ngày.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_DateRange_TooLong, ...)</comment>
+  </data>
+  <data name="Validation_Date_Required" xml:space="preserve">
+    <value>date không được để trống.</value>
+  </data>
+  <data name="Validation_DaysOfWeek_AllowedValues" xml:space="preserve">
+    <value>daysOfWeek chỉ chấp nhận: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_DaysOfWeek_AllowedValues, ...)</comment>
+  </data>
+  <data name="Validation_DaysOfWeek_Required" xml:space="preserve">
+    <value>daysOfWeek không được để trống.</value>
+  </data>
+  <data name="Validation_DirectorId_Positive" xml:space="preserve">
+    <value>directorId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_Email_Invalid" xml:space="preserve">
+    <value>Email không đúng định dạng.</value>
+  </data>
+  <data name="Validation_Email_MaxLength150" xml:space="preserve">
+    <value>Email không được vượt quá 150 ký tự.</value>
+  </data>
+  <data name="Validation_From_Required" xml:space="preserve">
+    <value>from không được để trống (yyyy-MM-dd).</value>
+  </data>
+  <data name="Validation_Gender_AllowedValues" xml:space="preserve">
+    <value>gender phải là một trong: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_Gender_AllowedValues, ...)</comment>
+  </data>
+  <data name="Validation_GenreId_Positive" xml:space="preserve">
+    <value>genreId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_HoldDurationMinutes_Range1To120" xml:space="preserve">
+    <value>holdDurationMinutes phải từ 1 đến 120.</value>
+  </data>
+  <data name="Validation_IdToken_Required" xml:space="preserve">
+    <value>idToken không được để trống.</value>
+  </data>
+  <data name="Validation_Items_Required" xml:space="preserve">
+    <value>items không được để trống.</value>
+  </data>
+  <data name="Validation_LanguageId_Positive" xml:space="preserve">
+    <value>languageId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_LogoUrl_MaxLength255" xml:space="preserve">
+    <value>logoUrl không được vượt quá 255 ký tự.</value>
+  </data>
+  <data name="Validation_MessageContent_MaxLength2000" xml:space="preserve">
+    <value>Nội dung tin nhắn không được vượt quá 2000 ký tự.</value>
+  </data>
+  <data name="Validation_MessageContent_Required" xml:space="preserve">
+    <value>Nội dung tin nhắn không được để trống.</value>
+  </data>
+  <data name="Validation_Message_MaxLength1000" xml:space="preserve">
+    <value>Message không được vượt quá 1000 ký tự.</value>
+  </data>
+  <data name="Validation_Message_Required" xml:space="preserve">
+    <value>Message không được để trống.</value>
+  </data>
+  <data name="Validation_MovieBasePrice_NonNegative" xml:space="preserve">
+    <value>basePrice của phim phải &gt;= 0.</value>
+  </data>
+  <data name="Validation_MovieDuration_Range1To600" xml:space="preserve">
+    <value>Thời lượng phim phải từ 1 đến 600 phút.</value>
+  </data>
+  <data name="Validation_MovieGenres_AtLeastOne" xml:space="preserve">
+    <value>Phải chọn ít nhất 1 thể loại phim.</value>
+  </data>
+  <data name="Validation_MovieId_Positive" xml:space="preserve">
+    <value>movieId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_MovieIds_NotEmpty" xml:space="preserve">
+    <value>Danh sách movieIds không được rỗng.</value>
+  </data>
+  <data name="Validation_MovieStatus_Required" xml:space="preserve">
+    <value>Trạng thái phim không được để trống.</value>
+  </data>
+  <data name="Validation_MovieTitle_MaxLength200" xml:space="preserve">
+    <value>Tiêu đề phim không được vượt quá 200 ký tự.</value>
+  </data>
+  <data name="Validation_MovieTitle_Required" xml:space="preserve">
+    <value>Tiêu đề phim không được để trống.</value>
+  </data>
+  <data name="Validation_Movies_Duplicated" xml:space="preserve">
+    <value>movies không được chứa phim trùng lặp.</value>
+  </data>
+  <data name="Validation_Movies_Required" xml:space="preserve">
+    <value>movies không được để trống.</value>
+  </data>
+  <data name="Validation_OpeningTime_TimeFormat" xml:space="preserve">
+    <value>openingTime phải có định dạng HH:mm.</value>
+  </data>
+  <data name="Validation_OriginalTitle_MaxLength200" xml:space="preserve">
+    <value>Tên gốc không được vượt quá 200 ký tự.</value>
+  </data>
+  <data name="Validation_PasswordDigit" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 1 chữ số.</value>
+  </data>
+  <data name="Validation_PasswordLowercase" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 1 chữ thường.</value>
+  </data>
+  <data name="Validation_PasswordMinLength8" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 8 ký tự.</value>
+  </data>
+  <data name="Validation_PasswordUppercase" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 1 chữ hoa.</value>
+  </data>
+  <data name="Validation_PaymentMethod_Allowed" xml:space="preserve">
+    <value>paymentMethod phải là VNPay, Momo hoặc Stripe.</value>
+  </data>
+  <data name="Validation_Phone_Invalid" xml:space="preserve">
+    <value>Số điện thoại không hợp lệ.</value>
+  </data>
+  <data name="Validation_Phone_MaxLength20" xml:space="preserve">
+    <value>Số điện thoại không được vượt quá 20 ký tự.</value>
+  </data>
+  <data name="Validation_PointsPerAmount_GreaterThanZero" xml:space="preserve">
+    <value>pointsPerAmount phải &gt; 0.</value>
+  </data>
+  <data name="Validation_PositionId_Positive" xml:space="preserve">
+    <value>positionId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_PosterUrl_MaxLength255" xml:space="preserve">
+    <value>posterUrl không được vượt quá 255 ký tự.</value>
+  </data>
+  <data name="Validation_QrCode_Required" xml:space="preserve">
+    <value>qrCode không được để trống.</value>
+  </data>
+  <data name="Validation_Quantity_Max" xml:space="preserve">
+    <value>quantity không được vượt quá {0}.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_Quantity_Max, ...)</comment>
+  </data>
+  <data name="Validation_Quantity_Positive" xml:space="preserve">
+    <value>quantity phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_Rating_Range1To10" xml:space="preserve">
+    <value>Điểm đánh giá (rating) phải từ 1 đến 10.</value>
+  </data>
+  <data name="Validation_ReviewContent_MaxLength1000" xml:space="preserve">
+    <value>Nội dung đánh giá không được vượt quá 1000 ký tự.</value>
+  </data>
+  <data name="Validation_ReviewId_Positive" xml:space="preserve">
+    <value>reviewId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_ReviewIds_NotEmpty" xml:space="preserve">
+    <value>Danh sách reviewIds không được rỗng.</value>
+  </data>
+  <data name="Validation_RoleId_Positive" xml:space="preserve">
+    <value>roleId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_Role_AllowedValues" xml:space="preserve">
+    <value>Role phải là một trong: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_Role_AllowedValues, ...)</comment>
+  </data>
+  <data name="Validation_Role_Required" xml:space="preserve">
+    <value>Role không được để trống.</value>
+  </data>
+  <data name="Validation_RoomId_Positive" xml:space="preserve">
+    <value>roomId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_RoomName_MaxLength50" xml:space="preserve">
+    <value>Tên phòng chiếu không được vượt quá 50 ký tự.</value>
+  </data>
+  <data name="Validation_RoomName_Required" xml:space="preserve">
+    <value>Tên phòng chiếu không được để trống.</value>
+  </data>
+  <data name="Validation_ScreenTypeId_Positive" xml:space="preserve">
+    <value>screenTypeId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_SeatId_Positive" xml:space="preserve">
+    <value>seatId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_SeatNumber_Positive" xml:space="preserve">
+    <value>seatNumber phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_SeatRow_MaxLength5" xml:space="preserve">
+    <value>seatRow không được vượt quá 5 ký tự.</value>
+  </data>
+  <data name="Validation_SeatRow_Required" xml:space="preserve">
+    <value>seatRow không được để trống.</value>
+  </data>
+  <data name="Validation_SeatTypeId_Positive" xml:space="preserve">
+    <value>seatTypeId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_Seats_AtLeastOne" xml:space="preserve">
+    <value>Phải chọn ít nhất 1 ghế.</value>
+  </data>
+  <data name="Validation_Seats_Duplicated" xml:space="preserve">
+    <value>Danh sách ghế bị trùng lặp.</value>
+  </data>
+  <data name="Validation_Seats_DuplicatedPosition" xml:space="preserve">
+    <value>Tồn tại ghế trùng vị trí (SeatRow + SeatNumber) trong danh sách.</value>
+  </data>
+  <data name="Validation_Seats_MaxPerBooking" xml:space="preserve">
+    <value>Mỗi booking tối đa {0} ghế.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_Seats_MaxPerBooking, ...)</comment>
+  </data>
+  <data name="Validation_Seats_NotEmpty" xml:space="preserve">
+    <value>Danh sách seats không được rỗng.</value>
+  </data>
+  <data name="Validation_ShiftDays_Range1To366" xml:space="preserve">
+    <value>shiftDays phải từ 1 đến 366.</value>
+  </data>
+  <data name="Validation_Shows_Range1To20" xml:space="preserve">
+    <value>shows phải từ 1 đến 20.</value>
+  </data>
+  <data name="Validation_ShowtimeId_Positive" xml:space="preserve">
+    <value>showtimeId phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_ShowtimeIds_NotEmpty" xml:space="preserve">
+    <value>Danh sách showtimeIds không được rỗng.</value>
+  </data>
+  <data name="Validation_Showtimes_MaxPerApply" xml:space="preserve">
+    <value>Tối đa 1000 suất chiếu mỗi lần áp dụng.</value>
+  </data>
+  <data name="Validation_SourceFrom_Required" xml:space="preserve">
+    <value>sourceFrom không được để trống.</value>
+  </data>
+  <data name="Validation_SourceRange_TooLong" xml:space="preserve">
+    <value>Khoảng ngày nguồn không được vượt quá {0} ngày.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_SourceRange_TooLong, ...)</comment>
+  </data>
+  <data name="Validation_SourceTo_BeforeSourceFrom" xml:space="preserve">
+    <value>sourceTo phải &gt;= sourceFrom.</value>
+  </data>
+  <data name="Validation_SourceTo_Required" xml:space="preserve">
+    <value>sourceTo không được để trống.</value>
+  </data>
+  <data name="Validation_StartTime_Required" xml:space="preserve">
+    <value>startTime không được để trống.</value>
+  </data>
+  <data name="Validation_Status_AllowedValues" xml:space="preserve">
+    <value>Status phải là một trong: {0}</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_Status_AllowedValues, ...)</comment>
+  </data>
+  <data name="Validation_StopSellingMinutesBefore_Range0To1440" xml:space="preserve">
+    <value>stopSellingMinutesBefore phải từ 0 đến 1440.</value>
+  </data>
+  <data name="Validation_Subtitle_MaxLength50" xml:space="preserve">
+    <value>Phụ đề không được vượt quá 50 ký tự.</value>
+  </data>
+  <data name="Validation_TaxCode_MaxLength50" xml:space="preserve">
+    <value>Mã số thuế không được vượt quá 50 ký tự.</value>
+  </data>
+  <data name="Validation_Times_Required" xml:space="preserve">
+    <value>times không được để trống.</value>
+  </data>
+  <data name="Validation_Times_TimeFormat" xml:space="preserve">
+    <value>times phải theo định dạng HH:mm.</value>
+  </data>
+  <data name="Validation_To_BeforeFrom" xml:space="preserve">
+    <value>to phải &gt;= from.</value>
+  </data>
+  <data name="Validation_To_Required" xml:space="preserve">
+    <value>to không được để trống (yyyy-MM-dd).</value>
+  </data>
+  <data name="Validation_TrailerUrl_MaxLength255" xml:space="preserve">
+    <value>trailerUrl không được vượt quá 255 ký tự.</value>
+  </data>
+  <data name="Validation_UserIdOrCustomerNameRequired" xml:space="preserve">
+    <value>Phải cung cấp userId hoặc customerName.</value>
+  </data>
+  <data name="Validation_UserId_Positive" xml:space="preserve">
+    <value>userId phải lớn hơn 0.</value>
+  </data>
+</root>

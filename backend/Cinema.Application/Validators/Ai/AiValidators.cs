@@ -1,4 +1,5 @@
 using Cinema.Application.DTOs.Ai;
+using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Ai;
@@ -11,15 +12,15 @@ public class ChatMessageDtoValidator : AbstractValidator<ChatMessageDto>
     {
         RuleFor(x => x.Role)
             .NotEmpty()
-            .WithMessage("Role không được để trống.")
+            .WithMessage(Messages.Validation_Role_Required)
             .Must(r => ValidRoles.Contains(r.ToLowerInvariant()))
-            .WithMessage($"Role phải là một trong: {string.Join(", ", ValidRoles)}");
+            .WithMessage(string.Format(Messages.Validation_Role_AllowedValues, string.Join(", ", ValidRoles)));
 
         RuleFor(x => x.Content)
             .NotEmpty()
-            .WithMessage("Nội dung tin nhắn không được để trống.")
+            .WithMessage(Messages.Validation_MessageContent_Required)
             .MaximumLength(2000)
-            .WithMessage("Nội dung tin nhắn không được vượt quá 2000 ký tự.");
+            .WithMessage(Messages.Validation_MessageContent_MaxLength2000);
     }
 }
 
@@ -29,9 +30,9 @@ public class AiChatRequestValidator : AbstractValidator<AiChatRequest>
     {
         RuleFor(x => x.Message)
             .NotEmpty()
-            .WithMessage("Message không được để trống.")
+            .WithMessage(Messages.Validation_Message_Required)
             .MaximumLength(1000)
-            .WithMessage("Message không được vượt quá 1000 ký tự.");
+            .WithMessage(Messages.Validation_Message_MaxLength1000);
 
         RuleForEach(x => x.History)
             .SetValidator(new ChatMessageDtoValidator());

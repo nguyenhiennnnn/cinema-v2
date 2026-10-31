@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Auth;
+using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Auth;
@@ -14,7 +15,7 @@ public partial class RegisterRequestValidator : AbstractValidator<RegisterReques
         RuleFor(x => x.Phone)
             .Matches(PhoneRegex())
             .When(x => !string.IsNullOrEmpty(x.Phone))
-            .WithMessage("Số điện thoại không hợp lệ.")
+            .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20);
     }
 
@@ -35,7 +36,7 @@ public class GoogleLoginRequestValidator : AbstractValidator<GoogleLoginRequest>
 {
     public GoogleLoginRequestValidator()
     {
-        RuleFor(x => x.IdToken).NotEmpty().WithMessage("idToken không được để trống.");
+        RuleFor(x => x.IdToken).NotEmpty().WithMessage(Messages.Validation_IdToken_Required);
     }
 }
 

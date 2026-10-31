@@ -1,5 +1,6 @@
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 
 namespace Cinema.Application.Utils;
 
@@ -75,10 +76,10 @@ public static class EnumConverters
             return result;
 
         throw new ValidationAppException(
-            $"Giá trị '{value}' không hợp lệ cho trường {fieldName}.",
+            string.Format(Messages.Invalid_ValueForField, value, fieldName),
             new Dictionary<string, string[]>
             {
-                [fieldName] = [$"Giá trị '{value}' không hợp lệ."],
+                [fieldName] = [string.Format(Messages.Invalid_Value, value)],
             }
         );
     }

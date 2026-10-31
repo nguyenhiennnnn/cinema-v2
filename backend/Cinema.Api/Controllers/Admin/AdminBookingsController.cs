@@ -3,6 +3,7 @@ using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,15 +14,10 @@ namespace Cinema.Api.Controllers.Admin;
 [Authorize]
 public class AdminBookingsController(IBookingService bookingService) : AppControllerBase
 {
-    /// <summary>
-    /// Resolves the current user's employee ID.
-    /// Throws <see cref="BusinessRuleException"/> (422) if the account has no Employee profile.
-    /// Call this once at the start of each action that needs it, not in a property getter.
-    /// </summary>
     private int GetCurrentEmployeeId() =>
         CurrentEmployeeIdOrNull
         ?? throw new BusinessRuleException(
-            "Tài khoản không có hồ sơ Employee — không thể thực hiện counter booking."
+            Messages.Rule_NoEmployeeProfileForCounterBooking
         );
 
     [HttpPost("counter-hold")]

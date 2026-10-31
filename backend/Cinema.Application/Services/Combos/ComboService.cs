@@ -6,6 +6,7 @@ using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +37,7 @@ public class ComboService(IAppDbContext db) : IComboService
                     AgeCode = s.Movie.AgeRating != null ? s.Movie.AgeRating.Code : null,
                 })
                 .FirstOrDefaultAsync(cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy suất chiếu.");
+            ?? throw new NotFoundException(Messages.NotFound_Showtime);
 
         var combos = await db
             .Combos.Where(c => c.IsActive)
@@ -162,7 +163,7 @@ public class ComboService(IAppDbContext db) : IComboService
     {
         var combo =
             await db.Combos.FirstOrDefaultAsync(c => c.ComboId == comboId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy combo.");
+            ?? throw new NotFoundException(Messages.NotFound_Combo);
 
         combo.Name = request.Name;
         combo.Description = request.Description;
@@ -179,7 +180,7 @@ public class ComboService(IAppDbContext db) : IComboService
     {
         var combo =
             await db.Combos.FirstOrDefaultAsync(c => c.ComboId == comboId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy combo.");
+            ?? throw new NotFoundException(Messages.NotFound_Combo);
 
         combo.IsActive = !combo.IsActive;
         await db.SaveChangesAsync(cancellationToken);

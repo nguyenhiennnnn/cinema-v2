@@ -1,6 +1,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Cinema.Shared.Results;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -31,12 +32,10 @@ public class ExceptionHandlingMiddleware(
 
             if (ex is SeatConflictException seatEx)
             {
-                // Return ApiResponse with conflictSeatIds encoded in errors dict.
-                // Frontend reads: errors.conflictSeatIds (string[] of seat IDs)
                 var errors = new Dictionary<string, string[]>
                 {
-                    ["conflictSeatIds"] = seatEx.ConflictSeatIds
-                        .Select(id => id.ToString())
+                    ["conflictSeatIds"] = seatEx
+                        .ConflictSeatIds.Select(id => id.ToString())
                         .ToArray(),
                 };
                 await WriteResponse(
@@ -55,45 +54,27 @@ public class ExceptionHandlingMiddleware(
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            logger.LogWarning(
-                ex,
-                "Concurrency conflict detected: {Message}",
-                ex.Message
-            );
+            logger.LogWarning(ex, "Concurrency conflict detected: {Message}", ex.Message);
             await WriteResponse(
                 context,
                 StatusCodes.Status409Conflict,
-                ApiResponse.ErrorResponse("Dữ liệu đã bị thay đổi bởi người dùng khác. Vui lòng tải lại và thử lại.")
+                ApiResponse.ErrorResponse(Messages.Db_ConcurrencyConflict)
             );
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
         {
-            // PostgreSQL error codes: https://www.postgresql.org/docs/current/errcodes-appendix.html
-            // 23503 = foreign_key_violation
-            // 23505 = unique_violation
-            // 23514 = check_violation
-            // 23P01 = exclusion_violation (vd: EX_Showtimes_Room_NoOverlap — trùng suất chiếu cùng phòng)
             var (status, message) = pgEx.SqlState switch
             {
-                "23503" => (
-                    StatusCodes.Status400BadRequest,
-                    "Dữ liệu tham chiếu (khóa ngoại) không hợp lệ."
-                ),
-                "23505" => (
-                    StatusCodes.Status409Conflict,
-                    "Dữ liệu đã tồn tại (vi phạm ràng buộc duy nhất)."
-                ),
-                "23514" => (
-                    StatusCodes.Status400BadRequest,
-                    "Dữ liệu không thỏa mãn ràng buộc kiểm tra."
-                ),
+                "23503" => (StatusCodes.Status400BadRequest, Messages.Db_ForeignKeyViolation),
+                "23505" => (StatusCodes.Status409Conflict, Messages.Db_UniqueViolation),
+                "23514" => (StatusCodes.Status400BadRequest, Messages.Db_CheckViolation),
                 "23P01" => (
                     StatusCodes.Status409Conflict,
                     pgEx.ConstraintName == "EX_Showtimes_Room_NoOverlap"
-                        ? "Trùng khung giờ chiếu trong phòng này."
-                        : "Dữ liệu xung đột với bản ghi đã có (vi phạm ràng buộc loại trừ)."
+                        ? Messages.Conflict_ShowtimeOverlapInRoom
+                        : Messages.Db_ExclusionViolation
                 ),
-                _ => (StatusCodes.Status400BadRequest, "Lỗi ràng buộc dữ liệu."),
+                _ => (StatusCodes.Status400BadRequest, Messages.Db_ConstraintError),
             };
 
             logger.LogWarning(
@@ -106,7 +87,8 @@ public class ExceptionHandlingMiddleware(
         }
         catch (Exception ex)
         {
-            var requestPath = $"{context.Request.Method} {context.Request.Path}{context.Request.QueryString}";
+            var requestPath =
+                $"{context.Request.Method} {context.Request.Path}{context.Request.QueryString}";
             logger.LogError(
                 ex,
                 "🔥 Unhandled Exception on [{RequestPath}]: {ExceptionType} - {Message} | Inner: {InnerMessage}",
@@ -118,18 +100,22 @@ public class ExceptionHandlingMiddleware(
 
             var message = env.IsDevelopment()
                 ? $"[DEV ONLY] {ex.GetType().Name}: {ex.Message}"
-                : "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.";
+                : Messages.System_UnexpectedError;
 
             var errors = env.IsDevelopment()
                 ? new Dictionary<string, string[]>
                 {
                     ["exceptionType"] = [ex.GetType().FullName ?? ex.GetType().Name],
                     ["message"] = [ex.Message],
-                    ["innerException"] = ex.InnerException is not null ? [ex.InnerException.Message] : [],
-                    ["stackTrace"] = ex.StackTrace?.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
-                                                  .Select(s => s.Trim())
-                                                  .Take(8)
-                                                  .ToArray() ?? [],
+                    ["innerException"] = ex.InnerException is not null
+                        ? [ex.InnerException.Message]
+                        : [],
+                    ["stackTrace"] =
+                        ex.StackTrace?.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+                            .Select(s => s.Trim())
+                            .Take(8)
+                            .ToArray()
+                        ?? [],
                 }
                 : null;
 

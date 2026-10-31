@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Cinema.Application.DTOs.Reviews;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ public class ReviewService : IReviewService
     {
         var movieExists = await db.Movies.AnyAsync(m => m.MovieId == movieId, cancellationToken);
         if (!movieExists)
-            throw new NotFoundException("Không tìm thấy phim.");
+            throw new NotFoundException(Messages.NotFound_Movie);
 
         var query = db.Reviews.Where(r => r.MovieId == movieId);
 
@@ -90,14 +91,14 @@ public class ReviewService : IReviewService
     {
         var movie =
             await db.Movies.FirstOrDefaultAsync(m => m.MovieId == movieId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phim.");
+            ?? throw new NotFoundException(Messages.NotFound_Movie);
 
         var alreadyReviewed = await db.Reviews.AnyAsync(
             r => r.MovieId == movieId && r.UserId == userId,
             cancellationToken
         );
         if (alreadyReviewed)
-            throw new ConflictAppException("Bạn đã đánh giá phim này rồi.");
+            throw new ConflictAppException(Messages.Conflict_ReviewAlreadyExists);
 
         var hasCheckedIn = await db.BookingTickets.AnyAsync(
             t =>
@@ -107,7 +108,7 @@ public class ReviewService : IReviewService
             cancellationToken
         );
         if (!hasCheckedIn)
-            throw new BusinessRuleException("Bạn cần check-in xem phim này trước khi đánh giá.");
+            throw new BusinessRuleException(Messages.Rule_ReviewRequiresCheckIn);
 
         var user = await db.Users.FirstAsync(u => u.UserId == userId, cancellationToken);
         var review = new Domain.Entities.Review
@@ -142,9 +143,9 @@ public class ReviewService : IReviewService
                     r => r.ReviewId == reviewId && r.MovieId == movieId,
                     cancellationToken
                 )
-            ?? throw new NotFoundException("Không tìm thấy đánh giá.");
+            ?? throw new NotFoundException(Messages.NotFound_Review);
         if (review.UserId != userId)
-            throw new ForbiddenAppException("Bạn không phải chủ đánh giá này.");
+            throw new ForbiddenAppException(Messages.Forbidden_NotReviewOwner);
 
         review.Rating = request.Rating;
         review.Comment = request.Comment;
@@ -166,9 +167,9 @@ public class ReviewService : IReviewService
             await db.Reviews.FirstOrDefaultAsync(
                 r => r.ReviewId == reviewId && r.MovieId == movieId,
                 cancellationToken
-            ) ?? throw new NotFoundException("Không tìm thấy đánh giá.");
+            ) ?? throw new NotFoundException(Messages.NotFound_Review);
         if (review.UserId != userId)
-            throw new ForbiddenAppException("Bạn không phải chủ đánh giá này.");
+            throw new ForbiddenAppException(Messages.Forbidden_NotReviewOwner);
 
         db.Reviews.Remove(review);
         await db.SaveChangesAsync(cancellationToken);
@@ -241,7 +242,7 @@ public class ReviewService : IReviewService
     {
         var review =
             await db.Reviews.FirstOrDefaultAsync(r => r.ReviewId == reviewId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy đánh giá.");
+            ?? throw new NotFoundException(Messages.NotFound_Review);
 
         var movieId = review.MovieId;
         db.Reviews.Remove(review);
@@ -267,7 +268,7 @@ public class ReviewService : IReviewService
                 var review = await db.Reviews.FirstOrDefaultAsync(
                     r => r.ReviewId == reviewId,
                     cancellationToken
-                ) ?? throw new NotFoundException("Kh\u00f4ng t\u00ecm th\u1ea5y \u0111\u00e1nh gi\u00e1.");
+                ) ?? throw new NotFoundException(Messages.NotFound_Review);
                 affectedMovieIds.Add(review.MovieId);
                 db.Reviews.Remove(review);
                 await db.SaveChangesAsync(cancellationToken);

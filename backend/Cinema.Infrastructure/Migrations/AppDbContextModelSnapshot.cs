@@ -624,12 +624,18 @@ namespace Cinema.Infrastructure.Migrations
                         .HasColumnType("decimal(5,2)")
                         .HasDefaultValue(0m);
 
+                    b.Property<int>("CheckInOpenMinutes")
+                        .HasColumnType("integer");
+
                     b.Property<TimeOnly?>("ClosingTime")
                         .HasColumnType("time");
 
                     b.Property<string>("Email")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
+
+                    b.Property<int>("HoldDurationMinutes")
+                        .HasColumnType("integer");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(255)
@@ -675,8 +681,10 @@ namespace Cinema.Infrastructure.Migrations
                             Id = 1,
                             Address = "Đang cập nhật",
                             CancelDeadlineHours = 2,
-                            CancelRefundPercent = 100m,
+                            CancelRefundPercent = 0m,
+                            CheckInOpenMinutes = 30,
                             ClosingTime = new TimeOnly(23, 59, 0),
+                            HoldDurationMinutes = 15,
                             Name = "Cinema",
                             OpeningTime = new TimeOnly(8, 0, 0),
                             PointsPerAmount = 10000m,

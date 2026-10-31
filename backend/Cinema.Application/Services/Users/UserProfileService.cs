@@ -5,6 +5,7 @@ using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ public class UserProfileService(IAppDbContext db) : IUserProfileService
     {
         var user =
             await db.Users.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy người dùng.");
+            ?? throw new NotFoundException(Messages.NotFound_User);
         var profile = await GetOrCreateProfileAsync(userId, cancellationToken);
 
         return await BuildProfileDtoAsync(user, profile, cancellationToken);
@@ -33,7 +34,7 @@ public class UserProfileService(IAppDbContext db) : IUserProfileService
     {
         var user =
             await db.Users.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy người dùng.");
+            ?? throw new NotFoundException(Messages.NotFound_User);
 
         user.FullName = request.FullName;
         user.Phone = request.Phone;

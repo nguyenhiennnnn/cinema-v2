@@ -2,6 +2,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -23,7 +24,7 @@ public class StripeGateway(IOptions<StripeOptions> options, ILogger<StripeGatewa
     )
     {
         if (string.IsNullOrWhiteSpace(_options.SecretKey))
-            throw new BusinessRuleException("Stripe SecretKey chưa được cấu hình.");
+            throw new BusinessRuleException(Messages.Rule_StripeSecretKeyMissing);
 
         var currency = string.IsNullOrWhiteSpace(_options.Currency)
             ? "vnd"

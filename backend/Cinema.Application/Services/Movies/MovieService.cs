@@ -8,6 +8,7 @@ using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -83,7 +84,7 @@ public class MovieService : IMovieService
                 .Include(m => m.MovieCast)
                     .ThenInclude(mc => mc.Actor)
                 .FirstOrDefaultAsync(m => m.MovieId == movieId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phim.");
+            ?? throw new NotFoundException(Messages.NotFound_Movie);
 
         var dto = movie.Adapt<MovieDetailDto>();
 
@@ -217,7 +218,7 @@ public class MovieService : IMovieService
                 .Movies.Include(m => m.MovieGenres)
                 .Include(m => m.MovieCast)
                 .FirstOrDefaultAsync(m => m.MovieId == movieId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phim.");
+            ?? throw new NotFoundException(Messages.NotFound_Movie);
 
         await ValidateForeignKeysAsync(request, cancellationToken);
 
@@ -279,7 +280,7 @@ public class MovieService : IMovieService
     {
         var movie =
             await db.Movies.FirstOrDefaultAsync(m => m.MovieId == movieId)
-            ?? throw new NotFoundException("Không tìm thấy phim.");
+            ?? throw new NotFoundException(Messages.NotFound_Movie);
 
         var hasShowtimes = await db.Showtimes.AnyAsync(
             s => s.MovieId == movieId,
@@ -312,7 +313,7 @@ public class MovieService : IMovieService
                 cancellationToken
             )
         )
-            errors["directorId"] = ["directorId không tồn tại."];
+            errors["directorId"] = [Messages.Invalid_DirectorIdNotFound];
 
         if (
             request.LanguageId is not null
@@ -321,7 +322,7 @@ public class MovieService : IMovieService
                 cancellationToken
             )
         )
-            errors["languageId"] = ["languageId không tồn tại."];
+            errors["languageId"] = [Messages.Invalid_LanguageIdNotFound];
 
         if (
             request.AgeRatingId is not null
@@ -330,7 +331,7 @@ public class MovieService : IMovieService
                 cancellationToken
             )
         )
-            errors["ageRatingId"] = ["ageRatingId không tồn tại."];
+            errors["ageRatingId"] = [Messages.Invalid_AgeRatingIdNotFound];
 
         if (request.GenreIds.Count > 0)
         {
@@ -339,7 +340,7 @@ public class MovieService : IMovieService
                 cancellationToken
             );
             if (existingGenreCount != request.GenreIds.Distinct().Count())
-                errors["genreIds"] = ["Một hoặc nhiều genreId không tồn tại."];
+                errors["genreIds"] = [Messages.Invalid_GenreIdsNotFound];
         }
 
         if (request.Cast.Count > 0)
@@ -350,11 +351,11 @@ public class MovieService : IMovieService
                 cancellationToken
             );
             if (existingActorCount != actorIds.Count)
-                errors["cast"] = ["Một hoặc nhiều actorId không tồn tại."];
+                errors["cast"] = [Messages.Invalid_ActorIdsNotFound];
         }
 
         if (errors.Count > 0)
-            throw new ValidationAppException("Dữ liệu tham chiếu không hợp lệ.", errors);
+            throw new ValidationAppException(Messages.Invalid_ReferenceData, errors);
     }
     public async Task<BulkDeleteMoviesResponse> BulkDeleteMoviesAsync(
         BulkDeleteMoviesRequest request,

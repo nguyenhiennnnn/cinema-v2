@@ -1,5 +1,6 @@
 using System.Globalization;
 using Cinema.Application.DTOs.Settings;
+using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Settings;
@@ -10,68 +11,68 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .WithMessage("Tên rạp không được để trống.")
+            .WithMessage(Messages.Validation_CinemaName_Required)
             .MaximumLength(150)
-            .WithMessage("Tên rạp không được vượt quá 150 ký tự.");
+            .WithMessage(Messages.Validation_CinemaName_MaxLength150);
 
         RuleFor(x => x.Address)
             .NotEmpty()
-            .WithMessage("Địa chỉ không được để trống.")
+            .WithMessage(Messages.Validation_Address_Required)
             .MaximumLength(255)
-            .WithMessage("Địa chỉ không được vượt quá 255 ký tự.");
+            .WithMessage(Messages.Validation_Address_MaxLength255);
 
         RuleFor(x => x.Phone)
             .MaximumLength(20)
-            .WithMessage("Số điện thoại không được vượt quá 20 ký tự.");
+            .WithMessage(Messages.Validation_Phone_MaxLength20);
 
         RuleFor(x => x.Email)
             .EmailAddress()
-            .WithMessage("Email không đúng định dạng.")
+            .WithMessage(Messages.Validation_Email_Invalid)
             .MaximumLength(150)
-            .WithMessage("Email không được vượt quá 150 ký tự.")
+            .WithMessage(Messages.Validation_Email_MaxLength150)
             .When(x => !string.IsNullOrEmpty(x.Email));
 
         RuleFor(x => x.TaxCode)
             .MaximumLength(50)
-            .WithMessage("Mã số thuế không được vượt quá 50 ký tự.");
+            .WithMessage(Messages.Validation_TaxCode_MaxLength50);
 
         RuleFor(x => x.LogoUrl)
             .MaximumLength(255)
-            .WithMessage("logoUrl không được vượt quá 255 ký tự.");
+            .WithMessage(Messages.Validation_LogoUrl_MaxLength255);
 
         RuleFor(x => x.OpeningTime)
             .Must(BeValidTime)
             .When(x => x.OpeningTime is not null)
-            .WithMessage("openingTime phải có định dạng HH:mm.");
+            .WithMessage(Messages.Validation_OpeningTime_TimeFormat);
 
         RuleFor(x => x.ClosingTime)
             .Must(BeValidTime)
             .When(x => x.ClosingTime is not null)
-            .WithMessage("closingTime phải có định dạng HH:mm.");
+            .WithMessage(Messages.Validation_ClosingTime_TimeFormat);
 
-        RuleFor(x => x.PointsPerAmount).GreaterThan(0).WithMessage("pointsPerAmount phải > 0.");
+        RuleFor(x => x.PointsPerAmount).GreaterThan(0).WithMessage(Messages.Validation_PointsPerAmount_GreaterThanZero);
 
         RuleFor(x => x.CancelRefundPercent)
             .InclusiveBetween(0, 100)
-            .WithMessage("cancelRefundPercent phải từ 0 đến 100.");
+            .WithMessage(Messages.Validation_CancelRefundPercent_Range0To100);
 
         RuleFor(x => x.CancelDeadlineHours)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("cancelDeadlineHours phải >= 0.");
+            .WithMessage(Messages.Validation_CancelDeadlineHours_NonNegative);
 
         RuleFor(x => x.StopSellingMinutesBefore)
             .InclusiveBetween(0, 1440)
-            .WithMessage("stopSellingMinutesBefore phải từ 0 đến 1440.");
+            .WithMessage(Messages.Validation_StopSellingMinutesBefore_Range0To1440);
 
         RuleFor(x => x.HoldDurationMinutes)
             .Must(v => v is >= 1 and <= 120)
             .When(x => x.HoldDurationMinutes is not null)
-            .WithMessage("holdDurationMinutes phải từ 1 đến 120.");
+            .WithMessage(Messages.Validation_HoldDurationMinutes_Range1To120);
 
         RuleFor(x => x.CheckInOpenMinutes)
             .Must(v => v is >= 0 and <= 240)
             .When(x => x.CheckInOpenMinutes is not null)
-            .WithMessage("checkInOpenMinutes phải từ 0 đến 240.");
+            .WithMessage(Messages.Validation_CheckInOpenMinutes_Range0To240);
     }
 
     private static bool BeValidTime(string? value) =>

@@ -1,5 +1,6 @@
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cinema.Api.Controllers.Client;
@@ -21,10 +22,10 @@ public class CombosController(IComboService comboService) : ControllerBase
     {
         if (showtimeId < 1 || seatCount is < 1 or > 20)
             throw new ValidationAppException(
-                "showtimeId và seatCount (1-20) là bắt buộc.",
+                Messages.Invalid_ShowtimeIdAndSeatCountRequired,
                 new Dictionary<string, string[]>
                 {
-                    ["seatCount"] = ["showtimeId và seatCount (1-20) là bắt buộc."],
+                    ["seatCount"] = [Messages.Invalid_ShowtimeIdAndSeatCountRequired],
                 }
             );
 

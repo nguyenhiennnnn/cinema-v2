@@ -3,6 +3,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,10 +22,10 @@ public class ReportService(IAppDbContext db) : IReportService
     {
         if (!ValidGroupBy.Contains(groupBy))
             throw new ValidationAppException(
-                "groupBy phải là day, week hoặc month.",
+                Messages.Invalid_GroupBy,
                 new Dictionary<string, string[]>
                 {
-                    ["groupBy"] = ["groupBy phải là day, week hoặc month."],
+                    ["groupBy"] = [Messages.Invalid_GroupBy],
                 }
             );
 

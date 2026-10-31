@@ -1,5 +1,6 @@
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cinema.Api.Controllers.Client;
@@ -16,8 +17,8 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
     {
         if (date is null)
             throw new ValidationAppException(
-                "date là bắt buộc (dd/MM/yyyy).",
-                new Dictionary<string, string[]> { ["date"] = ["date là bắt buộc (dd/MM/yyyy)."] }
+                Messages.Invalid_DateRequired,
+                new Dictionary<string, string[]> { ["date"] = [Messages.Invalid_DateRequired] }
             );
 
         var result = await showtimeService.GetWholeCinemaScheduleAsync(
@@ -43,8 +44,8 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
     {
         if (count is < 1 or > 10)
             throw new ValidationAppException(
-                "count phải từ 1 đến 10.",
-                new Dictionary<string, string[]> { ["count"] = ["count phải từ 1 đến 10."] }
+                Messages.Invalid_CountOutOfRange,
+                new Dictionary<string, string[]> { ["count"] = [Messages.Invalid_CountOutOfRange] }
             );
 
         var result = await showtimeService.GetSeatSuggestionsAsync(

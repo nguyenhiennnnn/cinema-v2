@@ -2,6 +2,7 @@ using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ public class SettingsService(IAppDbContext db) : ISettingsService
     {
         var settings =
             await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == AppDbContextExtensions.CinemaSettingsId, cancellationToken)
-            ?? throw new NotFoundException("Chưa có cấu hình rạp — liên hệ Admin khởi tạo.");
+            ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
 
         return settings.Adapt<CinemaSettingsDto>();
     }
@@ -25,12 +26,12 @@ public class SettingsService(IAppDbContext db) : ISettingsService
     {
         var settings =
             await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == AppDbContextExtensions.CinemaSettingsId, cancellationToken)
-            ?? throw new NotFoundException("Chưa có cấu hình rạp — liên hệ Admin khởi tạo.");
+            ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
 
         if (request.CancelRefundPercent is < 0 or > 100)
-            throw new BusinessRuleException("CancelRefundPercent phải trong khoảng 0-100.");
+            throw new BusinessRuleException(Messages.Rule_CancelRefundPercentRange);
         if (request.CancelDeadlineHours < 0)
-            throw new BusinessRuleException("CancelDeadlineHours không được âm.");
+            throw new BusinessRuleException(Messages.Rule_CancelDeadlineHoursNegative);
 
         settings.Name = request.Name;
         settings.Address = request.Address;

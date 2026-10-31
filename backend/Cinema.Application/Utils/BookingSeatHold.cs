@@ -2,6 +2,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Application.Utils;
@@ -29,7 +30,7 @@ public static class BookingSeatHold
                 .Select(e => e.UserId)
                 .FirstAsync(cancellationToken);
 
-        throw new BusinessRuleException("Booking thiếu cả UserId lẫn CreatedByEmployeeId.");
+        throw new BusinessRuleException(Messages.Rule_BookingMissingOwner);
     }
 
     public static IQueryable<ShowtimeSeat> HeldFor(

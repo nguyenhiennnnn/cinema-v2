@@ -1,6 +1,7 @@
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
@@ -30,13 +31,12 @@ public class CloudinaryFileStorage : IFileStorage
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
         if (!_options.AllowedExtensions.Contains(extension))
             throw new ValidationAppException(
-                "Sai định dạng file. Chỉ chấp nhận: "
-                    + string.Join(", ", _options.AllowedExtensions)
+                string.Format(Messages.Invalid_FileExtensionNotAllowed, string.Join(", ", _options.AllowedExtensions))
             );
 
         if (fileStream.Length > _options.MaxFileSizeBytes)
             throw new ValidationAppException(
-                $"File vượt quá giới hạn {_options.MaxFileSizeBytes / (1024 * 1024)}MB."
+                string.Format(Messages.Invalid_FileTooLarge, _options.MaxFileSizeBytes / (1024 * 1024))
             );
 
         var uploadParams = new ImageUploadParams
@@ -50,7 +50,7 @@ public class CloudinaryFileStorage : IFileStorage
 
         var result = await _cloudinary.UploadAsync(uploadParams, cancellationToken);
         if (result.Error is not null)
-            throw new BusinessRuleException($"Upload Cloudinary thất bại: {result.Error.Message}");
+            throw new BusinessRuleException(string.Format(Messages.Rule_CloudinaryUploadFailed, result.Error.Message));
 
         return new FileUploadResult(result.SecureUrl.ToString(), result.PublicId);
     }
@@ -66,13 +66,12 @@ public class CloudinaryFileStorage : IFileStorage
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
         if (!_options.AllowedVideoExtensions.Contains(extension))
             throw new ValidationAppException(
-                "Sai định dạng video. Chỉ chấp nhận: "
-                    + string.Join(", ", _options.AllowedVideoExtensions)
+                string.Format(Messages.Invalid_VideoExtensionNotAllowed, string.Join(", ", _options.AllowedVideoExtensions))
             );
 
         if (fileStream.Length > _options.MaxVideoFileSizeBytes)
             throw new ValidationAppException(
-                $"Video vượt quá giới hạn {_options.MaxVideoFileSizeBytes / (1024 * 1024)}MB."
+                string.Format(Messages.Invalid_VideoTooLarge, _options.MaxVideoFileSizeBytes / (1024 * 1024))
             );
 
         var uploadParams = new VideoUploadParams
@@ -86,7 +85,7 @@ public class CloudinaryFileStorage : IFileStorage
 
         var result = await _cloudinary.UploadAsync(uploadParams, cancellationToken);
         if (result.Error is not null)
-            throw new BusinessRuleException($"Upload Cloudinary thất bại: {result.Error.Message}");
+            throw new BusinessRuleException(string.Format(Messages.Rule_CloudinaryUploadFailed, result.Error.Message));
 
         return new FileUploadResult(result.SecureUrl.ToString(), result.PublicId);
     }

@@ -4,6 +4,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,7 +39,7 @@ public class RoomService(IAppDbContext db) : IRoomService
             cancellationToken
         );
         if (nameExists)
-            throw new ConflictAppException("roomName đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_RoomNameExists);
 
         if (
             request.ScreenTypeId is not null
@@ -48,10 +49,10 @@ public class RoomService(IAppDbContext db) : IRoomService
             )
         )
             throw new ValidationAppException(
-                "screenType không tồn tại.",
+                Messages.Invalid_ScreenTypeNotFound,
                 new Dictionary<string, string[]>
                 {
-                    ["screenTypeId"] = ["screenTypeId không tồn tại."],
+                    ["screenTypeId"] = [Messages.Invalid_ScreenTypeIdNotFound],
                 }
             );
 
@@ -79,14 +80,14 @@ public class RoomService(IAppDbContext db) : IRoomService
     {
         var room =
             await db.CinemaRooms.FirstOrDefaultAsync(r => r.RoomId == roomId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phòng chiếu.");
+            ?? throw new NotFoundException(Messages.NotFound_Room);
 
         var nameExists = await db.CinemaRooms.AnyAsync(
             r => r.RoomName == request.RoomName && r.RoomId != roomId,
             cancellationToken
         );
         if (nameExists)
-            throw new ConflictAppException("roomName đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_RoomNameExists);
 
         if (
             request.ScreenTypeId is not null
@@ -96,10 +97,10 @@ public class RoomService(IAppDbContext db) : IRoomService
             )
         )
             throw new ValidationAppException(
-                "screenTypeId không tồn tại.",
+                Messages.Invalid_ScreenTypeIdNotFound,
                 new Dictionary<string, string[]>
                 {
-                    ["screenTypeId"] = ["screenTypeId không tồn tại."],
+                    ["screenTypeId"] = [Messages.Invalid_ScreenTypeIdNotFound],
                 }
             );
 
@@ -108,7 +109,7 @@ public class RoomService(IAppDbContext db) : IRoomService
             var seatIdsInRoom = db.Seats.Where(s => s.RoomId == roomId).Select(s => s.SeatId);
             if (await HasLiveFutureSeatsAsync(seatIdsInRoom, cancellationToken))
                 throw new ConflictAppException(
-                    "Phòng đang có ghế đã đặt hoặc đang được giữ ở suất chiếu sắp tới, không thể ngừng hoạt động."
+                    Messages.Conflict_RoomHasHeldSeatsCannotDeactivate
                 );
         }
 
@@ -127,7 +128,7 @@ public class RoomService(IAppDbContext db) : IRoomService
     {
         var room =
             await db.CinemaRooms.FirstOrDefaultAsync(r => r.RoomId == roomId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phòng chiếu.");
+            ?? throw new NotFoundException(Messages.NotFound_Room);
 
         var hasFutureShowtimes = await db.Showtimes.AnyAsync(
             s =>
@@ -137,7 +138,7 @@ public class RoomService(IAppDbContext db) : IRoomService
             cancellationToken
         );
         if (hasFutureShowtimes)
-            throw new BusinessRuleException("Phòng đang có suất chiếu sắp tới, không thể xoá.");
+            throw new BusinessRuleException(Messages.Rule_RoomHasUpcomingShowtimes);
 
         var hasAnyShowtimes = await db.Showtimes.AnyAsync(
             s => s.RoomId == roomId,
@@ -163,7 +164,7 @@ public class RoomService(IAppDbContext db) : IRoomService
     {
         var roomExists = await db.CinemaRooms.AnyAsync(r => r.RoomId == roomId, cancellationToken);
         if (!roomExists)
-            throw new NotFoundException("Không tìm thấy phòng chiếu.");
+            throw new NotFoundException(Messages.NotFound_Room);
 
         return await db
             .Seats.Include(s => s.SeatType)
@@ -182,7 +183,7 @@ public class RoomService(IAppDbContext db) : IRoomService
     {
         var room =
             await db.CinemaRooms.FirstOrDefaultAsync(r => r.RoomId == roomId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phòng chiếu.");
+            ?? throw new NotFoundException(Messages.NotFound_Room);
 
         var seatTypeIds = request
             .Seats.Where(s => s.SeatTypeId is not null)
@@ -197,10 +198,10 @@ public class RoomService(IAppDbContext db) : IRoomService
             );
             if (existingCount != seatTypeIds.Count)
                 throw new ValidationAppException(
-                    "Dữ liệu tham chiếu không hợp lệ.",
+                    Messages.Invalid_ReferenceData,
                     new Dictionary<string, string[]>
                     {
-                        ["seats"] = ["Một hoặc nhiều seatTypeId không tồn tại."],
+                        ["seats"] = [Messages.Invalid_SeatTypeIdsNotFound],
                     }
                 );
         }
@@ -215,10 +216,10 @@ public class RoomService(IAppDbContext db) : IRoomService
             .ToList();
         if (invalidCoupleIds.Count > 0)
             throw new ValidationAppException(
-                "Dữ liệu ghế đôi không hợp lệ.",
+                Messages.Invalid_CoupleSeatData,
                 new Dictionary<string, string[]>
                 {
-                    ["seats"] = ["Có ghế đôi bị lẻ cặp hoặc không cùng hàng."],
+                    ["seats"] = [Messages.Invalid_CoupleSeatsUnpaired],
                 }
             );
 
@@ -261,7 +262,7 @@ public class RoomService(IAppDbContext db) : IRoomService
             )
         )
             throw new ConflictAppException(
-                "Không thể thay đổi ghế đang được đặt hoặc giữ ở suất chiếu sắp tới."
+                Messages.Conflict_SeatsHeldOrBookedCannotChange
             );
         var idsWithHistory = (
             await db
@@ -356,7 +357,7 @@ public class RoomService(IAppDbContext db) : IRoomService
             await db
                 .CinemaRooms.Include(r => r.ScreenType)
                 .FirstOrDefaultAsync(r => r.RoomId == roomId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phòng chiếu.");
+            ?? throw new NotFoundException(Messages.NotFound_Room);
 
         return room.Adapt<AdminRoomDto>();
     }

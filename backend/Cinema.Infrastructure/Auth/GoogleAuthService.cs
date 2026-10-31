@@ -1,6 +1,7 @@
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,7 +20,7 @@ public class GoogleAuthService(
     {
         var clientId = googleOptions.Value.ClientId;
         if (string.IsNullOrWhiteSpace(clientId))
-            throw new BusinessRuleException("Google OAuth chưa được cấu hình (thiếu ClientId).");
+            throw new BusinessRuleException(Messages.Rule_GoogleOAuthNotConfigured);
 
         GoogleJsonWebSignature.Payload payload;
         try
@@ -32,7 +33,7 @@ public class GoogleAuthService(
         catch (InvalidJwtException ex)
         {
             logger.LogWarning(ex, "GoogleIdTokenInvalid ExpectedAudience {ClientId}", clientId);
-            throw new UnauthorizedAppException("Google ID token không hợp lệ hoặc đã hết hạn.");
+            throw new UnauthorizedAppException(Messages.Unauthorized_GoogleTokenInvalid);
         }
 
         return new GoogleUserInfo(

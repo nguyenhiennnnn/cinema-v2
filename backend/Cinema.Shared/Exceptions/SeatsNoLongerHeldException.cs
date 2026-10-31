@@ -1,8 +1,10 @@
+using Cinema.Shared.Resources;
+
 namespace Cinema.Shared.Exceptions;
 
 public class SeatsNoLongerHeldException(int bookingId)
     : BusinessRuleException(
-        $"Booking {bookingId}: ghế giữ đã hết hạn trước khi xác nhận thanh toán."
+        string.Format(Messages.Rule_SeatsNoLongerHeld, bookingId)
     )
 {
     public int BookingId { get; } = bookingId;

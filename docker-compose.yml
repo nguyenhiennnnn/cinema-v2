@@ -1,46 +1,24 @@
 name: cinema
 
-# Moi truong PHAT TRIEN: hot-reload cho ca BE (dotnet watch) va FE (Vite HMR).
-# Copy .env.example thanh .env truoc khi chay: `docker compose up --build -d`
+# Môi trường PHÁT TRIỂN: hot-reload cho BE (dotnet watch) và FE (Vite HMR).
+# Database: Neon PostgreSQL Cloud (không dùng postgres local nữa).
+# Copy .env.example thành .env trước khi chạy: `docker compose up --build -d`
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: perfo-postgres
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-CinemaDb}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-CinemaDb}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    restart: unless-stopped
-    networks:
-      - perfo-net
-
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
       target: dev
     container_name: perfo-api
-    depends_on:
-      postgres:
-        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       RunMigrationsOnStartup: ${RUN_MIGRATIONS_ON_STARTUP:-true}
 
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-CinemaDb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
+      # Neon PostgreSQL Cloud — pooler connection
+      ConnectionStrings__DefaultConnection: ${DATABASE_URL}
 
       Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGIN:-http://localhost:5173}
       App__ApiBaseUrl: ${API_BASE_URL:-http://localhost:8080}
@@ -113,7 +91,6 @@ services:
       Google__ClientId: ${GOOGLE_CLIENT_ID:-}
       Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
     volumes:
-      # Bind-mount toan bo source de dotnet watch hot-reload theo thay doi tren host.
       - ./backend:/src
       - /src/Cinema.Api/bin
       - /src/Cinema.Api/obj
@@ -126,7 +103,15 @@ services:
       - /src/Cinema.Shared/bin
       - /src/Cinema.Shared/obj
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/api/v1/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:8080/api/v1/health",
+        ]
       interval: 15s
       timeout: 5s
       retries: 10
@@ -146,14 +131,11 @@ services:
     ports:
       - "5173:5173"
     environment:
-      # Vite doc truc tiep bien VITE_* tu process env luc dev server chay.
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/api/v1}
       VITE_SIGNALR_HUB_URL: ${VITE_SIGNALR_HUB_URL:-http://localhost:8080/hubs/showtimes}
       VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     volumes:
       - ./frontend:/app
-      # Anonymous volume: giu node_modules cua container (da npm ci trong image),
-      # khong bi bind-mount ./frontend:/app cua host de len (host thuong khong co node_modules).
       - /app/node_modules
     restart: unless-stopped
     networks:
@@ -162,6 +144,3 @@ services:
 networks:
   perfo-net:
     driver: bridge
-
-volumes:
-  postgres-data:

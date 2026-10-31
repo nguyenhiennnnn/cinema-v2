@@ -1,3 +1,4 @@
+using Cinema.Shared.Resources;
 using Cinema.Shared.Results;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ public class ValidationActionFilter(IServiceProvider serviceProvider) : IAsyncAc
                     );
 
                 context.Result = new BadRequestObjectResult(
-                    ApiResponse.ErrorResponse("Dữ liệu không hợp lệ.", errors)
+                    ApiResponse.ErrorResponse(Messages.Common_InvalidData, errors)
                 );
                 return;
             }

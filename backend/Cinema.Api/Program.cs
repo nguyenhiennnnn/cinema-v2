@@ -11,6 +11,7 @@ using Cinema.Infrastructure;
 using Cinema.Infrastructure.Persistence;
 using Cinema.Infrastructure.Realtime;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Cinema.Shared.Results;
 using FluentValidation;
 using Hangfire;
@@ -142,7 +143,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
             );
 
         return new BadRequestObjectResult(
-            ApiResponse.ErrorResponse("Dữ liệu không hợp lệ.", errors)
+            ApiResponse.ErrorResponse(Messages.Common_InvalidData, errors)
         );
     };
 });

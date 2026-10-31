@@ -5,6 +5,7 @@ using Cinema.Application.Options;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -95,7 +96,7 @@ public class EmployeeService : IEmployeeService
     {
         var user =
             await db.Users.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy người dùng.");
+            ?? throw new NotFoundException(Messages.NotFound_User);
 
         user.IsActive = request.IsActive;
         user.UpdatedAt = DateTime.UtcNow;
@@ -128,13 +129,13 @@ public class EmployeeService : IEmployeeService
             await db
                 .Users.Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy người dùng.");
+            ?? throw new NotFoundException(Messages.NotFound_User);
 
         var newRole =
             await db.Roles.FirstOrDefaultAsync(r => r.RoleId == request.RoleId, cancellationToken)
             ?? throw new ValidationAppException(
-                "roleId không tồn tại.",
-                new Dictionary<string, string[]> { ["roleId"] = ["roleId không tồn tại."] }
+                Messages.Invalid_RoleIdNotFound,
+                new Dictionary<string, string[]> { ["roleId"] = [Messages.Invalid_RoleIdNotFound] }
             );
 
         if (newRole.RoleName == Roles.Customer)
@@ -145,7 +146,7 @@ public class EmployeeService : IEmployeeService
             );
             if (hasActiveEmployee)
                 throw new ConflictAppException(
-                    "Không thể hạ role xuống Customer khi còn hồ sơ Employee đang hoạt động — vô hiệu hóa Employee trước."
+                    Messages.Conflict_CannotDowngradeRoleWithActiveEmployee
                 );
         }
 
@@ -196,19 +197,19 @@ public class EmployeeService : IEmployeeService
     {
         var user =
             await db.Users.FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken)
-            ?? throw new NotFoundException("userId không tồn tại.");
+            ?? throw new NotFoundException(Messages.NotFound_UserId);
 
         var alreadyEmployee = await db.Employees.AnyAsync(
             e => e.UserId == request.UserId,
             cancellationToken
         );
         if (alreadyEmployee)
-            throw new ConflictAppException("userId đã có hồ sơ Employee.");
+            throw new ConflictAppException(Messages.Conflict_EmployeeProfileExists);
 
         var role = await db.Roles.FirstAsync(r => r.RoleId == user.RoleId, cancellationToken);
         if (role.RoleName != Roles.Admin && role.RoleName != Roles.Employee)
             throw new BusinessRuleException(
-                "User phải có RoleId là Admin hoặc Employee trước khi tạo hồ sơ Employee (đổi role qua PUT /admin/users/{id}/role)."
+                Messages.Rule_UserMustBeStaffRole
             );
 
         if (
@@ -218,7 +219,7 @@ public class EmployeeService : IEmployeeService
                 cancellationToken
             )
         )
-            throw new NotFoundException("positionId không tồn tại.");
+            throw new NotFoundException(Messages.NotFound_PositionId);
 
         var employee = new Employee
         {
@@ -243,7 +244,7 @@ public class EmployeeService : IEmployeeService
             await db.Employees.FirstOrDefaultAsync(
                 e => e.EmployeeId == employeeId,
                 cancellationToken
-            ) ?? throw new NotFoundException("Không tìm thấy nhân viên.");
+            ) ?? throw new NotFoundException(Messages.NotFound_Employee);
 
         if (
             request.PositionId is not null
@@ -253,8 +254,8 @@ public class EmployeeService : IEmployeeService
             )
         )
             throw new ValidationAppException(
-                "positionId không tồn tại.",
-                new Dictionary<string, string[]> { ["positionId"] = ["positionId không tồn tại."] }
+                Messages.NotFound_PositionId,
+                new Dictionary<string, string[]> { ["positionId"] = [Messages.NotFound_PositionId] }
             );
 
         var wasActive = employee.IsActive;

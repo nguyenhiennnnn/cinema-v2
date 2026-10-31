@@ -2,6 +2,7 @@ using Cinema.Application.DTOs.Uploads;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,8 +23,8 @@ public class AdminUploadsController(IFileStorage fileStorage) : ControllerBase
     {
         if (file is null || file.Length == 0)
             throw new ValidationAppException(
-                "Thiếu file upload.",
-                new Dictionary<string, string[]> { ["file"] = ["File không được rỗng."] }
+                Messages.Invalid_UploadFileMissing,
+                new Dictionary<string, string[]> { ["file"] = [Messages.Invalid_FileEmpty] }
             );
 
         await using var stream = file.OpenReadStream();
@@ -49,8 +50,8 @@ public class AdminUploadsController(IFileStorage fileStorage) : ControllerBase
     {
         if (file is null || file.Length == 0)
             throw new ValidationAppException(
-                "Thiếu file upload.",
-                new Dictionary<string, string[]> { ["file"] = ["File không được rỗng."] }
+                Messages.Invalid_UploadFileMissing,
+                new Dictionary<string, string[]> { ["file"] = [Messages.Invalid_FileEmpty] }
             );
 
         await using var stream = file.OpenReadStream();

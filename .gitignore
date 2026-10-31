@@ -1,85 +1,111 @@
-# ─── Secrets / env ────────────────────────────────────────────
+# ─── Secrets / Env files ──────────────────────────────────────────────────────
 .env
 .env.local
 .env.*.local
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Giữ lại các file EXAMPLE (không chứa giá trị thật)
 !.env.example
 !**/.env.example
 
-# ─── .NET / C# ────────────────────────────────────────────────
-backend/**/appsettings.Local.json
+# ─── .NET appsettings (chứa connection string, secrets) ──────────────────────
+# Chỉ commit appsettings.json (template rỗng) và *.example
+# KHÔNG commit Development / Local / Production / Staging
 backend/**/appsettings.Development.json
+backend/**/appsettings.Local.json
+backend/**/appsettings.Production.json
+backend/**/appsettings.Staging.json
 !backend/**/appsettings.Local.json.example
-backend/bin/
-backend/obj/
+
+# ─── .NET User Secrets (dotnet user-secrets) ──────────────────────────────────
+# Thường ở %APPDATA%\Microsoft\UserSecrets nhưng phòng thủ thêm
+**/secrets.json
+
+# ─── Certificates & Private Keys ──────────────────────────────────────────────
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+*.der
+
+# ─── .NET Build Artifacts ────────────────────────────────────────────────────
 backend/**/bin/
 backend/**/obj/
+backend/publish/
+backend/out/
 
-# Visual Studio artifacts
+# ─── .NET Logs ───────────────────────────────────────────────────────────────
+backend/**/logs/*
+!backend/**/logs/.gitkeep
+*.log
+!load-tests/results/.gitkeep
+
+# ─── Visual Studio ───────────────────────────────────────────────────────────
 backend/**/.vs/
+.vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 *.csproj.user
 
-# Publish output
-backend/publish/
-backend/out/
-
-# Rider
+# ─── JetBrains Rider ─────────────────────────────────────────────────────────
 .idea/
 *.DotSettings.user
 
-# NuGet
+# ─── NuGet ───────────────────────────────────────────────────────────────────
 *.nupkg
 *.snupkg
 backend/.nuget/
 
-# ─── Node / Frontend ──────────────────────────────────────────
+# ─── Node / Frontend ─────────────────────────────────────────────────────────
+node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/
-
-# Vite cache
 frontend/.vite/
 
-# Playwright E2E output 
+# ─── Playwright E2E ──────────────────────────────────────────────────────────
 frontend/test-results/
 frontend/playwright-report/
 frontend/blob-report/
 frontend/.last-run.json
 
-# k6 Load test output
+# ─── k6 Load test output ─────────────────────────────────────────────────────
 load-tests/results/*
 !load-tests/results/.gitkeep
 
-# TypeScript build info
+# ─── TypeScript build info ────────────────────────────────────────────────────
 frontend/tsconfig.tsbuildinfo
 frontend/**/*.tsbuildinfo
 
-# Logs
-*.log
+# ─── npm / yarn / pnpm logs ──────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# ─── Docker ───────────────────────────────────────────────────
+# ─── Docker override (chứa override local, không commit) ──────────────────────
 docker-compose.override.yml
 
-# ─── OS / Editor ──────────────────────────────────────────────
+# ─── OS / Editor junk ────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
+ehthumbs.db
 
-# VSCode — giu settings + extensions, bo workspaceStorage
+# ─── VSCode — giữ settings, bỏ workspace storage & extensions cache ──────────
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
 !.vscode/launch.json
 !.vscode/tasks.json
 
-# ─── Misc ─────────────────────────────────────────────────────
+# ─── Misc temp files ─────────────────────────────────────────────────────────
 *.swp
 *.swo
 *.bak

@@ -1,4 +1,5 @@
 using Cinema.Application.DTOs.Rooms;
+using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Rooms;
@@ -9,14 +10,14 @@ public class CreateRoomRequestValidator : AbstractValidator<CreateRoomRequest>
     {
         RuleFor(x => x.RoomName)
             .NotEmpty()
-            .WithMessage("Tên phòng chiếu không được để trống.")
+            .WithMessage(Messages.Validation_RoomName_Required)
             .MaximumLength(50)
-            .WithMessage("Tên phòng chiếu không được vượt quá 50 ký tự.");
+            .WithMessage(Messages.Validation_RoomName_MaxLength50);
 
         RuleFor(x => x.ScreenTypeId)
             .GreaterThan(0)
             .When(x => x.ScreenTypeId is not null)
-            .WithMessage("screenTypeId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_ScreenTypeId_Positive);
     }
 }
 
@@ -26,14 +27,14 @@ public class UpdateRoomRequestValidator : AbstractValidator<UpdateRoomRequest>
     {
         RuleFor(x => x.RoomName)
             .NotEmpty()
-            .WithMessage("Tên phòng chiếu không được để trống.")
+            .WithMessage(Messages.Validation_RoomName_Required)
             .MaximumLength(50)
-            .WithMessage("Tên phòng chiếu không được vượt quá 50 ký tự.");
+            .WithMessage(Messages.Validation_RoomName_MaxLength50);
 
         RuleFor(x => x.ScreenTypeId)
             .GreaterThan(0)
             .When(x => x.ScreenTypeId is not null)
-            .WithMessage("screenTypeId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_ScreenTypeId_Positive);
     }
 }
 
@@ -43,18 +44,18 @@ public class SeatLayoutItemValidator : AbstractValidator<SeatLayoutItem>
     {
         RuleFor(s => s.SeatRow)
             .NotEmpty()
-            .WithMessage("seatRow không được để trống.")
+            .WithMessage(Messages.Validation_SeatRow_Required)
             .MaximumLength(5)
-            .WithMessage("seatRow không được vượt quá 5 ký tự.");
+            .WithMessage(Messages.Validation_SeatRow_MaxLength5);
 
         RuleFor(s => s.SeatNumber)
             .GreaterThan(0)
-            .WithMessage("seatNumber phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_SeatNumber_Positive);
 
         RuleFor(s => s.SeatTypeId)
             .GreaterThan(0)
             .When(s => s.SeatTypeId is not null)
-            .WithMessage("seatTypeId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_SeatTypeId_Positive);
     }
 }
 
@@ -64,7 +65,7 @@ public class UpdateSeatLayoutRequestValidator : AbstractValidator<UpdateSeatLayo
     {
         RuleFor(x => x.Seats)
             .NotEmpty()
-            .WithMessage("Danh sách seats không được rỗng.");
+            .WithMessage(Messages.Validation_Seats_NotEmpty);
 
         RuleForEach(x => x.Seats)
             .SetValidator(new SeatLayoutItemValidator());
@@ -73,7 +74,7 @@ public class UpdateSeatLayoutRequestValidator : AbstractValidator<UpdateSeatLayo
             .Must(seats =>
                 seats.Select(s => (s.SeatRow.Trim().ToUpperInvariant(), s.SeatNumber)).Distinct().Count() == seats.Count
             )
-            .WithMessage("Tồn tại ghế trùng vị trí (SeatRow + SeatNumber) trong danh sách.")
+            .WithMessage(Messages.Validation_Seats_DuplicatedPosition)
             .WithName("seats");
     }
 }

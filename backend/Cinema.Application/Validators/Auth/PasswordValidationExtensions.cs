@@ -1,4 +1,5 @@
 using FluentValidation;
+using Cinema.Shared.Resources;
 
 namespace Cinema.Application.Validators.Auth;
 
@@ -10,11 +11,11 @@ public static class PasswordValidationExtensions
         ruleBuilder
             .NotEmpty()
             .MinimumLength(8)
-            .WithMessage("Mật khẩu phải có ít nhất 8 ký tự.")
+            .WithMessage(Messages.Validation_PasswordMinLength8)
             .Matches("[A-Z]")
-            .WithMessage("Mật khẩu phải có ít nhất 1 chữ hoa.")
+            .WithMessage(Messages.Validation_PasswordUppercase)
             .Matches("[a-z]")
-            .WithMessage("Mật khẩu phải có ít nhất 1 chữ thường.")
+            .WithMessage(Messages.Validation_PasswordLowercase)
             .Matches("[0-9]")
-            .WithMessage("Mật khẩu phải có ít nhất 1 chữ số.");
+            .WithMessage(Messages.Validation_PasswordDigit);
 }

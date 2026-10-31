@@ -3,6 +3,7 @@ using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,7 +60,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var exists = await db.Genres.AnyAsync(g => g.Name == request.Name, cancellationToken);
         if (exists)
-            throw new ConflictAppException("Thể loại đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_GenreExists);
 
         var entity = new Genre { Name = request.Name };
         db.Genres.Add(entity);
@@ -75,7 +76,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Genres.FirstOrDefaultAsync(g => g.GenreId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy thể loại.");
+            ?? throw new NotFoundException(Messages.NotFound_Genre);
         entity.Name = request.Name;
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<GenreDto>();
@@ -88,11 +89,11 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Genres.FirstOrDefaultAsync(g => g.GenreId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy thể loại.");
+            ?? throw new NotFoundException(Messages.NotFound_Genre);
 
         var isReferenced = await db.MovieGenres.AnyAsync(mg => mg.GenreId == id, cancellationToken);
         if (isReferenced)
-            throw new ConflictAppException("Thể loại đang được phim tham chiếu, không thể xóa.");
+            throw new ConflictAppException(Messages.Conflict_GenreInUse);
 
         db.Genres.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -124,7 +125,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var exists = await db.Languages.AnyAsync(l => l.Name == request.Name, cancellationToken);
         if (exists)
-            throw new ConflictAppException("Ngôn ngữ đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_LanguageExists);
 
         var entity = new Language { Name = request.Name };
         db.Languages.Add(entity);
@@ -140,7 +141,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Languages.FirstOrDefaultAsync(l => l.LanguageId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy ngôn ngữ.");
+            ?? throw new NotFoundException(Messages.NotFound_Language);
         entity.Name = request.Name;
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<LanguageDto>();
@@ -153,11 +154,11 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Languages.FirstOrDefaultAsync(l => l.LanguageId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy ngôn ngữ.");
+            ?? throw new NotFoundException(Messages.NotFound_Language);
 
         var isReferenced = await db.Movies.AnyAsync(m => m.LanguageId == id, cancellationToken);
         if (isReferenced)
-            throw new ConflictAppException("Ngôn ngữ đang được phim tham chiếu, không thể xóa.");
+            throw new ConflictAppException(Messages.Conflict_LanguageInUse);
 
         db.Languages.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -187,7 +188,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var exists = await db.AgeRatings.AnyAsync(a => a.Code == request.Code, cancellationToken);
         if (exists)
-            throw new ConflictAppException("Mã phân loại độ tuổi đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_AgeRatingCodeExists);
 
         var entity = new AgeRating { Code = request.Code, Description = request.Description };
         db.AgeRatings.Add(entity);
@@ -203,7 +204,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.AgeRatings.FirstOrDefaultAsync(a => a.AgeRatingId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phân loại độ tuổi.");
+            ?? throw new NotFoundException(Messages.NotFound_AgeRating);
         entity.Code = request.Code;
         entity.Description = request.Description;
         await db.SaveChangesAsync(cancellationToken);
@@ -217,12 +218,12 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.AgeRatings.FirstOrDefaultAsync(a => a.AgeRatingId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy phân loại độ tuổi.");
+            ?? throw new NotFoundException(Messages.NotFound_AgeRating);
 
         var isReferenced = await db.Movies.AnyAsync(m => m.AgeRatingId == id, cancellationToken);
         if (isReferenced)
             throw new ConflictAppException(
-                "Phân loại độ tuổi đang được phim tham chiếu, không thể xóa."
+                Messages.Conflict_AgeRatingInUse
             );
 
         db.AgeRatings.Remove(entity);
@@ -270,7 +271,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Directors.FirstOrDefaultAsync(d => d.DirectorId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy đạo diễn.");
+            ?? throw new NotFoundException(Messages.NotFound_Director);
         entity.FullName = request.FullName;
         entity.AvatarUrl = request.AvatarUrl;
         await db.SaveChangesAsync(cancellationToken);
@@ -284,11 +285,11 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Directors.FirstOrDefaultAsync(d => d.DirectorId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy đạo diễn.");
+            ?? throw new NotFoundException(Messages.NotFound_Director);
 
         var isReferenced = await db.Movies.AnyAsync(m => m.DirectorId == id, cancellationToken);
         if (isReferenced)
-            throw new ConflictAppException("Đạo diễn đang được phim tham chiếu, không thể xóa.");
+            throw new ConflictAppException(Messages.Conflict_DirectorInUse);
 
         db.Directors.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -335,7 +336,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Actors.FirstOrDefaultAsync(a => a.ActorId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy diễn viên.");
+            ?? throw new NotFoundException(Messages.NotFound_Actor);
         entity.FullName = request.FullName;
         entity.AvatarUrl = request.AvatarUrl;
         await db.SaveChangesAsync(cancellationToken);
@@ -349,12 +350,12 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Actors.FirstOrDefaultAsync(a => a.ActorId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy diễn viên.");
+            ?? throw new NotFoundException(Messages.NotFound_Actor);
 
         var isReferenced = await db.MovieCast.AnyAsync(mc => mc.ActorId == id, cancellationToken);
         if (isReferenced)
             throw new ConflictAppException(
-                "Diễn viên còn trong danh sách diễn viên của phim, không thể xóa."
+                Messages.Conflict_ActorInUse
             );
 
         db.Actors.Remove(entity);
@@ -385,7 +386,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var exists = await db.Positions.AnyAsync(p => p.Name == request.Name, cancellationToken);
         if (exists)
-            throw new ConflictAppException("Vị trí đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_PositionExists);
 
         var entity = new Position { Name = request.Name };
         db.Positions.Add(entity);
@@ -401,7 +402,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Positions.FirstOrDefaultAsync(p => p.PositionId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy vị trí.");
+            ?? throw new NotFoundException(Messages.NotFound_Position);
         entity.Name = request.Name;
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<PositionDto>();
@@ -414,11 +415,11 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.Positions.FirstOrDefaultAsync(p => p.PositionId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy vị trí.");
+            ?? throw new NotFoundException(Messages.NotFound_Position);
 
         var isReferenced = await db.Employees.AnyAsync(e => e.PositionId == id, cancellationToken);
         if (isReferenced)
-            throw new ConflictAppException("Vị trí đang được nhân viên tham chiếu, không thể xóa.");
+            throw new ConflictAppException(Messages.Conflict_PositionInUse);
 
         db.Positions.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -448,7 +449,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var exists = await db.ScreenTypes.AnyAsync(s => s.Name == request.Name, cancellationToken);
         if (exists)
-            throw new ConflictAppException("Loại màn hình đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_ScreenTypeExists);
 
         var entity = new ScreenType { Name = request.Name };
         db.ScreenTypes.Add(entity);
@@ -464,7 +465,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.ScreenTypes.FirstOrDefaultAsync(s => s.ScreenTypeId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy loại màn hình.");
+            ?? throw new NotFoundException(Messages.NotFound_ScreenType);
         entity.Name = request.Name;
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<ScreenTypeDto>();
@@ -477,7 +478,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.ScreenTypes.FirstOrDefaultAsync(s => s.ScreenTypeId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy loại màn hình.");
+            ?? throw new NotFoundException(Messages.NotFound_ScreenType);
 
         var isReferenced = await db.CinemaRooms.AnyAsync(
             r => r.ScreenTypeId == id,
@@ -485,7 +486,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         );
         if (isReferenced)
             throw new ConflictAppException(
-                "Loại màn hình đang được phòng chiếu tham chiếu, không thể xóa."
+                Messages.Conflict_ScreenTypeInUse
             );
 
         db.ScreenTypes.Remove(entity);
@@ -516,7 +517,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var exists = await db.SeatTypes.AnyAsync(s => s.Name == request.Name, cancellationToken);
         if (exists)
-            throw new ConflictAppException("Loại ghế đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_SeatTypeExists);
 
         var entity = new SeatType
         {
@@ -536,7 +537,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.SeatTypes.FirstOrDefaultAsync(s => s.SeatTypeId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy loại ghế.");
+            ?? throw new NotFoundException(Messages.NotFound_SeatType);
         entity.Name = request.Name;
         entity.PriceMultiplier = request.PriceMultiplier;
         await db.SaveChangesAsync(cancellationToken);
@@ -550,11 +551,11 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.SeatTypes.FirstOrDefaultAsync(s => s.SeatTypeId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy loại ghế.");
+            ?? throw new NotFoundException(Messages.NotFound_SeatType);
 
         var isReferenced = await db.Seats.AnyAsync(s => s.SeatTypeId == id, cancellationToken);
         if (isReferenced)
-            throw new ConflictAppException("Loại ghế đang được ghế tham chiếu, không thể xóa.");
+            throw new ConflictAppException(Messages.Conflict_SeatTypeInUse);
 
         db.SeatTypes.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -587,7 +588,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
             cancellationToken
         );
         if (exists)
-            throw new ConflictAppException("Hạng thành viên đã tồn tại.");
+            throw new ConflictAppException(Messages.Conflict_MembershipTierExists);
 
         var entity = new MembershipTier
         {
@@ -608,7 +609,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.MembershipTiers.FirstOrDefaultAsync(t => t.TierId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy hạng thành viên.");
+            ?? throw new NotFoundException(Messages.NotFound_MembershipTier);
         entity.TierName = request.TierName;
         entity.MinPoints = request.MinPoints;
         entity.DiscountPercent = request.DiscountPercent;
@@ -623,7 +624,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var entity =
             await db.MembershipTiers.FirstOrDefaultAsync(t => t.TierId == id, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy hạng thành viên.");
+            ?? throw new NotFoundException(Messages.NotFound_MembershipTier);
 
         var isReferenced = await db.CustomerProfiles.AnyAsync(
             p => p.TierId == id,
@@ -631,7 +632,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         );
         if (isReferenced)
             throw new ConflictAppException(
-                "Hạng thành viên đang được khách hàng tham chiếu, không thể xóa."
+                Messages.Conflict_MembershipTierInUse
             );
 
         db.MembershipTiers.Remove(entity);

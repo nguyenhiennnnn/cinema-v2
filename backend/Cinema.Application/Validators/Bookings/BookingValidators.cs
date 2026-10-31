@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.Options;
+using Cinema.Shared.Resources;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 
@@ -14,13 +15,13 @@ public class ComboSelectionRequestValidator : AbstractValidator<ComboSelectionRe
 
         RuleFor(x => x.ComboId)
             .GreaterThan(0)
-            .WithMessage("comboId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_ComboId_Positive);
 
         RuleFor(x => x.Quantity)
             .GreaterThan(0)
-            .WithMessage("quantity phải lớn hơn 0.")
+            .WithMessage(Messages.Validation_Quantity_Positive)
             .LessThanOrEqualTo(maxQuantity)
-            .WithMessage($"quantity không được vượt quá {maxQuantity}.");
+            .WithMessage(string.Format(Messages.Validation_Quantity_Max, maxQuantity));
     }
 }
 
@@ -33,35 +34,35 @@ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequ
 
         RuleFor(x => x.ShowtimeId)
             .GreaterThan(0)
-            .WithMessage("showtimeId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_ShowtimeId_Positive);
 
         RuleFor(x => x.CustomerName)
             .NotEmpty()
-            .WithMessage("customerName không được để trống.")
+            .WithMessage(Messages.Validation_CustomerName_Required)
             .MaximumLength(100)
-            .WithMessage("customerName không được vượt quá 100 ký tự.");
+            .WithMessage(Messages.Validation_CustomerName_MaxLength100);
 
         RuleFor(x => x.CustomerPhone)
             .Matches(PhoneRegex())
             .When(x => !string.IsNullOrEmpty(x.CustomerPhone))
-            .WithMessage("Số điện thoại không hợp lệ.")
+            .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20);
 
         RuleFor(x => x.SeatIds)
             .NotEmpty()
-            .WithMessage("Phải chọn ít nhất 1 ghế.");
+            .WithMessage(Messages.Validation_Seats_AtLeastOne);
 
         RuleForEach(x => x.SeatIds)
             .GreaterThan(0)
-            .WithMessage("seatId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_SeatId_Positive);
 
         RuleFor(x => x.SeatIds)
             .Must(ids => ids.Distinct().Count() == ids.Count)
-            .WithMessage("Danh sách ghế bị trùng lặp.");
+            .WithMessage(Messages.Validation_Seats_Duplicated);
 
         RuleFor(x => x.SeatIds)
             .Must(ids => ids.Count <= maxSeats)
-            .WithMessage($"Mỗi booking tối đa {maxSeats} ghế.");
+            .WithMessage(string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats));
 
         RuleForEach(x => x.Combos)
             .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
@@ -80,23 +81,23 @@ public partial class CounterHoldRequestValidator : AbstractValidator<CounterHold
 
         RuleFor(x => x.ShowtimeId)
             .GreaterThan(0)
-            .WithMessage("showtimeId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_ShowtimeId_Positive);
 
         RuleFor(x => x.SeatIds)
             .NotEmpty()
-            .WithMessage("Phải chọn ít nhất 1 ghế.");
+            .WithMessage(Messages.Validation_Seats_AtLeastOne);
 
         RuleForEach(x => x.SeatIds)
             .GreaterThan(0)
-            .WithMessage("seatId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_SeatId_Positive);
 
         RuleFor(x => x.SeatIds)
             .Must(ids => ids.Distinct().Count() == ids.Count)
-            .WithMessage("Danh sách ghế bị trùng lặp.");
+            .WithMessage(Messages.Validation_Seats_Duplicated);
 
         RuleFor(x => x.SeatIds)
             .Must(ids => ids.Count <= maxSeats)
-            .WithMessage($"Mỗi booking tối đa {maxSeats} ghế.");
+            .WithMessage(string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats));
 
         RuleForEach(x => x.Combos)
             .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
@@ -104,12 +105,12 @@ public partial class CounterHoldRequestValidator : AbstractValidator<CounterHold
         RuleFor(x => x.UserId)
             .GreaterThan(0)
             .When(x => x.UserId is not null)
-            .WithMessage("userId phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_UserId_Positive);
 
         RuleFor(x => x.CustomerName)
             .NotEmpty()
             .When(x => x.UserId is null)
-            .WithMessage("Phải cung cấp userId hoặc customerName.")
+            .WithMessage(Messages.Validation_UserIdOrCustomerNameRequired)
             .WithName("customerName");
 
         RuleFor(x => x.CustomerName)
@@ -119,7 +120,7 @@ public partial class CounterHoldRequestValidator : AbstractValidator<CounterHold
         RuleFor(x => x.CustomerPhone)
             .Matches(PhoneRegex())
             .When(x => !string.IsNullOrEmpty(x.CustomerPhone))
-            .WithMessage("Số điện thoại không hợp lệ.")
+            .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20);
     }
 
@@ -136,7 +137,7 @@ public class CheckoutRequestValidator : AbstractValidator<CheckoutRequest>
         RuleFor(x => x.PaymentMethod)
             .NotEmpty()
             .Must(m => ValidMethods.Contains(m))
-            .WithMessage("paymentMethod phải là VNPay, Momo hoặc Stripe.");
+            .WithMessage(Messages.Validation_PaymentMethod_Allowed);
     }
 }
 
@@ -146,7 +147,7 @@ public class CounterCheckoutRequestValidator : AbstractValidator<CounterCheckout
     {
         RuleFor(x => x.AmountReceived)
             .GreaterThan(0)
-            .WithMessage("amountReceived phải lớn hơn 0.");
+            .WithMessage(Messages.Validation_AmountReceived_Positive);
     }
 }
 
@@ -156,6 +157,6 @@ public class CheckinRequestValidator : AbstractValidator<CheckinRequest>
     {
         RuleFor(x => x.QrCode)
             .NotEmpty()
-            .WithMessage("qrCode không được để trống.");
+            .WithMessage(Messages.Validation_QrCode_Required);
     }
 }

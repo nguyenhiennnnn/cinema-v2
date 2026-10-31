@@ -4,6 +4,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Microsoft.Extensions.Options;
 
 namespace Cinema.Infrastructure.Payments;
@@ -64,10 +65,10 @@ public class MomoGateway(IOptions<MomoOptions> options, HttpClient httpClient) :
             await response.Content.ReadFromJsonAsync<MomoCreateResponse>(
                 JsonOptions,
                 cancellationToken
-            ) ?? throw new BusinessRuleException("MoMo trả về response rỗng/không hợp lệ.");
+            ) ?? throw new BusinessRuleException(Messages.Rule_MomoInvalidResponse);
 
         if (result.ResultCode != 0)
-            throw new BusinessRuleException($"MoMo tạo thanh toán thất bại: {result.Message}");
+            throw new BusinessRuleException(string.Format(Messages.Rule_MomoCreatePaymentFailed, result.Message));
 
         return new CreatePaymentResult(result.PayUrl ?? string.Empty, orderId);
     }

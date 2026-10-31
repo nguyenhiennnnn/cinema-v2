@@ -8,6 +8,7 @@ using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
+using Cinema.Shared.Resources;
 using Hangfire;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -89,30 +90,30 @@ public class ShowtimeService(
             await db.Movies.FirstOrDefaultAsync(
                 m => m.MovieId == request.MovieId,
                 cancellationToken
-            ) ?? throw new ValidationAppException("movieId không tồn tại.");
+            ) ?? throw new ValidationAppException(Messages.Invalid_MovieIdNotFound);
         var room =
             await db.CinemaRooms.FirstOrDefaultAsync(
                 r => r.RoomId == request.RoomId,
                 cancellationToken
             )
             ?? throw new ValidationAppException(
-                "roomId không tồn tại.",
-                new Dictionary<string, string[]> { ["roomId"] = ["roomId không tồn tại."] }
+                Messages.Invalid_RoomIdNotFound,
+                new Dictionary<string, string[]> { ["roomId"] = [Messages.Invalid_RoomIdNotFound] }
             );
 
         if (movie.Status == MovieStatus.Ended)
             throw new BusinessRuleException(
-                "Phim đã ngừng chiếu (Ended), không thể tạo suất chiếu."
+                Messages.Rule_MovieEndedCannotCreateShowtime
             );
         if (!room.IsActive)
-            throw new BusinessRuleException("Phòng chiếu không hoạt động (inactive).");
+            throw new BusinessRuleException(Messages.Rule_RoomInactive);
 
         var seatCount = await db.Seats.CountAsync(
             s => s.RoomId == request.RoomId && s.IsActive && !s.IsAisle,
             cancellationToken
         );
         if (seatCount == 0)
-            throw new BusinessRuleException("Phòng chiếu chưa được thiết lập sơ đồ ghế.");
+            throw new BusinessRuleException(Messages.Rule_RoomHasNoSeatLayout);
 
         EnsureStartsInFuture(request.StartTime);
 
@@ -187,13 +188,13 @@ public class ShowtimeService(
             await db.Showtimes.FirstOrDefaultAsync(
                 s => s.ShowtimeId == showtimeId,
                 cancellationToken
-            ) ?? throw new NotFoundException("Không tìm thấy suất chiếu.");
+            ) ?? throw new NotFoundException(Messages.NotFound_Showtime);
 
         EnsureScheduled(showtime, "sửa");
 
         if (request.RoomId != showtime.RoomId)
             throw new BusinessRuleException(
-                "Không thể đổi phòng chiếu sau khi đã tạo suất chiếu. Hãy hủy và tạo suất chiếu mới."
+                Messages.Rule_CannotChangeShowtimeRoom
             );
 
         var hasConfirmedBooking = await db.Bookings.AnyAsync(
@@ -202,7 +203,7 @@ public class ShowtimeService(
         );
         if (hasConfirmedBooking)
             throw new ConflictAppException(
-                "Suất chiếu đã có booking đã xác nhận (Confirmed), không thể sửa."
+                Messages.Conflict_ShowtimeHasConfirmedBookings
             );
 
         // Khách đang giữ ghế / đang thanh toán (Pending) cũng không được bị đổi suất giữa chừng.
@@ -229,7 +230,7 @@ public class ShowtimeService(
             );
         if (hasActiveCheckout)
             throw new ConflictAppException(
-                "Suất chiếu đang có khách giữ ghế hoặc đang thanh toán (Pending), không thể sửa lúc này. Vui lòng thử lại sau vài phút."
+                Messages.Conflict_ShowtimeHasPendingBookings
             );
 
         var movie =
@@ -238,12 +239,12 @@ public class ShowtimeService(
                 cancellationToken
             )
             ?? throw new ValidationAppException(
-                "movieId không tồn tại.",
-                new Dictionary<string, string[]> { ["movieId"] = ["movieId không tồn tại."] }
+                Messages.Invalid_MovieIdNotFound,
+                new Dictionary<string, string[]> { ["movieId"] = [Messages.Invalid_MovieIdNotFound] }
             );
         if (movie.Status == MovieStatus.Ended)
             throw new BusinessRuleException(
-                "Phim đã ngừng chiếu (Ended), không thể cập nhật suất chiếu."
+                Messages.Rule_MovieEndedCannotUpdateShowtime
             );
 
         EnsureStartsInFuture(request.StartTime);
@@ -313,11 +314,11 @@ public class ShowtimeService(
             await db.Showtimes.FirstOrDefaultAsync(
                 s => s.ShowtimeId == showtimeId,
                 cancellationToken
-            ) ?? throw new NotFoundException("Không tìm thấy suất chiếu.");
+            ) ?? throw new NotFoundException(Messages.NotFound_Showtime);
 
         EnsureScheduled(showtime, "hủy");
         if (showtime.StartTime <= DateTime.UtcNow)
-            throw new BusinessRuleException("Suất chiếu đã bắt đầu, không thể hủy.");
+            throw new BusinessRuleException(Messages.Rule_ShowtimeStartedCannotCancel);
 
         var manualRefundCount = 0;
         var refundPaymentIds = new List<int>();
@@ -467,8 +468,8 @@ public class ShowtimeService(
                 cancellationToken
             )
             ?? throw new ValidationAppException(
-                "movieId không tồn tại.",
-                new Dictionary<string, string[]> { ["movieId"] = ["movieId không tồn tại."] }
+                Messages.Invalid_MovieIdNotFound,
+                new Dictionary<string, string[]> { ["movieId"] = [Messages.Invalid_MovieIdNotFound] }
             );
         var room =
             await db.CinemaRooms.FirstOrDefaultAsync(
@@ -476,23 +477,23 @@ public class ShowtimeService(
                 cancellationToken
             )
             ?? throw new ValidationAppException(
-                "roomId không tồn tại.",
-                new Dictionary<string, string[]> { ["roomId"] = ["roomId không tồn tại."] }
+                Messages.Invalid_RoomIdNotFound,
+                new Dictionary<string, string[]> { ["roomId"] = [Messages.Invalid_RoomIdNotFound] }
             );
 
         if (movie.Status == MovieStatus.Ended)
             throw new BusinessRuleException(
-                "Phim đã ngừng chiếu (Ended), không thể tạo suất chiếu."
+                Messages.Rule_MovieEndedCannotCreateShowtime
             );
         if (!room.IsActive)
-            throw new BusinessRuleException("Phòng chiếu không hoạt động (inactive).");
+            throw new BusinessRuleException(Messages.Rule_RoomInactive);
 
         var seatCount = await db.Seats.CountAsync(
             s => s.RoomId == request.RoomId && s.IsActive && !s.IsAisle,
             cancellationToken
         );
         if (seatCount == 0)
-            throw new BusinessRuleException("Phòng chiếu chưa được thiết lập sơ đồ ghế.");
+            throw new BusinessRuleException(Messages.Rule_RoomHasNoSeatLayout);
 
         var dayOfWeekMap = new Dictionary<string, DayOfWeek>
         {
@@ -532,7 +533,7 @@ public class ShowtimeService(
 
                 if (drafts.Count > MaxBatchSize)
                     throw new BusinessRuleException(
-                        $"Tối đa {MaxBatchSize} suất chiếu mỗi lần tạo hàng loạt. Hãy thu hẹp khoảng ngày."
+                        string.Format(Messages.Rule_BulkCreateBatchTooLarge, MaxBatchSize)
                     );
             }
         }
@@ -650,10 +651,10 @@ public class ShowtimeService(
         var toDate = request.ToDate ?? request.Date;
         var dayCount = toDate.DayNumber - request.Date.DayNumber + 1;
         if (dayCount < 1)
-            throw new ValidationAppException("toDate phải >= date.");
+            throw new ValidationAppException(Messages.Invalid_ToDateBeforeDate);
         if (dayCount > MaxAutoScheduleDays)
             throw new ValidationAppException(
-                $"Khoảng ngày xếp lịch không được vượt quá {MaxAutoScheduleDays} ngày."
+                string.Format(Messages.Invalid_AutoScheduleRangeTooLong, MaxAutoScheduleDays)
             );
 
         var movieIds = request.Movies.Select(m => m.MovieId).ToList();
@@ -672,13 +673,13 @@ public class ShowtimeService(
         var missing = movieIds.Except(movies.Select(m => m.MovieId)).ToList();
         if (missing.Count > 0)
             throw new ValidationAppException(
-                $"movieId không tồn tại: {string.Join(", ", missing)}."
+                string.Format(Messages.Invalid_MovieIdsNotFound, string.Join(", ", missing))
             );
 
         var ended = movies.FirstOrDefault(m => m.Status == MovieStatus.Ended);
         if (ended is not null)
             throw new BusinessRuleException(
-                $"Phim \"{ended.Title}\" đã ngừng chiếu (Ended), không thể xếp lịch."
+                string.Format(Messages.Rule_MovieEndedCannotSchedule, ended.Title)
             );
 
         var roomQuery = db.CinemaRooms.Where(r =>
@@ -696,7 +697,7 @@ public class ShowtimeService(
             .ToListAsync(cancellationToken);
         if (rooms.Count == 0)
             throw new BusinessRuleException(
-                "Không có phòng chiếu hoạt động và đã có sơ đồ ghế để xếp lịch."
+                Messages.Rule_NoSchedulableRooms
             );
 
         var hours = await db
@@ -861,11 +862,11 @@ public class ShowtimeService(
 
         if (sources.Count == 0)
             throw new BusinessRuleException(
-                "Không có suất chiếu nào trong khoảng ngày nguồn để nhân bản."
+                Messages.Rule_NoShowtimesToClone
             );
         if (sources.Count > MaxBatchSize)
             throw new BusinessRuleException(
-                $"Tối đa {MaxBatchSize} suất chiếu mỗi lần nhân bản. Hãy thu hẹp khoảng ngày nguồn."
+                string.Format(Messages.Rule_CloneBatchTooLarge, MaxBatchSize)
             );
 
         var drafts = sources
@@ -907,7 +908,7 @@ public class ShowtimeService(
                 .Showtimes.Where(s => s.ShowtimeId == showtimeId)
                 .Select(s => (int?)s.Room.Cols)
                 .FirstOrDefaultAsync(cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy suất chiếu.");
+            ?? throw new NotFoundException(Messages.NotFound_Showtime);
 
         var seats = await db.LoadSeatSlotsAsync(showtimeId, cancellationToken);
         var cols = Math.Max(roomCols, seats.Count > 0 ? seats.Max(s => s.Number) : 1);
@@ -924,7 +925,7 @@ public class ShowtimeService(
                 .Showtimes.Include(s => s.Room)
                 .Include(s => s.Movie)
                 .FirstOrDefaultAsync(s => s.ShowtimeId == showtimeId, cancellationToken)
-            ?? throw new NotFoundException("Không tìm thấy suất chiếu.");
+            ?? throw new NotFoundException(Messages.NotFound_Showtime);
 
         var seats = await db
             .ShowtimeSeats.Include(ss => ss.Seat)
@@ -1108,7 +1109,7 @@ public class ShowtimeService(
     {
         if (showtime.Status != ShowtimeStatus.Scheduled)
             throw new BusinessRuleException(
-                $"Chỉ có thể {action} suất chiếu đang ở trạng thái Scheduled (hiện tại: {showtime.Status})."
+                string.Format(Messages.Rule_ShowtimeMustBeScheduled, action, showtime.Status)
             );
     }
 
@@ -1333,7 +1334,7 @@ public class ShowtimeService(
     )
     {
         if (await HasOverlapAsync(roomId, startTime, endTime, excludeShowtimeId, cancellationToken))
-            throw new ConflictAppException("Trùng khung giờ chiếu trong phòng này.");
+            throw new ConflictAppException(Messages.Conflict_ShowtimeOverlapInRoom);
     }
 
     private async Task<int> GenerateShowtimeSeatsAsync(
@@ -1366,7 +1367,7 @@ public class ShowtimeService(
     private static void EnsureStartsInFuture(DateTime startTime)
     {
         if (startTime <= DateTime.UtcNow)
-            throw new BusinessRuleException("Giờ bắt đầu suất chiếu phải ở tương lai.");
+            throw new BusinessRuleException(Messages.Rule_ShowtimeStartMustBeFuture);
     }
 
     private async Task ValidateOperatingHoursAsync(
