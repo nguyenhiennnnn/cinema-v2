@@ -156,7 +156,6 @@ services:
     name: cinema-web
     runtime: static
     plan: free
-    region: singapore
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: ./frontend/dist
     autoDeployTrigger: commit
