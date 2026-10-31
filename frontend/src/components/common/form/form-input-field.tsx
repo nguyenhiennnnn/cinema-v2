@@ -15,6 +15,7 @@ interface FormInputFieldProps<TFieldValues extends FieldValues> {
   placeholder?: string;
   autoFocus?: boolean;
   autoComplete?: string;
+  disabled?: boolean;
 }
 
 export const FormInputField = <TFieldValues extends FieldValues>({
@@ -28,6 +29,7 @@ export const FormInputField = <TFieldValues extends FieldValues>({
   placeholder,
   autoFocus,
   autoComplete,
+  disabled,
 }: FormInputFieldProps<TFieldValues>) => {
   const id = `field-${name}`;
 
@@ -45,6 +47,7 @@ export const FormInputField = <TFieldValues extends FieldValues>({
               placeholder={placeholder}
               autoFocus={autoFocus}
               autoComplete={autoComplete}
+              disabled={disabled}
               aria-invalid={fieldState.invalid}
             />
           ) : (
@@ -58,6 +61,7 @@ export const FormInputField = <TFieldValues extends FieldValues>({
               placeholder={placeholder}
               autoFocus={autoFocus}
               autoComplete={autoComplete}
+              disabled={disabled}
               aria-invalid={fieldState.invalid}
             />
           )}

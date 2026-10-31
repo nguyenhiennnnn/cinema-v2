@@ -177,7 +177,9 @@ public static class TestDataSeeder
         AppDbContext db,
         decimal cancelRefundPercent = 100m,
         int cancelDeadlineHours = 2,
-        decimal pointsPerAmount = 10_000m
+        decimal pointsPerAmount = 10_000m,
+        int holdDurationMinutes = CinemaSettings.DefaultHoldDurationMinutes,
+        int checkInOpenMinutes = CinemaSettings.DefaultCheckInOpenMinutes
     )
     {
         var settings = db.CinemaSettings.FirstOrDefault(s => s.Id == 1);
@@ -195,6 +197,8 @@ public static class TestDataSeeder
         settings.CancelRefundPercent = cancelRefundPercent;
         settings.CancelDeadlineHours = cancelDeadlineHours;
         settings.PointsPerAmount = pointsPerAmount;
+        settings.HoldDurationMinutes = holdDurationMinutes;
+        settings.CheckInOpenMinutes = checkInOpenMinutes;
         db.SaveChanges();
         return settings;
     }

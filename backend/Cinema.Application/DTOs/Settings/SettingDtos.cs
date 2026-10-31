@@ -12,7 +12,9 @@ public record CinemaSettingsDto(
     decimal PointsPerAmount,
     decimal CancelRefundPercent,
     int CancelDeadlineHours,
-    int StopSellingMinutesBefore
+    int StopSellingMinutesBefore,
+    int HoldDurationMinutes,
+    int CheckInOpenMinutes
 );
 
 public record UpdateSettingsRequest(
@@ -27,5 +29,7 @@ public record UpdateSettingsRequest(
     decimal PointsPerAmount,
     decimal CancelRefundPercent,
     int CancelDeadlineHours,
-    int StopSellingMinutesBefore = 0
+    int StopSellingMinutesBefore = 0,
+    int? HoldDurationMinutes = null,
+    int? CheckInOpenMinutes = null
 );

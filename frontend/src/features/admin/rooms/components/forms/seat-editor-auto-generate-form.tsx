@@ -9,6 +9,7 @@ import { FormSelectField } from "@/components/common/form/form-select-field";
 import { resolveSeatVisualKind } from "@/components/common/seat-map/seat-map-types";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
 import type { AutoGenerateOptions } from "../../hooks/use-seat-editor-state";
+import { parseAisleCols } from "../../utils/parse-aisle-cols";
 
 const NONE_SEAT_TYPE_ID = 0;
 
@@ -23,12 +24,6 @@ const autoGenerateFormSchema = z.object({
 });
 
 type AutoGenerateFormValues = z.infer<typeof autoGenerateFormSchema>;
-
-const parseAisleCols = (text: string | undefined) =>
-  (text ?? "")
-    .split(",")
-    .map((s) => Number(s.trim()))
-    .filter((n) => Number.isInteger(n) && n > 0);
 
 interface SeatEditorAutoGenerateFormProps {
   rows: number;

@@ -20,4 +20,11 @@ public class CinemaSettings
     public int CancelDeadlineHours { get; set; } = 2;
 
     public int StopSellingMinutesBefore { get; set; }
+
+    public const int DefaultHoldDurationMinutes = 15;
+    public const int DefaultCheckInOpenMinutes = 30;
+
+    public int HoldDurationMinutes { get; set; } = DefaultHoldDurationMinutes;
+
+    public int CheckInOpenMinutes { get; set; } = DefaultCheckInOpenMinutes;
 }

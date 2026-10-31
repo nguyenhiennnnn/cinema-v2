@@ -76,11 +76,18 @@ public abstract class BookingServiceTestBase : IDisposable
 
     protected BookingService CreateSut()
     {
+        var settings = Db.CinemaSettings.FirstOrDefault(s => s.Id == 1);
+        if (settings is not null && settings.HoldDurationMinutes != HoldDurationMinutes)
+        {
+            settings.HoldDurationMinutes = HoldDurationMinutes;
+            Db.SaveChanges();
+        }
+
         Db.ChangeTracker.Clear();
 
         return new(
             Db,
-            Options.Create(new BookingOptions { HoldDurationMinutes = HoldDurationMinutes }),
+            Options.Create(new BookingOptions()),
             RealtimeNotifierMock.Object,
             PaymentGatewayMocks.Select(m => m.Object),
             BackgroundJobClientMock.Object,

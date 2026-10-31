@@ -26,8 +26,7 @@ public class BookingService(
     IOptions<BrandOptions>? brandOptions = null
 ) : IBookingService
 {
-    private readonly int _holdMinutes = bookingOptions.Value.HoldDurationMinutes;
-    private readonly int _checkInOpenMinutes = bookingOptions.Value.CheckInOpenMinutes;
+    private readonly BookingOptions _options = bookingOptions.Value;
     private readonly BrandOptions _brand = brandOptions?.Value ?? new();
 
     public async Task<HoldBookingResponse> HoldSeatsAsync(
@@ -102,7 +101,7 @@ public class BookingService(
     {
         var booking = await LoadBookingOrThrowAsync(bookingId, cancellationToken);
         if (booking.UserId != userId)
-            throw new ForbiddenAppException("Báº¡n khÃ´ng pháº£i chá»§ booking nÃ y.");
+            throw new ForbiddenAppException("Bạn không phải chủ booking này.");
 
         var seats = await GetBookingSeatsAsync(booking, cancellationToken);
         var combos = await GetBookingCombosAsync(bookingId, cancellationToken);
@@ -136,18 +135,18 @@ public class BookingService(
     {
         var booking =
             await db.Bookings.FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken)
-            ?? throw new NotFoundException("KhÃ´ng tÃ¬m tháº¥y booking.");
+            ?? throw new NotFoundException("Không tìm thấy booking.");
         if (booking.UserId != userId)
-            throw new ForbiddenAppException("Báº¡n khÃ´ng pháº£i chá»§ booking nÃ y.");
+            throw new ForbiddenAppException("Bạn không phải chủ booking này.");
         if (booking.Status != BookingStatus.Pending || booking.ExpiresAt <= DateTime.UtcNow)
             throw new BusinessRuleException(
-                "Booking khÃ´ng á»Ÿ tráº¡ng thÃ¡i Pending hoáº·c Ä‘Ã£ háº¿t háº¡n."
+                "Booking không ở trạng thái Pending hoặc đã hết hạn."
             );
 
         var gateway =
             paymentGateways.FindByMethod(request.PaymentMethod)
             ?? throw new BusinessRuleException(
-                $"Payment gateway '{request.PaymentMethod}' chÆ°a Ä‘Æ°á»£c cáº¥u hÃ¬nh."
+                $"Payment gateway '{request.PaymentMethod}' chưa được cấu hình."
             );
 
         await db
@@ -163,7 +162,7 @@ public class BookingService(
             new CreatePaymentRequest(
                 booking.BookingId,
                 booking.FinalAmount,
-                $"Thanh toÃ¡n booking {booking.BookingCode}",
+                $"Thanh toán booking {booking.BookingCode}",
                 transactionId
             ),
             cancellationToken
@@ -469,6 +468,10 @@ public class BookingService(
         CancellationToken cancellationToken
     )
     {
+        page = Math.Max(1, page);
+        pageSize =
+            pageSize <= 0 ? _options.DefaultPageSize : Math.Min(pageSize, _options.MaxPageSize);
+
         var query = db.Bookings.AsQueryable();
 
         if (
@@ -626,9 +629,10 @@ public class BookingService(
             throw new BusinessRuleException("Suất chiếu đã bị hủy.");
         var now = DateTime.UtcNow;
 
-        if (now < showtime.StartTime.AddMinutes(-_checkInOpenMinutes))
+        var checkInOpenMinutes = await GetCheckInOpenMinutesAsync(cancellationToken);
+        if (now < showtime.StartTime.AddMinutes(-checkInOpenMinutes))
             throw new BusinessRuleException(
-                $"Chưa tới giờ check-in (mở trước giờ chiếu {_checkInOpenMinutes} phút)."
+                $"Chưa tới giờ check-in (mở trước giờ chiếu {checkInOpenMinutes} phút)."
             );
         if (now > showtime.EndTime)
             throw new BusinessRuleException("Suất chiếu đã kết thúc.");
@@ -658,7 +662,7 @@ public class BookingService(
     {
         var booking =
             await db.Bookings.FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken)
-            ?? throw new NotFoundException("KhÃ´ng tÃ¬m tháº¥y booking.");
+            ?? throw new NotFoundException("Không tìm thấy booking.");
 
         if (booking.Status == BookingStatus.Confirmed)
         {
@@ -680,7 +684,7 @@ public class BookingService(
             booking.Status = BookingStatus.Cancelled;
             await db.SaveChangesAsync(cancellationToken);
             logger.LogWarning(
-                "ConfirmBookingFailed_SeatsExpired BookingId {BookingId} â€” gháº¿ Ä‘Ã£ háº¿t háº¡n giá»¯ trÆ°á»›c khi confirm.",
+                "ConfirmBookingFailed_SeatsExpired BookingId {BookingId} — ghế đã hết hạn giữ trước khi confirm.",
                 bookingId
             );
             throw new SeatsNoLongerHeldException(bookingId);
@@ -776,7 +780,7 @@ public class BookingService(
             backgroundJobClient.Enqueue<SendEmailJob>(j =>
                 j.RunAsync(
                     email,
-                    $"VÃ© xem phim cá»§a báº¡n â€” {_brand.Name}",
+                    $"Vé xem phim của bạn — {_brand.Name}",
                     html,
                     CancellationToken.None
                 )
@@ -792,12 +796,12 @@ public class BookingService(
     {
         var booking =
             await db.Bookings.FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken)
-            ?? throw new NotFoundException("KhÃ´ng tÃ¬m tháº¥y booking.");
+            ?? throw new NotFoundException("Không tìm thấy booking.");
 
         if (booking.Status != BookingStatus.Pending)
         {
             logger.LogInformation(
-                "ProcessPaymentFailure bá» qua â€” BookingId {BookingId} khÃ´ng á»Ÿ tráº¡ng thÃ¡i Pending.",
+                "ProcessPaymentFailure bỏ qua — BookingId {BookingId} không ở trạng thái Pending.",
                 bookingId
             );
             return;
@@ -806,7 +810,7 @@ public class BookingService(
         if (booking.ExpiresAt > DateTime.UtcNow)
         {
             logger.LogInformation(
-                "ProcessPaymentFailure giá»¯ gháº¿ â€” BookingId {BookingId} cÃ²n háº¡n, cho phÃ©p thanh toÃ¡n láº¡i.",
+                "ProcessPaymentFailure giữ ghế — BookingId {BookingId} còn hạn, cho phép thanh toán lại.",
                 bookingId
             );
             return;
@@ -814,7 +818,7 @@ public class BookingService(
 
         await ReleaseAndCancelBookingAsync(booking, cancellationToken);
         logger.LogInformation(
-            "PaymentFailed BookingId {BookingId} â€” gháº¿ Ä‘Ã£ Ä‘Æ°á»£c release.",
+            "PaymentFailed BookingId {BookingId} — ghế đã được release.",
             bookingId
         );
     }
@@ -933,22 +937,26 @@ public class BookingService(
             await db.Showtimes.FirstOrDefaultAsync(
                 s => s.ShowtimeId == showtimeId,
                 cancellationToken
-            ) ?? throw new NotFoundException("KhÃ´ng tÃ¬m tháº¥y suáº¥t chiáº¿u.");
+            ) ?? throw new NotFoundException("Không tìm thấy suất chiếu.");
         if (showtime.Status != ShowtimeStatus.Scheduled)
             throw new BusinessRuleException(
-                "Suáº¥t chiáº¿u khÃ´ng cÃ²n kháº£ dá»¥ng Ä‘á»ƒ Ä‘áº·t vÃ©."
+                "Suất chiếu không còn khả dụng để đặt vé."
             );
         if (showtime.StartTime <= DateTime.UtcNow)
             throw new BusinessRuleException(
-                "Suáº¥t chiáº¿u Ä‘Ã£ báº¯t Ä‘áº§u hoáº·c Ä‘Ã£ káº¿t thÃºc."
+                "Suất chiếu đã bắt đầu hoặc đã kết thúc."
             );
+
+        var holdSettings = await db
+            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
+            .Select(s => new { s.StopSellingMinutesBefore, s.HoldDurationMinutes })
+            .FirstOrDefaultAsync(cancellationToken);
+        var holdMinutes =
+            holdSettings?.HoldDurationMinutes ?? CinemaSettings.DefaultHoldDurationMinutes;
 
         if (channel == BookingChannel.Online)
         {
-            var stopMinutes = await db
-                .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
-                .Select(s => s.StopSellingMinutesBefore)
-                .FirstOrDefaultAsync(cancellationToken);
+            var stopMinutes = holdSettings?.StopSellingMinutesBefore ?? 0;
             if (
                 ShowtimeLifecycle.IsOnlineSalesClosed(
                     DateTime.UtcNow,
@@ -957,17 +965,17 @@ public class BookingService(
                 )
             )
                 throw new BusinessRuleException(
-                    $"ÄÃ£ ngá»«ng bÃ¡n vÃ© online cho suáº¥t chiáº¿u nÃ y (trÆ°á»›c giá» chiáº¿u {stopMinutes} phÃºt)."
+                    $"Đã ngừng bán vé online cho suất chiếu này (trước giờ chiếu {stopMinutes} phút)."
                 );
         }
 
         if (string.IsNullOrWhiteSpace(customerName))
         {
             throw new ValidationAppException(
-                "Thiáº¿u tÃªn khÃ¡ch hÃ ng.",
+                "Thiếu tên khách hàng.",
                 new Dictionary<string, string[]>
                 {
-                    ["customerName"] = ["customerName lÃ  báº¯t buá»™c"],
+                    ["customerName"] = ["customerName là bắt buộc"],
                 }
             );
         }
@@ -988,12 +996,12 @@ public class BookingService(
         );
         if (hasActivePending)
             throw new ConflictAppException(
-                "Äang cÃ³ má»™t booking Pending khÃ¡c chÆ°a hoÃ n táº¥t cho suáº¥t chiáº¿u nÃ y."
+                "Đang có một booking Pending khác chưa hoàn tất cho suất chiếu này."
             );
 
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var now = DateTime.UtcNow;
-        var holdUntil = now.AddMinutes(_holdMinutes);
+        var holdUntil = now.AddMinutes(holdMinutes);
         if (holdUntil > showtime.StartTime)
             holdUntil = showtime.StartTime;
         var distinctSeatIds = showtimeSeatIds.Distinct().ToList();
@@ -1038,7 +1046,7 @@ public class BookingService(
 
             await transaction.RollbackAsync(cancellationToken);
             throw new SeatConflictException(
-                "Má»™t hoáº·c nhiá»u gháº¿ Ä‘Ã£ bá»‹ giá»¯/Ä‘áº·t bá»Ÿi ngÆ°á»i khÃ¡c.",
+                "Một hoặc nhiều ghế đã bị giữ/đặt bởi người khác.",
                 conflictSeatIds
             );
         }
@@ -1112,6 +1120,12 @@ public class BookingService(
     private Task<CinemaSettings> GetCinemaSettingsAsync(CancellationToken cancellationToken) =>
         db.GetCinemaSettingsAsync(cancellationToken);
 
+    private async Task<int> GetCheckInOpenMinutesAsync(CancellationToken cancellationToken) =>
+        await db
+            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
+            .Select(s => (int?)s.CheckInOpenMinutes)
+            .FirstOrDefaultAsync(cancellationToken) ?? CinemaSettings.DefaultCheckInOpenMinutes;
+
     private async Task<decimal> CalculateDiscountAmountAsync(
         int? bookingUserId,
         decimal totalAmount,
@@ -1157,10 +1171,10 @@ public class BookingService(
             .ToListAsync(cancellationToken);
         if (combos.Count != comboIds.Count)
             throw new ValidationAppException(
-                "Má»™t hoáº·c nhiá»u comboId khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ ngá»«ng bÃ¡n.",
+                "Một hoặc nhiều comboId không tồn tại hoặc đã ngừng bán.",
                 new Dictionary<string, string[]>
                 {
-                    ["combos"] = ["comboId khÃ´ng há»£p lá»‡ hoáº·c Ä‘Ã£ ngá»«ng bÃ¡n."],
+                    ["combos"] = ["comboId không hợp lệ hoặc đã ngừng bán."],
                 }
             );
 
@@ -1300,18 +1314,19 @@ public class BookingService(
             .Include(b => b.Showtime)
                 .ThenInclude(s => s.Room)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken)
-        ?? throw new NotFoundException("KhÃ´ng tÃ¬m tháº¥y booking.");
+        ?? throw new NotFoundException("Không tìm thấy booking.");
 
     private async Task<string> GenerateUniqueBookingCodeAsync(CancellationToken cancellationToken)
     {
-        for (var attempt = 0; attempt < 5; attempt++)
+        var maxAttempts = Math.Max(1, _options.BookingCodeMaxAttempts);
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
             var code = CodeGenerator.GenerateBookingCode();
             if (!await db.Bookings.AnyAsync(b => b.BookingCode == code, cancellationToken))
                 return code;
         }
         throw new BusinessRuleException(
-            "KhÃ´ng thá»ƒ sinh mÃ£ booking duy nháº¥t, vui lÃ²ng thá»­ láº¡i."
+            "Không thể sinh mã booking duy nhất, vui lòng thử lại."
         );
     }
 }

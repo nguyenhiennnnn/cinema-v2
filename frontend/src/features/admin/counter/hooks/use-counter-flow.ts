@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "@/components/ui/toast";
-import { getBusinessToday } from "@/lib/formatters";
+import { getBusinessToday } from "@/lib/business-time";
 import { ShowtimeSeatStatus } from "@/types/enum";
 import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
 import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";

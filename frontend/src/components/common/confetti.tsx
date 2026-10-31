@@ -1,12 +1,7 @@
 import { useEffect, useRef } from "react";
+import { readThemePalette } from "@/lib/theme-palette";
 
-/** Màu pháo giấy lấy từ token của design system, đọc lúc bắn để theo đúng theme đang bật. */
 const COLOR_TOKENS = ["--primary", "--accent", "--success", "--couple", "--held"];
-
-const readPalette = () => {
-  const style = getComputedStyle(document.documentElement);
-  return COLOR_TOKENS.map((token) => style.getPropertyValue(token).trim()).filter(Boolean);
-};
 
 interface Particle {
   x: number;
@@ -20,7 +15,6 @@ interface Particle {
   shape: "rect" | "circle";
 }
 
-/** Bắn pháo giấy toàn màn hình một lần khi `active` chuyển sang true. */
 export const Confetti = ({ active, duration = 3200 }: { active: boolean; duration?: number }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -30,7 +24,7 @@ export const Confetti = ({ active, duration = 3200 }: { active: boolean; duratio
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    const palette = readPalette();
+    const palette = readThemePalette(COLOR_TOKENS);
     if (palette.length === 0) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -105,7 +99,7 @@ export const Confetti = ({ active, duration = 3200 }: { active: boolean; duratio
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-[100]"
+      className="pointer-events-none fixed inset-0 z-100"
       aria-hidden="true"
     />
   );

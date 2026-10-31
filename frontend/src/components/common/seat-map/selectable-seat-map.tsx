@@ -8,6 +8,7 @@ import { SeatButton } from "./seat-button";
 import { SeatGrid } from "./seat-grid";
 import { SeatMapFrame } from "./seat-map-frame";
 import { useSeatGridModel } from "./use-seat-grid-model";
+import { toCellState } from "./seat-map-utils";
 import { resolveSeatVisualKind, seatCellKey, type SeatCellData, type SeatCellState } from "./seat-map-types";
 
 interface SelectableSeatMapProps {
@@ -20,13 +21,6 @@ interface SelectableSeatMapProps {
   onToggle: (seat: ShowtimeSeatItemDto) => void;
   highlightedIds?: Set<number>;
   className?: string;
-}
-
-function toCellState(status: ShowtimeSeatStatus, isSelected: boolean): SeatCellState {
-  if (isSelected) return "selected";
-  if (status === ShowtimeSeatStatus.Booked) return "booked";
-  if (status === ShowtimeSeatStatus.Held) return "held";
-  return "available";
 }
 
 const STATE_TEXT: Record<SeatCellState, string> = {

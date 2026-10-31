@@ -13,6 +13,7 @@ import { useAdminUpdateEmployee } from "../../hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
 import type { AdminEmployeeDto } from "../../types";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { getBusinessTodayDate } from "@/lib/business-time";
 
 const employeeFormSchema = z.object({
   positionId: z.coerce.number().optional(),
@@ -80,7 +81,7 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
           control={form.control}
           label="Ngày vào làm (không bắt buộc)"
           placeholder="Chọn ngày vào làm"
-          calendarDisabled={{ after: new Date() }}
+          calendarDisabled={{ after: getBusinessTodayDate() }}
         />
 
         <Controller

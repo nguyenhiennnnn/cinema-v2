@@ -17,6 +17,7 @@ import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminBulkCreateShowtimes } from "../../hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { getBusinessTodayDate } from "@/lib/business-time";
 
 const daysOfWeekOptions = [
   { value: "Mon", label: "Th 2" },
@@ -153,13 +154,13 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
             name="fromDate"
             control={form.control}
             label="Từ ngày"
-            calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+            calendarDisabled={{ before: getBusinessTodayDate() }}
           />
           <FormDatePickerField
             name="toDate"
             control={form.control}
             label="Đến ngày"
-            calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+            calendarDisabled={{ before: getBusinessTodayDate() }}
           />
         </div>
 

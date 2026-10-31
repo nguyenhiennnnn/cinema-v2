@@ -4,6 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { addDays, differenceInCalendarDays, format, parseISO, startOfWeek } from "date-fns";
 
+import { getBusinessTodayDate } from "@/lib/business-time";
+import { toDateInputValue } from "@/lib/formatters";
+
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -48,8 +51,6 @@ const formSchema = z
 
 type FormValues = z.infer<typeof formSchema>;
 
-const toIso = (d: Date) => format(d, "yyyy-MM-dd");
-
 interface ShowtimeCloneFormProps {
   onSuccess: () => void;
 }
@@ -59,13 +60,13 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
   const [result, setResult] = useState<BulkCreateShowtimesResponse | null>(null);
 
   // Mặc định: nhân bản tuần hiện tại (T2–CN) sang tuần kế tiếp — thao tác phổ biến nhất.
-  const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const monday = startOfWeek(getBusinessTodayDate(), { weekStartsOn: 1 });
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      sourceFrom: toIso(monday),
-      sourceTo: toIso(addDays(monday, 6)),
-      targetFrom: toIso(addDays(monday, 7)),
+      sourceFrom: toDateInputValue(monday) ?? "",
+      sourceTo: toDateInputValue(addDays(monday, 6)) ?? "",
+      targetFrom: toDateInputValue(addDays(monday, 7)) ?? "",
       allowAfterHours: false,
     },
   });
@@ -138,7 +139,7 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
           name="targetFrom"
           control={form.control}
           label="Dán vào lịch bắt đầu từ ngày"
-          calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+          calendarDisabled={{ before: getBusinessTodayDate() }}
         />
 
         {targetRangeLabel && (

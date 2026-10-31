@@ -1,36 +1,8 @@
 import type { ShowtimeCalendarDayDto, ShowtimeCalendarItemDto } from "../../types";
+import { groupByRoom } from "../../utils/group-by-room";
 import { ShowtimeCalendarItem } from "./showtime-calendar-item";
 
 const HOUR_MARKS = Array.from({ length: 13 }, (_, i) => i * 2); // 0, 2, 4, ..., 24
-
-interface RoomRow {
-  roomId: number;
-  roomName: string;
-  screenType?: string | null;
-  showtimes: ShowtimeCalendarItemDto[];
-}
-
-function groupByRoom(showtimes: ShowtimeCalendarItemDto[]): RoomRow[] {
-  const map = new Map<number, RoomRow>();
-
-  for (const showtime of showtimes) {
-    const row = map.get(showtime.roomId);
-    if (row) {
-      row.showtimes.push(showtime);
-    } else {
-      map.set(showtime.roomId, {
-        roomId: showtime.roomId,
-        roomName: showtime.roomName,
-        screenType: showtime.screenType,
-        showtimes: [showtime],
-      });
-    }
-  }
-
-  return Array.from(map.values()).sort((a, b) =>
-    a.roomName.localeCompare(b.roomName, "vi"),
-  );
-}
 
 interface ShowtimeCalendarDayProps {
   day: ShowtimeCalendarDayDto;

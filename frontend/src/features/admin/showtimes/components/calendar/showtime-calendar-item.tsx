@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { getBusinessMinutesOfDay } from "@/lib/business-time";
 import { formatShowtimeHour, formatCurrency } from "@/lib/formatters";
 import { ShowtimeStatus } from "@/types/enum";
 import type { ShowtimeCalendarItemDto } from "../../types";
@@ -14,11 +15,6 @@ const statusStyles: Record<string, string> = {
     "bg-muted border-border text-muted-foreground hover:bg-muted/70",
 };
 
-function minutesOfDay(iso: string): number {
-  const d = new Date(iso);
-  return d.getHours() * 60 + d.getMinutes();
-}
-
 interface ShowtimeCalendarItemProps {
   showtime: ShowtimeCalendarItemDto;
   onClick?: (showtime: ShowtimeCalendarItemDto) => void;
@@ -28,8 +24,8 @@ export const ShowtimeCalendarItem = ({
   showtime,
   onClick,
 }: ShowtimeCalendarItemProps) => {
-  const start = minutesOfDay(showtime.startTime);
-  const rawEnd = minutesOfDay(showtime.endTime);
+  const start = getBusinessMinutesOfDay(showtime.startTime);
+  const rawEnd = getBusinessMinutesOfDay(showtime.endTime);
   const end = rawEnd > start ? rawEnd : MINUTES_IN_DAY;
 
   const leftPercent = (start / MINUTES_IN_DAY) * 100;

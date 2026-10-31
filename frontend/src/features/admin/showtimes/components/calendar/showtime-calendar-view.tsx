@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { endOfWeek, format, startOfWeek } from "date-fns";
+import { endOfWeek, startOfWeek } from "date-fns";
 
 import { DateFilterPicker } from "@/components/common/filter/date-filter-picker";
 import { EnumSelectFilter } from "@/components/common/filter/enum-select-filter";
 import { SelectField } from "@/components/common/select-field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getBusinessTodayDate } from "@/lib/business-time";
 import { showtimeStatusOptions } from "@/lib/enum-options";
+import { toDateInputValue } from "@/lib/formatters";
 import { useAdminShowtimeCalendarParams } from "@/hooks/use-query-params";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 
@@ -27,10 +29,10 @@ export const ShowtimeCalendarView = ({
 
   useEffect(() => {
     if (!params.from || !params.to) {
-      const today = new Date();
+      const today = getBusinessTodayDate();
       void setParams({
-        from: format(startOfWeek(today, { weekStartsOn: 1 }), "yyyy-MM-dd"),
-        to: format(endOfWeek(today, { weekStartsOn: 1 }), "yyyy-MM-dd"),
+        from: toDateInputValue(startOfWeek(today, { weekStartsOn: 1 })) ?? "",
+        to: toDateInputValue(endOfWeek(today, { weekStartsOn: 1 })) ?? "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

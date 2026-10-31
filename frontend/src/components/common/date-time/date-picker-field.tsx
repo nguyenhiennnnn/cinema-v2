@@ -3,7 +3,8 @@ import type { Matcher } from "react-day-picker";
 import { CalendarIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatDate, parseDate, toDateInputValue } from "@/lib/formatters";
+import { toWallDate } from "@/lib/business-time";
+import { formatDate, toDateInputValue } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -36,7 +37,7 @@ export const DatePickerField = ({
   id,
 }: DatePickerFieldProps) => {
   const [open, setOpen] = useState(false);
-  const selected = parseDate(value);
+  const selected = toWallDate(value);
 
   const handleSelect = (date: Date | undefined) => {
     onChange(toDateInputValue(date));

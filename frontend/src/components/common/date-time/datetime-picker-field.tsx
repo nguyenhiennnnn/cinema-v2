@@ -1,19 +1,15 @@
 import { useState } from "react";
-import { set } from "date-fns";
 import type { Matcher } from "react-day-picker";
 import { CalendarClockIcon, ClockIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatDateTime, parseDate, toDateTimeInputValue } from "@/lib/formatters";
+import { getBusinessNow, toWallDate } from "@/lib/business-time";
+import { combineDateAndTime, toTimeValue } from "@/lib/wall-time";
+import { formatDateTime, toDateTimeInputValue } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
-function combineDateAndTime(date: Date, time: string): Date {
-  const [hours, minutes] = time.split(":").map((n) => Number(n) || 0);
-  return set(date, { hours, minutes, seconds: 0, milliseconds: 0 });
-}
 
 interface DateTimePickerFieldProps {
   value: string | null | undefined;
@@ -39,24 +35,22 @@ export const DateTimePickerField = ({
   id,
 }: DateTimePickerFieldProps) => {
   const [open, setOpen] = useState(false);
-  const selected = parseDate(value);
-  const timeValue = selected
-    ? `${String(selected.getHours()).padStart(2, "0")}:${String(selected.getMinutes()).padStart(2, "0")}`
-    : "";
+  const selected = toWallDate(value);
+  const timeValue = toTimeValue(selected);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) {
       onChange(null);
       return;
     }
-    const base = selected ?? new Date();
-    onChange(toDateTimeInputValue(combineDateAndTime(date, `${base.getHours()}:${base.getMinutes()}`)));
+    const base = selected ?? getBusinessNow();
+    onChange(toDateTimeInputValue(combineDateAndTime(date, toTimeValue(base))));
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const time = e.target.value;
     if (!time) return;
-    const base = selected ?? new Date();
+    const base = selected ?? getBusinessNow();
     onChange(toDateTimeInputValue(combineDateAndTime(base, time)));
   };
 

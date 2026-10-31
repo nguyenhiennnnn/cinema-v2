@@ -3,6 +3,7 @@ import { CalendarX } from "lucide-react";
 import { DateStrip } from "@/components/common/date-strip";
 import { ShowtimeGroupList } from "@/components/common/showtime-group-list";
 import { EmptyState } from "@/components/common/empty-state";
+import { getBusinessToday } from "@/lib/business-time";
 import { toDateKey } from "@/lib/cinema-format";
 import type { UpcomingShowtimeDto } from "@/features/client/movies/types";
 
@@ -19,7 +20,7 @@ export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps)
 
 
   const [manualSelectedDate, setManualSelectedDate] = useState<string | null>(null);
-  const selectedDate = manualSelectedDate ?? dateKeys[0] ?? toDateKey(new Date());
+  const selectedDate = manualSelectedDate ?? dateKeys[0] ?? getBusinessToday();
 
   const filtered = useMemo(
     () => showtimes.filter((s) => toDateKey(s.startTime) === selectedDate),

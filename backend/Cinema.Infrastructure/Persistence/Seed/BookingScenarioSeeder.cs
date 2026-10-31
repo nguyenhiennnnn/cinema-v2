@@ -31,8 +31,6 @@ internal static class BookingScenarioSeeder
 {
     internal const string CodePrefix = "BKD";
 
-    private const int HoldMinutes = 15; // = BookingOptions.HoldDurationMinutes mặc định
-
     /// <summary>Số phim "đã xem, chưa review" được đảm bảo cho mỗi khách trong pool.</summary>
     internal const int ReviewReadyPerUser = 3;
 
@@ -823,7 +821,7 @@ internal static class BookingScenarioSeeder
                 FinalAmount = final,
                 Status = p.Status,
                 CreatedAt = p.CreatedAt,
-                ExpiresAt = p.CreatedAt.AddMinutes(HoldMinutes),
+                ExpiresAt = p.CreatedAt.AddMinutes(_settings.HoldDurationMinutes),
             };
             foreach (var row in comboRows)
                 booking.BookingCombos.Add(row);

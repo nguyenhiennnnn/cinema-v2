@@ -1,5 +1,7 @@
 import { useMemo } from "react";
+import { addDays } from "date-fns";
 import { cn } from "@/lib/utils";
+import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
 import { toDateKey, formatWeekdayShort } from "@/lib/cinema-format";
 
 interface DateStripProps {
@@ -11,16 +13,11 @@ interface DateStripProps {
 
 export const DateStrip = ({ value, onChange, daysCount = 14, className }: DateStripProps) => {
   const days = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return Array.from({ length: daysCount }, (_, i) => {
-      const date = new Date(today);
-      date.setDate(date.getDate() + i);
-      return date;
-    });
+    const today = getBusinessTodayDate();
+    return Array.from({ length: daysCount }, (_, i) => addDays(today, i));
   }, [daysCount]);
 
-  const todayKey = toDateKey(new Date());
+  const todayKey = getBusinessToday();
 
   return (
     <div className={cn("flex gap-2 overflow-x-auto pb-2 scrollbar-none", className)}>

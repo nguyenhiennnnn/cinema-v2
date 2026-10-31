@@ -12,7 +12,9 @@ import { Switch } from "@/components/ui/switch";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
-import { formatCurrency } from "@/lib/formatters";
+import { getBusinessTodayDate } from "@/lib/business-time";
+import { formatDayMonth } from "@/lib/cinema-format";
+import { formatCurrency, formatTime } from "@/lib/formatters";
 
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import {
@@ -42,10 +44,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const hhmm = (iso: string) => iso.slice(11, 16);
-
-const ddmm = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 
 
 interface ShowtimeAutoScheduleFormProps {
@@ -128,8 +126,8 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
             {draft.items.map((item, index) => (
               <li key={`${item.roomId}-${item.startTime}`} className="flex items-center gap-3 px-3 py-2">
                 <span className="w-28 shrink-0 font-mono text-sm font-medium tabular-nums text-foreground">
-                  {draft.toDate && <span className="mr-1 text-xs text-muted-foreground">{ddmm(item.startTime)}</span>}
-                  {hhmm(item.startTime)} - {hhmm(item.endTime)}
+                  {draft.toDate && <span className="mr-1 text-xs text-muted-foreground">{formatDayMonth(item.startTime)}</span>}
+                  {formatTime(item.startTime)} - {formatTime(item.endTime)}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-foreground">{item.movieTitle}</p>
@@ -177,14 +175,14 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
             name="date"
             control={form.control}
             label="Từ ngày"
-            calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+            calendarDisabled={{ before: getBusinessTodayDate() }}
           />
           <FormDatePickerField
             name="toDate"
             control={form.control}
             label="Đến ngày (tùy chọn)"
             clearable
-            calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+            calendarDisabled={{ before: getBusinessTodayDate() }}
           />
         </div>
 

@@ -16,37 +16,11 @@ import {
 } from "@/features/client/home/hooks/use-hero-carousel";
 import { HeroThumbnails } from "@/features/client/home/components/hero-thumbnails";
 import { MovieStatus } from "@/types/enum";
+import { buildClipFrames, measureInset, type Inset } from "../utils/hero-clip";
 
 const HERO_HEIGHT = "min-h-[min(calc(100svh-4rem),52rem)]";
 const EASING = "cubic-bezier(0.2, 0.8, 0.2, 1)";
 const THUMB_CUT = 6;
-
-interface Inset {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-}
-
-function measureInset(hero: DOMRect, el: DOMRect): Inset {
-  return {
-    top: el.top - hero.top,
-    left: el.left - hero.left,
-    right: hero.right - el.right,
-    bottom: hero.bottom - el.bottom,
-  };
-}
-
-function buildClipFrames(width: number, height: number, o: Inset) {
-  const c = THUMB_CUT;
-  const x1 = o.left;
-  const y1 = o.top;
-  const x2 = width - o.right;
-  const y2 = height - o.bottom;
-  const from = `polygon(${x1 + c}px ${y1}px, ${x2}px ${y1}px, ${x2}px ${y2 - c}px, ${x2 - c}px ${y2}px, ${x1}px ${y2}px, ${x1}px ${y1 + c}px)`;
-  const to = `polygon(0px 0px, ${width}px 0px, ${width}px ${height}px, ${width}px ${height}px, 0px ${height}px, 0px 0px)`;
-  return [{ clipPath: from }, { clipPath: to }];
-}
 
 interface HeroBackdropProps {
   movie: MovieListItemDto;
@@ -242,7 +216,7 @@ export const HeroCarousel = () => {
     const { width, height } = hero.getBoundingClientRect();
     const origin = originRef.current;
     animations.push(
-      backdrop.animate(origin ? buildClipFrames(width, height, origin) : [{ opacity: 0 }, { opacity: 1 }], options),
+      backdrop.animate(origin ? buildClipFrames(width, height, origin, THUMB_CUT) : [{ opacity: 0 }, { opacity: 1 }], options),
     );
 
     const strip = stripRef.current;

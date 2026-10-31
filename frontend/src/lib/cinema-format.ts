@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { toWallDate } from "@/lib/business-time";
 import {
   formatTime as formatTimeUtil,
   toDateInputValue,
@@ -13,8 +14,9 @@ export function formatWeekdayShort(date: Date) {
   return day === 0 ? "CN" : `Th ${day + 1}`;
 }
 
-export function formatDayMonth(date: Date) {
-  return format(date, "dd/MM");
+export function formatDayMonth(value: Date | string) {
+  const date = toWallDate(value);
+  return date ? format(date, "dd/MM") : "";
 }
 
 export function formatShowtimeTime(value: string) {

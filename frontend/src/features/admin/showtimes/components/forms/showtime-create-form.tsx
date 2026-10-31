@@ -15,7 +15,7 @@ import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminCreateShowtime } from "../../hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
-import { toBusinessIso } from "@/lib/formatters";
+import { getBusinessTodayDate, toBusinessIso } from "@/lib/business-time";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -113,7 +113,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
           label="Thời gian bắt đầu chiếu"
           placeholder="Chọn ngày & giờ chiếu"
           clearable={false}
-          calendarDisabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+          calendarDisabled={{ before: getBusinessTodayDate() }}
         />
 
         <FormInputField

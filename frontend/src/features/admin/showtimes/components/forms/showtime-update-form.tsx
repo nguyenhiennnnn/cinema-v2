@@ -9,7 +9,8 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDateTimePickerField } from "@/components/common/form/form-datetime-picker-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
-import { toBusinessDateTimeInputValue, toBusinessIso } from "@/lib/formatters";
+import { toBusinessIso } from "@/lib/business-time";
+import { toDateTimeInputValue } from "@/lib/formatters";
 
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
@@ -45,7 +46,7 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
     defaultValues: {
       movieId: showtime.movieId,
       roomId: showtime.roomId,
-      startTime: toBusinessDateTimeInputValue(showtime.startTime) ?? "",
+      startTime: toDateTimeInputValue(showtime.startTime) ?? "",
       basePrice: showtime.basePrice,
     },
   });

@@ -44,6 +44,10 @@ public class SettingsService(IAppDbContext db) : ISettingsService
         settings.CancelRefundPercent = request.CancelRefundPercent;
         settings.CancelDeadlineHours = request.CancelDeadlineHours;
         settings.StopSellingMinutesBefore = request.StopSellingMinutesBefore;
+        if (request.HoldDurationMinutes is { } holdDurationMinutes)
+            settings.HoldDurationMinutes = holdDurationMinutes;
+        if (request.CheckInOpenMinutes is { } checkInOpenMinutes)
+            settings.CheckInOpenMinutes = checkInOpenMinutes;
         settings.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);

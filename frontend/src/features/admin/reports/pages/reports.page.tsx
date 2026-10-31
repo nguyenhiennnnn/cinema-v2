@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/common/page-header";
-import { toDateInputValue } from "@/lib/formatters";
+import { getDefaultReportRange } from "../utils/default-range";
 import { useRevenueReport, useTopMoviesReport, useEmployeePerformanceReport } from "../hooks/use-reports";
 import { ReportsFilterBar } from "../components/reports-filter-bar";
 import { RevenueSummaryCards } from "../components/revenue-summary-cards";
@@ -9,15 +9,8 @@ import { TopMoviesReportTable } from "../components/top-movies-report-table";
 import { EmployeePerformanceTable } from "../components/employee-performance-table";
 import { TOP_MOVIES_REPORT_LIMIT } from "@/config/default-constants";
 
-function getDefaultRange() {
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - 29);
-  return { fromDate: toDateInputValue(from) ?? "", toDate: toDateInputValue(to) ?? "" };
-}
-
 const AdminReportsPage = () => {
-  const defaultRange = getDefaultRange();
+  const defaultRange = getDefaultReportRange();
   const [fromDate, setFromDate] = useState(defaultRange.fromDate);
   const [toDate, setToDate] = useState(defaultRange.toDate);
   const [groupBy, setGroupBy] = useState("day");
@@ -38,7 +31,7 @@ const AdminReportsPage = () => {
   );
 
   const handleReset = () => {
-    const range = getDefaultRange();
+    const range = getDefaultReportRange();
     setFromDate(range.fromDate);
     setToDate(range.toDate);
     setGroupBy("day");

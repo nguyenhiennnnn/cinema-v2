@@ -7,13 +7,13 @@ import { ScheduleMovieRow } from "@/features/client/schedule/components/schedule
 import { useSchedule } from "@/features/client/showtimes/hooks/use-showtimes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useScheduleParams } from "@/hooks/use-query-params";
-import { toDateKey } from "@/lib/cinema-format";
+import { getBusinessToday } from "@/lib/business-time";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
 
 const SchedulePage = () => {
   const [{ date }, setScheduleParams] = useScheduleParams();
-  const selectedDate = date || toDateKey(new Date());
+  const selectedDate = date || getBusinessToday();
   const [activeFormat, setActiveFormat] = useState<string | null>(null);
 
   const { data, isLoading } = useSchedule(selectedDate);

@@ -1,10 +1,10 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, RowData } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { DataTableFeatures } from "./data-table-features";
 
 const SELECTION_COL_ID = "select";
 
-export function createSelectionColumn<TData>(): ColumnDef<DataTableFeatures, TData> {
+export const createSelectionColumn = <TData extends RowData>(): ColumnDef<DataTableFeatures, TData> => {
   return {
     id: SELECTION_COL_ID,
     header: ({ table }) => {

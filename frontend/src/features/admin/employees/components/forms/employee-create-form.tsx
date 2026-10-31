@@ -9,7 +9,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { SingleSelectField } from "@/components/common/form/single-select-field";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
-import { toDateInputValue } from "@/lib/formatters";
+import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
 
 import { useAdminCreateEmployee } from "../../hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
@@ -42,7 +42,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
     defaultValues: {
       userId: undefined,
       positionId: undefined,
-      hireDate: toDateInputValue(new Date()) ?? "",
+      hireDate: getBusinessToday(),
     },
   });
 
@@ -102,7 +102,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
           control={form.control}
           label="Ngày vào làm (không bắt buộc)"
           placeholder="Chọn ngày vào làm"
-          calendarDisabled={{ after: new Date() }}
+          calendarDisabled={{ after: getBusinessTodayDate() }}
         />
       </FieldGroup>
 

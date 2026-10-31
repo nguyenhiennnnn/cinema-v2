@@ -62,6 +62,16 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
         RuleFor(x => x.StopSellingMinutesBefore)
             .InclusiveBetween(0, 1440)
             .WithMessage("stopSellingMinutesBefore phải từ 0 đến 1440.");
+
+        RuleFor(x => x.HoldDurationMinutes)
+            .Must(v => v is >= 1 and <= 120)
+            .When(x => x.HoldDurationMinutes is not null)
+            .WithMessage("holdDurationMinutes phải từ 1 đến 120.");
+
+        RuleFor(x => x.CheckInOpenMinutes)
+            .Must(v => v is >= 0 and <= 240)
+            .When(x => x.CheckInOpenMinutes is not null)
+            .WithMessage("checkInOpenMinutes phải từ 0 đến 240.");
     }
 
     private static bool BeValidTime(string? value) =>
