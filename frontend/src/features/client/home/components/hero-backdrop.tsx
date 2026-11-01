@@ -21,9 +21,14 @@ export const HeroBackdrop = ({ movie, priority = false, animated = false, ref }:
         alt=""
         decoding="async"
         fetchPriority={priority ? "high" : undefined}
-        className="h-full w-full object-cover"
+        className="hero-backdrop-img h-full w-full object-cover object-top"
       />
     )}
-    <div className="absolute inset-0 bg-scrim/70" />
+    {/* Lớp tối đồng đều để đảm bảo tương phản */}
+    <div className="absolute inset-0 bg-scrim/60" />
+    {/* Gradient trái: tạo vùng đọc chữ rõ nét */}
+    <div className="absolute inset-0 hero-backdrop-left" />
+    {/* Gradient dưới: xử lý vùng controls */}
+    <div className="absolute inset-x-0 bottom-0 h-64 hero-backdrop-bottom" />
   </div>
 );

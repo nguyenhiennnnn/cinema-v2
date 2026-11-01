@@ -44,18 +44,21 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
       aria-hidden={leaving || undefined}
       style={style}
       className={cn(
-        "grid content-end gap-6 [grid-area:1/1] md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12",
+        "grid content-center gap-6 [grid-area:1/1] md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-16",
         (leaving || entering) && "will-change-[transform,opacity]",
         leaving && "hero-leave pointer-events-none",
       )}
     >
+      {/* Poster */}
       <Link
         to={href}
         tabIndex={leaving ? -1 : undefined}
         aria-label={movie.title}
         style={posterReveal.style}
         className={cn(
-          "block aspect-2/3 w-28 cut-md bg-muted sm:w-36 md:order-last md:h-[clamp(12rem,calc(100svh-19rem),28rem)] md:w-auto",
+          "block aspect-2/3 w-28 cut-md bg-muted sm:w-36",
+          "md:order-last md:h-[clamp(14rem,calc(100svh-18rem),30rem)] md:w-auto",
+          "ring-0 hover:opacity-90 transition-opacity duration-150",
           posterReveal.className,
         )}
       >
@@ -66,7 +69,9 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
         )}
       </Link>
 
-      <div className="min-w-0 md:max-w-2xl">
+      {/* Nội dung */}
+      <div className="min-w-0 md:max-w-xl lg:max-w-2xl">
+        {/* Badges thể loại */}
         <div style={metaReveal.style} className={cn("flex flex-wrap items-center gap-2", metaReveal.className)}>
           <AgeRatingBadge code={movie.ageRating?.code} onImage />
           {movie.genres.slice(0, 3).map((g) => (
@@ -76,16 +81,17 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
           ))}
         </div>
 
-        <Title
-          style={titleReveal.style}
-          className={cn(
-            "mt-3 line-clamp-3 pb-1 t-h1 text-scrim-foreground md:text-5xl lg:text-6xl",
-            titleReveal.className,
-          )}
-        >
-          {movie.title}
-        </Title>
+        {/* Đường nhấn đỏ + tiêu đề */}
+        <div style={titleReveal.style} className={cn("mt-4", titleReveal.className)}>
+          <div className="mb-3 h-0.5 w-12 bg-primary" />
+          <Title
+            className="line-clamp-3 pb-1 t-h1 text-scrim-foreground md:text-5xl lg:text-6xl"
+          >
+            {movie.title}
+          </Title>
+        </div>
 
+        {/* Thời lượng + điểm */}
         <div
           style={infoReveal.style}
           className={cn("mt-4 flex items-center gap-4 text-sm text-scrim-foreground/70", infoReveal.className)}
@@ -99,11 +105,12 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
           )}
         </div>
 
-        <div style={actionsReveal.style} className={cn("mt-6 flex flex-wrap gap-3", actionsReveal.className)}>
+        {/* Actions */}
+        <div style={actionsReveal.style} className={cn("mt-7 flex flex-wrap gap-3", actionsReveal.className)}>
           <Link
             to={href}
             tabIndex={leaving ? -1 : undefined}
-            className="cut-sm inline-flex h-11 items-center gap-2 bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            className="cut-sm inline-flex h-11 items-center gap-2 bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors duration-150"
           >
             <Ticket className="size-4" />
             Đặt vé
@@ -111,7 +118,7 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
           <Link
             to={href}
             tabIndex={leaving ? -1 : undefined}
-            className="cut-sm inline-flex h-11 items-center gap-2 bg-scrim-foreground/15 px-5 text-sm font-medium text-scrim-foreground hover:bg-scrim-foreground/25"
+            className="cut-sm inline-flex h-11 items-center gap-2 bg-scrim-foreground/15 px-6 text-sm font-medium text-scrim-foreground hover:bg-scrim-foreground/25 transition-colors duration-150"
           >
             <Info className="size-4" />
             Chi tiết phim

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/archivo/wdth.css";
 @import "@fontsource/be-vietnam-pro/400.css";
@@ -616,5 +616,28 @@
     .perf-dot {
       animation-duration: 2.4s;
     }
+  }
+}
+
+@layer utilities {
+  /* Hero backdrop — gradient helpers */
+  .hero-backdrop-img {
+    filter: blur(2px);
+    transform: scale(1.04);
+  }
+  .hero-backdrop-left {
+    background: linear-gradient(
+      to right,
+      color-mix(in oklch, var(--scrim) 80%, transparent) 0%,
+      color-mix(in oklch, var(--scrim) 40%, transparent) 50%,
+      transparent 100%
+    );
+  }
+  .hero-backdrop-bottom {
+    background: linear-gradient(
+      to top,
+      color-mix(in oklch, var(--scrim) 88%, transparent) 0%,
+      transparent 100%
+    );
   }
 }

@@ -12,7 +12,7 @@ import { HeroBackdrop } from "./hero-backdrop";
 import { HeroControls } from "./hero-controls";
 import { HeroSlide } from "./hero-slide";
 
-const HERO_HEIGHT = "min-h-[min(calc(100svh-4rem),52rem)]";
+const HERO_HEIGHT = "min-h-[min(calc(100svh-4rem),56rem)]";
 
 export const HeroCarousel = () => {
   const { data, isLoading } = useMovies({ status: MovieStatus.NowShowing, limit: 5 });
@@ -149,7 +149,7 @@ export const HeroCarousel = () => {
           onAnimationEnd={(e) => {
             if (e.animationName === "hero-progress") next();
           }}
-          className="hero-progress absolute inset-x-0 bottom-0 z-20 h-0.5 bg-scrim-foreground/60"
+          className="hero-progress absolute inset-x-0 bottom-0 z-20 h-[3px] bg-primary/80"
         />
       )}
     </section>
