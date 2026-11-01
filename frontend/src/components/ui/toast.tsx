@@ -20,7 +20,9 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
     <ToastPrimitive.Viewport
       data-slot="toast-viewport"
       className={cn(
-        "pointer-events-none fixed bottom-4 left-4 z-50 w-auto max-w-sm outline-none",
+        // Toast con dùng `absolute` nên viewport phải có width cố định (nếu không sẽ co về 0 và toast vô hình).
+        // z-100 để nổi trên Dialog/Sheet/AlertDialog (z-50) — nếu không toast lỗi bị overlay che khi dialog còn mở.
+        "pointer-events-none fixed bottom-4 left-4 z-100 w-[calc(100vw-2rem)] max-w-sm outline-none",
         className
       )}
       {...props}

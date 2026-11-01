@@ -1,10 +1,13 @@
 import { Home, LogIn, ShieldAlert } from "lucide-react";
 import { StatusPage } from "@/components/common/status-page";
+import { Seo } from "@/components/common/seo";
 import { ROUTES } from "@/config/routes";
 
 const ForbiddenPage = () => {
   return (
-    <StatusPage
+    <>
+      <Seo title="Không có quyền truy cập" noIndex />
+      <StatusPage
       code="403"
       icon={ShieldAlert}
       title="Không có quyền truy cập"
@@ -14,6 +17,7 @@ const ForbiddenPage = () => {
         { label: "Đăng nhập lại", to: ROUTES.admin.login, icon: LogIn, variant: "outline" },
       ]}
     />
+    </>
   );
 };
 

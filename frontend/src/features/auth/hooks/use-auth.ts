@@ -104,6 +104,7 @@ export function useRegister() {
 
 export function useLogout() {
   return useMutation({
+    meta: { skipSuccessToast: true },
     mutationFn: () => {
       const rt = refreshTokenStorage.get() ?? "";
       return authApi.logout({ refreshToken: rt });

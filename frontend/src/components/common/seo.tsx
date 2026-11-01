@@ -3,6 +3,11 @@ import { BRAND } from "@/config/brand";
 
 const DEFAULT_TITLE = `${BRAND.name} — ${BRAND.tagline}`;
 
+function toAbsoluteUrl(pathOrUrl: string): string {
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  return `${BRAND.siteUrl}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
+}
+
 interface SeoProps {
   /** Tiêu đề trang (sẽ được thêm " | Perfo" tự động nếu không có) */
   title?: string;
@@ -41,10 +46,12 @@ export function Seo({
   structuredData,
 }: SeoProps) {
   const pageTitle = title ? `${title} | ${BRAND.siteName}` : DEFAULT_TITLE;
-  const canonicalUrl = canonical ? `${BRAND.siteUrl}${canonical}` : undefined;
-  const ogImageUrl = ogImage.startsWith("http")
-    ? ogImage
-    : `${BRAND.siteUrl}${ogImage}`;
+  // Canonical phải là URL tuyệt đối; thiếu VITE_SITE_URL thì bỏ qua thay vì xuất URL tương đối sai.
+  const canonicalUrl =
+    canonical && BRAND.siteUrl
+      ? toAbsoluteUrl(canonical.split(/[?#]/)[0])
+      : undefined;
+  const ogImageUrl = toAbsoluteUrl(ogImage);
 
   return (
     <Helmet>
@@ -61,6 +68,8 @@ export function Seo({
       <meta property="og:image" content={ogImageUrl} />
       {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
       <meta property="og:site_name" content={BRAND.siteName} />
+      <meta property="og:locale" content={BRAND.locale} />
+      <meta property="og:image:alt" content={pageTitle} />
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />

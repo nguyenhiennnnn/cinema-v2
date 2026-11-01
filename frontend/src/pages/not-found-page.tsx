@@ -1,9 +1,12 @@
 import { Clapperboard, Home, Ticket } from "lucide-react";
 import { StatusPage } from "@/components/common/status-page";
+import { Seo } from "@/components/common/seo";
 
 const NotFoundPage = () => {
   return (
-    <StatusPage
+    <>
+      <Seo title="Không tìm thấy trang" noIndex />
+      <StatusPage
       code="404"
       icon={Clapperboard}
       title="Không tìm thấy trang"
@@ -13,6 +16,7 @@ const NotFoundPage = () => {
         { label: "Xem lịch chiếu", to: "/schedule", icon: Ticket, variant: "outline" },
       ]}
     />
+    </>
   );
 };
 

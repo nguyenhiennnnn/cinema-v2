@@ -155,7 +155,7 @@ services:
   - type: web
     name: cinema-web
     runtime: static
-    buildCommand: cd frontend && npm ci && npm run build
+    buildCommand: cd frontend && npm ci && npm run build:full
     staticPublishPath: ./frontend/dist
     autoDeployTrigger: commit
     envVars:
@@ -173,3 +173,22 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /admin/*
+        name: X-Robots-Tag
+        value: noindex, nofollow
+      - path: /auth/*
+        name: X-Robots-Tag
+        value: noindex, nofollow
+      - path: /account/*
+        name: X-Robots-Tag
+        value: noindex, nofollow
+      - path: /booking/*
+        name: X-Robots-Tag
+        value: noindex, nofollow
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
