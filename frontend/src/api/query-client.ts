@@ -13,11 +13,6 @@ function handleGlobalError(context: "Query" | "Mutation") {
   };
 }
 
-/**
- * Hiện toast thành công từ `message` của server.
- * Tắt cho từng mutation bằng `meta: { skipSuccessToast: true }`
- * (vd: bulk tự toast tổng hợp "x thành công, y thất bại").
- */
 function handleGlobalSuccess(
   data: unknown,
   mutation: { meta?: Record<string, unknown> },
@@ -33,7 +28,6 @@ export const queryClient: QueryClient = new QueryClient({
     onError: (error, query) => handleGlobalError("Query")(error, query),
   }),
   mutationCache: new MutationCache({
-    // Trả promise: mutation chỉ resolve sau khi dữ liệu liên quan đã refetch (xem query-invalidation.ts)
     onSuccess: (data, _variables, _context, mutation) => {
       handleGlobalSuccess(data, mutation);
       return invalidateRelated(queryClient, mutation.meta?.invalidates);

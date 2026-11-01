@@ -8,7 +8,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { resolveSeatVisualKind } from "@/components/common/seat-map/seat-map-types";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
-import type { AutoGenerateOptions } from "../../hooks/use-seat-editor-state";
+import type { AutoGenerateOptions } from "../../types/seat-editor";
 import { parseAisleCols } from "../../utils/parse-aisle-cols";
 
 const NONE_SEAT_TYPE_ID = 0;

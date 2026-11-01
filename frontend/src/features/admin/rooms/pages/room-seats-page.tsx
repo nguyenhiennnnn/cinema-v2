@@ -14,13 +14,13 @@ import {
 } from "../hooks/use-admin-rooms";
 import { useAdminSeatTypes } from "@/features/admin/catalog/hooks/use-admin-seat-type";
 import { resolveSeatVisualKind, deriveGridDimensions } from "@/components/common/seat-map/seat-map-types";
-import { useSeatEditorState, type SeatEditorBrush } from "../hooks/use-seat-editor-state";
+import { useSeatEditorState } from "../hooks/use-seat-editor-state";
 import { SeatEditorToolbar } from "../components/seat-editor-toolbar";
 import { SeatEditorGrid } from "../components/seat-editor-grid";
 import { SeatEditorValidationPanel } from "../components/seat-editor-validation-panel";
 import type { AdminRoomDto, SeatDto } from "../types";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
-import type { ValidationIssue } from "../hooks/use-seat-editor-state";
+import type { SeatEditorBrush, ValidationIssue } from "../types/seat-editor";
 import { ROUTES } from "@/config/routes";
 
 const SeatEditorReady = ({

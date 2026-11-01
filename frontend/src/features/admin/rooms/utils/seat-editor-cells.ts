@@ -1,0 +1,222 @@
+import {
+  generateRowLabel,
+  seatCellKey,
+} from "@/components/common/seat-map/seat-map-types";
+import type { SeatDto, UpdateSeatLayoutRequest } from "../types";
+import type {
+  AutoGenerateOptions,
+  CopiedRow,
+  EditorCell,
+  EditorCellMap,
+  SeatEditorBrush,
+} from "../types/seat-editor";
+
+export function newCoupleId(seed: string): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `couple-${seed}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+const createDefaultCell = (
+  seatRow: string,
+  seatNumber: number,
+  seatTypeId: number | null,
+): EditorCell => ({
+  seatRow,
+  seatNumber,
+  seatTypeId,
+  isActive: true,
+  isAisle: false,
+  coupleId: null,
+});
+
+export function buildInitialCells(
+  rows: number,
+  cols: number,
+  seats: SeatDto[] | undefined,
+  defaultSeatTypeId: number | null,
+): EditorCellMap {
+  const bySeat = new Map<string, SeatDto>();
+  seats?.forEach((s) => bySeat.set(seatCellKey(s.seatRow, s.seatNumber), s));
+
+  const map: EditorCellMap = new Map();
+  for (let r = 0; r < rows; r++) {
+    const rowLabel = generateRowLabel(r);
+    for (let c = 1; c <= cols; c++) {
+      const key = seatCellKey(rowLabel, c);
+      const existing = bySeat.get(key);
+      map.set(
+        key,
+        existing
+          ? {
+              seatRow: existing.seatRow,
+              seatNumber: existing.seatNumber,
+              seatTypeId: existing.seatTypeId ?? defaultSeatTypeId,
+              isActive: existing.isActive,
+              isAisle: existing.isAisle,
+              coupleId: existing.coupleId ?? null,
+            }
+          : createDefaultCell(rowLabel, c, defaultSeatTypeId),
+      );
+    }
+  }
+  return map;
+}
+
+/** Giữ ô cũ nếu còn trong kích thước mới, ô mới dùng giá trị mặc định. */
+export function resizeCells(
+  cells: EditorCellMap,
+  newRows: number,
+  newCols: number,
+  defaultSeatTypeId: number | null,
+): EditorCellMap {
+  const next: EditorCellMap = new Map();
+  for (let r = 0; r < newRows; r++) {
+    const rowLabel = generateRowLabel(r);
+    for (let c = 1; c <= newCols; c++) {
+      const key = seatCellKey(rowLabel, c);
+      next.set(key, cells.get(key) ?? createDefaultCell(rowLabel, c, defaultSeatTypeId));
+    }
+  }
+  return next;
+}
+
+/** Áp dụng brush (trừ pairCouple) lên một ô. */
+export function applyBrushToCell(
+  cell: EditorCell,
+  brush: Exclude<SeatEditorBrush, { type: "pairCouple" }>,
+): EditorCell {
+  switch (brush.type) {
+    case "seatType":
+      return { ...cell, seatTypeId: brush.seatTypeId, isAisle: false };
+    case "toggleActive":
+      return { ...cell, isActive: !cell.isActive };
+    case "toggleAisle":
+      return {
+        ...cell,
+        isAisle: !cell.isAisle,
+        coupleId: !cell.isAisle ? null : cell.coupleId,
+      };
+  }
+}
+
+/** Gỡ ghép tất cả ô cùng coupleId. */
+export function unpairCouple(cells: EditorCellMap, coupleId: string): EditorCellMap {
+  const next = new Map(cells);
+  next.forEach((c, k) => {
+    if (c.coupleId === coupleId) next.set(k, { ...c, coupleId: null });
+  });
+  return next;
+}
+
+export const canPairSeats = (a: EditorCell | undefined, b: EditorCell): a is EditorCell =>
+  !!a && !a.isAisle && a.seatRow === b.seatRow && Math.abs(a.seatNumber - b.seatNumber) === 1;
+
+export function pairCouple(
+  cells: EditorCellMap,
+  keyA: string,
+  cellA: EditorCell,
+  keyB: string,
+  cellB: EditorCell,
+): EditorCellMap {
+  const coupleId = newCoupleId(keyB);
+  const next = new Map(cells);
+  next.set(keyA, { ...cellA, coupleId });
+  next.set(keyB, { ...cellB, coupleId });
+  return next;
+}
+
+export function pasteRowCells(
+  cells: EditorCellMap,
+  copied: CopiedRow,
+  targetRowLabel: string,
+): EditorCellMap {
+  const coupleIdMap = new Map<string, string>();
+  const next = new Map(cells);
+  copied.cells.forEach((source) => {
+    const key = seatCellKey(targetRowLabel, source.seatNumber);
+    if (!next.has(key)) return;
+
+    let coupleId: string | null = null;
+    if (source.coupleId) {
+      if (!coupleIdMap.has(source.coupleId)) {
+        coupleIdMap.set(source.coupleId, newCoupleId(`${targetRowLabel}-${source.seatNumber}`));
+      }
+      coupleId = coupleIdMap.get(source.coupleId)!;
+    }
+
+    next.set(key, { ...source, seatRow: targetRowLabel, coupleId });
+  });
+  return next;
+}
+
+/** Gán coupleId cho từng cặp ghế liền nhau (bỏ qua cột lối đi) trong một hàng ghế đôi. */
+function buildCoupleIdsByCol(
+  rowLabel: string,
+  cols: number,
+  aisleCols: number[],
+): Map<number, string> {
+  const coupleIdByCol = new Map<number, string>();
+  let pending: number | null = null;
+  for (let c = 1; c <= cols; c++) {
+    if (aisleCols.includes(c)) {
+      pending = null;
+      continue;
+    }
+    if (pending === null) {
+      pending = c;
+    } else {
+      const id = newCoupleId(`${rowLabel}-${pending}`);
+      coupleIdByCol.set(pending, id);
+      coupleIdByCol.set(c, id);
+      pending = null;
+    }
+  }
+  return coupleIdByCol;
+}
+
+export function buildAutoGeneratedCells(options: AutoGenerateOptions): EditorCellMap {
+  const { rows, cols, standardSeatTypeId, vipSeatTypeId, vipRowCount, coupleRowCount, aisleCols } =
+    options;
+  const next: EditorCellMap = new Map();
+
+  for (let r = 0; r < rows; r++) {
+    const rowLabel = generateRowLabel(r);
+    const isVipRow = vipRowCount > 0 && r >= rows - vipRowCount;
+    const isCoupleRow = coupleRowCount > 0 && r >= rows - coupleRowCount;
+    const rowSeatTypeId = isVipRow && vipSeatTypeId ? vipSeatTypeId : standardSeatTypeId;
+    const coupleIdByCol = isCoupleRow
+      ? buildCoupleIdsByCol(rowLabel, cols, aisleCols)
+      : new Map<number, string>();
+
+    for (let c = 1; c <= cols; c++) {
+      const isAisleCol = aisleCols.includes(c);
+      next.set(seatCellKey(rowLabel, c), {
+        seatRow: rowLabel,
+        seatNumber: c,
+        seatTypeId: isAisleCol ? null : rowSeatTypeId,
+        isActive: !isAisleCol,
+        isAisle: isAisleCol,
+        coupleId: isAisleCol ? null : (coupleIdByCol.get(c) ?? null),
+      });
+    }
+  }
+  return next;
+}
+
+export const buildSeatLayoutPayload = (
+  rows: number,
+  cols: number,
+  cellList: EditorCell[],
+): UpdateSeatLayoutRequest => ({
+  rows,
+  cols,
+  seats: cellList.map((c) => ({
+    seatRow: c.seatRow,
+    seatNumber: c.seatNumber,
+    seatTypeId: c.isAisle ? null : c.seatTypeId,
+    isActive: c.isAisle ? false : c.isActive,
+    isAisle: c.isAisle,
+    coupleId: c.coupleId,
+  })),
+});

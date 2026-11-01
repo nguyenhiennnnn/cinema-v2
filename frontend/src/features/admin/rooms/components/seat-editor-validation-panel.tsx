@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, OctagonX, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { ValidationIssue } from "../hooks/use-seat-editor-state";
+import type { ValidationIssue } from "../types/seat-editor";
 
 interface SeatEditorValidationPanelProps {
   issues: ValidationIssue[];

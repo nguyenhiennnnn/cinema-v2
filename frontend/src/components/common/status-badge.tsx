@@ -1,7 +1,6 @@
-import { Badge, type badgeVariants } from "@/components/ui/badge";
-import type { VariantProps } from "class-variance-authority";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import {
+import type {
   MovieStatus,
   ShowtimeStatus,
   BookingStatus,
@@ -9,65 +8,61 @@ import {
   ShowtimeSeatStatus,
   BookingChannel,
   PaymentMethod,
-  Role,
 } from "@/types/enum";
-import { CheckCircle2, Clock, XCircle, type LucideIcon } from "lucide-react";
+import {
+  activeStatusConfigMap,
+  ageRatingConfigMap,
+  bookingChannelMap,
+  bookingStatusMap,
+  defaultAgeRatingConfig,
+  defaultSeatTypeConfig,
+  movieStatusMap,
+  paymentMethodMap,
+  paymentStatusMap,
+  roleMap,
+  seatTypeConfigMap,
+  showtimeSeatStatusMap,
+  showtimeStatusMap,
+  type ActiveStatusType,
+  type BadgeItem,
+  type BadgeVariant,
+} from "./status-badge.config";
 
-type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
+export {
+  ageRatingConfigMap,
+  bookingResultStatusConfig,
+  seatTypeConfigMap,
+  type ActiveStatusType,
+  type BadgeStyleConfig,
+  type StatusResultConfig,
+} from "./status-badge.config";
 
-export type ActiveStatusType = "default" | "combo" | "employee" | "user" | "room";
+const EmptyValue = () => <span className="text-muted-foreground text-sm">—</span>;
 
-interface ActiveStatusConfig {
-  activeText: string;
-  inactiveText: string;
-  activeVariant?: BadgeVariant;
-  inactiveVariant?: BadgeVariant;
-  activeClassName?: string;
-  inactiveClassName?: string;
+interface MappedBadgeProps {
+  value: string;
+  map: Record<string, BadgeItem>;
+  fallbackClassName?: string;
+  className?: string;
 }
 
-const activeStatusConfigMap: Record<ActiveStatusType, ActiveStatusConfig> = {
-  default: {
-    activeText: "Hoạt động",
-    inactiveText: "Không hoạt động",
-    activeVariant: "success",
-    inactiveVariant: "secondary",
-    activeClassName: "font-medium",
-    inactiveClassName: "text-muted-foreground",
-  },
-  combo: {
-    activeText: "Đang bán",
-    inactiveText: "Ngừng bán",
-    activeVariant: "success",
-    inactiveVariant: "secondary",
-    activeClassName: "font-medium",
-    inactiveClassName: "text-muted-foreground",
-  },
-  employee: {
-    activeText: "Đang làm việc",
-    inactiveText: "Đã nghỉ",
-    activeVariant: "success",
-    inactiveVariant: "secondary",
-    activeClassName: "font-medium",
-    inactiveClassName: "text-muted-foreground",
-  },
-  user: {
-    activeText: "Hoạt động",
-    inactiveText: "Đã khóa",
-    activeVariant: "success",
-    inactiveVariant: "destructive",
-    activeClassName: "font-medium",
-    inactiveClassName: "font-medium",
-  },
-  room: {
-    activeText: "Hoạt động",
-    inactiveText: "Tạm ngưng",
-    activeVariant: "success",
-    inactiveVariant: "secondary",
-    activeClassName: "font-medium",
-    inactiveClassName: "text-muted-foreground",
-  },
+/** Badge tra cứu nhãn/màu/icon theo giá trị trạng thái; giá trị lạ hiển thị nguyên văn. */
+const MappedBadge = ({ value, map, fallbackClassName, className }: MappedBadgeProps) => {
+  const item: BadgeItem = map[value] ?? {
+    label: value,
+    variant: "outline",
+    className: fallbackClassName,
+  };
+  const Icon = item.icon;
+  return (
+    <Badge variant={item.variant} className={cn(item.className, className)}>
+      {Icon && <Icon className="size-3" />}
+      {item.label}
+    </Badge>
+  );
 };
+
+type StatusBadgeProps<T extends string> = { status: T | string; className?: string };
 
 export interface ActiveStatusBadgeProps {
   active?: boolean;
@@ -114,219 +109,46 @@ export const ActiveStatusBadge = ({
       {label}
     </Badge>
   );
-}
-
-export const IsActiveBadge = (props: ActiveStatusBadgeProps) => {
-  return <ActiveStatusBadge {...props} />;
-}
-
-export const ComboStatusBadge = ({
-  isActive,
-  className,
-}: {
-  isActive?: boolean;
-  className?: string;
-}) => {
-  return <ActiveStatusBadge active={isActive} type="combo" className={className} />;
-}
-
-export const EmployeeStatusBadge = ({
-  isActive,
-  className,
-}: {
-  isActive?: boolean;
-  className?: string;
-}) => {
-  return <ActiveStatusBadge active={isActive} type="employee" className={className} />;
-}
-
-export const UserStatusBadge = ({
-  isActive,
-  className,
-}: {
-  isActive?: boolean;
-  className?: string;
-}) => {
-  return <ActiveStatusBadge active={isActive} type="user" className={className} />;
-}
-
-export const RoomStatusBadge = ({
-  isActive,
-  className,
-}: {
-  isActive?: boolean;
-  className?: string;
-}) => {
-  return <ActiveStatusBadge active={isActive} type="room" className={className} />;
-}
-
-const movieStatusMap: Record<
-  MovieStatus,
-  { label: string; variant: BadgeVariant; className?: string }
-> = {
-  [MovieStatus.NowShowing]: { label: "Đang chiếu", variant: "success" },
-  [MovieStatus.ComingSoon]: { label: "Sắp chiếu", variant: "secondary" },
-  [MovieStatus.Ended]: { label: "Đã kết thúc", variant: "outline" },
 };
 
-const showtimeStatusMap: Record<
-  ShowtimeStatus,
-  { label: string; variant: BadgeVariant; className?: string }
-> = {
-  [ShowtimeStatus.Scheduled]: { label: "Đã lên lịch", variant: "success" },
-  [ShowtimeStatus.Cancelled]: { label: "Đã huỷ", variant: "destructive" },
-  [ShowtimeStatus.Completed]: { label: "Đã chiếu xong", variant: "secondary" },
-};
+export const IsActiveBadge = (props: ActiveStatusBadgeProps) => <ActiveStatusBadge {...props} />;
 
-const bookingStatusMap: Record<
-  BookingStatus,
-  { label: string; variant: BadgeVariant; icon?: LucideIcon; className?: string }
-> = {
-  [BookingStatus.Pending]: { label: "Chờ thanh toán", variant: "warning", icon: Clock },
-  [BookingStatus.Confirmed]: { label: "Đã xác nhận", variant: "success", icon: CheckCircle2 },
-  [BookingStatus.Cancelled]: { label: "Đã huỷ", variant: "destructive", icon: XCircle },
-  [BookingStatus.Expired]: { label: "Hết hạn giữ vé", variant: "outline", icon: XCircle },
-};
+type ActiveBadgeProps = { isActive?: boolean; className?: string };
 
-const paymentStatusMap: Record<
-  PaymentStatus,
-  { label: string; variant: BadgeVariant; icon?: LucideIcon; className?: string }
-> = {
-  [PaymentStatus.Pending]: { label: "Chờ xử lý", variant: "warning", icon: Clock },
-  [PaymentStatus.Success]: { label: "Đã thanh toán", variant: "success", icon: CheckCircle2 },
-  [PaymentStatus.Failed]: { label: "Thất bại", variant: "destructive", icon: XCircle },
-  [PaymentStatus.Refunded]: { label: "Đã hoàn tiền", variant: "outline", icon: XCircle },
-};
-
-const showtimeSeatStatusMap: Record<
-  ShowtimeSeatStatus,
-  { label: string; variant: BadgeVariant; className?: string }
-> = {
-  [ShowtimeSeatStatus.Available]: { label: "Còn trống", variant: "success" },
-  [ShowtimeSeatStatus.Held]: { label: "Đang giữ", variant: "warning" },
-  [ShowtimeSeatStatus.Booked]: { label: "Đã đặt", variant: "destructive" },
-};
-
-const bookingChannelMap: Record<
-  BookingChannel,
-  { label: string; variant: BadgeVariant; className?: string }
-> = {
-  [BookingChannel.Online]: { label: "Online", variant: "outline", className: "font-medium" },
-  [BookingChannel.Counter]: { label: "Tại quầy", variant: "secondary", className: "font-medium" },
-};
-
-const paymentMethodMap: Record<
-  PaymentMethod,
-  { label: string; variant: BadgeVariant; className?: string }
-> = {
-  [PaymentMethod.VNPay]: { label: "VNPay", variant: "outline", className: "font-medium" },
-  [PaymentMethod.Momo]: { label: "MoMo", variant: "secondary", className: "font-medium" },
-  [PaymentMethod.Cash]: { label: "Tiền mặt", variant: "outline", className: "font-medium" },
-  [PaymentMethod.Stripe]: { label: "Stripe", variant: "default", className: "font-medium" },
-};
-
-const roleMap: Record<
-  Role,
-  { label: string; variant: BadgeVariant; className?: string }
-> = {
-  [Role.Admin]: { label: "Quản trị viên", variant: "default", className: "font-medium" },
-  [Role.Customer]: { label: "Khách hàng", variant: "secondary", className: "font-medium" },
-  [Role.Employee]: { label: "Nhân viên", variant: "outline", className: "font-medium" },
-};
-
-export const MovieStatusBadge = ({
-  status,
-  className,
-}: {
-  status: MovieStatus | string;
-  className?: string;
-}) => {
-  const item = movieStatusMap[status as MovieStatus] || {
-    label: status,
-    variant: "outline",
-  };
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {item.label}
-    </Badge>
+const createActiveBadge = (type: ActiveStatusType) => {
+  const Component = ({ isActive, className }: ActiveBadgeProps) => (
+    <ActiveStatusBadge active={isActive} type={type} className={className} />
   );
-}
+  return Component;
+};
 
-export const ShowtimeStatusBadge = ({
-  status,
-  className,
-}: {
-  status: ShowtimeStatus | string;
-  className?: string;
-}) => {
-  const item = showtimeStatusMap[status as ShowtimeStatus] || {
-    label: status,
-    variant: "outline",
-  };
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {item.label}
-    </Badge>
-  );
-}
+export const ComboStatusBadge = createActiveBadge("combo");
+export const EmployeeStatusBadge = createActiveBadge("employee");
+export const UserStatusBadge = createActiveBadge("user");
+export const RoomStatusBadge = createActiveBadge("room");
 
-export const BookingStatusBadge = ({
-  status,
-  className,
-}: {
-  status: BookingStatus | string;
-  className?: string;
-}) => {
-  const item = bookingStatusMap[status as BookingStatus] || {
-    label: status,
-    variant: "outline",
-  };
-  const Icon = item.icon;
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {Icon && <Icon className="size-3" />}
-      {item.label}
-    </Badge>
-  );
-}
+export const MovieStatusBadge = ({ status, className }: StatusBadgeProps<MovieStatus>) => (
+  <MappedBadge value={status} map={movieStatusMap} className={className} />
+);
 
-export const PaymentStatusBadge = ({
-  status,
-  className,
-}: {
-  status: PaymentStatus | string;
-  className?: string;
-}) => {
-  const item = paymentStatusMap[status as PaymentStatus] || {
-    label: status,
-    variant: "outline",
-  };
-  const Icon = item.icon;
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {Icon && <Icon className="size-3" />}
-      {item.label}
-    </Badge>
-  );
-}
+export const ShowtimeStatusBadge = ({ status, className }: StatusBadgeProps<ShowtimeStatus>) => (
+  <MappedBadge value={status} map={showtimeStatusMap} className={className} />
+);
+
+export const BookingStatusBadge = ({ status, className }: StatusBadgeProps<BookingStatus>) => (
+  <MappedBadge value={status} map={bookingStatusMap} className={className} />
+);
+
+export const PaymentStatusBadge = ({ status, className }: StatusBadgeProps<PaymentStatus>) => (
+  <MappedBadge value={status} map={paymentStatusMap} className={className} />
+);
 
 export const ShowtimeSeatStatusBadge = ({
   status,
   className,
-}: {
-  status: ShowtimeSeatStatus | string;
-  className?: string;
-}) => {
-  const item = showtimeSeatStatusMap[status as ShowtimeSeatStatus] || {
-    label: status,
-    variant: "outline",
-  };
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {item.label}
-    </Badge>
-  );
-}
+}: StatusBadgeProps<ShowtimeSeatStatus>) => (
+  <MappedBadge value={status} map={showtimeSeatStatusMap} className={className} />
+);
 
 export const BookingChannelBadge = ({
   channel,
@@ -334,18 +156,14 @@ export const BookingChannelBadge = ({
 }: {
   channel: BookingChannel | string;
   className?: string;
-}) => {
-  const item = bookingChannelMap[channel as BookingChannel] || {
-    label: channel,
-    variant: "outline",
-    className: "font-medium",
-  };
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {item.label}
-    </Badge>
-  );
-}
+}) => (
+  <MappedBadge
+    value={channel}
+    map={bookingChannelMap}
+    fallbackClassName="font-medium"
+    className={className}
+  />
+);
 
 export const PaymentMethodBadge = ({
   method,
@@ -353,57 +171,21 @@ export const PaymentMethodBadge = ({
 }: {
   method: PaymentMethod | string;
   className?: string;
-}) => {
-  const item = paymentMethodMap[method as PaymentMethod] || {
-    label: method,
-    variant: "outline",
-    className: "font-medium",
-  };
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {item.label}
-    </Badge>
+}) => (
+  <MappedBadge
+    value={method}
+    map={paymentMethodMap}
+    fallbackClassName="font-medium"
+    className={className}
+  />
+);
+
+export const RoleBadge = ({ role, className }: { role?: string | null; className?: string }) =>
+  role ? (
+    <MappedBadge value={role} map={roleMap} fallbackClassName="font-medium" className={className} />
+  ) : (
+    <EmptyValue />
   );
-}
-
-export const RoleBadge = ({
-  role,
-  className,
-}: {
-  role?: string | null;
-  className?: string;
-}) => {
-  if (!role) return <span className="text-muted-foreground text-sm">—</span>;
-  const item = roleMap[role as Role] || {
-    label: role,
-    variant: "outline",
-    className: "font-medium",
-  };
-  return (
-    <Badge variant={item.variant} className={cn(item.className, className)}>
-      {item.label}
-    </Badge>
-  );
-}
-
-export interface BadgeStyleConfig {
-  variant: BadgeVariant;
-  className?: string;
-}
-
-export const ageRatingConfigMap: Record<string, BadgeStyleConfig> = {
-  P: { variant: "success", className: "font-bold" },
-  K: { variant: "success", className: "font-bold" },
-  T13: { variant: "warning", className: "font-bold" },
-  T16: { variant: "warning", className: "font-bold" },
-  T18: { variant: "destructive", className: "font-bold tracking-wider" },
-  C: { variant: "destructive", className: "font-bold tracking-wider" },
-};
-
-const defaultAgeRatingConfig: BadgeStyleConfig = {
-  variant: "outline",
-  className: "font-bold tracking-wider",
-};
 
 export const AgeRatingBadge = ({
   code,
@@ -414,10 +196,9 @@ export const AgeRatingBadge = ({
   className?: string;
   onImage?: boolean;
 }) => {
-  if (!code) return <span className="text-muted-foreground text-sm">—</span>;
+  if (!code) return <EmptyValue />;
 
-  const normalized = code.trim().toUpperCase();
-  const config = ageRatingConfigMap[normalized] ?? defaultAgeRatingConfig;
+  const config = ageRatingConfigMap[code.trim().toUpperCase()] ?? defaultAgeRatingConfig;
 
   return (
     <span
@@ -436,109 +217,36 @@ export const AgeRatingBadge = ({
   );
 };
 
-export const seatTypeConfigMap: Record<string, BadgeStyleConfig> = {
-  VIP: {
-    variant: "outline",
-    className: "border-accent text-accent font-semibold",
-  },
-  Sweetbox: {
-    variant: "outline",
-    className: "border-couple/60 text-couple font-semibold",
-  },
-  Standard: {
-    variant: "outline",
-    className: "border-border text-foreground font-semibold",
-  },
-};
-
-const defaultSeatTypeConfig: BadgeStyleConfig = {
-  variant: "outline",
-  className: "border-accent text-accent font-semibold",
-};
-
 export const MembershipTierBadge = ({
   tierName,
   className,
 }: {
   tierName?: string | null;
   className?: string;
-}) => {
-  if (!tierName) return <span className="text-muted-foreground text-sm">—</span>;
-  return (
-    <Badge
-      variant="outline"
-      className={cn("border-accent text-accent font-semibold", className)}
-    >
+}) =>
+  tierName ? (
+    <Badge variant="outline" className={cn("border-accent text-accent font-semibold", className)}>
       {tierName}
     </Badge>
+  ) : (
+    <EmptyValue />
   );
-};
 
-export const SeatTypeBadge = ({
-  name,
-  className,
-}: {
-  name?: string | null;
-  className?: string;
-}) => {
-  if (!name) return <span className="text-muted-foreground text-sm">—</span>;
+export const SeatTypeBadge = ({ name, className }: { name?: string | null; className?: string }) => {
+  if (!name) return <EmptyValue />;
   const config = seatTypeConfigMap[name] ?? defaultSeatTypeConfig;
-
   return (
-    <Badge
-      variant={config.variant}
-      className={cn(config.className, className)}
-    >
+    <Badge variant={config.variant} className={cn(config.className, className)}>
       {name}
     </Badge>
   );
 };
 
-export const PositionBadge = ({
-  name,
-  className,
-}: {
-  name?: string | null;
-  className?: string;
-}) => {
-  if (!name) return <span className="text-muted-foreground text-sm">—</span>;
-  return (
+export const PositionBadge = ({ name, className }: { name?: string | null; className?: string }) =>
+  name ? (
     <Badge variant="outline" className={cn("font-medium", className)}>
       {name}
     </Badge>
+  ) : (
+    <EmptyValue />
   );
-};
-
-export interface StatusResultConfig {
-  icon: LucideIcon;
-  label: string;
-  description: string;
-  className: string;
-}
-
-export const bookingResultStatusConfig: Record<BookingStatus, StatusResultConfig> = {
-  [BookingStatus.Confirmed]: {
-    icon: CheckCircle2,
-    label: "Thanh toán thành công",
-    description: "Vé của bạn đã được xác nhận. Vé điện tử đã sẵn sàng bên dưới.",
-    className: "text-success",
-  },
-  [BookingStatus.Pending]: {
-    icon: Clock,
-    label: "Đang xử lý thanh toán",
-    description: "Hệ thống đang chờ xác nhận từ cổng thanh toán, vui lòng đợi trong giây lát.",
-    className: "text-warning",
-  },
-  [BookingStatus.Cancelled]: {
-    icon: XCircle,
-    label: "Đơn đặt vé đã bị huỷ",
-    description: "Giao dịch không thành công hoặc đã bị huỷ. Vui lòng đặt lại vé.",
-    className: "text-destructive",
-  },
-  [BookingStatus.Expired]: {
-    icon: XCircle,
-    label: "Đơn đặt vé đã hết hạn",
-    description: "Bạn chưa hoàn tất thanh toán trong thời gian giữ ghế. Vui lòng đặt lại vé.",
-    className: "text-destructive",
-  },
-};

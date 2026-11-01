@@ -1,153 +1,49 @@
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
-import { Role } from "@/types/enum";
-import {
-  LayoutDashboard,
-  ShoppingBag,
-  ScanLine,
-  Film,
-  Calendar,
-  Tv,
-  Popcorn,
-  Ticket,
-  CreditCard,
-  BarChart3,
-  Users,
-  ShieldAlert,
-  MessageSquare,
-  Layers,
-  Settings,
-  type LucideIcon,
-} from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ROUTES } from "@/config/routes";
+import { ADMIN_NAV_GROUPS, filterNavGroupsByRole, type AdminNavItem } from "@/config/admin-nav";
 
-const NAV_GROUPS: {
-  label: string,
-  items: {
-    to: string,
-    label: string,
-    icon: LucideIcon,
-    roles: Role[],
-  }[]
-}[] = [
-    {
-      label: "Tổng quan",
-      items: [
-        {
-          to: ROUTES.admin.dashboard,
-          label: "Dashboard",
-          icon: LayoutDashboard,
-          roles: [Role.Admin],
-        },
-      ],
-    },
-    {
-      label: "Nghiệp vụ rạp",
-      items: [
-        {
-          to: ROUTES.admin.bookingCounter,
-          label: "Bán vé tại quầy",
-          icon: ShoppingBag,
-          roles: [Role.Admin, Role.Employee],
-        },
-        {
-          to: ROUTES.admin.checkin,
-          label: "Soát vé",
-          icon: ScanLine,
-          roles: [Role.Admin, Role.Employee],
-        },
-      ],
-    },
-    {
-      label: "Quản lý rạp & phim",
-      items: [
-        {
-          to: ROUTES.admin.movies,
-          label: "Quản lý phim",
-          icon: Film,
-          roles: [Role.Admin, Role.Employee],
-        },
-        {
-          to: ROUTES.admin.showtimes,
-          label: "Suất chiếu",
-          icon: Calendar,
-          roles: [Role.Admin, Role.Employee],
-        },
-        { to: ROUTES.admin.rooms, label: "Phòng chiếu", icon: Tv, roles: [Role.Admin] },
-        {
-          to: ROUTES.admin.combos,
-          label: "Bắp nước & Combo",
-          icon: Popcorn,
-          roles: [Role.Admin],
-        },
-      ],
-    },
-    {
-      label: "Đơn hàng & tài chính",
-      items: [
-        {
-          to: ROUTES.admin.bookings,
-          label: "Quản lý đặt vé",
-          icon: Ticket,
-          roles: [Role.Admin, Role.Employee],
-        },
-        {
-          to: ROUTES.admin.payments,
-          label: "Giao dịch & thanh toán",
-          icon: CreditCard,
-          roles: [Role.Admin],
-        },
-        {
-          to: ROUTES.admin.reports,
-          label: "Báo cáo & doanh thu",
-          icon: BarChart3,
-          roles: [Role.Admin],
-        },
-      ],
-    },
-    {
-      label: "Người dùng & đánh giá",
-      items: [
-        { to: ROUTES.admin.users, label: "Khách hàng", icon: Users, roles: [Role.Admin] },
-        {
-          to: ROUTES.admin.employees,
-          label: "Nhân viên",
-          icon: ShieldAlert,
-          roles: [Role.Admin],
-        },
-        {
-          to: ROUTES.admin.reviews,
-          label: "Đánh giá phim",
-          icon: MessageSquare,
-          roles: [Role.Admin],
-        },
-      ],
-    },
-    {
-      label: "Hệ thống & danh mục",
-      items: [
-        { to: ROUTES.admin.catalog, label: "Trung tâm danh mục", icon: Layers, roles: [Role.Admin] },
-        {
-          to: ROUTES.admin.settings,
-          label: "Cài đặt hệ thống",
-          icon: Settings,
-          roles: [Role.Admin],
-        },
-      ],
-    },
-  ];
+const AdminNavLink = ({
+  item: { to, label, icon: Icon },
+  collapsed,
+}: {
+  item: AdminNavItem;
+  collapsed: boolean;
+}) => {
+  const link = (
+    <NavLink
+      to={to}
+      end={true}
+      title={collapsed ? label : undefined}
+      className={({ isActive }) =>
+        cn(
+          "flex w-full items-center gap-2.5 px-4 py-2 text-[15px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
+          isActive &&
+            "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
+          collapsed && "justify-center px-0",
+        )
+      }
+    >
+      <Icon className="size-4 shrink-0" />
+      {!collapsed && <span className="truncate">{label}</span>}
+    </NavLink>
+  );
+
+  if (!collapsed) return link;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger render={link} />
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  );
+};
 
 export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
   const { user } = useAuthStore();
-  const role = user?.role;
-
-  const visibleGroups = NAV_GROUPS.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => !role || item.roles.includes(role as Extract<Role, "Admin" | "Employee">)),
-  })).filter((group) => group.items.length > 0);
+  const visibleGroups = filterNavGroupsByRole(ADMIN_NAV_GROUPS, user?.role);
 
   return (
     <aside
@@ -171,36 +67,9 @@ export const AdminSidebar = ({ collapsed }: { collapsed: boolean }) => {
                 {group.label}
               </p>
             )}
-            {group.items.map(({ to, label, icon: Icon }) => {
-              const link = (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={true}
-                  title={collapsed ? label : undefined}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex w-full items-center gap-2.5 px-4 py-2 text-[15px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
-                      isActive &&
-                      "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
-                      collapsed && "justify-center px-0",
-                    )
-                  }
-                >
-                  <Icon className="size-4 shrink-0" />
-                  {!collapsed && <span className="truncate">{label}</span>}
-                </NavLink>
-              );
-
-              if (!collapsed) return link;
-
-              return (
-                <Tooltip key={to}>
-                  <TooltipTrigger render={link} />
-                  <TooltipContent side="right">{label}</TooltipContent>
-                </Tooltip>
-              );
-            })}
+            {group.items.map((item) => (
+              <AdminNavLink key={item.to} item={item} collapsed={collapsed} />
+            ))}
           </div>
         ))}
       </nav>

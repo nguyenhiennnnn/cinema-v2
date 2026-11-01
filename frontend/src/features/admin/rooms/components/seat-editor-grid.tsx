@@ -10,7 +10,7 @@ import {
   type SeatMark,
 } from "@/components/common/seat-map/seat-map-types";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
-import type { EditorCell } from "../hooks/use-seat-editor-state";
+import type { EditorCell } from "../types/seat-editor";
 
 const LEGEND: SeatLegendItem[] = [
   { label: "Trống", type: "standard", state: "available" },

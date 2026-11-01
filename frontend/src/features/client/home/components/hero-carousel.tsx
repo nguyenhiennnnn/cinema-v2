@@ -1,186 +1,18 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import type { CSSProperties, Ref } from "react";
-import { Link } from "react-router";
-import { ChevronLeft, ChevronRight, Info, Pause, Play, Star, Ticket } from "lucide-react";
-import { AgeRatingBadge } from "@/components/common/status-badge";
+import { useRef } from "react";
+import type { CSSProperties } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDuration } from "@/lib/cinema-format";
 import { cn } from "@/lib/utils";
 import { useMovies } from "@/features/client/movies/hooks/use-movies";
-import type { MovieListItemDto } from "@/features/client/movies/types";
-import {
-  HERO_INTERVAL_MS,
-  HERO_TRANSITION_MS,
-  useHeroCarousel,
-  type HeroDirection,
-} from "@/features/client/home/hooks/use-hero-carousel";
+import { HERO_INTERVAL_MS, useHeroCarousel } from "@/features/client/home/hooks/use-hero-carousel";
 import { HeroThumbnails } from "@/features/client/home/components/hero-thumbnails";
 import { MovieStatus } from "@/types/enum";
-import { buildClipFrames, measureInset, type Inset } from "../utils/hero-clip";
+import { usePreloadPosters } from "../hooks/use-preload-posters";
+import { useHeroTransition } from "../hooks/use-hero-transition";
+import { HeroBackdrop } from "./hero-backdrop";
+import { HeroControls } from "./hero-controls";
+import { HeroSlide } from "./hero-slide";
 
 const HERO_HEIGHT = "min-h-[min(calc(100svh-4rem),52rem)]";
-const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
-const THUMB_CUT = 6;
-
-const usePreloadPosters = (movies: MovieListItemDto[]) => {
-  const cache = useRef<HTMLImageElement[]>([]);
-  const key = movies.map((m) => m.posterUrl ?? "").join("|");
-
-  useEffect(() => {
-    cache.current = movies.flatMap((m) => {
-      if (!m.posterUrl) return [];
-      const img = new Image();
-      img.decoding = "async";
-      img.src = m.posterUrl;
-      img.decode?.().catch(() => { });
-      return [img];
-    });
-  }, [key]);
-};
-
-interface HeroBackdropProps {
-  movie: MovieListItemDto;
-  priority?: boolean;
-  animated?: boolean;
-  ref?: Ref<HTMLDivElement>;
-}
-
-const HeroBackdrop = ({ movie, priority = false, animated = false, ref }: HeroBackdropProps) => (
-  <div
-    ref={ref}
-    className={cn("absolute inset-0 transform-gpu", animated && "will-change-[clip-path,opacity]")}
-    aria-hidden="true"
-  >
-    {movie.posterUrl && (
-      <img
-        src={movie.posterUrl}
-        alt=""
-        decoding="async"
-        fetchPriority={priority ? "high" : undefined}
-        className="h-full w-full object-cover"
-      />
-    )}
-    <div className="absolute inset-0 bg-scrim/70" />
-  </div>
-);
-
-interface HeroSlideProps {
-  movie: MovieListItemDto;
-  position: number;
-  total: number;
-  phase: "enter" | "leave" | null;
-  direction: HeroDirection | null;
-}
-
-const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlideProps) => {
-  const leaving = phase === "leave";
-  const entering = phase === "enter";
-  const sign = direction === "prev" ? -1 : 1;
-  const Title = leaving ? "p" : "h1";
-
-  const style = {
-    "--hero-shift": `${24 * sign}px`,
-    "--hero-exit": `${-24 * sign}px`,
-  } as CSSProperties;
-
-  const reveal = (i: number): { className?: string; style?: CSSProperties } =>
-    entering ? { className: "hero-reveal", style: { "--i": i } as CSSProperties } : {};
-
-  const posterReveal = reveal(0);
-  const metaReveal = reveal(1);
-  const titleReveal = reveal(2);
-  const infoReveal = reveal(3);
-  const actionsReveal = reveal(4);
-  const href = `/movies/${movie.movieId}`;
-
-  return (
-    <article
-      role="group"
-      aria-roledescription="slide"
-      aria-label={`${position} / ${total}`}
-      aria-hidden={leaving || undefined}
-      style={style}
-      className={cn(
-        "grid content-end gap-6 [grid-area:1/1] md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12",
-        (leaving || entering) && "will-change-[transform,opacity]",
-        leaving && "hero-leave pointer-events-none",
-      )}
-    >
-      <Link
-        to={href}
-        tabIndex={leaving ? -1 : undefined}
-        aria-label={movie.title}
-        style={posterReveal.style}
-        className={cn(
-          "block aspect-2/3 w-28 cut-md bg-muted sm:w-36 md:order-last md:h-[clamp(12rem,calc(100svh-19rem),28rem)] md:w-auto",
-          posterReveal.className,
-        )}
-      >
-        {movie.posterUrl ? (
-          <img src={movie.posterUrl} alt="" decoding="async" className="h-full w-full object-cover" />
-        ) : (
-          <span className="t-code flex h-full w-full items-center justify-center text-2xl text-muted-foreground">?</span>
-        )}
-      </Link>
-
-      <div className="min-w-0 md:max-w-2xl">
-        <div style={metaReveal.style} className={cn("flex flex-wrap items-center gap-2", metaReveal.className)}>
-          <AgeRatingBadge code={movie.ageRating?.code} onImage />
-          {movie.genres.slice(0, 3).map((g) => (
-            <span key={g} className="cut-xs bg-scrim-foreground/15 px-2 py-0.5 text-[13px] font-medium text-scrim-foreground">
-              {g}
-            </span>
-          ))}
-        </div>
-
-        <Title
-          style={titleReveal.style}
-          className={cn(
-            "mt-3 line-clamp-3 pb-1 t-h1 text-scrim-foreground md:text-5xl lg:text-6xl",
-            titleReveal.className,
-          )}
-        >
-          {movie.title}
-        </Title>
-
-        <div
-          style={infoReveal.style}
-          className={cn("mt-4 flex items-center gap-4 text-sm text-scrim-foreground/70", infoReveal.className)}
-        >
-          <span>{formatDuration(movie.durationMinutes)}</span>
-          {movie.averageRating > 0 && (
-            <span className="flex items-center gap-1 font-semibold text-accent">
-              <Star className="size-4 fill-accent text-accent" />
-              <span className="t-numeral text-base">{movie.averageRating.toFixed(1)}</span>
-            </span>
-          )}
-        </div>
-
-        <div style={actionsReveal.style} className={cn("mt-6 flex flex-wrap gap-3", actionsReveal.className)}>
-          <Link
-            to={href}
-            tabIndex={leaving ? -1 : undefined}
-            className="cut-sm inline-flex h-11 items-center gap-2 bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Ticket className="size-4" />
-            Đặt vé
-          </Link>
-          <Link
-            to={href}
-            tabIndex={leaving ? -1 : undefined}
-            className="cut-sm inline-flex h-11 items-center gap-2 bg-scrim-foreground/15 px-5 text-sm font-medium text-scrim-foreground hover:bg-scrim-foreground/25"
-          >
-            <Info className="size-4" />
-            Chi tiết phim
-          </Link>
-        </div>
-      </div>
-    </article>
-  );
-};
-
-const controlClass =
-  "cut-sm flex size-11 items-center justify-center bg-scrim-foreground/15 text-scrim-foreground transition-colors duration-150 hover:bg-scrim-foreground/25";
 
 export const HeroCarousel = () => {
   const { data, isLoading } = useMovies({ status: MovieStatus.NowShowing, limit: 5 });
@@ -205,64 +37,21 @@ export const HeroCarousel = () => {
   const heroRef = useRef<HTMLElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
-  const thumbRefs = useRef(new Map<number, HTMLElement>());
-  const originRef = useRef<Inset | null>(null);
   const touchStartX = useRef<number | null>(null);
 
-  const registerThumb = useCallback((movieId: number, el: HTMLElement | null) => {
-    if (el) thumbRefs.current.set(movieId, el);
-    else thumbRefs.current.delete(movieId);
-  }, []);
-
-  const requestMove = (target: number, dir: HeroDirection) => {
-    if (leaving || count < 2 || target === index) return;
-    const hero = heroRef.current;
-    const targetId = movies[target]?.movieId;
-    const thumb = targetId === undefined ? undefined : thumbRefs.current.get(targetId);
-    originRef.current = hero && thumb ? measureInset(hero.getBoundingClientRect(), thumb.getBoundingClientRect()) : null;
-    goTo(target, dir);
-  };
+  const { registerThumb, requestMove } = useHeroTransition({
+    movies,
+    index,
+    leaving,
+    reducedMotion,
+    goTo,
+    heroRef,
+    backdropRef,
+    stripRef,
+  });
 
   const next = () => requestMove((index + 1) % count, "next");
   const prev = () => requestMove((index - 1 + count) % count, "prev");
-
-  const leavingMovieId = leaving ? movies[leaving.index]?.movieId : undefined;
-
-  useLayoutEffect(() => {
-    if (!leaving || reducedMotion) return;
-    const hero = heroRef.current;
-    const backdrop = backdropRef.current;
-    if (!hero || !backdrop) return;
-
-    const options: KeyframeAnimationOptions = { duration: HERO_TRANSITION_MS, easing: EASING, fill: "both" };
-    const animations: Animation[] = [];
-
-    const { width, height } = hero.getBoundingClientRect();
-    const origin = originRef.current;
-    animations.push(
-      backdrop.animate(origin ? buildClipFrames(width, height, origin, THUMB_CUT) : [{ opacity: 0 }, { opacity: 1 }], options),
-    );
-
-    const strip = stripRef.current;
-    const first = strip?.children[0];
-    if (strip && first) {
-      strip.style.willChange = "transform";
-      const second = strip.children[1];
-      const slot = second
-        ? second.getBoundingClientRect().left - first.getBoundingClientRect().left
-        : first.getBoundingClientRect().width + 8;
-      const dx = leaving.direction === "next" ? slot : -slot;
-      animations.push(strip.animate([{ transform: `translate3d(${dx}px,0,0)` }, { transform: "translate3d(0,0,0)" }], options));
-
-      const leftThumb = leavingMovieId === undefined ? undefined : thumbRefs.current.get(leavingMovieId);
-      if (leftThumb) animations.push(leftThumb.animate([{ opacity: 0 }, { opacity: 1 }], options));
-    }
-
-    return () => {
-      animations.forEach((a) => a.cancel());
-      if (strip) strip.style.willChange = "";
-    };
-  }, [leaving, leavingMovieId, reducedMotion]);
 
   if (isLoading) {
     return <Skeleton className={cn(HERO_HEIGHT, "w-full")} />;
@@ -336,27 +125,15 @@ export const HeroCarousel = () => {
 
         {count > 1 && (
           <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={prev} className={controlClass} aria-label="Phim trước">
-                <ChevronLeft className="size-5" />
-              </button>
-              <button type="button" onClick={next} className={controlClass} aria-label="Phim tiếp theo">
-                <ChevronRight className="size-5" />
-              </button>
-              {canAutoplay && (
-                <button
-                  type="button"
-                  onClick={toggleUserPaused}
-                  className={controlClass}
-                  aria-label={userPaused ? "Tiếp tục tự chuyển phim" : "Tạm dừng tự chuyển phim"}
-                >
-                  {userPaused ? <Play className="size-5" /> : <Pause className="size-5" />}
-                </button>
-              )}
-              <span className="t-code ml-2 text-sm text-scrim-foreground/70" aria-hidden="true">
-                {index + 1} / {count}
-              </span>
-            </div>
+            <HeroControls
+              index={index}
+              count={count}
+              canAutoplay={canAutoplay}
+              userPaused={userPaused}
+              onPrev={prev}
+              onNext={next}
+              onTogglePause={toggleUserPaused}
+            />
 
             <HeroThumbnails ref={stripRef} items={thumbs} onSelect={(i) => requestMove(i, "next")} registerThumb={registerThumb} />
           </div>
