@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ====== CẤU HÌNH ======
-const SITE_URL = process.env.VITE_SITE_URL ?? "https://cinema-nu-ten.vercel.app";
+const SITE_URL = process.env.VITE_SITE_URL ?? "https://cinema-web-g1ky.onrender.com";
 const API_BASE_URL =
   process.env.VITE_API_BASE_URL ?? "https://REPLACE_API_BASE_URL/api/v1";
 const OUTPUT_PATH = path.resolve(__dirname, "../public/sitemap.xml");

@@ -8,4 +8,4 @@ Disallow: /account/
 Disallow: /booking/
 
 # Sitemap
-Sitemap: https://cinema-nu-ten.vercel.app/sitemap.xml
+Sitemap: https://cinema-web-g1ky.onrender.com/sitemap.xml
