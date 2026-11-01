@@ -30,6 +30,12 @@ public interface IEmployeeService
         CancellationToken cancellationToken
     );
 
+    Task<BulkActionResponse> BulkUpdateUserStatusAsync(
+        BulkStatusRequest request,
+        int currentUserId,
+        CancellationToken cancellationToken
+    );
+
     Task<UpdateUserRoleResponse> UpdateUserRoleAsync(
         int userId,
         UpdateUserRoleRequest request,

@@ -1,41 +1,72 @@
+import type { ComponentProps } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
+import { BrandMark } from "@/components/common/brand-mark";
 import { cn } from "@/lib/utils";
 
-interface SpinnerProps {
-  className?: string;
-  size?: "sm" | "md" | "lg";
+const DEFAULT_LABEL = "Đang tải";
+
+export const spinnerVariants = cva(
+  // Màu theo token (text-primary), không hard-code. Người dùng bật "giảm chuyển động" vẫn thấy tiến trình, chỉ quay chậm lại.
+  "shrink-0 animate-spin text-primary motion-reduce:animate-[spin_2s_linear_infinite]",
+  {
+    variants: {
+      size: {
+        sm: "size-4",
+        md: "size-8",
+        lg: "size-12",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+    },
+  },
+);
+
+interface SpinnerProps
+  extends Omit<ComponentProps<typeof Loader2>, "size">,
+  VariantProps<typeof spinnerVariants> {
+  /** Nội dung đọc cho screen reader. */
+  label?: string;
+  /** Dùng khi đã có vùng role="status" bao ngoài, tránh đọc trùng. */
+  decorative?: boolean;
 }
 
-const sizeClassMap: Record<NonNullable<SpinnerProps["size"]>, string> = {
-  sm: "size-4 border-2",
-  md: "size-8 border-4",
-  lg: "size-12 border-4",
-};
-
-export const Spinner = ({ className, size = "md" }: SpinnerProps) => (
-  <div
-    role="status"
-    aria-label="Đang tải"
-    className={cn(
-      "animate-spin border-primary border-t-transparent",
-      sizeClassMap[size],
-      className,
-    )}
+export const Spinner = ({
+  className,
+  size,
+  label = DEFAULT_LABEL,
+  decorative = false,
+  ...props
+}: SpinnerProps) => (
+  <Loader2
+    {...(decorative ? { "aria-hidden": true } : { role: "status", "aria-label": label })}
+    className={cn(spinnerVariants({ size }), className)}
+    {...props}
   />
 );
 
 interface PageLoaderProps {
+  /** Dòng chữ hiển thị bên dưới. Không truyền thì chỉ có chữ ẩn cho screen reader. */
   label?: string;
   className?: string;
 }
 
 export const PageLoader = ({ label, className }: PageLoaderProps) => (
   <div
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
     className={cn(
-      "flex h-screen flex-col items-center justify-center gap-3 bg-background",
+      "flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-4",
       className,
     )}
   >
-    <Spinner size="lg" />
-    {label && <p className="text-sm text-muted-foreground">{label}</p>}
+    <BrandMark loading className="w-16 shrink-0" />
+    {label ? (
+      <p className="text-sm text-muted-foreground">{label}</p>
+    ) : (
+      <span className="sr-only">{DEFAULT_LABEL}</span>
+    )}
   </div>
 );

@@ -1,13 +1,21 @@
-import type { ColumnFiltersState } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { useState } from "react";
+import type { ColumnFiltersState, RowSelectionState } from "@tanstack/react-table";
+import { Plus, Power, PowerOff } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkActionButton } from "@/components/common/data-table/bulk-action-button";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
+import { toastBulkResult } from "@/lib/bulk";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
-import { useAdminCombos, useAdminToggleCombo } from "../hooks/use-admin-combo";
+import {
+  useAdminBulkSetComboActive,
+  useAdminCombos,
+  useAdminToggleCombo,
+} from "../hooks/use-admin-combo";
 import type { AdminComboDto } from "../types";
 import { createComboColumns } from "../components/combo-columns";
 import { ComboCreateForm } from "../components/forms/combo-create-form";
@@ -25,6 +33,8 @@ const AdminCombosPage = () => {
     pageSize: pagination.pageSize,
   });
   const toggleCombo = useAdminToggleCombo();
+  const bulkSetActive = useAdminBulkSetComboActive();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const openDialog = useDialogOpen();
   const closeDialog = useDialogClose();
@@ -65,10 +75,19 @@ const AdminCombosPage = () => {
 
   // Không dùng useMemo ở đây vì handleEdit/handleToggle tạo mới mỗi render;
   // tính lại columns mỗi lần render để tránh đóng gói (closure) dữ liệu cũ.
-  const columns = createComboColumns({
-    onEdit: handleEdit,
-    onToggle: handleToggle,
-  });
+  const handleBulkSetActive = async (selectedIds: string[], isActive: boolean) => {
+    const res = await bulkSetActive.mutateAsync({ ids: selectedIds.map(Number), isActive });
+    setRowSelection({});
+    toastBulkResult(res.data, isActive ? "kích hoạt" : "ngừng bán", "combo");
+  };
+
+  const columns = [
+    createSelectionColumn<AdminComboDto>(),
+    ...createComboColumns({
+      onEdit: handleEdit,
+      onToggle: handleToggle,
+    }),
+  ];
 
   const columnFilters: ColumnFiltersState = params.search
     ? [{ id: "name", value: params.search }]
@@ -99,6 +118,33 @@ const AdminCombosPage = () => {
         onSearchChange={(value) => setParams({ search: value, page: DEFAULT_PAGE })}
         searchPlaceholder="Tìm theo tên combo..."
         emptyMessage="Chưa có combo nào."
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(row) => String(row.comboId)}
+        bulkActions={(selectedIds) => (
+          <>
+            <BulkActionButton
+              count={selectedIds.length}
+              itemLabel="combo"
+              actionLabel="Kích hoạt"
+              icon={Power}
+              variant="outline"
+              description="Các combo được chọn sẽ hiển thị lại và có thể được đặt mua."
+              onConfirm={() => handleBulkSetActive(selectedIds, true)}
+              isPending={bulkSetActive.isPending}
+            />
+            <BulkActionButton
+              count={selectedIds.length}
+              itemLabel="combo"
+              actionLabel="Ngừng bán"
+              icon={PowerOff}
+              variant="destructive"
+              description="Các combo được chọn sẽ bị ẩn khỏi danh sách mua hàng cho đến khi kích hoạt lại."
+              onConfirm={() => handleBulkSetActive(selectedIds, false)}
+              isPending={bulkSetActive.isPending}
+            />
+          </>
+        )}
       />
     </div>
   );

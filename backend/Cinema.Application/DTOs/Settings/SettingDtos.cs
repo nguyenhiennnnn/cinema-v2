@@ -14,7 +14,8 @@ public record CinemaSettingsDto(
     int CancelDeadlineHours,
     int StopSellingMinutesBefore,
     int HoldDurationMinutes,
-    int CheckInOpenMinutes
+    int CheckInOpenMinutes,
+    string SeatGapRuleMode
 );
 
 public record UpdateSettingsRequest(
@@ -31,5 +32,6 @@ public record UpdateSettingsRequest(
     int CancelDeadlineHours,
     int StopSellingMinutesBefore = 0,
     int? HoldDurationMinutes = null,
-    int? CheckInOpenMinutes = null
+    int? CheckInOpenMinutes = null,
+    string? SeatGapRuleMode = null
 );

@@ -658,6 +658,12 @@ namespace Cinema.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(10000m);
 
+                    b.Property<string>("SeatGapRuleMode")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Strict");
+
                     b.Property<int>("StopSellingMinutesBefore")
                         .HasColumnType("integer");
 
@@ -688,6 +694,7 @@ namespace Cinema.Infrastructure.Migrations
                             Name = "Cinema",
                             OpeningTime = new TimeOnly(8, 0, 0),
                             PointsPerAmount = 10000m,
+                            SeatGapRuleMode = "Strict",
                             StopSellingMinutesBefore = 0
                         });
                 });

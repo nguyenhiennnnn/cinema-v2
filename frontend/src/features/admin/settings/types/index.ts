@@ -1,3 +1,5 @@
+import type { SeatGapRuleMode } from "@/types/enum";
+
 // Backend DTO is named CinemaSettingsDto, not SettingsDto
 
 export interface CinemaSettingsDto {
@@ -13,6 +15,7 @@ export interface CinemaSettingsDto {
   cancelRefundPercent: number;
   cancelDeadlineHours: number;
   stopSellingMinutesBefore: number;
+  seatGapRuleMode: SeatGapRuleMode;
 }
 
 export interface UpdateSettingsRequest {
@@ -28,6 +31,7 @@ export interface UpdateSettingsRequest {
   cancelRefundPercent: number;
   cancelDeadlineHours: number;
   stopSellingMinutesBefore: number;
+  seatGapRuleMode: SeatGapRuleMode;
 }
 
 // Alias for backward compat

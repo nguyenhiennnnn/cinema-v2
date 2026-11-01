@@ -1,6 +1,7 @@
 using Cinema.Application.DTOs.Catalog;
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
@@ -296,6 +297,11 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         return new DeleteCategoryResponse(id, true);
     }
 
+    public Task<BulkActionResponse> BulkDeleteDirectorsAsync(
+        BulkIdsRequest request,
+        CancellationToken cancellationToken
+    ) => BulkOperation.RunAsync(request.Ids, id => DeleteDirectorAsync(id, cancellationToken));
+
     public async Task<OffsetPageResult<ActorDto>> GetActorsAdminAsync(
         string? search,
         int page,
@@ -362,6 +368,11 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         await db.SaveChangesAsync(cancellationToken);
         return new DeleteCategoryResponse(id, true);
     }
+
+    public Task<BulkActionResponse> BulkDeleteActorsAsync(
+        BulkIdsRequest request,
+        CancellationToken cancellationToken
+    ) => BulkOperation.RunAsync(request.Ids, id => DeleteActorAsync(id, cancellationToken));
 
     public async Task<OffsetPageResult<PositionDto>> GetPositionsAsync(
         int page,

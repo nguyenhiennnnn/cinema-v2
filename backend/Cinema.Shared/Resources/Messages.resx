@@ -1048,6 +1048,9 @@
     <value>Status phải là một trong: {0}</value>
     <comment>Có 1 tham số: dùng string.Format(Messages.Validation_Status_AllowedValues, ...)</comment>
   </data>
+  <data name="Validation_SeatGapRuleMode_Invalid" xml:space="preserve">
+    <value>seatGapRuleMode phải là Strict, AllowEdge hoặc Off.</value>
+  </data>
   <data name="Validation_StopSellingMinutesBefore_Range0To1440" xml:space="preserve">
     <value>stopSellingMinutesBefore phải từ 0 đến 1440.</value>
   </data>
@@ -1077,5 +1080,24 @@
   </data>
   <data name="Validation_UserId_Positive" xml:space="preserve">
     <value>userId phải lớn hơn 0.</value>
+  </data>
+  <data name="Bulk_UnknownError" xml:space="preserve">
+    <value>Lỗi không xác định.</value>
+  </data>
+  <data name="Rule_CannotLockSelf" xml:space="preserve">
+    <value>Không thể khóa tài khoản đang đăng nhập.</value>
+  </data>
+  <data name="Rule_CannotLockLastAdmin" xml:space="preserve">
+    <value>Không thể khóa quản trị viên cuối cùng.</value>
+  </data>
+  <data name="Validation_BulkId_Positive" xml:space="preserve">
+    <value>Mỗi id phải lớn hơn 0.</value>
+  </data>
+  <data name="Validation_BulkIds_MaxCount" xml:space="preserve">
+    <value>Tối đa {0} mục mỗi lần.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_BulkIds_MaxCount, limit)</comment>
+  </data>
+  <data name="Validation_BulkIds_NotEmpty" xml:space="preserve">
+    <value>Danh sách id không được để trống.</value>
   </data>
 </root>

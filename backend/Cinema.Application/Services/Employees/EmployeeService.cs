@@ -2,6 +2,7 @@ using Cinema.Application.DTOs.Common;
 using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
@@ -117,6 +118,91 @@ public class EmployeeService : IEmployeeService
         await db.SaveChangesAsync(cancellationToken);
 
         return new UpdateUserStatusResponse(userId, user.IsActive);
+    }
+
+    public async Task<BulkActionResponse> BulkUpdateUserStatusAsync(
+        BulkStatusRequest request,
+        int currentUserId,
+        CancellationToken cancellationToken
+    )
+    {
+        var ids = request.Ids.Distinct().ToList();
+        var users = await db
+            .Users.Include(u => u.Role)
+            .Where(u => ids.Contains(u.UserId))
+            .ToDictionaryAsync(u => u.UserId, cancellationToken);
+        var activeAdmins = request.IsActive
+            ? 0
+            : await db.Users.CountAsync(
+                u => u.IsActive && u.Role.RoleName == Roles.Admin,
+                cancellationToken
+            );
+
+        var now = DateTime.UtcNow;
+        var results = new List<BulkActionResultItem>();
+        var changedIds = new List<int>();
+        foreach (var id in ids)
+        {
+            if (!users.TryGetValue(id, out var user))
+            {
+                results.Add(new BulkActionResultItem(id, false, Messages.NotFound_User));
+                continue;
+            }
+            if (user.IsActive == request.IsActive)
+            {
+                results.Add(new BulkActionResultItem(id, true, null));
+                continue;
+            }
+            if (!request.IsActive)
+            {
+                if (id == currentUserId)
+                {
+                    results.Add(new BulkActionResultItem(id, false, Messages.Rule_CannotLockSelf));
+                    continue;
+                }
+                if (user.Role.RoleName == Roles.Admin)
+                {
+                    if (activeAdmins <= 1)
+                    {
+                        results.Add(
+                            new BulkActionResultItem(id, false, Messages.Rule_CannotLockLastAdmin)
+                        );
+                        continue;
+                    }
+                    activeAdmins--;
+                }
+            }
+
+            user.IsActive = request.IsActive;
+            user.UpdatedAt = now;
+            changedIds.Add(id);
+            results.Add(new BulkActionResultItem(id, true, null));
+        }
+
+        if (changedIds.Count > 0)
+        {
+            var employees = await db
+                .Employees.Where(e => changedIds.Contains(e.UserId))
+                .ToListAsync(cancellationToken);
+            foreach (var employee in employees)
+                employee.IsActive = request.IsActive;
+
+            if (!request.IsActive)
+            {
+                var activeTokens = await db
+                    .RefreshTokens.Where(rt => changedIds.Contains(rt.UserId) && !rt.IsRevoked)
+                    .ToListAsync(cancellationToken);
+                foreach (var token in activeTokens)
+                {
+                    token.IsRevoked = true;
+                    token.RevokedAt = now;
+                }
+            }
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+        return BulkOperation.Build(results);
     }
 
     public async Task<UpdateUserRoleResponse> UpdateUserRoleAsync(

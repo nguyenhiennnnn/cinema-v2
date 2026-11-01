@@ -29,4 +29,9 @@ public interface IComboService
     );
 
     Task<ToggleComboResponse> ToggleComboAsync(int comboId, CancellationToken cancellationToken);
+
+    Task<BulkActionResponse> SetCombosActiveAsync(
+        BulkStatusRequest request,
+        CancellationToken cancellationToken
+    );
 }

@@ -1,5 +1,6 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/api/axios";
 import type { ApiResponse, OffsetPageResult } from "@/types/api";
+import type { BulkActionResponse, BulkIdsRequest } from "@/types/bulk";
 import type {
   GenreDto, UpsertGenreRequest,
   LanguageDto, UpsertLanguageRequest,
@@ -69,6 +70,8 @@ export const actorsAdminApi = {
     apiPut<ApiResponse<ActorDto>>(`/admin/actors/${id}`, body),
   delete: (id: number) =>
     apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/actors/${id}`),
+  bulkDelete: (body: BulkIdsRequest) =>
+    apiDelete<ApiResponse<BulkActionResponse>>("/admin/actors/bulk", { data: body }),
 };
 
 export const directorsAdminApi = {
@@ -80,6 +83,8 @@ export const directorsAdminApi = {
     apiPut<ApiResponse<DirectorDto>>(`/admin/directors/${id}`, body),
   delete: (id: number) =>
     apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/directors/${id}`),
+  bulkDelete: (body: BulkIdsRequest) =>
+    apiDelete<ApiResponse<BulkActionResponse>>("/admin/directors/bulk", { data: body }),
 };
 
 export const positionsAdminApi = {

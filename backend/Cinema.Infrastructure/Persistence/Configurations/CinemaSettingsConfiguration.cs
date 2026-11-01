@@ -31,5 +31,10 @@ public class CinemaSettingsConfiguration : IEntityTypeConfiguration<CinemaSettin
             .Property(x => x.CancelRefundPercent)
             .HasColumnType("decimal(5,2)")
             .HasDefaultValue(0m);
+        builder
+            .Property(x => x.SeatGapRuleMode)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .HasDefaultValue(Domain.Enums.SeatGapRuleMode.Strict);
     }
 }

@@ -31,6 +31,7 @@ public record UpdateUserRoleResponse(int UserId, int RoleId, string RoleName);
 
 public record AdminEmployeeDto(
     int EmployeeId,
+    int UserId,
     string FullName,
     string Email,
     int? PositionId,

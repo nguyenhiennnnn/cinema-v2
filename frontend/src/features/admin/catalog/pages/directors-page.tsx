@@ -1,14 +1,20 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
+import type { RowSelectionState } from "@tanstack/react-table";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkDeleteButton } from "@/components/common/data-table/bulk-delete-button";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
+import { toastBulkResult } from "@/lib/bulk";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
 import {
   useAdminDirectors,
   useAdminDeleteDirector,
+  useAdminBulkDeleteDirectors,
 } from "../hooks/use-admin-director";
 import type { DirectorDto } from "../types";
 import { createDirectorColumns } from "../components/columns/director-columns";
@@ -29,6 +35,8 @@ const DirectorsPage = () => {
   });
 
   const deleteDirector = useAdminDeleteDirector();
+  const bulkDeleteDirectors = useAdminBulkDeleteDirectors();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const openDialog = useDialogOpen();
   const closeDialog = useDialogClose();
@@ -64,10 +72,19 @@ const DirectorsPage = () => {
     });
   };
 
-  const columns = createDirectorColumns({
-    onEdit: handleEdit,
-    onDelete: handleDelete,
-  });
+  const handleBulkDelete = async (selectedIds: string[]) => {
+    const res = await bulkDeleteDirectors.mutateAsync({ ids: selectedIds.map(Number) });
+    setRowSelection({});
+    toastBulkResult(res.data, "xóa", "đạo diễn");
+  };
+
+  const columns = [
+    createSelectionColumn<DirectorDto>(),
+    ...createDirectorColumns({
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+    }),
+  ];
 
   return (
     <div>
@@ -93,6 +110,17 @@ const DirectorsPage = () => {
         onSearchChange={(value) => setParams({ search: value, page: DEFAULT_PAGE })}
         searchPlaceholder="Tìm theo tên đạo diễn..."
         emptyMessage="Chưa có đạo diễn nào."
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(row) => String(row.directorId)}
+        bulkActions={(selectedIds) => (
+          <BulkDeleteButton
+            count={selectedIds.length}
+            itemLabel="đạo diễn"
+            onConfirm={() => handleBulkDelete(selectedIds)}
+            isPending={bulkDeleteDirectors.isPending}
+          />
+        )}
       />
     </div>
   );

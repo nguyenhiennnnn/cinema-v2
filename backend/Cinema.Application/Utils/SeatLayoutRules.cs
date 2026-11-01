@@ -35,6 +35,15 @@ public static class SeatLayoutRules
             ))
             .ToListAsync(cancellationToken);
 
+    public static async Task<SeatGapRuleMode> LoadSeatGapRuleModeAsync(
+        this IAppDbContext db,
+        CancellationToken cancellationToken
+    ) =>
+        await db
+            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
+            .Select(s => s.SeatGapRuleMode)
+            .FirstOrDefaultAsync(cancellationToken);
+
     public static List<SeatSuggestionDto> Suggest(
         IReadOnlyList<SeatSlot> seats,
         int cols,
@@ -105,7 +114,8 @@ public static class SeatLayoutRules
 
     public static string? ValidateSelection(
         IReadOnlyList<SeatSlot> seats,
-        ICollection<int> selectedSeatIds
+        ICollection<int> selectedSeatIds,
+        SeatGapRuleMode gapRuleMode = SeatGapRuleMode.Strict
     )
     {
         var pickedIds = seats
@@ -128,6 +138,9 @@ public static class SeatLayoutRules
         )
             return "Ghế đôi phải được chọn cùng nhau.";
 
+        if (gapRuleMode == SeatGapRuleMode.Off)
+            return null;
+
         foreach (
             var row in seats
                 .GroupBy(s => s.Row)
@@ -139,6 +152,7 @@ public static class SeatLayoutRules
                 .Where(s => pickedIds.Contains(s.ShowtimeSeatId))
                 .Select(s => s.Number)
                 .ToHashSet();
+            var numbersInRow = ordered.Select(s => s.Number).ToHashSet();
             var afterPick = ordered
                 .Select(s =>
                     pickedIds.Contains(s.ShowtimeSeatId)
@@ -153,8 +167,17 @@ public static class SeatLayoutRules
             foreach (var lone in SplitRuns(afterPick).Where(run => run.Count == 1))
             {
                 var n = lone[0].Number;
-                if (pickedNumbers.Contains(n - 1) || pickedNumbers.Contains(n + 1))
-                    return $"Không thể để trống ghế lẻ {lone[0].Row}{n}. Vui lòng chọn lại để không bỏ lẻ ghế.";
+                var pickedLeft = pickedNumbers.Contains(n - 1);
+                var pickedRight = pickedNumbers.Contains(n + 1);
+                if (!pickedLeft && !pickedRight)
+                    continue;
+                if (
+                    gapRuleMode == SeatGapRuleMode.AllowEdge
+                    && !numbersInRow.Contains(pickedLeft ? n + 1 : n - 1)
+                )
+                    continue;
+
+                return $"Không thể để trống ghế lẻ {lone[0].Row}{n}. Vui lòng chọn lại để không bỏ lẻ ghế.";
             }
         }
 

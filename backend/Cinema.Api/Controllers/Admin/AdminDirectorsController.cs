@@ -1,5 +1,6 @@
 ﻿using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Catalog;
+using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
@@ -51,4 +52,11 @@ public class AdminDirectorsController(ICatalogService catalogService) : Controll
         var result = await catalogService.DeleteDirectorAsync(id, cancellationToken);
         return Ok(new { directorId = result.Id, deleted = result.Deleted });
     }
+
+    [HttpDelete("bulk")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> BulkDelete(
+        [FromBody] BulkIdsRequest request,
+        CancellationToken cancellationToken
+    ) => Ok(await catalogService.BulkDeleteDirectorsAsync(request, cancellationToken));
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using Cinema.Application.DTOs.Settings;
+using Cinema.Domain.Enums;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
@@ -73,6 +74,11 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
             .Must(v => v is >= 0 and <= 240)
             .When(x => x.CheckInOpenMinutes is not null)
             .WithMessage(Messages.Validation_CheckInOpenMinutes_Range0To240);
+
+        RuleFor(x => x.SeatGapRuleMode)
+            .Must(v => Enum.TryParse<SeatGapRuleMode>(v, out _) && !int.TryParse(v, out _))
+            .When(x => x.SeatGapRuleMode is not null)
+            .WithMessage(Messages.Validation_SeatGapRuleMode_Invalid);
     }
 
     private static bool BeValidTime(string? value) =>

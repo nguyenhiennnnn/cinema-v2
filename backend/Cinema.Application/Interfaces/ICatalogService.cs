@@ -74,6 +74,10 @@ public interface ICatalogService
         CancellationToken cancellationToken
     );
     Task<DeleteCategoryResponse> DeleteDirectorAsync(int id, CancellationToken cancellationToken);
+    Task<BulkActionResponse> BulkDeleteDirectorsAsync(
+        BulkIdsRequest request,
+        CancellationToken cancellationToken
+    );
 
     Task<OffsetPageResult<ActorDto>> GetActorsAdminAsync(
         string? search,
@@ -91,6 +95,10 @@ public interface ICatalogService
         CancellationToken cancellationToken
     );
     Task<DeleteCategoryResponse> DeleteActorAsync(int id, CancellationToken cancellationToken);
+    Task<BulkActionResponse> BulkDeleteActorsAsync(
+        BulkIdsRequest request,
+        CancellationToken cancellationToken
+    );
 
     Task<OffsetPageResult<PositionDto>> GetPositionsAsync(
         int page,

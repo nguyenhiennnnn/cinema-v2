@@ -1,9 +1,19 @@
+import { useState } from "react";
+import type { RowSelectionState } from "@tanstack/react-table";
+
 import { PageHeader } from "@/components/common/page-header";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkUserStatusActions } from "@/components/common/data-table/bulk-user-status-actions";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
+import { toastBulkResult } from "@/lib/bulk";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
-import { useAdminUpdateUserStatus, useAdminUsers } from "../hooks/use-admin-users";
+import {
+  useAdminBulkUpdateUserStatus,
+  useAdminUpdateUserStatus,
+  useAdminUsers,
+} from "../hooks/use-admin-users";
 import type { AdminUserListItemDto } from "../types";
 import { createUserColumns } from "../components/user-columns";
 import { UserRoleForm } from "../components/forms/user-role-form";
@@ -18,6 +28,8 @@ const AdminUsersPage = () => {
 
   const users = useAdminUsers(stripNulls(params));
   const toggleStatus = useAdminUpdateUserStatus();
+  const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const openDialog = useDialogOpen();
   const closeDialog = useDialogClose();
@@ -51,10 +63,19 @@ const AdminUsersPage = () => {
     });
   };
 
-  const columns = createUserColumns({
-    onChangeRole: handleChangeRole,
-    onToggle: handleToggle,
-  });
+  const handleBulkSetActive = async (selectedIds: string[], isActive: boolean) => {
+    const res = await bulkUpdateStatus.mutateAsync({ ids: selectedIds.map(Number), isActive });
+    setRowSelection({});
+    toastBulkResult(res.data, isActive ? "mở khóa" : "khóa", "tài khoản");
+  };
+
+  const columns = [
+    createSelectionColumn<AdminUserListItemDto>(),
+    ...createUserColumns({
+      onChangeRole: handleChangeRole,
+      onToggle: handleToggle,
+    }),
+  ];
 
   return (
     <div>
@@ -74,6 +95,21 @@ const AdminUsersPage = () => {
         onSearchChange={(value) => setParams({ search: value, page: DEFAULT_PAGE })}
         searchPlaceholder="Tìm theo tên hoặc email..."
         emptyMessage="Chưa có người dùng nào."
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(row) => String(row.userId)}
+        bulkActions={(selectedIds) => (
+          <BulkUserStatusActions
+            count={selectedIds.length}
+            itemLabel="tài khoản"
+            unlockLabel="Mở khóa"
+            lockLabel="Khóa"
+            unlockDescription="Các tài khoản được chọn sẽ đăng nhập và sử dụng hệ thống bình thường."
+            lockDescription="Các tài khoản được chọn sẽ không thể đăng nhập cho đến khi được mở khóa lại. Tài khoản của bạn và quản trị viên cuối cùng sẽ không bị khóa."
+            onSetActive={(isActive) => handleBulkSetActive(selectedIds, isActive)}
+            isPending={bulkUpdateStatus.isPending}
+          />
+        )}
       />
     </div>
   );

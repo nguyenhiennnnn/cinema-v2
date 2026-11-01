@@ -597,4 +597,24 @@
       transition: none;
     }
   }
+
+  .perf-dot {
+    animation: perf-dot 1.2s ease-in-out infinite backwards;
+    animation-delay: calc(var(--i, 0) * 120ms);
+  }
+  @keyframes perf-dot {
+    0%,
+    60%,
+    100% {
+      opacity: 0.2;
+    }
+    20% {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .perf-dot {
+      animation-duration: 2.4s;
+    }
+  }
 }

@@ -28,6 +28,14 @@ export const ShowtimeSeatStatus = {
 export type ShowtimeSeatStatus =
   (typeof ShowtimeSeatStatus)[keyof typeof ShowtimeSeatStatus];
 
+export const SeatGapRuleMode = {
+  Strict: "Strict",
+  AllowEdge: "AllowEdge",
+  Off: "Off",
+} as const;
+export type SeatGapRuleMode =
+  (typeof SeatGapRuleMode)[keyof typeof SeatGapRuleMode];
+
 export const BookingChannel = {
   Online: "Online",
   Counter: "Counter",

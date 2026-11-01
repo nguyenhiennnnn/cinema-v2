@@ -1,5 +1,6 @@
 import { apiGet, apiPost, apiPut } from "@/api/axios";
 import type { ApiResponse, OffsetPageResult } from "@/types/api";
+import type { BulkActionResponse, BulkStatusRequest } from "@/types/bulk";
 import type { AdminComboDto, UpsertComboRequest, ToggleComboResponse, ComboListParams } from "../types";
 
 const BASE = "/admin/combos";
@@ -16,4 +17,7 @@ export const combosAdminApi = {
 
   toggleCombo: (id: number) =>
     apiPut<ApiResponse<ToggleComboResponse>>(`${BASE}/${id}/toggle`),
+
+  bulkSetActive: (body: BulkStatusRequest) =>
+    apiPut<ApiResponse<BulkActionResponse>>(`${BASE}/bulk/status`, body),
 };

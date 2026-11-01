@@ -1,15 +1,29 @@
+import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import { BRAND } from "@/config/brand";
 
-export const BrandMark = ({ className }: { className?: string }) => (
+interface BrandMarkProps {
+  className?: string;
+  /** Chạy hiệu ứng đèn chạy trên hàng lỗ xé của vé (dùng cho màn hình loading). */
+  loading?: boolean;
+}
+
+export const BrandMark = ({ className, loading = false }: BrandMarkProps) => (
   <svg viewBox="4 14 56 36" aria-hidden="true" className={cn("h-auto", className)}>
     <path
       className="fill-primary"
       d="M6 14H35A5 5 0 0 0 45 14H58A2 2 0 0 1 60 16V48A2 2 0 0 1 58 50H45A5 5 0 0 0 35 50H6A2 2 0 0 1 4 48V16A2 2 0 0 1 6 14Z"
     />
     <g className="fill-primary-foreground">
-      {[22, 27, 32, 37, 42].map((y) => (
-        <circle key={y} cx="40" cy={y} r="1.5" />
+      {[22, 27, 32, 37, 42].map((y, i) => (
+        <circle
+          key={y}
+          cx="40"
+          cy={y}
+          r="1.5"
+          className={loading ? "perf-dot" : undefined}
+          style={loading ? ({ "--i": i } as CSSProperties) : undefined}
+        />
       ))}
       <rect x="47.5" y="24" width="2" height="16" />
       <rect x="51.5" y="26" width="1.2" height="12" />

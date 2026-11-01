@@ -1,3 +1,5 @@
+using Cinema.Domain.Enums;
+
 namespace Cinema.Domain.Entities;
 
 public class CinemaSettings
@@ -27,4 +29,6 @@ public class CinemaSettings
     public int HoldDurationMinutes { get; set; } = DefaultHoldDurationMinutes;
 
     public int CheckInOpenMinutes { get; set; } = DefaultCheckInOpenMinutes;
+
+    public SeatGapRuleMode SeatGapRuleMode { get; set; } = SeatGapRuleMode.Strict;
 }

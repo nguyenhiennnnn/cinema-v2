@@ -186,4 +186,30 @@ public class ComboService(IAppDbContext db) : IComboService
         await db.SaveChangesAsync(cancellationToken);
         return new ToggleComboResponse(comboId, combo.IsActive);
     }
+
+    public async Task<BulkActionResponse> SetCombosActiveAsync(
+        BulkStatusRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var ids = request.Ids.Distinct().ToList();
+        var combos = await db
+            .Combos.Where(c => ids.Contains(c.ComboId))
+            .ToDictionaryAsync(c => c.ComboId, cancellationToken);
+
+        var results = new List<BulkActionResultItem>();
+        foreach (var id in ids)
+        {
+            if (!combos.TryGetValue(id, out var combo))
+            {
+                results.Add(new BulkActionResultItem(id, false, Messages.NotFound_Combo));
+                continue;
+            }
+            combo.IsActive = request.IsActive;
+            results.Add(new BulkActionResultItem(id, true, null));
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return BulkOperation.Build(results);
+    }
 }

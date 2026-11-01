@@ -1,15 +1,24 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
+import type { RowSelectionState } from "@tanstack/react-table";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkDeleteButton } from "@/components/common/data-table/bulk-delete-button";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
+import { toastBulkResult } from "@/lib/bulk";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
 import { useTablePagination } from "@/hooks/use-table-pagination";
 
 import { useAdminPersonParams } from "@/hooks/use-query-params";
-import { useAdminActors, useAdminDeleteActor } from "../hooks/use-admin-actor";
+import {
+  useAdminActors,
+  useAdminDeleteActor,
+  useAdminBulkDeleteActors,
+} from "../hooks/use-admin-actor";
 import type { ActorDto } from "../types";
 import { createActorColumns } from "../components/columns/actor-columns";
 import { ActorCreateForm } from "../components/forms/actors/actor-create-form";
@@ -26,6 +35,8 @@ const ActorsPage = () => {
     search: params.search,
   });
   const deleteActor = useAdminDeleteActor();
+  const bulkDeleteActors = useAdminBulkDeleteActors();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const openDialog = useDialogOpen();
   const closeDialog = useDialogClose();
@@ -59,10 +70,19 @@ const ActorsPage = () => {
     });
   };
 
-  const columns = createActorColumns({
-    onEdit: handleEdit,
-    onDelete: handleDelete,
-  });
+  const handleBulkDelete = async (selectedIds: string[]) => {
+    const res = await bulkDeleteActors.mutateAsync({ ids: selectedIds.map(Number) });
+    setRowSelection({});
+    toastBulkResult(res.data, "xóa", "diễn viên");
+  };
+
+  const columns = [
+    createSelectionColumn<ActorDto>(),
+    ...createActorColumns({
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+    }),
+  ];
 
   return (
     <div>
@@ -88,6 +108,17 @@ const ActorsPage = () => {
         onSearchChange={(value) => setParams({ search: value, page: DEFAULT_PAGE })}
         searchPlaceholder="Tìm theo tên diễn viên..."
         emptyMessage="Chưa có diễn viên nào."
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(row) => String(row.actorId)}
+        bulkActions={(selectedIds) => (
+          <BulkDeleteButton
+            count={selectedIds.length}
+            itemLabel="diễn viên"
+            onConfirm={() => handleBulkDelete(selectedIds)}
+            isPending={bulkDeleteActors.isPending}
+          />
+        )}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 ﻿using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Combos;
+using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
@@ -55,4 +56,11 @@ public class AdminCombosController(IComboService comboService) : ControllerBase
             )
         );
     }
+
+    [HttpPut("bulk/status")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> BulkSetActive(
+        [FromBody] BulkStatusRequest request,
+        CancellationToken cancellationToken
+    ) => Ok(await comboService.SetCombosActiveAsync(request, cancellationToken));
 }

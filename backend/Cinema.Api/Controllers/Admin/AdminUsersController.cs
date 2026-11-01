@@ -1,4 +1,5 @@
 using Cinema.Api.Filters;
+using Cinema.Application.DTOs.Common;
 using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
@@ -12,7 +13,7 @@ namespace Cinema.Api.Controllers.Admin;
 [ApiController]
 [Route("api/v1/admin/users")]
 [Authorize]
-public class AdminUsersController(IEmployeeService employeeService) : ControllerBase
+public class AdminUsersController(IEmployeeService employeeService) : AppControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.AdminOnly)]
@@ -80,4 +81,18 @@ public class AdminUsersController(IEmployeeService employeeService) : Controller
         [FromBody] UpdateUserRoleRequest request,
         CancellationToken cancellationToken
     ) => Ok(await employeeService.UpdateUserRoleAsync(id, request, cancellationToken));
+
+    [HttpPut("bulk/status")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> BulkUpdateStatus(
+        [FromBody] BulkStatusRequest request,
+        CancellationToken cancellationToken
+    ) =>
+        Ok(
+            await employeeService.BulkUpdateUserStatusAsync(
+                request,
+                CurrentUserId,
+                cancellationToken
+            )
+        );
 }

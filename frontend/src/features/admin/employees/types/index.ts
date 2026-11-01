@@ -9,6 +9,7 @@ export interface AdminEmployeeListParams {
 
 export interface AdminEmployeeDto {
   employeeId: number;
+  userId: number;
   fullName: string;
   email: string;
   positionId?: number | null;

@@ -37,7 +37,10 @@ public class BookingService(
     )
     {
         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
-        if (SeatLayoutRules.ValidateSelection(slots, request.SeatIds) is { } seatError)
+        var gapRuleMode = await db.LoadSeatGapRuleModeAsync(cancellationToken);
+        if (
+            SeatLayoutRules.ValidateSelection(slots, request.SeatIds, gapRuleMode) is { } seatError
+        )
             throw new BusinessRuleException(seatError);
 
         var booking = await CreateHoldBookingAsync(
@@ -422,7 +425,10 @@ public class BookingService(
     )
     {
         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
-        if (SeatLayoutRules.ValidateSelection(slots, request.SeatIds) is { } seatError)
+        if (
+            SeatLayoutRules.ValidateSelection(slots, request.SeatIds, SeatGapRuleMode.Off)
+                is { } seatError
+        )
             throw new BusinessRuleException(seatError);
         string customerName;
         string? customerPhone;

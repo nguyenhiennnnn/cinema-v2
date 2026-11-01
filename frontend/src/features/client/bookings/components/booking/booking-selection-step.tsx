@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SelectableSeatMap } from "@/components/common/seat-map/selectable-seat-map";
@@ -26,6 +27,7 @@ interface BookingSelectionStepProps {
   onCustomerPhoneChange: (value: string) => void;
   isAuthenticated: boolean;
   canHold: boolean;
+  loneSeats: string[];
   isHolding: boolean;
   onContinue: () => void;
 }
@@ -45,6 +47,7 @@ export const BookingSelectionStep = ({
   onCustomerPhoneChange,
   isAuthenticated,
   canHold,
+  loneSeats,
   isHolding,
   onContinue,
 }: BookingSelectionStepProps) => {
@@ -113,6 +116,12 @@ export const BookingSelectionStep = ({
         <Button disabled={!canHold || isHolding} onClick={onContinue}>
           {isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục thanh toán"}
         </Button>
+        {loneSeats.length > 0 && (
+          <p className="flex items-start gap-2 border border-warning/40 bg-warning/10 p-3 text-xs text-foreground">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+            Không thể để trống ghế lẻ {loneSeats.join(", ")}. Vui lòng chọn lại để không bỏ lẻ ghế.
+          </p>
+        )}
         {selectedSeats.length === 0 && (
           <p className="text-center text-xs text-muted-foreground">Vui lòng chọn ít nhất 1 ghế.</p>
         )}

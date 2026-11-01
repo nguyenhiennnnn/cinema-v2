@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { PersonListParams, UpsertPersonRequest } from "../types";
+import type { BulkIdsRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
 import { actorsAdminApi } from "../api/catalog-api";
 
@@ -31,5 +32,12 @@ export function useAdminDeleteActor() {
   return useMutation({
     meta: { invalidates: "actorChanged" },
     mutationFn: (id: number) => actorsAdminApi.delete(id),
+  });
+}
+
+export function useAdminBulkDeleteActors() {
+  return useMutation({
+    meta: { invalidates: "actorChanged", skipSuccessToast: true },
+    mutationFn: (body: BulkIdsRequest) => actorsAdminApi.bulkDelete(body),
   });
 }

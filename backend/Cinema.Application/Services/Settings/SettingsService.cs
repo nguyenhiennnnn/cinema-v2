@@ -1,6 +1,7 @@
 using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
+using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
 using Mapster;
@@ -49,6 +50,8 @@ public class SettingsService(IAppDbContext db) : ISettingsService
             settings.HoldDurationMinutes = holdDurationMinutes;
         if (request.CheckInOpenMinutes is { } checkInOpenMinutes)
             settings.CheckInOpenMinutes = checkInOpenMinutes;
+        if (Enum.TryParse<SeatGapRuleMode>(request.SeatGapRuleMode, out var seatGapRuleMode))
+            settings.SeatGapRuleMode = seatGapRuleMode;
         settings.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);

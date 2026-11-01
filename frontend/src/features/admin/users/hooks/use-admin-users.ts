@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import type { BulkStatusRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
 import type {
   AdminUserListParams,
@@ -40,6 +41,13 @@ export function useAdminUpdateUserStatus() {
     meta: { invalidates: "userChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpdateUserStatusRequest }) =>
       usersAdminApi.updateStatus(id, body),
+  });
+}
+
+export function useAdminBulkUpdateUserStatus() {
+  return useMutation({
+    meta: { invalidates: "userChanged", skipSuccessToast: true },
+    mutationFn: (body: BulkStatusRequest) => usersAdminApi.bulkUpdateStatus(body),
   });
 }
 

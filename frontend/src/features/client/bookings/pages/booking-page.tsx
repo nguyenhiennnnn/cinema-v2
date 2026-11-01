@@ -68,6 +68,7 @@ const BookingPage = () => {
           onCustomerPhoneChange={flow.setCustomerPhone}
           isAuthenticated={flow.isAuthenticated}
           canHold={flow.canHold}
+          loneSeats={flow.loneSeats}
           isHolding={flow.isHolding}
           onContinue={flow.holdAndContinue}
         />

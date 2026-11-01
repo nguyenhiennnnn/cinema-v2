@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { PersonListParams, UpsertPersonRequest } from "../types";
+import type { BulkIdsRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
 import { directorsAdminApi } from "../api/catalog-api";
 
@@ -30,5 +31,12 @@ export function useAdminDeleteDirector() {
   return useMutation({
     meta: { invalidates: "directorChanged" },
     mutationFn: (id: number) => directorsAdminApi.delete(id),
+  });
+}
+
+export function useAdminBulkDeleteDirectors() {
+  return useMutation({
+    meta: { invalidates: "directorChanged", skipSuccessToast: true },
+    mutationFn: (body: BulkIdsRequest) => directorsAdminApi.bulkDelete(body),
   });
 }

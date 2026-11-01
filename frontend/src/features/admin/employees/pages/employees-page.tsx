@@ -1,8 +1,14 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
+import type { RowSelectionState } from "@tanstack/react-table";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/common/data-table/data-table";
+import { BulkUserStatusActions } from "@/components/common/data-table/bulk-user-status-actions";
+import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
+import { useAdminBulkUpdateUserStatus } from "@/features/admin/users/hooks/use-admin-users";
+import { toastBulkResult } from "@/lib/bulk";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
@@ -21,6 +27,8 @@ const AdminEmployeesPage = () => {
 
   const employees = useAdminEmployees(stripNulls(params));
   const updateEmployee = useAdminUpdateEmployee();
+  const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const openDialog = useDialogOpen();
   const closeDialog = useDialogClose();
@@ -66,10 +74,22 @@ const AdminEmployeesPage = () => {
     });
   };
 
-  const columns = createEmployeeColumns({
-    onEdit: handleEdit,
-    onToggle: handleToggle,
-  });
+  const handleBulkSetActive = async (selectedUserIds: string[], isActive: boolean) => {
+    const res = await bulkUpdateStatus.mutateAsync({
+      ids: selectedUserIds.map(Number),
+      isActive,
+    });
+    setRowSelection({});
+    toastBulkResult(res.data, isActive ? "kích hoạt" : "cho nghỉ việc", "nhân viên");
+  };
+
+  const columns = [
+    createSelectionColumn<AdminEmployeeDto>(),
+    ...createEmployeeColumns({
+      onEdit: handleEdit,
+      onToggle: handleToggle,
+    }),
+  ];
 
   return (
     <div>
@@ -92,6 +112,21 @@ const AdminEmployeesPage = () => {
         pagination={pagination}
         onPaginationChange={onPaginationChange}
         emptyMessage="Chưa có nhân viên nào."
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(row) => String(row.userId)}
+        bulkActions={(selectedUserIds) => (
+          <BulkUserStatusActions
+            count={selectedUserIds.length}
+            itemLabel="nhân viên"
+            unlockLabel="Kích hoạt"
+            lockLabel="Cho nghỉ việc"
+            unlockDescription="Các nhân viên được chọn sẽ có thể đăng nhập và làm việc trở lại."
+            lockDescription="Các nhân viên được chọn sẽ không thể đăng nhập vào hệ thống nữa. Tài khoản của bạn và quản trị viên cuối cùng sẽ không bị khóa."
+            onSetActive={(isActive) => handleBulkSetActive(selectedUserIds, isActive)}
+            isPending={bulkUpdateStatus.isPending}
+          />
+        )}
       />
     </div>
   );

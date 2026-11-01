@@ -8,10 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormTimePickerField } from "@/components/common/form/form-time-picker-field";
 import { ImageUploader } from "@/features/admin/uploads/components/image-uploader";
 
+import { SeatGapRuleMode } from "@/types/enum";
 import { useAdminSettings, useAdminUpdateSettings } from "../hooks/use-admin-settings";
+
+const SEAT_GAP_RULE_OPTIONS = [
+  { value: SeatGapRuleMode.Strict, label: "Chặn mọi ghế lẻ" },
+  { value: SeatGapRuleMode.AllowEdge, label: "Cho phép ghế lẻ sát mép hàng / lối đi" },
+  { value: SeatGapRuleMode.Off, label: "Tắt quy tắc ghế lẻ" },
+];
 
 const settingsFormSchema = z.object({
   name: z.string().min(1, "Vui lòng nhập tên rạp."),
@@ -26,6 +34,7 @@ const settingsFormSchema = z.object({
   cancelRefundPercent: z.coerce.number().min(0).max(100, "Tối đa 100%."),
   cancelDeadlineHours: z.coerce.number().min(0, "Giá trị không được âm."),
   stopSellingMinutesBefore: z.coerce.number().min(0, "Giá trị không được âm.").max(1440, "Tối đa 1440 phút."),
+  seatGapRuleMode: z.enum([SeatGapRuleMode.Strict, SeatGapRuleMode.AllowEdge, SeatGapRuleMode.Off]),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -49,6 +58,7 @@ const AdminSettingsPage = () => {
       cancelRefundPercent: 0,
       cancelDeadlineHours: 0,
       stopSellingMinutesBefore: 0,
+      seatGapRuleMode: SeatGapRuleMode.Strict,
     },
   });
 
@@ -67,6 +77,7 @@ const AdminSettingsPage = () => {
         cancelRefundPercent: settings.data.cancelRefundPercent,
         cancelDeadlineHours: settings.data.cancelDeadlineHours,
         stopSellingMinutesBefore: settings.data.stopSellingMinutesBefore,
+        seatGapRuleMode: settings.data.seatGapRuleMode,
       });
     }
   }, [settings.data, form]);
@@ -85,6 +96,7 @@ const AdminSettingsPage = () => {
       cancelRefundPercent: values.cancelRefundPercent,
       cancelDeadlineHours: values.cancelDeadlineHours,
       stopSellingMinutesBefore: values.stopSellingMinutesBefore,
+      seatGapRuleMode: values.seatGapRuleMode,
     });
   };
 
@@ -174,6 +186,15 @@ const AdminSettingsPage = () => {
               max={1440}
             />
           </div>
+
+          <FormSelectField
+            name="seatGapRuleMode"
+            control={form.control}
+            label="Quy tắc ghế lẻ (bán online)"
+            options={SEAT_GAP_RULE_OPTIONS}
+            getOptionValue={(o) => o.value}
+            getOptionLabel={(o) => o.label}
+          />
         </FieldGroup>
 
         <div className="flex justify-end pt-2">

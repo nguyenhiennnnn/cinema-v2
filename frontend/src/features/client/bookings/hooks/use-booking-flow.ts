@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "@/components/ui/toast";
-import { ShowtimeSeatStatus, PaymentMethod, BookingStatus } from "@/types/enum";
+import {
+  ShowtimeSeatStatus,
+  PaymentMethod,
+  BookingStatus,
+  SeatGapRuleMode,
+} from "@/types/enum";
+import { findLoneSeats } from "@/components/common/seat-map/seat-map-utils";
+import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
 import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";
 import { useAuthUser, useIsAuthenticated } from "@/stores/auth-store";
@@ -130,6 +137,23 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     [showtimeSeats.data, selectedSeatIds],
   );
 
+  const cinemaSettings = useCinemaSettings();
+  const loneSeats = useMemo(
+    () =>
+      findLoneSeats(
+        showtimeSeats.data?.seats ?? [],
+        seatStatusMap,
+        selectedSeatIds,
+        cinemaSettings.data?.seatGapRuleMode ?? SeatGapRuleMode.Strict,
+      ),
+    [
+      showtimeSeats.data,
+      seatStatusMap,
+      selectedSeatIds,
+      cinemaSettings.data?.seatGapRuleMode,
+    ],
+  );
+
   const combosPayload = useMemo(
     () =>
       Object.entries(comboQuantities)
@@ -172,6 +196,7 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
 
   const canHold =
     selectedSeatIds.size > 0 &&
+    loneSeats.length === 0 &&
     (!isAuthenticated || customerName.trim().length > 0);
 
   const holdAndContinue = async () => {
@@ -245,6 +270,7 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     selectedSeatsInfo: isResumeMode ? resumedSeats : selectedSeatsInfo,
     toggleSeat,
     selectSeats,
+    loneSeats,
     comboQuantities,
     setComboQuantity,
     isAuthenticated,

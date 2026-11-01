@@ -2116,6 +2116,15 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to seatGapRuleMode phải là Strict, AllowEdge hoặc Off..
+        /// </summary>
+        public static string Validation_SeatGapRuleMode_Invalid {
+            get {
+                return ResourceManager.GetString("Validation_SeatGapRuleMode_Invalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Tên rạp không được vượt quá 150 ký tự..
         /// </summary>
         public static string Validation_CinemaName_MaxLength150 {
@@ -2976,6 +2985,60 @@ namespace Cinema.Shared.Resources {
         public static string Validation_UserId_Positive {
             get {
                 return ResourceManager.GetString("Validation_UserId_Positive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lỗi không xác định..
+        /// </summary>
+        public static string Bulk_UnknownError {
+            get {
+                return ResourceManager.GetString("Bulk_UnknownError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể khóa tài khoản đang đăng nhập..
+        /// </summary>
+        public static string Rule_CannotLockSelf {
+            get {
+                return ResourceManager.GetString("Rule_CannotLockSelf", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể khóa quản trị viên cuối cùng..
+        /// </summary>
+        public static string Rule_CannotLockLastAdmin {
+            get {
+                return ResourceManager.GetString("Rule_CannotLockLastAdmin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mỗi id phải lớn hơn 0..
+        /// </summary>
+        public static string Validation_BulkId_Positive {
+            get {
+                return ResourceManager.GetString("Validation_BulkId_Positive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tối đa {0} mục mỗi lần..
+        /// </summary>
+        public static string Validation_BulkIds_MaxCount {
+            get {
+                return ResourceManager.GetString("Validation_BulkIds_MaxCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Danh sách id không được để trống..
+        /// </summary>
+        public static string Validation_BulkIds_NotEmpty {
+            get {
+                return ResourceManager.GetString("Validation_BulkIds_NotEmpty", resourceCulture);
             }
         }
     }
