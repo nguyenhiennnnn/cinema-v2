@@ -3,7 +3,6 @@ import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
@@ -58,7 +57,6 @@ const MembershipTiersPage = () => {
       variant: "destructive",
       onConfirm: async () => {
         await deleteMembershipTier.mutateAsync(tier.tierId);
-        toast.add({ title: "Đã xóa hạng thành viên.", type: "success" });
       },
     });
   };

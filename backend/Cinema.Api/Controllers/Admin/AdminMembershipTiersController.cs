@@ -1,6 +1,8 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Catalog;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +21,7 @@ public class AdminMembershipTiersController(ICatalogService catalogService) : Co
     ) => Ok(await catalogService.GetMembershipTiersAdminAsync(page, pageSize, cancellationToken));
 
     [HttpPost]
+    [SuccessMessage(nameof(Messages.Success_MembershipTierCreated))]
     public async Task<IActionResult> Create(
         [FromBody] UpsertMembershipTierRequest request,
         CancellationToken cancellationToken
@@ -29,6 +32,7 @@ public class AdminMembershipTiersController(ICatalogService catalogService) : Co
         );
 
     [HttpPut("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_MembershipTierUpdated))]
     public async Task<IActionResult> Update(
         int id,
         [FromBody] UpsertMembershipTierRequest request,
@@ -36,6 +40,7 @@ public class AdminMembershipTiersController(ICatalogService catalogService) : Co
     ) => Ok(await catalogService.UpdateMembershipTierAsync(id, request, cancellationToken));
 
     [HttpDelete("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_MembershipTierDeleted))]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var result = await catalogService.DeleteMembershipTierAsync(id, cancellationToken);

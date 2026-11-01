@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -33,7 +32,6 @@ export const LanguageCreateForm = ({ onSuccess }: LanguageCreateFormProps) => {
   const onSubmit = async (values: LanguageFormValues) => {
     await createLanguage.mutateAsync(values, {
       onSuccess: () => {
-        toast.add({ title: "Đã thêm ngôn ngữ mới.", type: "success" });
         onSuccess();
       }
     });

@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { CatalogListParams, UpsertSeatTypeRequest } from "../types";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import { seatTypesAdminApi } from "../api/catalog-api";
 
 export function useAdminSeatTypes(params?: CatalogListParams) {
@@ -14,31 +13,22 @@ export function useAdminSeatTypes(params?: CatalogListParams) {
 
 export function useAdminCreateSeatType() {
   return useMutation({
+    meta: { invalidates: "seatTypeChanged" },
     mutationFn: (body: UpsertSeatTypeRequest) => seatTypesAdminApi.create(body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.seatTypes(),
-      }),
   });
 }
 
 export function useAdminUpdateSeatType() {
   return useMutation({
+    meta: { invalidates: "seatTypeChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpsertSeatTypeRequest }) =>
       seatTypesAdminApi.update(id, body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.seatTypes(),
-      }),
   });
 }
 
 export function useAdminDeleteSeatType() {
   return useMutation({
+    meta: { invalidates: "seatTypeChanged" },
     mutationFn: (id: number) => seatTypesAdminApi.delete(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.seatTypes(),
-      }),
   });
 }

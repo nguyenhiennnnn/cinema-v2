@@ -1,6 +1,8 @@
-﻿using Cinema.Application.DTOs.Catalog;
+﻿using Cinema.Api.Filters;
+using Cinema.Application.DTOs.Catalog;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +22,7 @@ public class AdminLanguagesController(ICatalogService catalogService) : Controll
     ) => Ok(await catalogService.GetLanguagesAdminAsync(page, pageSize, cancellationToken));
 
     [HttpPost]
+    [SuccessMessage(nameof(Messages.Success_LanguageCreated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Create(
         [FromBody] UpsertLanguageRequest request,
@@ -31,6 +34,7 @@ public class AdminLanguagesController(ICatalogService catalogService) : Controll
         );
 
     [HttpPut("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_LanguageUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Update(
         int id,
@@ -39,6 +43,7 @@ public class AdminLanguagesController(ICatalogService catalogService) : Controll
     ) => Ok(await catalogService.UpdateLanguageAsync(id, request, cancellationToken));
 
     [HttpDelete("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_LanguageDeleted))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {

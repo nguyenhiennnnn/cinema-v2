@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { CatalogListParams, UpsertPositionRequest } from "../types";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import { positionsAdminApi } from "../api/catalog-api";
 
 export function useAdminPositions(params?: CatalogListParams) {
@@ -14,31 +13,22 @@ export function useAdminPositions(params?: CatalogListParams) {
 
 export function useAdminCreatePosition() {
   return useMutation({
+    meta: { invalidates: "positionChanged" },
     mutationFn: (body: UpsertPositionRequest) => positionsAdminApi.create(body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.positions(),
-      }),
   });
 }
 
 export function useAdminUpdatePosition() {
   return useMutation({
+    meta: { invalidates: "positionChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpsertPositionRequest }) =>
       positionsAdminApi.update(id, body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.positions(),
-      }),
   });
 }
 
 export function useAdminDeletePosition() {
   return useMutation({
+    meta: { invalidates: "positionChanged" },
     mutationFn: (id: number) => positionsAdminApi.delete(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.positions(),
-      }),
   });
 }

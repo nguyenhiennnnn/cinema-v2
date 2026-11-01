@@ -1,6 +1,7 @@
 using Cinema.Application.DTOs.Auth;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -109,7 +110,7 @@ public class AuthController(IAuthService authService) : AppControllerBase
     )
     {
         var result = await authService.ResetPasswordAsync(request, cancellationToken);
-        return Ok(result);
+        return Ok(ApiResponse.SuccessResponse(result, result.Message));
     }
 
     [HttpPost("resend-confirmation")]

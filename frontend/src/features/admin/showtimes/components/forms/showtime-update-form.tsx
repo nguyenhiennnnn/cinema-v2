@@ -3,7 +3,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -62,7 +61,6 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
       },
     }, {
       onSuccess: () => {
-        toast.add({ title: "Đã cập nhật suất chiếu.", type: "success" });
         onSuccess();
       }
     });

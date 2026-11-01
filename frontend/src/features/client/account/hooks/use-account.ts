@@ -1,10 +1,8 @@
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { accountApi } from "../api/account-api";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import { useAuthStore } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
-import { toast } from "@/components/ui/toast";
 import type { MyReviewListParams, UpdateProfileRequest } from "../types";
 import type { ChangePasswordRequest } from "@/features/auth/types";
 
@@ -18,6 +16,7 @@ export function useMyProfile() {
 
 export function useUpdateMyProfile() {
   return useMutation({
+    meta: { invalidates: "profileChanged" },
     mutationFn: (body: UpdateProfileRequest) =>
       accountApi.updateMyProfile(body),
     onSuccess: (res) => {
@@ -33,8 +32,6 @@ export function useUpdateMyProfile() {
           avatar: user.avatar,
         });
       }
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
-      toast.add({ title: "Cập nhật thông tin thành công.", type: "success" });
     },
   });
 }

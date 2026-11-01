@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   AdminBookingListParams,
   CounterHoldRequest,
@@ -28,27 +27,22 @@ export function useAdminBookingDetail(bookingId: number) {
 
 export function useCounterHold() {
   return useMutation({
+    meta: { invalidates: "bookingChanged" },
     mutationFn: (body: CounterHoldRequest) => bookingsAdminApi.counterHold(body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminBookings.all() }),
   });
 }
 
 export function useCounterCheckout() {
   return useMutation({
+    meta: { invalidates: "bookingChanged" },
     mutationFn: ({ bookingId, body }: { bookingId: number; body: CounterCheckoutRequest }) =>
       bookingsAdminApi.counterCheckout(bookingId, body),
-    onSuccess: (_, { bookingId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminBookings.all() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminBookings.detail(bookingId) });
-    },
   });
 }
 
 export function useCheckin() {
   return useMutation({
+    meta: { invalidates: "bookingChanged" },
     mutationFn: (body: CheckinRequest) => bookingsAdminApi.checkin(body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminBookings.all() }),
   });
 }

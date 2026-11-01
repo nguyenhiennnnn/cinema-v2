@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { bookingsApi } from "../api/bookings-api";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   HoldSeatsRequest,
   CheckoutRequest,
@@ -36,12 +35,14 @@ export function useBookingDetail(bookingId: number) {
 
 export function useHoldSeats() {
   return useMutation({
+    meta: { invalidates: "bookingChanged" },
     mutationFn: (body: HoldSeatsRequest) => bookingsApi.holdSeats(body),
   });
 }
 
 export function useCheckout(bookingId: number) {
   return useMutation({
+    meta: { invalidates: "bookingChanged" },
     mutationFn: (body: CheckoutRequest) =>
       bookingsApi.checkout(bookingId, body),
   });
@@ -49,9 +50,7 @@ export function useCheckout(bookingId: number) {
 
 export function useCancelBooking() {
   return useMutation({
+    meta: { invalidates: "bookingChanged" },
     mutationFn: (bookingId: number) => bookingsApi.cancelBooking(bookingId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.bookings.all() });
-    },
   });
 }

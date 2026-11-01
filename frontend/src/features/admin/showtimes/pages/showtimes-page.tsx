@@ -76,17 +76,22 @@ const AdminShowtimesPage = () => {
       variant: "destructive",
       onConfirm: async () => {
         const res = await deleteShowtime.mutateAsync(showtime.showtimeId);
+        setRowSelection((prev) =>
+          Object.fromEntries(Object.entries(prev).filter(([key]) => key !== String(showtime.showtimeId))),
+        );
         const refundCount = res.data?.manualRefundRequiredCount ?? 0;
         const autoCount = res.data?.autoRefundQueuedCount ?? 0;
         const notes = [
           autoCount > 0 ? `${autoCount} giao dịch online đang được hoàn tiền tự động.` : null,
           refundCount > 0 ? `${refundCount} vé cần được hoàn tiền thủ công.` : null,
         ].filter(Boolean);
-        toast.add({
-          title: "Đã hủy suất chiếu.",
-          description: notes.length > 0 ? notes.join(" ") : undefined,
-          type: "success",
-        });
+        if (notes.length > 0) {
+          toast.add({
+            title: "Lưu ý hoàn tiền",
+            description: notes.join(" "),
+            type: "info",
+          });
+        }
       },
     });
   };

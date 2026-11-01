@@ -1,6 +1,8 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Reviews;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -75,6 +77,7 @@ public class MoviesController(IMovieService movieService, IReviewService reviewS
     }
 
     [HttpPost("{movieId:int}/reviews")]
+    [SuccessMessage(nameof(Messages.Success_ReviewCreated))]
     [Authorize(Policy = Policies.CustomerOnly)]
     public async Task<IActionResult> CreateReview(
         int movieId,
@@ -92,6 +95,7 @@ public class MoviesController(IMovieService movieService, IReviewService reviewS
     }
 
     [HttpPut("{movieId:int}/reviews/{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_ReviewUpdated))]
     [Authorize(Policy = Policies.CustomerOnly)]
     public async Task<IActionResult> UpdateReview(
         int movieId,
@@ -111,6 +115,7 @@ public class MoviesController(IMovieService movieService, IReviewService reviewS
     }
 
     [HttpDelete("{movieId:int}/reviews/{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_ReviewDeleted))]
     [Authorize(Policy = Policies.CustomerOnly)]
     public async Task<IActionResult> DeleteReview(
         int movieId,

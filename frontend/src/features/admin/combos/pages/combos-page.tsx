@@ -3,7 +3,6 @@ import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
@@ -60,10 +59,6 @@ const AdminCombosPage = () => {
       variant: willActivate ? "default" : "destructive",
       onConfirm: async () => {
         await toggleCombo.mutateAsync(combo.comboId);
-        toast.add({
-          title: willActivate ? "Đã kích hoạt combo." : "Đã ngừng bán combo.",
-          type: "success",
-        });
       },
     });
   };

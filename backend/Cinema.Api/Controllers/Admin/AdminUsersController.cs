@@ -1,6 +1,9 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
+using Cinema.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,9 +61,19 @@ public class AdminUsersController(IEmployeeService employeeService) : Controller
         int id,
         [FromBody] UpdateUserStatusRequest request,
         CancellationToken cancellationToken
-    ) => Ok(await employeeService.UpdateUserStatusAsync(id, request, cancellationToken));
+    )
+    {
+        var result = await employeeService.UpdateUserStatusAsync(id, request, cancellationToken);
+        return Ok(
+            ApiResponse.SuccessResponse(
+                result,
+                request.IsActive ? Messages.Success_UserUnlocked : Messages.Success_UserLocked
+            )
+        );
+    }
 
     [HttpPut("{id:int}/role")]
+    [SuccessMessage(nameof(Messages.Success_UserRoleUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> UpdateRole(
         int id,

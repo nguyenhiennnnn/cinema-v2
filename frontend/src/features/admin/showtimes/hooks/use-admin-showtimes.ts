@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   AdminShowtimeListParams,
   AdminShowtimeCalendarParams,
@@ -32,60 +31,40 @@ export function useAdminShowtimesCalendar(params: AdminShowtimeCalendarParams) {
 
 export function useAdminCreateShowtime() {
   return useMutation({
+    meta: { invalidates: "showtimeChanged" },
     mutationFn: (body: UpsertShowtimeRequest) =>
       showtimesAdminApi.createShowtime(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.all(),
-      });
-    },
   });
 }
 
 export function useAdminUpdateShowtime() {
   return useMutation({
+    meta: { invalidates: "showtimeChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpsertShowtimeRequest }) =>
       showtimesAdminApi.updateShowtime(id, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.all(),
-      });
-    },
   });
 }
 
 export function useAdminDeleteShowtime() {
   return useMutation({
+    meta: { invalidates: "showtimeCancelled" },
     mutationFn: (id: number) => showtimesAdminApi.deleteShowtime(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.all(),
-      });
-    },
   });
 }
 
 export function useAdminBulkCreateShowtimes() {
   return useMutation({
+    meta: { invalidates: "showtimeChanged", skipSuccessToast: true },
     mutationFn: (body: BulkCreateShowtimesRequest) =>
       showtimesAdminApi.bulkCreate(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.all(),
-      });
-    },
   });
 }
 
 export function useAdminBulkDeleteShowtimes() {
   return useMutation({
+    meta: { invalidates: "showtimeCancelled", skipSuccessToast: true },
     mutationFn: (body: BulkDeleteShowtimesRequest) =>
       showtimesAdminApi.bulkDelete(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.all(),
-      });
-    },
   });
 }
 
@@ -98,30 +77,16 @@ export function useAdminPreviewAutoSchedule() {
 
 export function useAdminApplyAutoSchedule() {
   return useMutation({
+    meta: { invalidates: "showtimeChanged", skipSuccessToast: true },
     mutationFn: (body: ApplyAutoScheduleRequest) =>
       showtimesAdminApi.applyAutoSchedule(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.calendars(),
-      });
-    },
   });
 }
 
 export function useAdminCloneShowtimes() {
   return useMutation({
+    meta: { invalidates: "showtimeChanged", skipSuccessToast: true },
     mutationFn: (body: CloneShowtimesRequest) =>
       showtimesAdminApi.cloneShowtimes(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminShowtimes.calendars(),
-      });
-    },
   });
 }

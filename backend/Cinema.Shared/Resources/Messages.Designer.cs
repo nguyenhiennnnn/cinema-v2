@@ -1405,6 +1405,555 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Đã thêm diễn viên mới..
+        /// </summary>
+        public static string Success_ActorCreated {
+            get {
+                return ResourceManager.GetString("Success_ActorCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa diễn viên..
+        /// </summary>
+        public static string Success_ActorDeleted {
+            get {
+                return ResourceManager.GetString("Success_ActorDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật diễn viên..
+        /// </summary>
+        public static string Success_ActorUpdated {
+            get {
+                return ResourceManager.GetString("Success_ActorUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm phân loại độ tuổi mới..
+        /// </summary>
+        public static string Success_AgeRatingCreated {
+            get {
+                return ResourceManager.GetString("Success_AgeRatingCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa phân loại độ tuổi..
+        /// </summary>
+        public static string Success_AgeRatingDeleted {
+            get {
+                return ResourceManager.GetString("Success_AgeRatingDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật phân loại độ tuổi..
+        /// </summary>
+        public static string Success_AgeRatingUpdated {
+            get {
+                return ResourceManager.GetString("Success_AgeRatingUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hủy đơn đặt vé..
+        /// </summary>
+        public static string Success_BookingCancelled {
+            get {
+                return ResourceManager.GetString("Success_BookingCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã kích hoạt combo..
+        /// </summary>
+        public static string Success_ComboActivated {
+            get {
+                return ResourceManager.GetString("Success_ComboActivated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm combo mới..
+        /// </summary>
+        public static string Success_ComboCreated {
+            get {
+                return ResourceManager.GetString("Success_ComboCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã ngừng bán combo..
+        /// </summary>
+        public static string Success_ComboDeactivated {
+            get {
+                return ResourceManager.GetString("Success_ComboDeactivated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật combo..
+        /// </summary>
+        public static string Success_ComboUpdated {
+            get {
+                return ResourceManager.GetString("Success_ComboUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nếu email tồn tại và chưa xác thực, liên kết xác thực mới đã được gửi.
+        /// </summary>
+        public static string Success_ConfirmationEmailSent {
+            get {
+                return ResourceManager.GetString("Success_ConfirmationEmailSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm đạo diễn mới..
+        /// </summary>
+        public static string Success_DirectorCreated {
+            get {
+                return ResourceManager.GetString("Success_DirectorCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa đạo diễn..
+        /// </summary>
+        public static string Success_DirectorDeleted {
+            get {
+                return ResourceManager.GetString("Success_DirectorDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật đạo diễn..
+        /// </summary>
+        public static string Success_DirectorUpdated {
+            get {
+                return ResourceManager.GetString("Success_DirectorUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xác thực email thành công.
+        /// </summary>
+        public static string Success_EmailConfirmed {
+            get {
+                return ResourceManager.GetString("Success_EmailConfirmed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm nhân viên mới..
+        /// </summary>
+        public static string Success_EmployeeCreated {
+            get {
+                return ResourceManager.GetString("Success_EmployeeCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật nhân viên..
+        /// </summary>
+        public static string Success_EmployeeUpdated {
+            get {
+                return ResourceManager.GetString("Success_EmployeeUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm thể loại mới..
+        /// </summary>
+        public static string Success_GenreCreated {
+            get {
+                return ResourceManager.GetString("Success_GenreCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa thể loại..
+        /// </summary>
+        public static string Success_GenreDeleted {
+            get {
+                return ResourceManager.GetString("Success_GenreDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật thể loại..
+        /// </summary>
+        public static string Success_GenreUpdated {
+            get {
+                return ResourceManager.GetString("Success_GenreUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm ngôn ngữ mới..
+        /// </summary>
+        public static string Success_LanguageCreated {
+            get {
+                return ResourceManager.GetString("Success_LanguageCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa ngôn ngữ..
+        /// </summary>
+        public static string Success_LanguageDeleted {
+            get {
+                return ResourceManager.GetString("Success_LanguageDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật ngôn ngữ..
+        /// </summary>
+        public static string Success_LanguageUpdated {
+            get {
+                return ResourceManager.GetString("Success_LanguageUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đăng xuất thành công.
+        /// </summary>
+        public static string Success_LoggedOut {
+            get {
+                return ResourceManager.GetString("Success_LoggedOut", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm hạng thành viên mới..
+        /// </summary>
+        public static string Success_MembershipTierCreated {
+            get {
+                return ResourceManager.GetString("Success_MembershipTierCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa hạng thành viên..
+        /// </summary>
+        public static string Success_MembershipTierDeleted {
+            get {
+                return ResourceManager.GetString("Success_MembershipTierDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật hạng thành viên..
+        /// </summary>
+        public static string Success_MembershipTierUpdated {
+            get {
+                return ResourceManager.GetString("Success_MembershipTierUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm phim mới thành công..
+        /// </summary>
+        public static string Success_MovieCreated {
+            get {
+                return ResourceManager.GetString("Success_MovieCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa phim thành công..
+        /// </summary>
+        public static string Success_MovieDeleted {
+            get {
+                return ResourceManager.GetString("Success_MovieDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật phim..
+        /// </summary>
+        public static string Success_MovieUpdated {
+            get {
+                return ResourceManager.GetString("Success_MovieUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đổi mật khẩu thành công.
+        /// </summary>
+        public static string Success_PasswordChanged {
+            get {
+                return ResourceManager.GetString("Success_PasswordChanged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đặt lại mật khẩu thành công.
+        /// </summary>
+        public static string Success_PasswordReset {
+            get {
+                return ResourceManager.GetString("Success_PasswordReset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.
+        /// </summary>
+        public static string Success_PasswordResetEmailSent {
+            get {
+                return ResourceManager.GetString("Success_PasswordResetEmailSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm chức vụ mới..
+        /// </summary>
+        public static string Success_PositionCreated {
+            get {
+                return ResourceManager.GetString("Success_PositionCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa chức vụ..
+        /// </summary>
+        public static string Success_PositionDeleted {
+            get {
+                return ResourceManager.GetString("Success_PositionDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật chức vụ..
+        /// </summary>
+        public static string Success_PositionUpdated {
+            get {
+                return ResourceManager.GetString("Success_PositionUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cập nhật thông tin thành công..
+        /// </summary>
+        public static string Success_ProfileUpdated {
+            get {
+                return ResourceManager.GetString("Success_ProfileUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã gửi đánh giá của bạn..
+        /// </summary>
+        public static string Success_ReviewCreated {
+            get {
+                return ResourceManager.GetString("Success_ReviewCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa đánh giá..
+        /// </summary>
+        public static string Success_ReviewDeleted {
+            get {
+                return ResourceManager.GetString("Success_ReviewDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật đánh giá..
+        /// </summary>
+        public static string Success_ReviewUpdated {
+            get {
+                return ResourceManager.GetString("Success_ReviewUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm phòng chiếu mới..
+        /// </summary>
+        public static string Success_RoomCreated {
+            get {
+                return ResourceManager.GetString("Success_RoomCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa phòng chiếu..
+        /// </summary>
+        public static string Success_RoomDeleted {
+            get {
+                return ResourceManager.GetString("Success_RoomDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã lưu sơ đồ ghế..
+        /// </summary>
+        public static string Success_RoomSeatsSaved {
+            get {
+                return ResourceManager.GetString("Success_RoomSeatsSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật phòng chiếu..
+        /// </summary>
+        public static string Success_RoomUpdated {
+            get {
+                return ResourceManager.GetString("Success_RoomUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm loại màn hình mới..
+        /// </summary>
+        public static string Success_ScreenTypeCreated {
+            get {
+                return ResourceManager.GetString("Success_ScreenTypeCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa loại màn hình..
+        /// </summary>
+        public static string Success_ScreenTypeDeleted {
+            get {
+                return ResourceManager.GetString("Success_ScreenTypeDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật loại màn hình..
+        /// </summary>
+        public static string Success_ScreenTypeUpdated {
+            get {
+                return ResourceManager.GetString("Success_ScreenTypeUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã thêm loại ghế mới..
+        /// </summary>
+        public static string Success_SeatTypeCreated {
+            get {
+                return ResourceManager.GetString("Success_SeatTypeCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xóa loại ghế..
+        /// </summary>
+        public static string Success_SeatTypeDeleted {
+            get {
+                return ResourceManager.GetString("Success_SeatTypeDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật loại ghế..
+        /// </summary>
+        public static string Success_SeatTypeUpdated {
+            get {
+                return ResourceManager.GetString("Success_SeatTypeUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật cấu hình rạp..
+        /// </summary>
+        public static string Success_SettingsUpdated {
+            get {
+                return ResourceManager.GetString("Success_SettingsUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã tạo suất chiếu mới..
+        /// </summary>
+        public static string Success_ShowtimeCreated {
+            get {
+                return ResourceManager.GetString("Success_ShowtimeCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hủy suất chiếu..
+        /// </summary>
+        public static string Success_ShowtimeDeleted {
+            get {
+                return ResourceManager.GetString("Success_ShowtimeDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật suất chiếu..
+        /// </summary>
+        public static string Success_ShowtimeUpdated {
+            get {
+                return ResourceManager.GetString("Success_ShowtimeUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã áp dụng lịch chiếu tự động..
+        /// </summary>
+        public static string Success_ShowtimesAutoScheduleApplied {
+            get {
+                return ResourceManager.GetString("Success_ShowtimesAutoScheduleApplied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã tạo suất chiếu hàng loạt..
+        /// </summary>
+        public static string Success_ShowtimesBulkCreated {
+            get {
+                return ResourceManager.GetString("Success_ShowtimesBulkCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã sao chép suất chiếu..
+        /// </summary>
+        public static string Success_ShowtimesCloned {
+            get {
+                return ResourceManager.GetString("Success_ShowtimesCloned", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã khóa tài khoản..
+        /// </summary>
+        public static string Success_UserLocked {
+            get {
+                return ResourceManager.GetString("Success_UserLocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã cập nhật vai trò..
+        /// </summary>
+        public static string Success_UserRoleUpdated {
+            get {
+                return ResourceManager.GetString("Success_UserRoleUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã mở khóa tài khoản..
+        /// </summary>
+        public static string Success_UserUnlocked {
+            get {
+                return ResourceManager.GetString("Success_UserUnlocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau..
         /// </summary>
         public static string System_UnexpectedError {

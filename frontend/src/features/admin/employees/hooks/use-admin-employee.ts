@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   CreateEmployeeRequest,
   AdminEmployeeListParams,
@@ -18,22 +17,16 @@ export function useAdminEmployees(params: AdminEmployeeListParams = {}) {
 
 export function useAdminCreateEmployee() {
   return useMutation({
+    meta: { invalidates: "employeeChanged" },
     mutationFn: (body: CreateEmployeeRequest) =>
       employeesAdminApi.createEmployee(body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminEmployees.all(),
-      }),
   });
 }
 
 export function useAdminUpdateEmployee() {
   return useMutation({
+    meta: { invalidates: "employeeChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpdateEmployeeRequest }) =>
       employeesAdminApi.updateEmployee(id, body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminEmployees.all(),
-      }),
   });
 }

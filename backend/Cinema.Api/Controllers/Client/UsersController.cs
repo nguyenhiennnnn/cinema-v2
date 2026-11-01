@@ -1,9 +1,12 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Auth;
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.DTOs.Reviews;
 using Cinema.Application.DTOs.Users;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
+using Cinema.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +26,7 @@ public class UsersController(
         Ok(await userProfileService.GetMyProfileAsync(CurrentUserId, cancellationToken));
 
     [HttpPut("me")]
+    [SuccessMessage(nameof(Messages.Success_ProfileUpdated))]
     public async Task<IActionResult> UpdateMyProfile(
         [FromBody] UpdateProfileRequest request,
         CancellationToken cancellationToken
@@ -58,6 +62,6 @@ public class UsersController(
             request,
             cancellationToken
         );
-        return Ok(result);
+        return Ok(ApiResponse.SuccessResponse(result, result.Message));
     }
 }

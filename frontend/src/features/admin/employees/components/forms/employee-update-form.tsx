@@ -2,7 +2,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
@@ -51,7 +50,6 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
       },
     }, {
       onSuccess: () => {
-        toast.add({ title: "Đã cập nhật nhân viên.", type: "success" });
         onSuccess();
       }
     });

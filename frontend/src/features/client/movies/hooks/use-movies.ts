@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { moviesApi } from "../api/movies-api";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   CreateReviewRequest,
   MovieListParams,
@@ -62,27 +61,15 @@ export function useCanReviewStatus(movieId: number, enabled = true) {
 
 export function useCreateReview(movieId: number) {
   return useMutation({
+    meta: { invalidates: "reviewChanged" },
     mutationFn: (body: CreateReviewRequest) =>
       moviesApi.createReview(movieId, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.movies.reviews(movieId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.movies.canReview(movieId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.movies.detail(movieId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.users.myReviews(),
-      });
-    },
   });
 }
 
 export function useUpdateReview(movieId: number) {
   return useMutation({
+    meta: { invalidates: "reviewChanged" },
     mutationFn: ({
       reviewId,
       body,
@@ -90,31 +77,13 @@ export function useUpdateReview(movieId: number) {
       reviewId: number;
       body: CreateReviewRequest;
     }) => moviesApi.updateReview(movieId, reviewId, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.movies.reviews(movieId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.users.myReviews(),
-      });
-    },
   });
 }
 
 export function useDeleteMyReview(movieId: number) {
   return useMutation({
+    meta: { invalidates: "reviewChanged" },
     mutationFn: (reviewId: number) =>
       moviesApi.deleteMyReview(movieId, reviewId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.movies.reviews(movieId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.movies.canReview(movieId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.users.myReviews(),
-      });
-    },
   });
 }

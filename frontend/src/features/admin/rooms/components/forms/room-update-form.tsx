@@ -3,7 +3,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -51,7 +50,6 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
       },
     }, {
       onSuccess: () => {
-        toast.add({ title: "Đã cập nhật phòng chiếu.", type: "success" });
         onSuccess();
       }
     });

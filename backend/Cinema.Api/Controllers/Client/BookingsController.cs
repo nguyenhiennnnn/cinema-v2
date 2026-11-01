@@ -1,7 +1,9 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -73,6 +75,7 @@ public class BookingsController(IBookingService bookingService) : AppControllerB
     }
 
     [HttpPost("{bookingId:int}/cancel")]
+    [SuccessMessage(nameof(Messages.Success_BookingCancelled))]
     public async Task<ActionResult<CancelBookingResponse>> CancelBooking(
         int bookingId,
         CancellationToken cancellationToken

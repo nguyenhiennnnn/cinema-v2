@@ -3,7 +3,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -54,7 +53,6 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
       allowAfterHours: values.allowAfterHours,
     }, {
       onSuccess: () => {
-        toast.add({ title: "Đã tạo suất chiếu mới.", type: "success" });
         onSuccess();
       }
     });

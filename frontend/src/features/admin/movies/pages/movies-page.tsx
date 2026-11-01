@@ -69,7 +69,9 @@ const AdminMoviesPage = () => {
       variant: "destructive",
       onConfirm: async () => {
         await deleteMovie.mutateAsync(movie.movieId);
-        toast.add({ title: "Đã xóa phim thành công.", type: "success" });
+        setRowSelection((prev) =>
+          Object.fromEntries(Object.entries(prev).filter(([key]) => key !== String(movie.movieId))),
+        );
       },
     });
   };

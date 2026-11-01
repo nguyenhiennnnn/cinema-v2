@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   AdminMovieListParams,
   UpsertMovieRequest,
@@ -27,38 +26,30 @@ export function useAdminMovieDetail(movieId?: number) {
 
 export function useAdminCreateMovie() {
   return useMutation({
+    meta: { invalidates: "movieChanged" },
     mutationFn: (body: UpsertMovieRequest) => moviesAdminApi.createMovie(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminMovies.all() });
-    },
   });
 }
 
 export function useAdminUpdateMovie() {
   return useMutation({
+    meta: { invalidates: "movieChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpsertMovieRequest }) =>
       moviesAdminApi.updateMovie(id, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminMovies.all() });
-    },
   });
 }
 
 export function useAdminDeleteMovie() {
   return useMutation({
+    meta: { invalidates: "movieChanged" },
     mutationFn: (id: number) => moviesAdminApi.deleteMovie(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminMovies.all() });
-    },
   });
 }
 
 export function useAdminBulkDeleteMovies() {
   return useMutation({
+    meta: { invalidates: "movieChanged", skipSuccessToast: true },
     mutationFn: (body: BulkDeleteMoviesRequest) =>
       moviesAdminApi.bulkDeleteMovies(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminMovies.all() });
-    },
   });
 }

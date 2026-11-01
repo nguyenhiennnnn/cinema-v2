@@ -3,7 +3,6 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -127,7 +126,6 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
         },
         {
           onSuccess: () => {
-            toast.add({ title: "Đã cập nhật phim.", type: "success" });
             onSuccess();
           },
         }

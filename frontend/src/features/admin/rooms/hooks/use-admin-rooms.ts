@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { roomsApi } from "../api/rooms-api";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   RoomListParams,
   CreateRoomRequest,
@@ -37,32 +36,29 @@ export function useAdminRoomSeats(roomId: number) {
 
 export function useAdminCreateRoom() {
   return useMutation({
+    meta: { invalidates: "roomChanged" },
     mutationFn: (body: CreateRoomRequest) => roomsApi.createRoom(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.adminRooms.all() }),
   });
 }
 
 export function useAdminUpdateRoom() {
   return useMutation({
+    meta: { invalidates: "roomChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpdateRoomRequest }) =>
       roomsApi.updateRoom(id, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.adminRooms.all() }),
   });
 }
 
 export function useAdminDeleteRoom() {
   return useMutation({
+    meta: { invalidates: "roomChanged" },
     mutationFn: (id: number) => roomsApi.deleteRoom(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.adminRooms.all() }),
   });
 }
 
 export function useAdminUpdateSeatLayout(roomId: number) {
   return useMutation({
+    meta: { invalidates: "seatLayoutChanged" },
     mutationFn: (body: UpdateSeatLayoutRequest) => roomsApi.updateSeatLayout(roomId, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminRooms.seats(roomId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminRooms.all() });
-    },
   });
 }

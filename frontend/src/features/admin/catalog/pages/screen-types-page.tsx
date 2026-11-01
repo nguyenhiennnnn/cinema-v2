@@ -3,7 +3,6 @@ import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
@@ -62,7 +61,6 @@ const ScreenTypesPage = () => {
       variant: "destructive",
       onConfirm: async () => {
         await deleteScreenType.mutateAsync(screenType.screenTypeId);
-        toast.add({ title: "Đã xóa loại màn hình.", type: "success" });
       },
     });
   };

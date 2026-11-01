@@ -17,6 +17,7 @@ export const queryKeys = {
 
   // ── Showtimes (client) ───────────────────────────────────────────────────────
   showtimes: {
+    all: () => ["showtimes"] as const,
     schedule: (date: string) => ["showtimes", "schedule", date] as const,
     seats: (showtimeId: number) => ["showtimes", "seats", showtimeId] as const,
     seatSuggestions: (showtimeId: number, count: number) =>
@@ -32,6 +33,7 @@ export const queryKeys = {
 
   // ── Combos (client) ──────────────────────────────────────────────────────────
   combos: {
+    all: () => ["combos"] as const,
     active: () => ["combos", "active"] as const,
     suggestions: (showtimeId: number, seatCount: number) =>
       ["combos", "suggestions", showtimeId, seatCount] as const,
@@ -39,6 +41,7 @@ export const queryKeys = {
 
   // ── Catalog (client) ─────────────────────────────────────────────────────────
   catalog: {
+    all: () => ["catalog"] as const,
     genres: () => ["catalog", "genres"] as const,
     languages: () => ["catalog", "languages"] as const,
     ageRatings: () => ["catalog", "age-ratings"] as const,
@@ -134,6 +137,7 @@ export const queryKeys = {
 
   // ── Admin: Dashboard ─────────────────────────────────────────────────────────
   adminDashboard: {
+    all: () => ["admin", "dashboard"] as const,
     summary: () => ["admin", "dashboard", "summary"] as const,
     insights: (params: object) =>
       ["admin", "dashboard", "insights", params] as const,
@@ -141,6 +145,7 @@ export const queryKeys = {
 
   // ── Admin: Reports ───────────────────────────────────────────────────────────
   adminReports: {
+    all: () => ["admin", "reports"] as const,
     revenue: (params: object) =>
       ["admin", "reports", "revenue", params] as const,
     topMovies: (params: object) =>
@@ -151,6 +156,7 @@ export const queryKeys = {
 
   // ── Admin: Catalog ───────────────────────────────────────────────────────────
   adminCatalog: {
+    all: () => ["admin", "catalog"] as const,
     genres: (params?: object) =>
       ["admin", "catalog", "genres", params] as const,
     languages: (params?: object) =>

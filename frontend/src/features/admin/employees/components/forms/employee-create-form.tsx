@@ -3,7 +3,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
@@ -53,7 +52,6 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
       hireDate: values.hireDate || null,
     }, {
       onSuccess: () => {
-        toast.add({ title: "Đã thêm nhân viên mới.", type: "success" });
         onSuccess();
       }
     });

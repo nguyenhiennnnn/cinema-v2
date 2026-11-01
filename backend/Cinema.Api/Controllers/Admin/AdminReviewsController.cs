@@ -1,6 +1,8 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Reviews;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +33,7 @@ public class AdminReviewsController(IReviewService reviewService) : ControllerBa
         );
 
     [HttpDelete("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_ReviewDeleted))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken) =>
         Ok(await reviewService.DeleteReviewAsync(id, cancellationToken));

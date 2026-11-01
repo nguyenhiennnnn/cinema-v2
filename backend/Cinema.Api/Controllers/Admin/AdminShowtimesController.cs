@@ -1,6 +1,8 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,6 +35,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     ) => Ok(await showtimeService.GetShowtimesCalendarAsync(filter, cancellationToken));
 
     [HttpPost]
+    [SuccessMessage(nameof(Messages.Success_ShowtimeCreated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Create(
         [FromBody] UpsertShowtimeRequest request,
@@ -44,6 +47,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
         );
 
     [HttpPut("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_ShowtimeUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Update(
         int id,
@@ -52,11 +56,13 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     ) => Ok(await showtimeService.UpdateShowtimeAsync(id, request, cancellationToken));
 
     [HttpDelete("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_ShowtimeDeleted))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken) =>
         Ok(await showtimeService.DeleteShowtimeAsync(id, cancellationToken));
 
     [HttpPost("bulk")]
+    [SuccessMessage(nameof(Messages.Success_ShowtimesBulkCreated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> BulkCreate(
         [FromBody] BulkCreateShowtimesRequest request,
@@ -75,6 +81,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     ) => Ok(await showtimeService.PreviewAutoScheduleAsync(request, cancellationToken));
 
     [HttpPost("auto-schedule/apply")]
+    [SuccessMessage(nameof(Messages.Success_ShowtimesAutoScheduleApplied))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> ApplyAutoSchedule(
         [FromBody] ApplyAutoScheduleRequest request,
@@ -86,6 +93,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
         );
 
     [HttpPost("clone")]
+    [SuccessMessage(nameof(Messages.Success_ShowtimesCloned))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> CloneShowtimes(
         [FromBody] CloneShowtimesRequest request,

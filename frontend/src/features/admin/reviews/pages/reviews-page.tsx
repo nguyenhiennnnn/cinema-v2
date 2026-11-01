@@ -45,7 +45,9 @@ const AdminReviewsPage = () => {
       variant: "destructive",
       onConfirm: async () => {
         await deleteReview.mutateAsync(review.reviewId);
-        toast.add({ title: "Đã xóa đánh giá.", type: "success" });
+        setRowSelection((prev) =>
+          Object.fromEntries(Object.entries(prev).filter(([key]) => key !== String(review.reviewId))),
+        );
       },
     });
   };

@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type {
   AdminUserListParams,
   AdminUserSelectParams,
@@ -38,18 +37,16 @@ export function useCustomerLookup(params: CustomerLookupParams) {
 
 export function useAdminUpdateUserStatus() {
   return useMutation({
+    meta: { invalidates: "userChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpdateUserStatusRequest }) =>
       usersAdminApi.updateStatus(id, body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all() }),
   });
 }
 
 export function useAdminUpdateUserRole() {
   return useMutation({
+    meta: { invalidates: "userChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpdateUserRoleRequest }) =>
       usersAdminApi.updateRole(id, body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all() }),
   });
 }

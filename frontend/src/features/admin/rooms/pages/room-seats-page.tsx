@@ -65,13 +65,9 @@ const SeatEditorReady = ({
   };
 
   const handleSave = async () => {
-    const res = await updateSeatLayout.mutateAsync(editor.buildPayload(), {
+    await updateSeatLayout.mutateAsync(editor.buildPayload(), {
       onSuccess: () => {
         editor.markSaved();
-        toast.add({
-          title: `Đã lưu sơ đồ ghế: ${res.data.totalSeats} ghế (mới ${res.data.created}, cập nhật ${res.data.updated}).`,
-          type: "success",
-        },);
       }
     });
   };

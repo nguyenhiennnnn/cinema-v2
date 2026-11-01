@@ -2,7 +2,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -54,7 +53,6 @@ export const ComboCreateForm = ({ onSuccess }: ComboCreateFormProps) => {
       imageUrl: values.imageUrl || null,
     }, {
       onSuccess: () => {
-        toast.add({ title: "Đã thêm combo mới.", type: "success" });
         onSuccess();
       }
     });

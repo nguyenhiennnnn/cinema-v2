@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { settingsApi } from "../api/settings-api";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type { UpdateSettingsRequest } from "../types";
 
 export function useAdminSettings() {
@@ -14,8 +13,7 @@ export function useAdminSettings() {
 
 export function useAdminUpdateSettings() {
   return useMutation({
+    meta: { invalidates: "settingsChanged" },
     mutationFn: (body: UpdateSettingsRequest) => settingsApi.updateSettings(body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.adminSettings.get() }),
   });
 }

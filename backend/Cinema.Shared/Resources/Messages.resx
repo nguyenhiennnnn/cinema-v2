@@ -538,6 +538,191 @@
     <value>User phải có RoleId là Admin hoặc Employee trước khi tạo hồ sơ Employee (đổi role qua PUT /admin/users/{id}/role).</value>
   </data>
 
+  <!-- ===== Success ===== -->
+  <data name="Success_ActorCreated" xml:space="preserve">
+    <value>Đã thêm diễn viên mới.</value>
+  </data>
+  <data name="Success_ActorDeleted" xml:space="preserve">
+    <value>Đã xóa diễn viên.</value>
+  </data>
+  <data name="Success_ActorUpdated" xml:space="preserve">
+    <value>Đã cập nhật diễn viên.</value>
+  </data>
+  <data name="Success_AgeRatingCreated" xml:space="preserve">
+    <value>Đã thêm phân loại độ tuổi mới.</value>
+  </data>
+  <data name="Success_AgeRatingDeleted" xml:space="preserve">
+    <value>Đã xóa phân loại độ tuổi.</value>
+  </data>
+  <data name="Success_AgeRatingUpdated" xml:space="preserve">
+    <value>Đã cập nhật phân loại độ tuổi.</value>
+  </data>
+  <data name="Success_BookingCancelled" xml:space="preserve">
+    <value>Đã hủy đơn đặt vé.</value>
+  </data>
+  <data name="Success_ComboActivated" xml:space="preserve">
+    <value>Đã kích hoạt combo.</value>
+  </data>
+  <data name="Success_ComboCreated" xml:space="preserve">
+    <value>Đã thêm combo mới.</value>
+  </data>
+  <data name="Success_ComboDeactivated" xml:space="preserve">
+    <value>Đã ngừng bán combo.</value>
+  </data>
+  <data name="Success_ComboUpdated" xml:space="preserve">
+    <value>Đã cập nhật combo.</value>
+  </data>
+  <data name="Success_ConfirmationEmailSent" xml:space="preserve">
+    <value>Nếu email tồn tại và chưa xác thực, liên kết xác thực mới đã được gửi</value>
+  </data>
+  <data name="Success_DirectorCreated" xml:space="preserve">
+    <value>Đã thêm đạo diễn mới.</value>
+  </data>
+  <data name="Success_DirectorDeleted" xml:space="preserve">
+    <value>Đã xóa đạo diễn.</value>
+  </data>
+  <data name="Success_DirectorUpdated" xml:space="preserve">
+    <value>Đã cập nhật đạo diễn.</value>
+  </data>
+  <data name="Success_EmailConfirmed" xml:space="preserve">
+    <value>Xác thực email thành công</value>
+  </data>
+  <data name="Success_EmployeeCreated" xml:space="preserve">
+    <value>Đã thêm nhân viên mới.</value>
+  </data>
+  <data name="Success_EmployeeUpdated" xml:space="preserve">
+    <value>Đã cập nhật nhân viên.</value>
+  </data>
+  <data name="Success_GenreCreated" xml:space="preserve">
+    <value>Đã thêm thể loại mới.</value>
+  </data>
+  <data name="Success_GenreDeleted" xml:space="preserve">
+    <value>Đã xóa thể loại.</value>
+  </data>
+  <data name="Success_GenreUpdated" xml:space="preserve">
+    <value>Đã cập nhật thể loại.</value>
+  </data>
+  <data name="Success_LanguageCreated" xml:space="preserve">
+    <value>Đã thêm ngôn ngữ mới.</value>
+  </data>
+  <data name="Success_LanguageDeleted" xml:space="preserve">
+    <value>Đã xóa ngôn ngữ.</value>
+  </data>
+  <data name="Success_LanguageUpdated" xml:space="preserve">
+    <value>Đã cập nhật ngôn ngữ.</value>
+  </data>
+  <data name="Success_LoggedOut" xml:space="preserve">
+    <value>Đăng xuất thành công</value>
+  </data>
+  <data name="Success_MembershipTierCreated" xml:space="preserve">
+    <value>Đã thêm hạng thành viên mới.</value>
+  </data>
+  <data name="Success_MembershipTierDeleted" xml:space="preserve">
+    <value>Đã xóa hạng thành viên.</value>
+  </data>
+  <data name="Success_MembershipTierUpdated" xml:space="preserve">
+    <value>Đã cập nhật hạng thành viên.</value>
+  </data>
+  <data name="Success_MovieCreated" xml:space="preserve">
+    <value>Đã thêm phim mới thành công.</value>
+  </data>
+  <data name="Success_MovieDeleted" xml:space="preserve">
+    <value>Đã xóa phim thành công.</value>
+  </data>
+  <data name="Success_MovieUpdated" xml:space="preserve">
+    <value>Đã cập nhật phim.</value>
+  </data>
+  <data name="Success_PasswordChanged" xml:space="preserve">
+    <value>Đổi mật khẩu thành công</value>
+  </data>
+  <data name="Success_PasswordReset" xml:space="preserve">
+    <value>Đặt lại mật khẩu thành công</value>
+  </data>
+  <data name="Success_PasswordResetEmailSent" xml:space="preserve">
+    <value>Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi</value>
+  </data>
+  <data name="Success_PositionCreated" xml:space="preserve">
+    <value>Đã thêm chức vụ mới.</value>
+  </data>
+  <data name="Success_PositionDeleted" xml:space="preserve">
+    <value>Đã xóa chức vụ.</value>
+  </data>
+  <data name="Success_PositionUpdated" xml:space="preserve">
+    <value>Đã cập nhật chức vụ.</value>
+  </data>
+  <data name="Success_ProfileUpdated" xml:space="preserve">
+    <value>Cập nhật thông tin thành công.</value>
+  </data>
+  <data name="Success_ReviewCreated" xml:space="preserve">
+    <value>Đã gửi đánh giá của bạn.</value>
+  </data>
+  <data name="Success_ReviewDeleted" xml:space="preserve">
+    <value>Đã xóa đánh giá.</value>
+  </data>
+  <data name="Success_ReviewUpdated" xml:space="preserve">
+    <value>Đã cập nhật đánh giá.</value>
+  </data>
+  <data name="Success_RoomCreated" xml:space="preserve">
+    <value>Đã thêm phòng chiếu mới.</value>
+  </data>
+  <data name="Success_RoomDeleted" xml:space="preserve">
+    <value>Đã xóa phòng chiếu.</value>
+  </data>
+  <data name="Success_RoomSeatsSaved" xml:space="preserve">
+    <value>Đã lưu sơ đồ ghế.</value>
+  </data>
+  <data name="Success_RoomUpdated" xml:space="preserve">
+    <value>Đã cập nhật phòng chiếu.</value>
+  </data>
+  <data name="Success_ScreenTypeCreated" xml:space="preserve">
+    <value>Đã thêm loại màn hình mới.</value>
+  </data>
+  <data name="Success_ScreenTypeDeleted" xml:space="preserve">
+    <value>Đã xóa loại màn hình.</value>
+  </data>
+  <data name="Success_ScreenTypeUpdated" xml:space="preserve">
+    <value>Đã cập nhật loại màn hình.</value>
+  </data>
+  <data name="Success_SeatTypeCreated" xml:space="preserve">
+    <value>Đã thêm loại ghế mới.</value>
+  </data>
+  <data name="Success_SeatTypeDeleted" xml:space="preserve">
+    <value>Đã xóa loại ghế.</value>
+  </data>
+  <data name="Success_SeatTypeUpdated" xml:space="preserve">
+    <value>Đã cập nhật loại ghế.</value>
+  </data>
+  <data name="Success_SettingsUpdated" xml:space="preserve">
+    <value>Đã cập nhật cấu hình rạp.</value>
+  </data>
+  <data name="Success_ShowtimeCreated" xml:space="preserve">
+    <value>Đã tạo suất chiếu mới.</value>
+  </data>
+  <data name="Success_ShowtimeDeleted" xml:space="preserve">
+    <value>Đã hủy suất chiếu.</value>
+  </data>
+  <data name="Success_ShowtimeUpdated" xml:space="preserve">
+    <value>Đã cập nhật suất chiếu.</value>
+  </data>
+  <data name="Success_ShowtimesAutoScheduleApplied" xml:space="preserve">
+    <value>Đã áp dụng lịch chiếu tự động.</value>
+  </data>
+  <data name="Success_ShowtimesBulkCreated" xml:space="preserve">
+    <value>Đã tạo suất chiếu hàng loạt.</value>
+  </data>
+  <data name="Success_ShowtimesCloned" xml:space="preserve">
+    <value>Đã sao chép suất chiếu.</value>
+  </data>
+  <data name="Success_UserLocked" xml:space="preserve">
+    <value>Đã khóa tài khoản.</value>
+  </data>
+  <data name="Success_UserRoleUpdated" xml:space="preserve">
+    <value>Đã cập nhật vai trò.</value>
+  </data>
+  <data name="Success_UserUnlocked" xml:space="preserve">
+    <value>Đã mở khóa tài khoản.</value>
+  </data>
+
   <!-- ===== System ===== -->
   <data name="System_UnexpectedError" xml:space="preserve">
     <value>Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.</value>

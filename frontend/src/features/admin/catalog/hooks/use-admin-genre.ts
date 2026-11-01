@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
-import { queryClient } from "@/api/query-client";
 import type { CatalogListParams, UpsertGenreRequest } from "../types";
 import { genresAdminApi } from "../api/catalog-api";
 
@@ -14,31 +13,22 @@ export function useAdminGenres(params?: CatalogListParams) {
 
 export function useAdminCreateGenre() {
   return useMutation({
+    meta: { invalidates: "genreChanged" },
     mutationFn: (body: UpsertGenreRequest) => genresAdminApi.create(body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.genres(),
-      }),
   });
 }
 
 export function useAdminUpdateGenre() {
   return useMutation({
+    meta: { invalidates: "genreChanged" },
     mutationFn: ({ id, body }: { id: number; body: UpsertGenreRequest }) =>
       genresAdminApi.update(id, body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.genres(),
-      }),
   });
 }
 
 export function useAdminDeleteGenre() {
   return useMutation({
+    meta: { invalidates: "genreChanged" },
     mutationFn: (id: number) => genresAdminApi.delete(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.adminCatalog.genres(),
-      }),
   });
 }

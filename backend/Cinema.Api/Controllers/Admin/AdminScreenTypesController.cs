@@ -1,6 +1,8 @@
-﻿using Cinema.Application.DTOs.Catalog;
+﻿using Cinema.Api.Filters;
+using Cinema.Application.DTOs.Catalog;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +22,7 @@ public class AdminScreenTypesController(ICatalogService catalogService) : Contro
     ) => Ok(await catalogService.GetScreenTypesAsync(page, pageSize, cancellationToken));
 
     [HttpPost]
+    [SuccessMessage(nameof(Messages.Success_ScreenTypeCreated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Create(
         [FromBody] UpsertScreenTypeRequest request,
@@ -31,6 +34,7 @@ public class AdminScreenTypesController(ICatalogService catalogService) : Contro
         );
 
     [HttpPut("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_ScreenTypeUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Update(
         int id,
@@ -39,6 +43,7 @@ public class AdminScreenTypesController(ICatalogService catalogService) : Contro
     ) => Ok(await catalogService.UpdateScreenTypeAsync(id, request, cancellationToken));
 
     [HttpDelete("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_ScreenTypeDeleted))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {

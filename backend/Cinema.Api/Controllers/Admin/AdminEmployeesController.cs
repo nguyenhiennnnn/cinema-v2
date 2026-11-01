@@ -1,6 +1,8 @@
-﻿using Cinema.Application.DTOs.Employees;
+﻿using Cinema.Api.Filters;
+using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +31,7 @@ public class AdminEmployeesController(IEmployeeService employeeService) : Contro
         );
 
     [HttpPost]
+    [SuccessMessage(nameof(Messages.Success_EmployeeCreated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Create(
         [FromBody] CreateEmployeeRequest request,
@@ -40,6 +43,7 @@ public class AdminEmployeesController(IEmployeeService employeeService) : Contro
         );
 
     [HttpPut("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_EmployeeUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Update(
         int id,

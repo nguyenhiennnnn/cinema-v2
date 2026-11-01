@@ -4,7 +4,6 @@ import { z } from "zod";
 import { useEffect } from "react";
 
 import { PageHeader } from "@/components/common/page-header";
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,10 +85,6 @@ const AdminSettingsPage = () => {
       cancelRefundPercent: values.cancelRefundPercent,
       cancelDeadlineHours: values.cancelDeadlineHours,
       stopSellingMinutesBefore: values.stopSellingMinutesBefore,
-    }, {
-      onSuccess: () => {
-        toast.add({ title: "Đã cập nhật cấu hình rạp.", type: "success" });
-      }
     });
   };
 

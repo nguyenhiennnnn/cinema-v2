@@ -1,5 +1,4 @@
 import { PageHeader } from "@/components/common/page-header";
-import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
@@ -47,10 +46,6 @@ const AdminUsersPage = () => {
         await toggleStatus.mutateAsync({
           id: user.userId,
           body: { isActive: willActivate },
-        });
-        toast.add({
-          title: willActivate ? "Đã mở khóa tài khoản." : "Đã khóa tài khoản.",
-          type: "success",
         });
       },
     });

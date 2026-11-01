@@ -1,6 +1,8 @@
+using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Rooms;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +22,7 @@ public class AdminRoomsController(IRoomService roomService) : ControllerBase
     ) => Ok(await roomService.GetRoomsAsync(page, pageSize, cancellationToken));
 
     [HttpPost]
+    [SuccessMessage(nameof(Messages.Success_RoomCreated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Create(
         [FromBody] CreateRoomRequest request,
@@ -36,6 +39,7 @@ public class AdminRoomsController(IRoomService roomService) : ControllerBase
         Ok(await roomService.GetRoomByIdAsync(id, cancellationToken));
 
     [HttpPut("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_RoomUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Update(
         int id,
@@ -44,6 +48,7 @@ public class AdminRoomsController(IRoomService roomService) : ControllerBase
     ) => Ok(await roomService.UpdateRoomAsync(id, request, cancellationToken));
 
     [HttpDelete("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_RoomDeleted))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken) =>
         Ok(await roomService.DeleteRoomAsync(id, cancellationToken));
@@ -54,6 +59,7 @@ public class AdminRoomsController(IRoomService roomService) : ControllerBase
         Ok(await roomService.GetRoomSeatsAsync(id, cancellationToken));
 
     [HttpPut("{id:int}/seats")]
+    [SuccessMessage(nameof(Messages.Success_RoomSeatsSaved))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> UpdateSeatLayout(
         int id,

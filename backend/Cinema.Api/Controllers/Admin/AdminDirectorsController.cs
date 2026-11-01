@@ -1,6 +1,8 @@
-﻿using Cinema.Application.DTOs.Catalog;
+﻿using Cinema.Api.Filters;
+using Cinema.Application.DTOs.Catalog;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +23,7 @@ public class AdminDirectorsController(ICatalogService catalogService) : Controll
     ) => Ok(await catalogService.GetDirectorsAdminAsync(search, page, pageSize, cancellationToken));
 
     [HttpPost]
+    [SuccessMessage(nameof(Messages.Success_DirectorCreated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Create(
         [FromBody] UpsertPersonRequest request,
@@ -32,6 +35,7 @@ public class AdminDirectorsController(ICatalogService catalogService) : Controll
         );
 
     [HttpPut("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_DirectorUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Update(
         int id,
@@ -40,6 +44,7 @@ public class AdminDirectorsController(ICatalogService catalogService) : Controll
     ) => Ok(await catalogService.UpdateDirectorAsync(id, request, cancellationToken));
 
     [HttpDelete("{id:int}")]
+    [SuccessMessage(nameof(Messages.Success_DirectorDeleted))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {

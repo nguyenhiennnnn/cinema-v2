@@ -122,7 +122,7 @@ public class AuthService(
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return new MessageResponse("Xác thực email thành công");
+        return new MessageResponse(Messages.Success_EmailConfirmed);
     }
 
     public async Task<LoginResponse> LoginAsync(
@@ -412,7 +412,7 @@ public class AuthService(
             await db.SaveChangesAsync(cancellationToken);
         }
 
-        return new MessageResponse("Đăng xuất thành công");
+        return new MessageResponse(Messages.Success_LoggedOut);
     }
 
     public async Task<MeResponse> GetMeAsync(int userId, CancellationToken cancellationToken)
@@ -474,7 +474,7 @@ public class AuthService(
             activeTokens.Count
         );
 
-        return new MessageResponse("Đổi mật khẩu thành công");
+        return new MessageResponse(Messages.Success_PasswordChanged);
     }
 
     public async Task<MessageResponse> ForgotPasswordAsync(
@@ -482,7 +482,7 @@ public class AuthService(
         CancellationToken cancellationToken
     )
     {
-        const string standardMessage = "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi";
+        var standardMessage = Messages.Success_PasswordResetEmailSent;
 
         var user = await db.Users.FirstOrDefaultAsync(
             u => u.Email == request.Email,
@@ -567,7 +567,7 @@ public class AuthService(
             activeRefreshTokens.Count
         );
 
-        return new MessageResponse("Đặt lại mật khẩu thành công");
+        return new MessageResponse(Messages.Success_PasswordReset);
     }
 
     public async Task<MessageResponse> ResendConfirmationEmailAsync(
@@ -575,8 +575,7 @@ public class AuthService(
         CancellationToken cancellationToken
     )
     {
-        const string standardMessage =
-            "Nếu email tồn tại và chưa xác thực, liên kết xác thực mới đã được gửi";
+        var standardMessage = Messages.Success_ConfirmationEmailSent;
 
         var user = await db.Users.FirstOrDefaultAsync(
             u => u.Email == request.Email,

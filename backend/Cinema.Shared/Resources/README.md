@@ -20,6 +20,21 @@ throw new BusinessRuleException(string.Format(Messages.Rule_CheckInNotOpenYet, m
 | `Rule_` | `BusinessRuleException` (422) |
 | `Validation_<Field>_<Rule>` | FluentValidation `.WithMessage(...)` |
 | `Db_` / `System_` / `Common_` | middleware, lỗi DB, lỗi chung |
+| `Success_` | message thành công của POST/PUT/DELETE (hiện thành toast ở frontend) |
+
+## Message thành công
+
+Gắn lên action bằng attribute (key kiểm tra lúc compile nhờ `nameof`):
+
+```csharp
+[HttpPost]
+[SuccessMessage(nameof(Messages.Success_GenreCreated))]
+public async Task<IActionResult> Create(...) => ...
+```
+
+`ApiResponseFilter` đọc attribute và điền `ApiResponse.Message`. Message phụ thuộc kết quả thì trả trực tiếp
+`Ok(ApiResponse.SuccessResponse(data, Messages.Success_X))`. Endpoint không cần toast (bulk, upload, login...)
+thì không gắn gì — `message = null` và frontend sẽ bỏ qua.
 
 ## Thêm / sửa message
 

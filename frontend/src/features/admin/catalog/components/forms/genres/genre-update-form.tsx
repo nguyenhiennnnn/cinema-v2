@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -35,7 +34,6 @@ export const GenreUpdateForm = ({ genre, onSuccess }: GenreUpdateFormProps) => {
   const onSubmit = async (values: GenreFormValues) => {
     await updateGenre.mutateAsync({ id: genre.genreId, body: values }, {
       onSuccess: () => {
-        toast.add({ title: "Đã cập nhật thể loại.", type: "success" });
         onSuccess();
       }
     });
