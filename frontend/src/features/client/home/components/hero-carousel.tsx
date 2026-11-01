@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { CSSProperties, Ref } from "react";
 import { Link } from "react-router";
 import { ChevronLeft, ChevronRight, Info, Pause, Play, Star, Ticket } from "lucide-react";
@@ -19,17 +19,38 @@ import { MovieStatus } from "@/types/enum";
 import { buildClipFrames, measureInset, type Inset } from "../utils/hero-clip";
 
 const HERO_HEIGHT = "min-h-[min(calc(100svh-4rem),52rem)]";
-const EASING = "cubic-bezier(0.2, 0.8, 0.2, 1)";
+const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const THUMB_CUT = 6;
+
+const usePreloadPosters = (movies: MovieListItemDto[]) => {
+  const cache = useRef<HTMLImageElement[]>([]);
+  const key = movies.map((m) => m.posterUrl ?? "").join("|");
+
+  useEffect(() => {
+    cache.current = movies.flatMap((m) => {
+      if (!m.posterUrl) return [];
+      const img = new Image();
+      img.decoding = "async";
+      img.src = m.posterUrl;
+      img.decode?.().catch(() => { });
+      return [img];
+    });
+  }, [key]);
+};
 
 interface HeroBackdropProps {
   movie: MovieListItemDto;
   priority?: boolean;
+  animated?: boolean;
   ref?: Ref<HTMLDivElement>;
 }
 
-const HeroBackdrop = ({ movie, priority = false, ref }: HeroBackdropProps) => (
-  <div ref={ref} className="absolute inset-0" aria-hidden="true">
+const HeroBackdrop = ({ movie, priority = false, animated = false, ref }: HeroBackdropProps) => (
+  <div
+    ref={ref}
+    className={cn("absolute inset-0 transform-gpu", animated && "will-change-[clip-path,opacity]")}
+    aria-hidden="true"
+  >
     {movie.posterUrl && (
       <img
         src={movie.posterUrl}
@@ -81,6 +102,7 @@ const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlideProps)
       style={style}
       className={cn(
         "grid content-end gap-6 [grid-area:1/1] md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12",
+        (leaving || entering) && "will-change-[transform,opacity]",
         leaving && "hero-leave pointer-events-none",
       )}
     >
@@ -165,6 +187,8 @@ export const HeroCarousel = () => {
   const movies = data?.pages ?? [];
   const count = movies.length;
 
+  usePreloadPosters(movies);
+
   const {
     index,
     leaving,
@@ -210,7 +234,7 @@ export const HeroCarousel = () => {
     const backdrop = backdropRef.current;
     if (!hero || !backdrop) return;
 
-    const options = { duration: HERO_TRANSITION_MS, easing: EASING };
+    const options: KeyframeAnimationOptions = { duration: HERO_TRANSITION_MS, easing: EASING, fill: "both" };
     const animations: Animation[] = [];
 
     const { width, height } = hero.getBoundingClientRect();
@@ -222,18 +246,22 @@ export const HeroCarousel = () => {
     const strip = stripRef.current;
     const first = strip?.children[0];
     if (strip && first) {
+      strip.style.willChange = "transform";
       const second = strip.children[1];
       const slot = second
         ? second.getBoundingClientRect().left - first.getBoundingClientRect().left
         : first.getBoundingClientRect().width + 8;
       const dx = leaving.direction === "next" ? slot : -slot;
-      animations.push(strip.animate([{ transform: `translateX(${dx}px)` }, { transform: "translateX(0)" }], options));
+      animations.push(strip.animate([{ transform: `translate3d(${dx}px,0,0)` }, { transform: "translate3d(0,0,0)" }], options));
 
       const leftThumb = leavingMovieId === undefined ? undefined : thumbRefs.current.get(leavingMovieId);
-      if (leftThumb) animations.push(leftThumb.animate([{ opacity: 0 }, { opacity: 1 }], { ...options, fill: "backwards" }));
+      if (leftThumb) animations.push(leftThumb.animate([{ opacity: 0 }, { opacity: 1 }], options));
     }
 
-    return () => animations.forEach((a) => a.cancel());
+    return () => {
+      animations.forEach((a) => a.cancel());
+      if (strip) strip.style.willChange = "";
+    };
   }, [leaving, leavingMovieId, reducedMotion]);
 
   if (isLoading) {
@@ -276,7 +304,13 @@ export const HeroCarousel = () => {
       {...pauseHandlers}
     >
       {leavingMovie && <HeroBackdrop key={`bg-${leavingMovie.movieId}`} movie={leavingMovie} />}
-      <HeroBackdrop key={`bg-${current.movieId}`} ref={backdropRef} movie={current} priority={direction === null} />
+      <HeroBackdrop
+        key={`bg-${current.movieId}`}
+        ref={backdropRef}
+        movie={current}
+        priority={direction === null}
+        animated={!!leaving}
+      />
 
       <div className={cn("relative z-10 mx-auto flex max-w-7xl flex-col px-4 py-8 sm:px-6 lg:px-8 lg:py-12", HERO_HEIGHT)}>
         <div className="grid flex-1" aria-live={canAutoplay && !paused ? "off" : "polite"}>

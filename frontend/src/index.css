@@ -388,15 +388,18 @@
   }
 
   .hero-reveal {
-    animation: hero-reveal 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-    animation-delay: calc(160ms + var(--i, 0) * 70ms);
+    animation: hero-reveal 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(120ms + var(--i, 0) * 60ms);
+    backface-visibility: hidden;
   }
   .hero-leave {
-    animation: hero-leave 200ms ease-in both;
+    animation: hero-leave 280ms cubic-bezier(0.4, 0, 1, 1) both;
+    backface-visibility: hidden;
   }
   .hero-progress {
     transform-origin: 0 50%;
     animation: hero-progress var(--hero-interval, 7000ms) linear both;
+    will-change: transform;
   }
   .hero-progress[data-paused="true"] {
     animation-play-state: paused;
@@ -404,13 +407,21 @@
   @keyframes hero-reveal {
     from {
       opacity: 0;
-      transform: translateY(var(--hero-shift, 24px));
+      transform: translate3d(0, var(--hero-shift, 24px), 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
     }
   }
   @keyframes hero-leave {
+    from {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
     to {
       opacity: 0;
-      transform: translateY(var(--hero-exit, -24px));
+      transform: translate3d(0, var(--hero-exit, -24px), 0);
     }
   }
   @keyframes hero-progress {
