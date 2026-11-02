@@ -1,4 +1,4 @@
-﻿using Cinema.Shared.Constants;
+using Cinema.Shared.Constants;
 using Hangfire.Annotations;
 using Hangfire.Dashboard;
 
