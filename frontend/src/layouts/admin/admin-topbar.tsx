@@ -1,5 +1,4 @@
 import { ModeToggle } from "@/components/common/mode-toggle";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuthUser } from "@/stores/auth-store";
 import { Bell, Globe, PanelLeft } from "lucide-react";
@@ -37,21 +36,22 @@ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
         <Tooltip>
           <TooltipTrigger
             render={
-              <Button variant="ghost" size="icon">
-                <a href="/" target="_blank" rel="noreferrer">
-                  <Globe className="size-4" />
-                </a>
-              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                nativeButton={false}
+                aria-label="Xem trang khách hàng"
+                render={<a href="/" target="_blank" rel="noreferrer" />}
+              />
             }
-          />
+          >
+            <Globe className="size-4" />
+          </TooltipTrigger>
           <TooltipContent>Xem trang khách hàng</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger render={<Button variant="ghost" size="icon" className="relative" />}>
+          <TooltipTrigger render={<Button variant="ghost" size="icon" aria-label="Thông báo hệ thống" />}>
             <Bell className="size-4" />
-            <Badge className="absolute -top-1 -right-1 h-5 min-w-5 justify-center px-1 text-xs">
-              3
-            </Badge>
           </TooltipTrigger>
           <TooltipContent>Thông báo hệ thống</TooltipContent>
         </Tooltip>

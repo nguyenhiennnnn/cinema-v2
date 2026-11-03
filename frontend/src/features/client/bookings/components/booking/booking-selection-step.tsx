@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { SelectableSeatMap } from "@/components/common/seat-map/selectable-seat-map";
 import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
 import { useActiveCombos, useComboSuggestions } from "@/features/client/combos/hooks/use-combos";
+import { formatCurrency } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import { ShowtimeSeatStatus } from "@/types/enum";
 import type { ShowtimeSeatsResponseDto } from "@/features/client/showtimes/types";
 
 import { BookingCustomerForm } from "./booking-customer-form";
-import { BookingPriceSummary } from "./booking-price-summary";
+import { BookingPriceSummary, calcBookingEstimate } from "./booking-price-summary";
 import { SeatSuggestionPanel } from "./seat-suggestion-panel";
 
 interface BookingSelectionStepProps {
@@ -60,6 +62,7 @@ export const BookingSelectionStep = ({
   }
 
   const selectedSeats = data.seats.filter((s) => selectedIds.has(s.showtimeSeatId));
+  const { total } = calcBookingEstimate(selectedSeats, activeCombos.data, comboQuantities);
   const suggestions = comboSuggestions.data ?? [];
   const comboRank = new Map(suggestions.map((s, i) => [s.comboId, i]));
   const comboLabels = Object.fromEntries(suggestions.map((s) => [s.comboId, s.label]));
@@ -113,7 +116,7 @@ export const BookingSelectionStep = ({
 
       <div className="flex flex-col gap-4">
         <BookingPriceSummary seats={selectedSeats} combos={activeCombos.data} comboQuantities={comboQuantities} />
-        <Button disabled={!canHold || isHolding} onClick={onContinue}>
+        <Button className="max-lg:hidden" disabled={!canHold || isHolding} onClick={onContinue}>
           {isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục thanh toán"}
         </Button>
         {loneSeats.length > 0 && (
@@ -125,6 +128,20 @@ export const BookingSelectionStep = ({
         {selectedSeats.length === 0 && (
           <p className="text-center text-xs text-muted-foreground">Vui lòng chọn ít nhất 1 ghế.</p>
         )}
+      </div>
+
+      <div className="sticky bottom-0 z-30 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background py-3 pr-20 pl-4 lg:hidden">
+        <div className="min-w-0">
+          <p className={cn("truncate text-xs text-muted-foreground", loneSeats.length > 0 && "text-warning")}>
+            {loneSeats.length > 0
+              ? `Không để trống ghế lẻ ${loneSeats.join(", ")}`
+              : `${selectedSeats.length} ghế đã chọn`}
+          </p>
+          <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(total)}</p>
+        </div>
+        <Button disabled={!canHold || isHolding} onClick={onContinue}>
+          {isHolding ? "Đang giữ ghế..." : "Giữ ghế"}
+        </Button>
       </div>
     </div>
   );

@@ -1,0 +1,159 @@
+diff --git a/frontend/src/features/client/bookings/components/booking/booking-price-summary.tsx b/frontend/src/features/client/bookings/components/booking/booking-price-summary.tsx
+index 2acca24..b8bce6f 100644
+--- a/frontend/src/features/client/bookings/components/booking/booking-price-summary.tsx
++++ b/frontend/src/features/client/bookings/components/booking/booking-price-summary.tsx
+@@ -10,13 +10,23 @@ interface BookingPriceSummaryProps {
+   hold?: HoldBookingResponse | null;
+ }
+ 
+-export const BookingPriceSummary = ({ seats, combos, comboQuantities, hold }: BookingPriceSummaryProps) => {
++export const calcBookingEstimate = (
++  seats: PricedSeat[],
++  combos: ComboOption[] | undefined,
++  comboQuantities: Record<number, number>,
++) => {
+   const seatsTotal = seats.reduce((sum, s) => sum + s.price, 0);
+   const combosTotal = Object.entries(comboQuantities).reduce((sum, [comboId, qty]) => {
+     const combo = combos?.find((c) => c.comboId === Number(comboId));
+     return sum + (combo?.price ?? 0) * qty;
+   }, 0);
+-  const estimatedTotal = seatsTotal + combosTotal;
++  return { seatsTotal, combosTotal, total: seatsTotal + combosTotal };
++};
++
++export const BookingPriceSummary = ({ seats, combos, comboQuantities, hold }: BookingPriceSummaryProps) => {
++  const estimate = calcBookingEstimate(seats, combos, comboQuantities);
++  const { seatsTotal } = estimate;
++  const combosTotal = hold ? Math.max(hold.totalAmount - seatsTotal, 0) : estimate.combosTotal;
+ 
+   return (
+     <div className="flex flex-col gap-2 border border-border bg-card p-4">
+@@ -43,7 +53,7 @@ export const BookingPriceSummary = ({ seats, combos, comboQuantities, hold }: Bo
+       <div className="flex items-center justify-between">
+         <span className="font-medium text-foreground">Tổng cộng</span>
+         <span className="text-lg font-bold tabular-nums text-primary">
+-          {formatCurrency(hold?.finalAmount ?? estimatedTotal)}
++          {formatCurrency(hold?.finalAmount ?? estimate.total)}
+         </span>
+       </div>
+     </div>
+diff --git a/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx b/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
+index 60f4207..567122d 100644
+--- a/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
++++ b/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
+@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
+ import { SelectableSeatMap } from "@/components/common/seat-map/selectable-seat-map";
+ import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
+ import { useActiveCombos, useComboSuggestions } from "@/features/client/combos/hooks/use-combos";
++import { formatCurrency } from "@/lib/formatters";
++import { cn } from "@/lib/utils";
+ import { ShowtimeSeatStatus } from "@/types/enum";
+ import type { ShowtimeSeatsResponseDto } from "@/features/client/showtimes/types";
+ 
+ import { BookingCustomerForm } from "./booking-customer-form";
+-import { BookingPriceSummary } from "./booking-price-summary";
++import { BookingPriceSummary, calcBookingEstimate } from "./booking-price-summary";
+ import { SeatSuggestionPanel } from "./seat-suggestion-panel";
+ 
+ interface BookingSelectionStepProps {
+@@ -60,6 +62,7 @@ export const BookingSelectionStep = ({
+   }
+ 
+   const selectedSeats = data.seats.filter((s) => selectedIds.has(s.showtimeSeatId));
++  const { total } = calcBookingEstimate(selectedSeats, activeCombos.data, comboQuantities);
+   const suggestions = comboSuggestions.data ?? [];
+   const comboRank = new Map(suggestions.map((s, i) => [s.comboId, i]));
+   const comboLabels = Object.fromEntries(suggestions.map((s) => [s.comboId, s.label]));
+@@ -113,7 +116,7 @@ export const BookingSelectionStep = ({
+ 
+       <div className="flex flex-col gap-4">
+         <BookingPriceSummary seats={selectedSeats} combos={activeCombos.data} comboQuantities={comboQuantities} />
+-        <Button disabled={!canHold || isHolding} onClick={onContinue}>
++        <Button className="max-lg:hidden" disabled={!canHold || isHolding} onClick={onContinue}>
+           {isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục thanh toán"}
+         </Button>
+         {loneSeats.length > 0 && (
+@@ -126,6 +129,20 @@ export const BookingSelectionStep = ({
+           <p className="text-center text-xs text-muted-foreground">Vui lòng chọn ít nhất 1 ghế.</p>
+         )}
+       </div>
++
++      <div className="sticky bottom-0 z-30 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background py-3 pr-20 pl-4 lg:hidden">
++        <div className="min-w-0">
++          <p className={cn("truncate text-xs text-muted-foreground", loneSeats.length > 0 && "text-warning")}>
++            {loneSeats.length > 0
++              ? `Không để trống ghế lẻ ${loneSeats.join(", ")}`
++              : `${selectedSeats.length} ghế đã chọn`}
++          </p>
++          <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(total)}</p>
++        </div>
++        <Button disabled={!canHold || isHolding} onClick={onContinue}>
++          {isHolding ? "Đang giữ ghế..." : "Giữ ghế"}
++        </Button>
++      </div>
+     </div>
+   );
+ }
+diff --git a/frontend/src/features/client/bookings/pages/booking-page.tsx b/frontend/src/features/client/bookings/pages/booking-page.tsx
+index 58b3c5b..7dcf2f1 100644
+--- a/frontend/src/features/client/bookings/pages/booking-page.tsx
++++ b/frontend/src/features/client/bookings/pages/booking-page.tsx
+@@ -42,11 +42,11 @@ const BookingPage = () => {
+             {RESUME_INVALID_MESSAGE[flow.resumeInvalidReason]}
+           </p>
+           <div className="flex gap-2">
+-            <Button variant="outline">
+-              <Link to={ROUTES.account.tickets}>Xem vé của tôi</Link>
++            <Button variant="outline" nativeButton={false} render={<Link to={ROUTES.account.tickets} />}>
++              Xem vé của tôi
+             </Button>
+-            <Button>
+-              <Link to={`/booking/${showtimeId}`}>Đặt vé mới</Link>
++            <Button nativeButton={false} render={<Link to={`/booking/${showtimeId}`} />}>
++              Đặt vé mới
+             </Button>
+           </div>
+         </div>
+diff --git a/frontend/src/layouts/admin/admin-topbar.tsx b/frontend/src/layouts/admin/admin-topbar.tsx
+index 6d3110f..22e7f00 100644
+--- a/frontend/src/layouts/admin/admin-topbar.tsx
++++ b/frontend/src/layouts/admin/admin-topbar.tsx
+@@ -1,5 +1,4 @@
+ import { ModeToggle } from "@/components/common/mode-toggle";
+-import { Badge } from "@/components/ui/badge";
+ import { Button } from "@/components/ui/button";
+ import { useAuthUser } from "@/stores/auth-store";
+ import { Bell, Globe, PanelLeft } from "lucide-react";
+@@ -37,21 +36,22 @@ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
+         <Tooltip>
+           <TooltipTrigger
+             render={
+-              <Button variant="ghost" size="icon">
+-                <a href="/" target="_blank" rel="noreferrer">
+-                  <Globe className="size-4" />
+-                </a>
+-              </Button>
++              <Button
++                variant="ghost"
++                size="icon"
++                nativeButton={false}
++                aria-label="Xem trang khách hàng"
++                render={<a href="/" target="_blank" rel="noreferrer" />}
++              />
+             }
+-          />
++          >
++            <Globe className="size-4" />
++          </TooltipTrigger>
+           <TooltipContent>Xem trang khách hàng</TooltipContent>
+         </Tooltip>
+         <Tooltip>
+-          <TooltipTrigger render={<Button variant="ghost" size="icon" className="relative" />}>
++          <TooltipTrigger render={<Button variant="ghost" size="icon" aria-label="Thông báo hệ thống" />}>
+             <Bell className="size-4" />
+-            <Badge className="absolute -top-1 -right-1 h-5 min-w-5 justify-center px-1 text-xs">
+-              3
+-            </Badge>
+           </TooltipTrigger>
+           <TooltipContent>Thông báo hệ thống</TooltipContent>
+         </Tooltip>

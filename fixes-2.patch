@@ -1,0 +1,1169 @@
+diff --git a/backend/Cinema.Api/Controllers/Client/ShowtimesController.cs b/backend/Cinema.Api/Controllers/Client/ShowtimesController.cs
+index 908fb1d..a6fe402 100644
+--- a/backend/Cinema.Api/Controllers/Client/ShowtimesController.cs
++++ b/backend/Cinema.Api/Controllers/Client/ShowtimesController.cs
+@@ -12,6 +12,7 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
+     [HttpGet]
+     public async Task<IActionResult> GetSchedule(
+         [FromQuery] DateOnly? date,
++        [FromQuery] string? screenType,
+         CancellationToken cancellationToken
+     )
+     {
+@@ -23,6 +24,7 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
+ 
+         var result = await showtimeService.GetWholeCinemaScheduleAsync(
+             date.Value,
++            screenType,
+             cancellationToken
+         );
+         return Ok(result);
+diff --git a/backend/Cinema.Application/DTOs/Movies/MovieDtos.cs b/backend/Cinema.Application/DTOs/Movies/MovieDtos.cs
+index 274e03a..2c9516a 100644
+--- a/backend/Cinema.Application/DTOs/Movies/MovieDtos.cs
++++ b/backend/Cinema.Application/DTOs/Movies/MovieDtos.cs
+@@ -12,7 +12,8 @@ public record MovieListItemDto(
+     string Status,
+     decimal AverageRating,
+     AgeRatingCodeDto? AgeRating,
+-    List<string> Genres
++    List<string> Genres,
++    DateOnly? ReleaseDate
+ );
+ 
+ public record CastMemberDto(int ActorId, string FullName, string? AvatarUrl, string? CharacterName);
+diff --git a/backend/Cinema.Application/DTOs/Showtimes/ShowtimeDtos.cs b/backend/Cinema.Application/DTOs/Showtimes/ShowtimeDtos.cs
+index d8058ad..99b05a0 100644
+--- a/backend/Cinema.Application/DTOs/Showtimes/ShowtimeDtos.cs
++++ b/backend/Cinema.Application/DTOs/Showtimes/ShowtimeDtos.cs
+@@ -92,7 +92,11 @@ public record WholeCinemaMovieDto(
+     List<WholeCinemaShowtimeSlotDto> Showtimes
+ );
+ 
+-public record WholeCinemaScheduleDto(string Date, List<WholeCinemaMovieDto> Movies);
++public record WholeCinemaScheduleDto(
++    string Date,
++    List<WholeCinemaMovieDto> Movies,
++    List<string> Formats
++);
+ 
+ public record BulkDateRange(DateOnly From, DateOnly To);
+ 
+diff --git a/backend/Cinema.Application/Interfaces/IShowtimeService.cs b/backend/Cinema.Application/Interfaces/IShowtimeService.cs
+index cc8f1d5..c89f535 100644
+--- a/backend/Cinema.Application/Interfaces/IShowtimeService.cs
++++ b/backend/Cinema.Application/Interfaces/IShowtimeService.cs
+@@ -64,6 +64,7 @@ public interface IShowtimeService
+ 
+     Task<WholeCinemaScheduleDto> GetWholeCinemaScheduleAsync(
+         DateOnly date,
++        string? screenType,
+         CancellationToken cancellationToken
+     );
+ 
+diff --git a/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs b/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs
+index 7920bb3..6690783 100644
+--- a/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs
++++ b/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs
+@@ -980,21 +980,32 @@ public class ShowtimeService(
+ 
+     public async Task<WholeCinemaScheduleDto> GetWholeCinemaScheduleAsync(
+         DateOnly date,
++        string? screenType,
+         CancellationToken cancellationToken
+     )
+     {
+         var dayStart = VietnamTime.StartOfDayUtc(date);
+         var dayEnd = VietnamTime.StartOfNextDayUtc(date);
+ 
+-        var showtimes = await db
+-            .Showtimes.Include(s => s.Room)
++        var dayQuery = db.Showtimes.Where(s =>
++            s.Status == ShowtimeStatus.Scheduled && s.StartTime >= dayStart && s.StartTime < dayEnd
++        );
++
++        var formats = await dayQuery
++            .Select(s => s.Room.ScreenType != null ? s.Room.ScreenType.Name : "2D")
++            .Distinct()
++            .OrderBy(name => name)
++            .ToListAsync(cancellationToken);
++
++        if (!string.IsNullOrWhiteSpace(screenType))
++            dayQuery = dayQuery.Where(s =>
++                (s.Room.ScreenType != null ? s.Room.ScreenType.Name : "2D") == screenType
++            );
++
++        var showtimes = await dayQuery
++            .Include(s => s.Room)
+                 .ThenInclude(r => r.ScreenType)
+             .Include(s => s.Movie)
+-            .Where(s =>
+-                s.Status == ShowtimeStatus.Scheduled
+-                && s.StartTime >= dayStart
+-                && s.StartTime < dayEnd
+-            )
+             .OrderBy(s => s.Movie.Title)
+             .ThenBy(s => s.StartTime)
+             .ToListAsync(cancellationToken);
+@@ -1033,7 +1044,7 @@ public class ShowtimeService(
+             ))
+             .ToList();
+ 
+-        return new WholeCinemaScheduleDto(date.ToString("dd/MM/yyyy"), movies);
++        return new WholeCinemaScheduleDto(date.ToString("dd/MM/yyyy"), movies, formats);
+     }
+ 
+     public async Task<ShowtimeCalendarResponseDto> GetShowtimesCalendarAsync(
+diff --git a/frontend/src/api/query-keys.ts b/frontend/src/api/query-keys.ts
+index ceb9d18..d6c72ce 100644
+--- a/frontend/src/api/query-keys.ts
++++ b/frontend/src/api/query-keys.ts
+@@ -18,7 +18,8 @@ export const queryKeys = {
+   // ── Showtimes (client) ───────────────────────────────────────────────────────
+   showtimes: {
+     all: () => ["showtimes"] as const,
+-    schedule: (date: string) => ["showtimes", "schedule", date] as const,
++    schedule: (date: string, screenType?: string | null) =>
++      ["showtimes", "schedule", date, screenType ?? null] as const,
+     seats: (showtimeId: number) => ["showtimes", "seats", showtimeId] as const,
+     seatSuggestions: (showtimeId: number, count: number) =>
+       ["showtimes", "seat-suggestions", showtimeId, count] as const,
+diff --git a/frontend/src/components/common/date-strip.tsx b/frontend/src/components/common/date-strip.tsx
+index cacd0be..def0443 100644
+--- a/frontend/src/components/common/date-strip.tsx
++++ b/frontend/src/components/common/date-strip.tsx
+@@ -1,58 +1,102 @@
+-import { useMemo } from "react";
++import { useMemo, useRef } from "react";
+ import { addDays } from "date-fns";
++import { ChevronLeft, ChevronRight } from "lucide-react";
+ import { cn } from "@/lib/utils";
+ import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
+ import { toDateKey, formatWeekdayShort } from "@/lib/cinema-format";
++import { Button } from "@/components/ui/button";
+ 
+ interface DateStripProps {
+   value: string;
+   onChange: (date: string) => void;
+   daysCount?: number;
++  availableDates?: string[];
+   className?: string;
+ }
+ 
+-export const DateStrip = ({ value, onChange, daysCount = 14, className }: DateStripProps) => {
++const SCROLL_STEP = 4 * 64;
++
++export const DateStrip = ({ value, onChange, daysCount = 14, availableDates, className }: DateStripProps) => {
++  const scrollRef = useRef<HTMLDivElement>(null);
++
+   const days = useMemo(() => {
+     const today = getBusinessTodayDate();
+     return Array.from({ length: daysCount }, (_, i) => addDays(today, i));
+   }, [daysCount]);
+ 
++  const availableSet = useMemo(() => (availableDates ? new Set(availableDates) : null), [availableDates]);
+   const todayKey = getBusinessToday();
+ 
++  const scrollBy = (direction: -1 | 1) =>
++    scrollRef.current?.scrollBy({ left: direction * SCROLL_STEP, behavior: "smooth" });
++
+   return (
+-    <div className={cn("flex gap-2 overflow-x-auto pb-2 scrollbar-none", className)}>
+-      {days.map((date) => {
+-        const key = toDateKey(date);
+-        const active = key === value;
+-        const isToday = key === todayKey;
+-        const dayNum = date.getDate();
+-        const weekday = formatWeekdayShort(date).toLowerCase();
+-
+-        return (
+-          <button
+-            key={key}
+-            type="button"
+-            onClick={() => onChange(key)}
+-            className={cn(
+-              "flex w-14 shrink-0 flex-col items-center justify-center py-2.5 cut-sm transition-colors cursor-pointer outline-none select-none",
+-              active
+-                ? "bg-primary text-primary-foreground"
+-                : "bg-card text-foreground hover:bg-muted",
+-              !active && isToday && "border-b-2 border-primary",
+-            )}
+-          >
+-            <span className="t-numeral text-[28px] font-extrabold leading-none">{dayNum}</span>
+-            <span
++    <div className={cn("flex items-center gap-2", className)}>
++      <Button
++        variant="ghost"
++        size="icon-sm"
++        aria-label="Các ngày trước"
++        className="hidden md:inline-flex"
++        onClick={() => scrollBy(-1)}
++      >
++        <ChevronLeft className="size-4" />
++      </Button>
++      <div ref={scrollRef} className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-2 scrollbar-none">
++        {days.map((date, index) => {
++          const key = toDateKey(date);
++          const active = key === value;
++          const isToday = key === todayKey;
++          const unavailable = availableSet ? !availableSet.has(key) : false;
++          const dayNum = date.getDate();
++          const weekday = formatWeekdayShort(date).toLowerCase();
++          const showMonth = index === 0 || dayNum === 1;
++
++          return (
++            <button
++              key={key}
++              type="button"
++              disabled={unavailable}
++              onClick={() => onChange(key)}
+               className={cn(
+-                "mt-1 text-[13px] font-medium leading-tight",
+-                active ? "text-primary-foreground/90" : "text-muted-foreground",
++                "flex w-14 shrink-0 flex-col items-center justify-center py-2 cut-sm transition-colors cursor-pointer outline-none select-none",
++                active
++                  ? "bg-primary text-primary-foreground"
++                  : "bg-card text-foreground hover:bg-muted",
++                !active && isToday && "border-b-2 border-primary",
++                unavailable && "cursor-not-allowed opacity-40 hover:bg-card",
+               )}
+             >
+-              {weekday}
+-            </span>
+-          </button>
+-        );
+-      })}
++              <span
++                className={cn(
++                  "text-[11px] font-semibold uppercase leading-none",
++                  !showMonth && "invisible",
++                  active ? "text-primary-foreground/90" : "text-primary",
++                )}
++              >
++                Th{date.getMonth() + 1}
++              </span>
++              <span className="t-numeral mt-1 text-[28px] font-extrabold leading-none">{dayNum}</span>
++              <span
++                className={cn(
++                  "mt-1 text-[13px] font-medium leading-tight",
++                  active ? "text-primary-foreground/90" : "text-muted-foreground",
++                )}
++              >
++                {weekday}
++              </span>
++            </button>
++          );
++        })}
++      </div>
++      <Button
++        variant="ghost"
++        size="icon-sm"
++        aria-label="Các ngày sau"
++        className="hidden md:inline-flex"
++        onClick={() => scrollBy(1)}
++      >
++        <ChevronRight className="size-4" />
++      </Button>
+     </div>
+   );
+ };
+diff --git a/frontend/src/components/common/seat-map/seat-button.tsx b/frontend/src/components/common/seat-map/seat-button.tsx
+index 28022f6..89b4b01 100644
+--- a/frontend/src/components/common/seat-map/seat-button.tsx
++++ b/frontend/src/components/common/seat-map/seat-button.tsx
+@@ -33,7 +33,7 @@ export const SeatButton = ({
+ }: SeatButtonProps) => {
+   // Lối đi ngoài trình soạn thảo là khoảng trắng, không vẽ gì.
+   if (state === "aisle" && !editable) {
+-    return <div className={cn("h-9 w-full", className)} aria-hidden />;
++    return <div className={cn("h-[min(2.25rem,var(--fit,2.25rem))] w-full", className)} aria-hidden />;
+   }
+ 
+   const interactive = editable || state === "available" || state === "selected";
+diff --git a/frontend/src/components/common/seat-map/seat-grid.tsx b/frontend/src/components/common/seat-map/seat-grid.tsx
+index f42ff39..0809363 100644
+--- a/frontend/src/components/common/seat-map/seat-grid.tsx
++++ b/frontend/src/components/common/seat-map/seat-grid.tsx
+@@ -1,4 +1,4 @@
+-import type { ReactNode } from "react";
++import type { CSSProperties, ReactNode } from "react";
+ import { cn } from "@/lib/utils";
+ import { CinemaScreen } from "./seat-legend";
+ import type { SeatGridCell } from "./seat-map-types";
+@@ -12,6 +12,7 @@ interface SeatGridProps {
+   onRowLabelClick?: (rowLabel: string) => void;
+   rowLabelClassName?: (rowLabel: string) => string | undefined;
+   rowLabelTitle?: (rowLabel: string) => string | undefined;
++  fitWidth?: boolean;
+ }
+ 
+ const ROW_LABEL = "t-code w-6 shrink-0 text-center text-[13px] text-muted-foreground";
+@@ -25,10 +26,24 @@ export const SeatGrid = ({
+   onRowLabelClick,
+   rowLabelClassName,
+   rowLabelTitle,
++  fitWidth = false,
+ }: SeatGridProps) => {
+   return (
+-    <div className={cn("w-full overflow-x-auto pb-2", className)}>
+-      <div className="mx-auto flex w-max flex-col gap-1.5">
++    <div className={cn("w-full pb-2", fitWidth ? "@container" : "overflow-x-auto", className)}>
++      <div
++        className={cn(
++          "mx-auto flex w-max flex-col gap-1.5",
++          fitWidth &&
++            "[--fit-gap:0.25rem] @xl:[--fit-gap:0.375rem] [&_.seat]:[--seat-size:min(2.25rem,var(--fit))] [&_.seat]:text-[length:clamp(7px,calc(var(--fit)_*_0.45),13px)]",
++        )}
++        style={
++          fitWidth
++            ? ({
++                "--fit": `min(2.5rem, calc((100cqw - 4rem - ${cols - 1} * var(--fit-gap)) / ${cols}))`,
++              } as CSSProperties)
++            : undefined
++        }
++      >
+         {/* thanh màn hình rộng đúng bằng phần ghế (trừ hai cột chữ cái hàng) */}
+         <CinemaScreen className="mx-8 mb-8" />
+ 
+@@ -51,8 +66,12 @@ export const SeatGrid = ({
+               <span className={ROW_LABEL}>{rowLabel}</span>
+             )}
+             <div
+-              className="grid gap-1.5"
+-              style={{ gridTemplateColumns: `repeat(${cols}, minmax(2.25rem, 2.5rem))` }}
++              className={cn("grid", fitWidth ? "gap-[var(--fit-gap)]" : "gap-1.5")}
++              style={{
++                gridTemplateColumns: fitWidth
++                  ? `repeat(${cols}, var(--fit))`
++                  : `repeat(${cols}, minmax(2.25rem, 2.5rem))`,
++              }}
+             >
+               {Array.from({ length: cols }, (_, i) => i + 1).map((col) => {
+                 const cell = cellAt(rowLabel, col);
+diff --git a/frontend/src/components/common/seat-map/selectable-seat-map.tsx b/frontend/src/components/common/seat-map/selectable-seat-map.tsx
+index ed449e2..06f5c8b 100644
+--- a/frontend/src/components/common/seat-map/selectable-seat-map.tsx
++++ b/frontend/src/components/common/seat-map/selectable-seat-map.tsx
+@@ -20,6 +20,7 @@ interface SelectableSeatMapProps {
+   selectedIds: Set<number>;
+   onToggle: (seat: ShowtimeSeatItemDto) => void;
+   highlightedIds?: Set<number>;
++  fitWidth?: boolean;
+   className?: string;
+ }
+ 
+@@ -50,6 +51,7 @@ export const SelectableSeatMap = ({
+   selectedIds,
+   onToggle,
+   highlightedIds,
++  fitWidth,
+   className,
+ }: SelectableSeatMapProps) => {
+   const cells: SeatCellData[] = seats.map((seat) => ({
+@@ -84,6 +86,7 @@ export const SelectableSeatMap = ({
+         rowLabels={rowLabels}
+         cols={cols}
+         cellAt={cellAt}
++        fitWidth={fitWidth}
+         renderCell={(cell, _rowLabel, col) => {
+           if (!cell) return null;
+           if (cell.isAisle) {
+diff --git a/frontend/src/config/admin-nav.ts b/frontend/src/config/admin-nav.ts
+index 4fa9c88..3c717ce 100644
+--- a/frontend/src/config/admin-nav.ts
++++ b/frontend/src/config/admin-nav.ts
+@@ -150,3 +150,37 @@ export const filterNavGroupsByRole = (
+       items: group.items.filter((item) => !role || item.roles.includes(role as Role)),
+     }))
+     .filter((group) => group.items.length > 0);
++
++export interface AdminBreadcrumb {
++  label: string;
++  to: string;
++}
++
++const ADMIN_SEGMENT_LABELS: Record<string, string> = {
++  genres: "Thể loại phim",
++  languages: "Ngôn ngữ",
++  "age-ratings": "Phân loại độ tuổi",
++  "seat-types": "Loại ghế",
++  "screen-types": "Loại màn hình",
++  "membership-tiers": "Hạng thành viên",
++  positions: "Chức vụ",
++  actors: "Diễn viên",
++  directors: "Đạo diễn",
++  seats: "Sơ đồ ghế",
++};
++
++const ADMIN_NAV_LABELS = new Map(
++  ADMIN_NAV_GROUPS.flatMap((group) => group.items.map((item) => [item.to, item.label] as const)),
++);
++
++export const getAdminBreadcrumbs = (pathname: string): AdminBreadcrumb[] => {
++  const segments = pathname.split("/").filter(Boolean).slice(1);
++
++  return segments.flatMap((segment, index) => {
++    const to = `/admin/${segments.slice(0, index + 1).join("/")}`;
++    const isId = /^\d+$/.test(segment);
++    if (isId && index < segments.length - 1) return [];
++    const label = isId ? "Chi tiết" : (ADMIN_NAV_LABELS.get(to) ?? ADMIN_SEGMENT_LABELS[segment]);
++    return label ? [{ label, to }] : [];
++  });
++};
+diff --git a/frontend/src/features/admin/rooms/components/seat-editor-history-buttons.tsx b/frontend/src/features/admin/rooms/components/seat-editor-history-buttons.tsx
+index f2affaa..2229d6c 100644
+--- a/frontend/src/features/admin/rooms/components/seat-editor-history-buttons.tsx
++++ b/frontend/src/features/admin/rooms/components/seat-editor-history-buttons.tsx
+@@ -22,6 +22,7 @@ export const SeatEditorHistoryButtons = ({
+       variant="outline"
+       size="icon"
+       title="Hoàn tác"
++      aria-label="Hoàn tác"
+       disabled={disabled || !canUndo}
+       onClick={onUndo}
+     >
+@@ -32,6 +33,7 @@ export const SeatEditorHistoryButtons = ({
+       variant="outline"
+       size="icon"
+       title="Làm lại"
++      aria-label="Làm lại"
+       disabled={disabled || !canRedo}
+       onClick={onRedo}
+     >
+diff --git a/frontend/src/features/admin/settings/types/index.ts b/frontend/src/features/admin/settings/types/index.ts
+index 3f50dd7..fa9821a 100644
+--- a/frontend/src/features/admin/settings/types/index.ts
++++ b/frontend/src/features/admin/settings/types/index.ts
+@@ -15,6 +15,7 @@ export interface CinemaSettingsDto {
+   cancelRefundPercent: number;
+   cancelDeadlineHours: number;
+   stopSellingMinutesBefore: number;
++  holdDurationMinutes: number;
+   seatGapRuleMode: SeatGapRuleMode;
+ }
+ 
+diff --git a/frontend/src/features/auth/components/forgot-password-form.tsx b/frontend/src/features/auth/components/forgot-password-form.tsx
+index 4bc2650..a9c9ea7 100644
+--- a/frontend/src/features/auth/components/forgot-password-form.tsx
++++ b/frontend/src/features/auth/components/forgot-password-form.tsx
+@@ -36,8 +36,12 @@ export const ForgotPasswordForm = () => {
+           Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi tới hộp thư
+           của bạn.
+         </p>
+-        <Button variant="outline">
+-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
++        <Button
++          variant="outline"
++          render={<Link to={ROUTES.auth.login} />}
++          nativeButton={false}
++        >
++          Về trang đăng nhập
+         </Button>
+       </div>
+     );
+diff --git a/frontend/src/features/auth/components/register-form.tsx b/frontend/src/features/auth/components/register-form.tsx
+index 32afef5..5b8208c 100644
+--- a/frontend/src/features/auth/components/register-form.tsx
++++ b/frontend/src/features/auth/components/register-form.tsx
+@@ -85,8 +85,12 @@ export const RegisterForm = () => {
+           <span className="font-medium text-foreground">{submittedEmail}</span>{" "}
+           để xác thực tài khoản.
+         </p>
+-        <Button variant="outline">
+-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
++        <Button
++          variant="outline"
++          render={<Link to={ROUTES.auth.login} />}
++          nativeButton={false}
++        >
++          Về trang đăng nhập
+         </Button>
+       </div>
+     );
+diff --git a/frontend/src/features/auth/components/reset-password-form.tsx b/frontend/src/features/auth/components/reset-password-form.tsx
+index d2815b2..50a2438 100644
+--- a/frontend/src/features/auth/components/reset-password-form.tsx
++++ b/frontend/src/features/auth/components/reset-password-form.tsx
+@@ -47,8 +47,12 @@ export const ResetPasswordForm = () => {
+         <p className="text-sm text-muted-foreground">
+           Thiếu mã đặt lại mật khẩu trong đường dẫn.
+         </p>
+-        <Button variant="outline">
+-          <Link to="/auth/forgot-password">Yêu cầu liên kết mới</Link>
++        <Button
++          variant="outline"
++          render={<Link to="/auth/forgot-password" />}
++          nativeButton={false}
++        >
++          Yêu cầu liên kết mới
+         </Button>
+       </div>
+     );
+diff --git a/frontend/src/features/auth/pages/confirm-email-page.tsx b/frontend/src/features/auth/pages/confirm-email-page.tsx
+index 9b02de7..fd6412d 100644
+--- a/frontend/src/features/auth/pages/confirm-email-page.tsx
++++ b/frontend/src/features/auth/pages/confirm-email-page.tsx
+@@ -55,8 +55,12 @@ const ConfirmEmailPage = () => {
+         <p className="text-sm text-muted-foreground">
+           Thiếu mã xác thực trong đường dẫn.
+         </p>
+-        <Button variant="outline">
+-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
++        <Button
++          variant="outline"
++          render={<Link to={ROUTES.auth.login} />}
++          nativeButton={false}
++        >
++          Về trang đăng nhập
+         </Button>
+       </div>
+     );
+@@ -81,8 +85,11 @@ const ConfirmEmailPage = () => {
+         <p className="text-sm text-muted-foreground">
+           Bạn có thể đăng nhập ngay bây giờ.
+         </p>
+-        <Button>
+-          <Link to={ROUTES.auth.login}>Đăng nhập</Link>
++        <Button
++          render={<Link to={ROUTES.auth.login} />}
++          nativeButton={false}
++        >
++          Đăng nhập
+         </Button>
+       </div>
+     );
+@@ -134,8 +141,12 @@ const ConfirmEmailPage = () => {
+           </form>
+         )}
+ 
+-        <Button variant="ghost">
+-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
++        <Button
++          variant="ghost"
++          render={<Link to={ROUTES.auth.login} />}
++          nativeButton={false}
++        >
++          Về trang đăng nhập
+         </Button>
+       </div>
+     );
+diff --git a/frontend/src/features/client/bookings/components/booking/booking-customer-form.tsx b/frontend/src/features/client/bookings/components/booking/booking-customer-form.tsx
+index 6d5d899..42e5155 100644
+--- a/frontend/src/features/client/bookings/components/booking/booking-customer-form.tsx
++++ b/frontend/src/features/client/bookings/components/booking/booking-customer-form.tsx
+@@ -1,5 +1,6 @@
+ import { Input } from "@/components/ui/input";
+ import { Label } from "@/components/ui/label";
++import { isValidVnPhone } from "@/lib/validators";
+ 
+ interface BookingCustomerFormProps {
+   customerName: string;
+@@ -16,6 +17,8 @@ export const BookingCustomerForm = ({
+   onCustomerPhoneChange,
+   isAuthenticated,
+ }: BookingCustomerFormProps) => {
++  const phoneInvalid = customerPhone.trim() !== "" && !isValidVnPhone(customerPhone.trim());
++
+   return (
+     <div className="flex flex-col gap-3 border border-border bg-card p-4">
+       <h3 className="font-heading text-sm font-semibold text-foreground">Thông tin nhận vé</h3>
+@@ -39,8 +42,18 @@ export const BookingCustomerForm = ({
+           id="booking-customer-phone"
+           value={customerPhone}
+           onChange={(e) => onCustomerPhoneChange(e.target.value)}
++          type="tel"
++          inputMode="tel"
++          autoComplete="tel"
++          aria-invalid={phoneInvalid}
++          aria-describedby={phoneInvalid ? "booking-customer-phone-error" : undefined}
+           placeholder="09xxxxxxxx"
+         />
++        {phoneInvalid && (
++          <p id="booking-customer-phone-error" className="text-xs text-destructive">
++            Số điện thoại không hợp lệ.
++          </p>
++        )}
+       </div>
+     </div>
+   );
+diff --git a/frontend/src/features/client/bookings/components/booking/booking-hold-timer.tsx b/frontend/src/features/client/bookings/components/booking/booking-hold-timer.tsx
+index 6b9a05c..4d71b32 100644
+--- a/frontend/src/features/client/bookings/components/booking/booking-hold-timer.tsx
++++ b/frontend/src/features/client/bookings/components/booking/booking-hold-timer.tsx
+@@ -1,8 +1,9 @@
+ import { Clock } from "lucide-react";
++import { cn } from "@/lib/utils";
+ import { useCountdown } from "@/hooks/use-countdown";
+ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+ 
+-export const BookingHoldTimer = ({ expiresAt }: { expiresAt: string }) => {
++export const BookingHoldTimer = ({ expiresAt, className }: { expiresAt: string; className?: string }) => {
+   const { label, remainingMs } = useCountdown(expiresAt);
+   const isLow = remainingMs > 0 && remainingMs < 60_000;
+ 
+@@ -11,14 +12,18 @@ export const BookingHoldTimer = ({ expiresAt }: { expiresAt: string }) => {
+       <TooltipTrigger
+         render={
+           <div
+-            className={
+-              isLow
+-                ? "flex items-center gap-1.5 text-xs font-semibold text-destructive"
+-                : "flex items-center gap-1.5 text-xs font-medium text-warning"
+-            }
++            role="timer"
++            className={cn(
++              "flex items-center gap-1.5 text-xs",
++              isLow ? "font-semibold text-destructive" : "font-medium text-warning",
++              className,
++            )}
+           >
+             <Clock className="size-3.5" />
+             <span>Giữ ghế còn {label}</span>
++            <span className="sr-only" aria-live="polite">
++              {isLow ? "Giữ ghế còn dưới 60 giây." : ""}
++            </span>
+           </div>
+         }
+       />
+diff --git a/frontend/src/features/client/bookings/components/booking/booking-payment-step.tsx b/frontend/src/features/client/bookings/components/booking/booking-payment-step.tsx
+index 043bbf7..1a2e4d7 100644
+--- a/frontend/src/features/client/bookings/components/booking/booking-payment-step.tsx
++++ b/frontend/src/features/client/bookings/components/booking/booking-payment-step.tsx
+@@ -28,7 +28,10 @@ export const BookingPaymentStep = ({
+ }: BookingPaymentStepProps) => {
+   return (
+     <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
+-      <BookingHoldTimer expiresAt={hold.expiresAt} />
++      <BookingHoldTimer
++        expiresAt={hold.expiresAt}
++        className="sticky top-16 z-40 justify-center border border-border bg-background px-4 py-2.5"
++      />
+ 
+       <BookingPriceSummary seats={seats} combos={undefined} comboQuantities={{}} hold={hold} />
+ 
+diff --git a/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx b/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
+index 60f4207..94893d4 100644
+--- a/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
++++ b/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
+@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
+ import { SelectableSeatMap } from "@/components/common/seat-map/selectable-seat-map";
+ import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
+ import { useActiveCombos, useComboSuggestions } from "@/features/client/combos/hooks/use-combos";
++import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
+ import { ShowtimeSeatStatus } from "@/types/enum";
+ import type { ShowtimeSeatsResponseDto } from "@/features/client/showtimes/types";
+ 
+@@ -52,6 +53,7 @@ export const BookingSelectionStep = ({
+   onContinue,
+ }: BookingSelectionStepProps) => {
+   const activeCombos = useActiveCombos();
++  const holdDurationMinutes = useCinemaSettings().data?.holdDurationMinutes;
+   const comboSuggestions = useComboSuggestions(data?.showtimeId ?? 0, selectedIds.size);
+   const [highlightedIds, setHighlightedIds] = useState<Set<number>>(new Set());
+ 
+@@ -89,6 +91,7 @@ export const BookingSelectionStep = ({
+           selectedIds={selectedIds}
+           onToggle={(seat) => onToggleSeat(seat.showtimeSeatId)}
+           highlightedIds={highlightedIds}
++          fitWidth
+         />
+ 
+         <div className="border border-border bg-card p-4">
+@@ -116,6 +119,11 @@ export const BookingSelectionStep = ({
+         <Button disabled={!canHold || isHolding} onClick={onContinue}>
+           {isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục thanh toán"}
+         </Button>
++        {holdDurationMinutes != null && (
++          <p className="text-center text-xs text-muted-foreground">
++            Ghế được giữ trong {holdDurationMinutes} phút để bạn hoàn tất thanh toán.
++          </p>
++        )}
+         {loneSeats.length > 0 && (
+           <p className="flex items-start gap-2 border border-warning/40 bg-warning/10 p-3 text-xs text-foreground">
+             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+diff --git a/frontend/src/features/client/bookings/components/booking/booking-stepper.tsx b/frontend/src/features/client/bookings/components/booking/booking-stepper.tsx
+new file mode 100644
+index 0000000..3ab3d5f
+--- /dev/null
++++ b/frontend/src/features/client/bookings/components/booking/booking-stepper.tsx
+@@ -0,0 +1,50 @@
++import { Fragment } from "react";
++import { Check } from "lucide-react";
++import { cn } from "@/lib/utils";
++import type { BookingStep } from "../../hooks/use-booking-flow";
++
++const STEPS: { key: BookingStep | "ticket"; label: string }[] = [
++  { key: "select", label: "Chọn ghế" },
++  { key: "payment", label: "Thanh toán" },
++  { key: "ticket", label: "Vé" },
++];
++
++export const BookingStepper = ({ step }: { step: BookingStep }) => {
++  const currentIndex = STEPS.findIndex((s) => s.key === step);
++
++  return (
++    <ol className="flex items-center gap-2" aria-label="Các bước đặt vé">
++      {STEPS.map((item, index) => {
++        const isDone = index < currentIndex;
++        const isCurrent = index === currentIndex;
++
++        return (
++          <Fragment key={item.key}>
++            {index > 0 && <li aria-hidden className={cn("h-px flex-1", isDone ? "bg-primary" : "bg-border")} />}
++            <li
++              aria-current={isCurrent ? "step" : undefined}
++              className={cn(
++                "flex items-center gap-2 text-sm font-medium",
++                isCurrent ? "text-foreground" : isDone ? "text-primary" : "text-muted-foreground",
++              )}
++            >
++              <span
++                className={cn(
++                  "t-numeral flex size-7 shrink-0 items-center justify-center cut-sm text-sm",
++                  isCurrent
++                    ? "bg-primary text-primary-foreground"
++                    : isDone
++                      ? "bg-primary/15 text-primary"
++                      : "bg-secondary text-muted-foreground",
++                )}
++              >
++                {isDone ? <Check className="size-4" /> : index + 1}
++              </span>
++              <span className={cn(!isCurrent && "hidden sm:inline")}>{item.label}</span>
++            </li>
++          </Fragment>
++        );
++      })}
++    </ol>
++  );
++};
+diff --git a/frontend/src/features/client/bookings/hooks/use-booking-flow.ts b/frontend/src/features/client/bookings/hooks/use-booking-flow.ts
+index 924d1a9..498760a 100644
+--- a/frontend/src/features/client/bookings/hooks/use-booking-flow.ts
++++ b/frontend/src/features/client/bookings/hooks/use-booking-flow.ts
+@@ -11,6 +11,7 @@ import { findLoneSeats } from "@/components/common/seat-map/seat-map-utils";
+ import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
+ import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
+ import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";
++import { isValidVnPhone } from "@/lib/validators";
+ import { useAuthUser, useIsAuthenticated } from "@/stores/auth-store";
+ import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
+ import {
+@@ -197,7 +198,8 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
+   const canHold =
+     selectedSeatIds.size > 0 &&
+     loneSeats.length === 0 &&
+-    (!isAuthenticated || customerName.trim().length > 0);
++    (!isAuthenticated || customerName.trim().length > 0) &&
++    (customerPhone.trim() === "" || isValidVnPhone(customerPhone.trim()));
+ 
+   const holdAndContinue = async () => {
+     if (!isAuthenticated) {
+diff --git a/frontend/src/features/client/bookings/pages/booking-page.tsx b/frontend/src/features/client/bookings/pages/booking-page.tsx
+index 58b3c5b..23c727e 100644
+--- a/frontend/src/features/client/bookings/pages/booking-page.tsx
++++ b/frontend/src/features/client/bookings/pages/booking-page.tsx
+@@ -2,6 +2,7 @@
+ import { AlertTriangle } from "lucide-react";
+ 
+ import { useBookingFlow } from "../hooks/use-booking-flow";
++import { BookingStepper } from "../components/booking/booking-stepper";
+ import { BookingShowtimeHeader } from "../components/booking/booking-showtime-header";
+ import { BookingSelectionStep } from "../components/booking/booking-selection-step";
+ import { BookingPaymentStep } from "../components/booking/booking-payment-step";
+@@ -28,6 +29,8 @@ const BookingPage = () => {
+     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
+       <BookingShowtimeHeader data={flow.showtimeSeats.data} isLoading={flow.showtimeSeats.isLoading} />
+ 
++      <BookingStepper step={flow.step} />
++
+       {flow.isResumeLoading && (
+         <div className="mx-auto w-full max-w-lg space-y-3">
+           <Skeleton className="h-16 w-full " />
+diff --git a/frontend/src/features/client/movies/components/movie-card.tsx b/frontend/src/features/client/movies/components/movie-card.tsx
+index 867e3b7..c2f37b5 100644
+--- a/frontend/src/features/client/movies/components/movie-card.tsx
++++ b/frontend/src/features/client/movies/components/movie-card.tsx
+@@ -1,7 +1,10 @@
+ import { Link } from "react-router";
+-import { Star } from "lucide-react";
++import { CalendarDays, Star } from "lucide-react";
++import { Button } from "@/components/ui/button";
+ import { AgeRatingBadge } from "@/components/common/status-badge";
+ import { formatDuration } from "@/lib/cinema-format";
++import { formatDate } from "@/lib/formatters";
++import { MovieStatus } from "@/types/enum";
+ import { cn } from "@/lib/utils";
+ import type { MovieListItemDto } from "@/features/client/movies/types";
+ 
+@@ -14,11 +17,13 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
+   const href = `/movies/${movie.movieId}`;
+   const genreText = movie.genres.slice(0, 2).join(", ");
+   const durationText = formatDuration(movie.durationMinutes);
++  const isNowShowing = movie.status === MovieStatus.NowShowing;
++  const isComingSoon = movie.status === MovieStatus.ComingSoon;
+ 
+   return (
+     <div
+       className={cn(
+-        "group relative flex flex-col cut-md bg-card transition-colors duration-150",
++        "group relative flex flex-col cut-md bg-card transition-colors duration-150 hover:bg-muted",
+         className,
+       )}
+     >
+@@ -32,7 +37,7 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
+             src={movie.posterUrl}
+             alt={movie.title}
+             loading="lazy"
+-            className="h-full w-full object-cover"
++            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+           />
+         ) : (
+           <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+@@ -49,7 +54,7 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
+ 
+       <div className="flex flex-1 flex-col justify-between p-3.5">
+         <div>
+-          <h3 className="t-h3 text-sm text-foreground line-clamp-2 group-hover:underline">
++          <h3 className="t-h3 text-sm text-foreground line-clamp-2 group-hover:text-primary">
+             <Link to={href}>{movie.title}</Link>
+           </h3>
+           <p className="mt-1 line-clamp-1 text-[13px] text-muted-foreground">
+@@ -63,6 +68,24 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
+             <span className="t-numeral text-sm font-bold">{movie.averageRating.toFixed(1)}</span>
+           </div>
+         )}
++
++        {isNowShowing && (
++          <Button
++            size="sm"
++            className="mt-3 w-full"
++            render={<Link to={`${href}#showtimes`} />}
++            nativeButton={false}
++          >
++            Mua vé
++          </Button>
++        )}
++
++        {isComingSoon && movie.releaseDate && (
++          <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
++            <CalendarDays className="size-4 shrink-0" />
++            Khởi chiếu {formatDate(movie.releaseDate)}
++          </p>
++        )}
+       </div>
+     </div>
+   );
+diff --git a/frontend/src/features/client/movies/components/movie-showtime-selector.tsx b/frontend/src/features/client/movies/components/movie-showtime-selector.tsx
+index 6633e69..4598103 100644
+--- a/frontend/src/features/client/movies/components/movie-showtime-selector.tsx
++++ b/frontend/src/features/client/movies/components/movie-showtime-selector.tsx
+@@ -1,4 +1,5 @@
+-import { useMemo, useState } from "react";
++import { useEffect, useMemo, useState } from "react";
++import { useLocation } from "react-router";
+ import { CalendarX } from "lucide-react";
+ import { DateStrip } from "@/components/common/date-strip";
+ import { ShowtimeGroupList } from "@/components/common/showtime-group-list";
+@@ -19,6 +20,14 @@ export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps)
+   }, [showtimes]);
+ 
+ 
++  const { hash } = useLocation();
++
++  useEffect(() => {
++    if (hash === "#showtimes") {
++      document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" });
++    }
++  }, [hash]);
++
+   const [manualSelectedDate, setManualSelectedDate] = useState<string | null>(null);
+   const selectedDate = manualSelectedDate ?? dateKeys[0] ?? getBusinessToday();
+ 
+@@ -31,7 +40,12 @@ export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps)
+     <div id="showtimes" className="scroll-mt-24">
+       <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Lịch chiếu & Đặt vé</h2>
+ 
+-      <DateStrip value={selectedDate} onChange={setManualSelectedDate} className="mt-4" />
++      <DateStrip
++        value={selectedDate}
++        onChange={setManualSelectedDate}
++        availableDates={dateKeys}
++        className="mt-4"
++      />
+ 
+       <div className="mt-5">
+         {filtered.length === 0 ? (
+diff --git a/frontend/src/features/client/movies/types/index.ts b/frontend/src/features/client/movies/types/index.ts
+index db5bc78..5c4f11c 100644
+--- a/frontend/src/features/client/movies/types/index.ts
++++ b/frontend/src/features/client/movies/types/index.ts
+@@ -25,6 +25,7 @@ export interface MovieListItemDto {
+   averageRating: number;
+   ageRating?: AgeRatingCodeDto | null;
+   genres: string[];
++  releaseDate?: string | null;
+ }
+ 
+ // ── Movie detail ──────────────────────────────────────────────────────────────
+diff --git a/frontend/src/features/client/schedule/pages/schedule-page.tsx b/frontend/src/features/client/schedule/pages/schedule-page.tsx
+index 9dc3d8c..dce2311 100644
+--- a/frontend/src/features/client/schedule/pages/schedule-page.tsx
++++ b/frontend/src/features/client/schedule/pages/schedule-page.tsx
+@@ -1,5 +1,4 @@
+-﻿import { useMemo, useState } from "react";
+-import { CalendarX } from "lucide-react";
++﻿import { CalendarX } from "lucide-react";
+ import { DateStrip } from "@/components/common/date-strip";
+ import { EmptyState } from "@/components/common/empty-state";
+ import { ScheduleFilterBar } from "@/features/client/schedule/components/schedule-filter-bar";
+@@ -12,25 +11,11 @@ import { Seo } from "@/components/common/seo";
+ import { BRAND } from "@/config/brand";
+ 
+ const SchedulePage = () => {
+-  const [{ date }, setScheduleParams] = useScheduleParams();
++  const [{ date, format }, setScheduleParams] = useScheduleParams();
+   const selectedDate = date || getBusinessToday();
+-  const [activeFormat, setActiveFormat] = useState<string | null>(null);
+ 
+-  const { data, isLoading } = useSchedule(selectedDate);
+-
+-  const formats = useMemo(() => {
+-    const set = new Set<string>();
+-    data?.movies.forEach((m) => m.showtimes.forEach((s) => set.add(s.screenType ?? "2D")));
+-    return Array.from(set);
+-  }, [data]);
+-
+-  const movies = useMemo(() => {
+-    if (!data) return [];
+-    if (!activeFormat) return data.movies;
+-    return data.movies
+-      .map((m) => ({ ...m, showtimes: m.showtimes.filter((s) => (s.screenType ?? "2D") === activeFormat) }))
+-      .filter((m) => m.showtimes.length > 0);
+-  }, [data, activeFormat]);
++  const { data, isLoading } = useSchedule(selectedDate, format);
++  const movies = data?.movies ?? [];
+ 
+   return (
+     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+@@ -44,10 +29,14 @@ const SchedulePage = () => {
+         <p className="mt-1 text-sm text-muted-foreground">Tra cứu lịch chiếu toàn bộ phim tại rạp theo từng ngày.</p>
+       </div>
+ 
+-      <DateStrip value={selectedDate} onChange={(value) => setScheduleParams({ date: value })} />
++      <DateStrip value={selectedDate} onChange={(value) => setScheduleParams({ date: value, format: null })} />
+ 
+       <div className="mt-4">
+-        <ScheduleFilterBar formats={formats} activeFormat={activeFormat} onFormatChange={setActiveFormat} />
++        <ScheduleFilterBar
++          formats={data?.formats ?? []}
++          activeFormat={format}
++          onFormatChange={(value) => setScheduleParams({ format: value })}
++        />
+       </div>
+ 
+       <div className="mt-6 space-y-4">
+diff --git a/frontend/src/features/client/showtimes/api/showtimes-api.ts b/frontend/src/features/client/showtimes/api/showtimes-api.ts
+index dc22083..90f500a 100644
+--- a/frontend/src/features/client/showtimes/api/showtimes-api.ts
++++ b/frontend/src/features/client/showtimes/api/showtimes-api.ts
+@@ -10,8 +10,10 @@ const BASE = "/showtimes";
+ 
+ export const showtimesApi = {
+   // GET /showtimes?date=dd/MM/yyyy — date is required, pass as "dd/MM/yyyy"
+-  getSchedule: (date: string) =>
+-    apiGet<ApiResponse<WholeCinemaScheduleDto>>(BASE, { params: { date } }),
++  getSchedule: (date: string, screenType?: string | null) =>
++    apiGet<ApiResponse<WholeCinemaScheduleDto>>(BASE, {
++      params: { date, screenType: screenType || undefined },
++    }),
+ 
+   // GET /showtimes/{showtimeId}/seats
+   getSeats: (showtimeId: number) =>
+diff --git a/frontend/src/features/client/showtimes/hooks/use-showtimes.ts b/frontend/src/features/client/showtimes/hooks/use-showtimes.ts
+index ab3e756..fa0a9bf 100644
+--- a/frontend/src/features/client/showtimes/hooks/use-showtimes.ts
++++ b/frontend/src/features/client/showtimes/hooks/use-showtimes.ts
+@@ -1,12 +1,13 @@
+-import { useQuery } from "@tanstack/react-query";
++import { keepPreviousData, useQuery } from "@tanstack/react-query";
+ import { showtimesApi } from "../api/showtimes-api";
+ import { queryKeys } from "@/api/query-keys";
+ 
+-export function useSchedule(date: string) {
++export function useSchedule(date: string, screenType?: string | null) {
+   return useQuery({
+-    queryKey: queryKeys.showtimes.schedule(date),
+-    queryFn: () => showtimesApi.getSchedule(date),
++    queryKey: queryKeys.showtimes.schedule(date, screenType),
++    queryFn: () => showtimesApi.getSchedule(date, screenType),
+     enabled: !!date,
++    placeholderData: keepPreviousData,
+     select: (res) => res.data,
+   });
+ }
+diff --git a/frontend/src/features/client/showtimes/types/index.ts b/frontend/src/features/client/showtimes/types/index.ts
+index 698bd3c..b11a879 100644
+--- a/frontend/src/features/client/showtimes/types/index.ts
++++ b/frontend/src/features/client/showtimes/types/index.ts
+@@ -23,6 +23,7 @@ export interface WholeCinemaMovieDto {
+ export interface WholeCinemaScheduleDto {
+   date: string;
+   movies: WholeCinemaMovieDto[];
++  formats: string[];
+ }
+ 
+ // ── Client: Showtime seats ────────────────────────────────────────────────────
+diff --git a/frontend/src/hooks/use-query-params.ts b/frontend/src/hooks/use-query-params.ts
+index 1c85439..4850339 100644
+--- a/frontend/src/hooks/use-query-params.ts
++++ b/frontend/src/hooks/use-query-params.ts
+@@ -211,6 +211,7 @@ export const useClientBookingParams = (
+ 
+ const scheduleParsers = {
+   date: parseAsString.withDefault(""),
++  format: parseAsString,
+ };
+ 
+ export const useScheduleParams = (
+diff --git a/frontend/src/layouts/admin/admin-topbar.tsx b/frontend/src/layouts/admin/admin-topbar.tsx
+index 6d3110f..08f8878 100644
+--- a/frontend/src/layouts/admin/admin-topbar.tsx
++++ b/frontend/src/layouts/admin/admin-topbar.tsx
+@@ -2,7 +2,7 @@ import { ModeToggle } from "@/components/common/mode-toggle";
+ import { Badge } from "@/components/ui/badge";
+ import { Button } from "@/components/ui/button";
+ import { useAuthUser } from "@/stores/auth-store";
+-import { Bell, Globe, PanelLeft } from "lucide-react";
++import { Bell, ChevronRight, Globe, PanelLeft } from "lucide-react";
+ import {
+   DropdownMenu,
+   DropdownMenuContent,
+@@ -12,26 +12,54 @@ import {
+   DropdownMenuTrigger,
+ } from "@/components/ui/dropdown-menu";
+ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+-import { Link } from "react-router";
++import { Fragment } from "react";
++import { Link, useLocation } from "react-router";
+ import { useLogoutConfirm } from "@/hooks/use-logout-confirm";
+ import { ROUTES } from "@/config/routes";
++import { getAdminBreadcrumbs } from "@/config/admin-nav";
+ 
+ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
+   const user = useAuthUser();
+   const confirmLogout = useLogoutConfirm();
++  const { pathname } = useLocation();
++  const crumbs = getAdminBreadcrumbs(pathname);
+ 
+   return (
+     <header className="sticky top-0 z-30 flex h-16 w-full items-center gap-4 border-b border-border bg-background px-4">
+       <Tooltip>
+-        <TooltipTrigger render={<Button variant="ghost" size="icon" onClick={onToggle} />}>
++        <TooltipTrigger render={<Button variant="ghost" size="icon" aria-label="Thu gọn / mở rộng menu" onClick={onToggle} />}>
+           <PanelLeft className="size-5" />
+         </TooltipTrigger>
+         <TooltipContent>Thu gọn / mở rộng menu</TooltipContent>
+       </Tooltip>
+ 
+-      <span className="hidden text-xs text-muted-foreground md:block">
+-        Quản trị hệ thống
+-      </span>
++      <nav aria-label="Breadcrumb" className="hidden min-w-0 md:block">
++        <ol className="flex items-center gap-1.5 text-xs text-muted-foreground">
++          <li>
++            <Link to={ROUTES.admin.dashboard} className="hover:text-foreground">
++              Quản trị
++            </Link>
++          </li>
++          {crumbs.map((crumb, index) => (
++            <Fragment key={crumb.to}>
++              <li aria-hidden>
++                <ChevronRight className="size-4" />
++              </li>
++              <li className="truncate">
++                {index === crumbs.length - 1 ? (
++                  <span aria-current="page" className="font-medium text-foreground">
++                    {crumb.label}
++                  </span>
++                ) : (
++                  <Link to={crumb.to} className="hover:text-foreground">
++                    {crumb.label}
++                  </Link>
++                )}
++              </li>
++            </Fragment>
++          ))}
++        </ol>
++      </nav>
+ 
+       <div className="ml-auto flex items-center gap-1">
+         <Tooltip>
+diff --git a/frontend/src/layouts/client/header/client-header.tsx b/frontend/src/layouts/client/header/client-header.tsx
+index e92c544..e7bac41 100644
+--- a/frontend/src/layouts/client/header/client-header.tsx
++++ b/frontend/src/layouts/client/header/client-header.tsx
+@@ -34,7 +34,7 @@ export const ClientHeader = () => {
+ 
+           <ModeToggle />
+ 
+-          <Button variant="ghost" size="icon" className="md:hidden" onClick={handleOpenMobileMenu}>
++          <Button variant="ghost" size="icon" className="md:hidden" aria-label="Mở menu" onClick={handleOpenMobileMenu}>
+             <Menu className="size-5" />
+           </Button>
+         </div>
+diff --git a/frontend/src/layouts/client/header/header-auth-buttons.tsx b/frontend/src/layouts/client/header/header-auth-buttons.tsx
+index b7d1c83..91be8b1 100644
+--- a/frontend/src/layouts/client/header/header-auth-buttons.tsx
++++ b/frontend/src/layouts/client/header/header-auth-buttons.tsx
+@@ -4,11 +4,18 @@ import { ROUTES } from "@/config/routes";
+ 
+ export const HeaderAuthButtons = () => (
+   <div className="hidden items-center gap-2 sm:flex">
+-    <Button variant="ghost">
+-      <Link to={ROUTES.auth.login}>Đăng nhập</Link>
++    <Button
++      variant="ghost"
++      render={<Link to={ROUTES.auth.login} />}
++      nativeButton={false}
++    >
++      Đăng nhập
+     </Button>
+-    <Button>
+-      <Link to={ROUTES.auth.register}>Đăng ký</Link>
++    <Button
++      render={<Link to={ROUTES.auth.register} />}
++      nativeButton={false}
++    >
++      Đăng ký
+     </Button>
+   </div>
+ );
+\ No newline at end of file
+diff --git a/frontend/src/layouts/client/header/header-logo.tsx b/frontend/src/layouts/client/header/header-logo.tsx
+index e268a8a..ea019c9 100644
+--- a/frontend/src/layouts/client/header/header-logo.tsx
++++ b/frontend/src/layouts/client/header/header-logo.tsx
+@@ -1,8 +1,9 @@
+ import { Link } from "react-router";
++import { BRAND } from "@/config/brand";
+ import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
+ 
+ export const HeaderLogo = () => (
+-  <Link to="/" className="group flex items-center gap-2">
++  <Link to="/" aria-label={BRAND.name} className="group flex items-center gap-2">
+     <BrandMark className="size-8 shrink-0" />
+     <BrandWordmark className="hidden h-5 w-auto sm:block" />
+   </Link>
+diff --git a/frontend/src/lib/validators.ts b/frontend/src/lib/validators.ts
+index 66467c8..b60f18a 100644
+--- a/frontend/src/lib/validators.ts
++++ b/frontend/src/lib/validators.ts
+@@ -31,3 +31,7 @@ export const passwordSchema = z
+         "Mật khẩu chưa đủ mạnh. Vui lòng thêm số hoặc ký tự đặc biệt.",
+     },
+   );
++
++const VN_PHONE_REGEX = /^(0|\+84)\d{9,10}$/;
++
++export const isValidVnPhone = (value: string) => VN_PHONE_REGEX.test(value);

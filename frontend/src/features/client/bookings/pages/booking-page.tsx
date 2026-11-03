@@ -42,11 +42,11 @@ const BookingPage = () => {
             {RESUME_INVALID_MESSAGE[flow.resumeInvalidReason]}
           </p>
           <div className="flex gap-2">
-            <Button variant="outline">
-              <Link to={ROUTES.account.tickets}>Xem vé của tôi</Link>
+            <Button variant="outline" nativeButton={false} render={<Link to={ROUTES.account.tickets} />}>
+              Xem vé của tôi
             </Button>
-            <Button>
-              <Link to={`/booking/${showtimeId}`}>Đặt vé mới</Link>
+            <Button nativeButton={false} render={<Link to={`/booking/${showtimeId}`} />}>
+              Đặt vé mới
             </Button>
           </div>
         </div>
