@@ -52,7 +52,9 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         );
 
         result.Items.Count.ShouldBe(3);
-        result.Items.ShouldAllBe(i => i.EndTime <= existing.StartTime || i.StartTime >= existing.EndTime);
+        result
+            .Items.Where(i => i.RoomId == existing.RoomId)
+            .ShouldAllBe(i => i.EndTime <= existing.StartTime || i.StartTime >= existing.EndTime);
         result.Unplaced.ShouldBeEmpty();
     }
 

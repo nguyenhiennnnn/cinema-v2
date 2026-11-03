@@ -10,7 +10,7 @@ namespace Cinema.IntegrationTests.Tests;
 
 public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTestBase(factory)
 {
-    private HubConnection CreateHubConnection()
+    private HubConnection CreateHubConnection(string accessToken)
     {
         return new HubConnectionBuilder()
             .WithUrl(
@@ -18,6 +18,7 @@ public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTest
                 options =>
                 {
                     options.HttpMessageHandlerFactory = _ => Factory.Server.CreateHandler();
+                    options.AccessTokenProvider = () => Task.FromResult<string?>(accessToken);
                 }
             )
             .Build();
@@ -31,7 +32,10 @@ public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTest
         );
         var targetSeatId = seatIds[0];
 
-        await using var hubConnection = CreateHubConnection();
+        var (token, _) = await RegisterConfirmedCustomerAndLoginAsync();
+        using var client = CreateAuthenticatedClient(token);
+
+        await using var hubConnection = CreateHubConnection(token);
         var eventReceivedTcs = new TaskCompletionSource<JsonElement>(
             TaskCreationOptions.RunContinuationsAsynchronously
         );
@@ -46,9 +50,6 @@ public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTest
 
         await hubConnection.StartAsync();
         await hubConnection.InvokeAsync("JoinShowtime", showtimeId);
-
-        var (token, customerUserId) = await RegisterConfirmedCustomerAndLoginAsync();
-        using var client = CreateAuthenticatedClient(token);
 
         var holdResponse = await client.PostAsJsonAsync(
             "/api/v1/bookings/hold",
@@ -71,7 +72,8 @@ public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTest
 
         var payload = await eventReceivedTcs.Task;
         payload.GetProperty("showtimeId").GetInt32().ShouldBe(showtimeId);
-        payload.GetProperty("heldByUserId").GetInt32().ShouldBe(customerUserId);
+        payload.TryGetProperty("heldByUserId", out _).ShouldBeFalse();
+        payload.TryGetProperty("heldUntil", out _).ShouldBeTrue();
         payload
             .GetProperty("seatIds")
             .EnumerateArray()
@@ -107,7 +109,7 @@ public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTest
         var holdData = await ReadEnvelopeAsync(holdResponse);
         var bookingId = holdData.GetProperty("data").GetProperty("bookingId").GetInt32();
 
-        await using var hubConnection = CreateHubConnection();
+        await using var hubConnection = CreateHubConnection(token);
         var releaseReceivedTcs = new TaskCompletionSource<JsonElement>(
             TaskCreationOptions.RunContinuationsAsynchronously
         );
@@ -151,7 +153,10 @@ public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTest
         );
         var targetSeatId = seatIds[0];
 
-        await using var hubConnection = CreateHubConnection();
+        var (token, _) = await RegisterConfirmedCustomerAndLoginAsync();
+        using var client = CreateAuthenticatedClient(token);
+
+        await using var hubConnection = CreateHubConnection(token);
         var eventReceived = false;
 
         hubConnection.On<JsonElement>(
@@ -165,9 +170,6 @@ public class SignalRShowtimeHubTests(CinemaApiFactory factory) : IntegrationTest
         await hubConnection.StartAsync();
         await hubConnection.InvokeAsync("JoinShowtime", showtimeId);
         await hubConnection.InvokeAsync("LeaveShowtime", showtimeId);
-
-        var (token, _) = await RegisterConfirmedCustomerAndLoginAsync();
-        using var client = CreateAuthenticatedClient(token);
 
         var holdResponse = await client.PostAsJsonAsync(
             "/api/v1/bookings/hold",

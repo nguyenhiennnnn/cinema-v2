@@ -144,7 +144,7 @@ public class BookingServiceHoldSeatsTests : BookingServiceTestBase
     {
         var customer = TestDataSeeder.AddCustomer(Db);
         var room = TestDataSeeder.AddRoom(Db);
-        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
+        var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 4);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
         var seatIds = await Db
@@ -578,6 +578,8 @@ public class BookingServiceConfirmAndCancelTests : BookingServiceTestBase
     public async Task ProcessPaymentFailureAsync_PendingBooking_ReleasesSeatsAndCancelsBooking()
     {
         var (booking, _, _) = await SeedHeldBookingAsync();
+        booking.ExpiresAt = DateTime.UtcNow.AddMinutes(-1);
+        await Db.SaveChangesAsync();
         var sut = CreateSut();
 
         await sut.ProcessPaymentFailureAsync(booking.BookingId, CancellationToken.None);
@@ -586,6 +588,20 @@ public class BookingServiceConfirmAndCancelTests : BookingServiceTestBase
         reloaded.Status.ShouldBe(BookingStatus.Cancelled);
         var seat = await Db.ShowtimeSeats.SingleAsync(ss => ss.ShowtimeId == booking.ShowtimeId);
         seat.Status.ShouldBe(ShowtimeSeatStatus.Available);
+    }
+
+    [Fact]
+    public async Task ProcessPaymentFailureAsync_HoldNotExpired_KeepsBookingPendingForRetry()
+    {
+        var (booking, _, _) = await SeedHeldBookingAsync();
+        var sut = CreateSut();
+
+        await sut.ProcessPaymentFailureAsync(booking.BookingId, CancellationToken.None);
+
+        var reloaded = await Db.Bookings.SingleAsync(b => b.BookingId == booking.BookingId);
+        reloaded.Status.ShouldBe(BookingStatus.Pending);
+        var seat = await Db.ShowtimeSeats.SingleAsync(ss => ss.ShowtimeId == booking.ShowtimeId);
+        seat.Status.ShouldBe(ShowtimeSeatStatus.Held);
     }
 
     [Fact]

@@ -186,7 +186,7 @@ public class AuthEndpointsTests(CinemaApiFactory factory) : IntegrationTestBase(
             {
                 movieId = movie.MovieId,
                 roomId = room.RoomId,
-                startTime = DateTime.UtcNow.Date.AddDays(12).AddHours(14),
+                startTime = DateTime.UtcNow.Date.AddDays(12).AddHours(3),
                 basePrice = 90_000m,
             }
         );

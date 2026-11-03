@@ -117,9 +117,10 @@ public class BookingFlowEndpointsTests(CinemaApiFactory factory) : IntegrationTe
 
         secondHold.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         var body = await ReadEnvelopeAsync(secondHold);
-        body.GetProperty("conflictSeatIds")
+        body.GetProperty("errors")
+            .GetProperty("conflictSeatIds")
             .EnumerateArray()
-            .Select(e => e.GetInt32())
+            .Select(e => int.Parse(e.GetString()!))
             .ShouldContain(contestedSeatId);
     }
 
@@ -289,9 +290,10 @@ public class BookingFlowEndpointsTests(CinemaApiFactory factory) : IntegrationTe
             foreach (var conflictResponse in conflictResponses)
             {
                 var body = await ReadEnvelopeAsync(conflictResponse);
-                body.GetProperty("conflictSeatIds")
+                body.GetProperty("errors")
+                    .GetProperty("conflictSeatIds")
                     .EnumerateArray()
-                    .Select(e => e.GetInt32())
+                    .Select(e => int.Parse(e.GetString()!))
                     .ShouldContain(targetSeatId);
             }
         }

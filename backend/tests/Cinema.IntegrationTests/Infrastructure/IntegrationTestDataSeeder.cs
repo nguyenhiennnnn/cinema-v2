@@ -131,7 +131,9 @@ public static class IntegrationTestDataSeeder
         var room = db.CinemaRooms.First(r => r.IsActive);
         var seats = db
             .Seats.Where(s => s.RoomId == room.RoomId && s.IsActive && !s.IsAisle)
-            .Take(3)
+            .OrderBy(s => s.SeatRow)
+            .ThenBy(s => s.SeatNumber)
+            .Take(4)
             .ToList();
         var movie = db.Movies.First(m => m.Status == MovieStatus.NowShowing);
 
@@ -165,6 +167,7 @@ public static class IntegrationTestDataSeeder
 
         var seatIds = db
             .ShowtimeSeats.Where(ss => ss.ShowtimeId == showtime.ShowtimeId)
+            .OrderBy(ss => ss.ShowtimeSeatId)
             .Select(ss => ss.ShowtimeSeatId)
             .ToList();
         return (showtime.ShowtimeId, seatIds, basePrice);

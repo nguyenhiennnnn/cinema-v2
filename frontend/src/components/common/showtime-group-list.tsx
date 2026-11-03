@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { cn } from "@/lib/utils";
 import { formatShowtimeRange } from "@/lib/cinema-format";
 import { formatCurrency } from "@/lib/formatters";
-import { useIsAuthenticated } from "@/stores/auth-store";
+import { useAuthStore, useIsAuthenticated } from "@/stores/auth-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
 export interface ShowtimeSlotItem {
@@ -25,6 +25,7 @@ interface ShowtimeGroupListProps {
 export const ShowtimeGroupList = ({ showtimes, className }: ShowtimeGroupListProps) => {
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
+  const isInitialized = useAuthStore((s) => s.isInitialized);
   const openAlertDialog = useAlertDialogOpen();
 
   const handleBooking = useCallback(
@@ -73,7 +74,7 @@ export const ShowtimeGroupList = ({ showtimes, className }: ShowtimeGroupListPro
                   key={item.showtimeId}
                   type="button"
                   data-slot="showtime-slot"
-                  disabled={soldOut}
+                  disabled={soldOut || !isInitialized}
                   onClick={() => handleBooking(item.showtimeId)}
                   className={cn(
                     "flex flex-col gap-0.5 cut-sm bg-card px-3.5 py-2 text-left transition-colors cursor-pointer hover:bg-muted outline-none",

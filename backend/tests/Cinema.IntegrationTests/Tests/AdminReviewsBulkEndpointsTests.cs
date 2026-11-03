@@ -62,7 +62,7 @@ public class AdminReviewsBulkEndpointsTests(CinemaApiFactory factory)
         {
             MovieId = movie.MovieId,
             UserId = customer.UserId,
-            Rating = 8,
+            Rating = 4,
             Comment = "Great movie",
             CreatedAt = DateTime.UtcNow,
         };
