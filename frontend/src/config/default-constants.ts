@@ -1,6 +1,5 @@
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_PAGE_SIZE = 10;
-export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
 export const SEARCH_DEBOUNCE_MS = 300;
 
@@ -23,7 +22,6 @@ export const ACCEPTED_VIDEO_ACCEPT = ACCEPTED_VIDEO_TYPES.join(",");
 export const LOOKUP_PAGE_SIZE = 100;
 export const SEARCH_LOOKUP_PAGE_SIZE = 20;
 export const DEFAULT_MOVIES_PAGE_LIMIT = 12;
-export const DEFAULT_BOOKINGS_PAGE_LIMIT = 10;
 export const TOP_MOVIES_REPORT_LIMIT = 10;
 
 export const API_TIMEOUT_MS = 20_000;

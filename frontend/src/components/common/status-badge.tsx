@@ -5,7 +5,6 @@ import type {
   ShowtimeStatus,
   BookingStatus,
   PaymentStatus,
-  ShowtimeSeatStatus,
   BookingChannel,
   PaymentMethod,
 } from "@/types/enum";
@@ -21,7 +20,6 @@ import {
   paymentStatusMap,
   roleMap,
   seatTypeConfigMap,
-  showtimeSeatStatusMap,
   showtimeStatusMap,
   type ActiveStatusType,
   type BadgeItem,
@@ -111,8 +109,6 @@ export const ActiveStatusBadge = ({
   );
 };
 
-export const IsActiveBadge = (props: ActiveStatusBadgeProps) => <ActiveStatusBadge {...props} />;
-
 type ActiveBadgeProps = { isActive?: boolean; className?: string };
 
 const createActiveBadge = (type: ActiveStatusType) => {
@@ -141,13 +137,6 @@ export const BookingStatusBadge = ({ status, className }: StatusBadgeProps<Booki
 
 export const PaymentStatusBadge = ({ status, className }: StatusBadgeProps<PaymentStatus>) => (
   <MappedBadge value={status} map={paymentStatusMap} className={className} />
-);
-
-export const ShowtimeSeatStatusBadge = ({
-  status,
-  className,
-}: StatusBadgeProps<ShowtimeSeatStatus>) => (
-  <MappedBadge value={status} map={showtimeSeatStatusMap} className={className} />
 );
 
 export const BookingChannelBadge = ({

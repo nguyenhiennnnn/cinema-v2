@@ -62,11 +62,6 @@ export const formatTime = (date?: string | Date | null, fallback = "—") =>
 export const formatDateTime = (date?: string | Date | null, fallback = "—") =>
   formatWithPattern(date, "dd/MM/yyyy HH:mm", fallback);
 
-export const formatDateTimeFull = (
-  date?: string | Date | null,
-  fallback = "—",
-) => formatWithPattern(date, "dd/MM/yyyy HH:mm:ss", fallback);
-
 export function toDateInputValue(date?: string | Date | null): string | null {
   const d = toWallDate(date);
   return d ? format(d, "yyyy-MM-dd") : null;

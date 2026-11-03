@@ -29,24 +29,3 @@ export const AdminIndexRedirect = () => {
     <Navigate to={getAdminHomePath(role)} replace />
   );
 };
-
-
-export const AdminOnlyRoute = () => {
-  const { isInitialized, isAuthenticated, user } = useAuthStore();
-
-  if (!isInitialized) return <AuthLoadingGuard />;
-
-  if (!isAuthenticated) {
-    return <Navigate to={ROUTES.admin.login} replace />;
-  }
-
-  if (user?.role === Role.Employee) {
-    return <Navigate to={ROUTES.admin.bookingCounter} replace />;
-  }
-
-  if (user?.role !== Role.Admin) {
-    return <Navigate to={ROUTES.home} replace />;
-  }
-
-  return <Outlet />;
-};

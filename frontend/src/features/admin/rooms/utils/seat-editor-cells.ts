@@ -11,7 +11,7 @@ import type {
   SeatEditorBrush,
 } from "../types/seat-editor";
 
-export function newCoupleId(seed: string): string {
+function newCoupleId(seed: string): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `couple-${seed}-${Date.now()}-${Math.random().toString(16).slice(2)}`;

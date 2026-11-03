@@ -1,0 +1,908 @@
+diff --git a/frontend/src/api/axios.ts b/frontend/src/api/axios.ts
+index 3760527..96467c1 100644
+--- a/frontend/src/api/axios.ts
++++ b/frontend/src/api/axios.ts
+@@ -185,15 +185,6 @@ export async function apiPut<T>(
+   return data;
+ }
+ 
+-export async function apiPatch<T>(
+-  url: string,
+-  body?: unknown,
+-  config?: AxiosRequestConfig,
+-) {
+-  const { data } = await apiClient.patch<T>(url, body, config);
+-  return data;
+-}
+-
+ export async function apiDelete<T>(url: string, config?: AxiosRequestConfig) {
+   const { data } = await apiClient.delete<T>(url, config);
+   return data;
+diff --git a/frontend/src/app/routes/protected-route/admin-protected-route.tsx b/frontend/src/app/routes/protected-route/admin-protected-route.tsx
+index b090bce..ed89974 100644
+--- a/frontend/src/app/routes/protected-route/admin-protected-route.tsx
++++ b/frontend/src/app/routes/protected-route/admin-protected-route.tsx
+@@ -29,24 +29,3 @@ export const AdminIndexRedirect = () => {
+     <Navigate to={getAdminHomePath(role)} replace />
+   );
+ };
+-
+-
+-export const AdminOnlyRoute = () => {
+-  const { isInitialized, isAuthenticated, user } = useAuthStore();
+-
+-  if (!isInitialized) return <AuthLoadingGuard />;
+-
+-  if (!isAuthenticated) {
+-    return <Navigate to={ROUTES.admin.login} replace />;
+-  }
+-
+-  if (user?.role === Role.Employee) {
+-    return <Navigate to={ROUTES.admin.bookingCounter} replace />;
+-  }
+-
+-  if (user?.role !== Role.Admin) {
+-    return <Navigate to={ROUTES.home} replace />;
+-  }
+-
+-  return <Outlet />;
+-};
+\ No newline at end of file
+diff --git a/frontend/src/components/common/status-badge.config.ts b/frontend/src/components/common/status-badge.config.ts
+index e1c79fa..df5935e 100644
+--- a/frontend/src/components/common/status-badge.config.ts
++++ b/frontend/src/components/common/status-badge.config.ts
+@@ -3,7 +3,6 @@ import {
+   ShowtimeStatus,
+   BookingStatus,
+   PaymentStatus,
+-  ShowtimeSeatStatus,
+   BookingChannel,
+   PaymentMethod,
+   Role,
+@@ -101,12 +100,6 @@ export const paymentStatusMap: Record<PaymentStatus, BadgeItem> = {
+   [PaymentStatus.Refunded]: { label: "Đã hoàn tiền", variant: "outline", icon: XCircle },
+ };
+ 
+-export const showtimeSeatStatusMap: Record<ShowtimeSeatStatus, BadgeItem> = {
+-  [ShowtimeSeatStatus.Available]: { label: "Còn trống", variant: "success" },
+-  [ShowtimeSeatStatus.Held]: { label: "Đang giữ", variant: "warning" },
+-  [ShowtimeSeatStatus.Booked]: { label: "Đã đặt", variant: "destructive" },
+-};
+-
+ export const bookingChannelMap: Record<BookingChannel, BadgeItem> = {
+   [BookingChannel.Online]: { label: "Online", variant: "outline", className: "font-medium" },
+   [BookingChannel.Counter]: { label: "Tại quầy", variant: "secondary", className: "font-medium" },
+diff --git a/frontend/src/components/common/status-badge.tsx b/frontend/src/components/common/status-badge.tsx
+index 614ac54..84d4383 100644
+--- a/frontend/src/components/common/status-badge.tsx
++++ b/frontend/src/components/common/status-badge.tsx
+@@ -5,7 +5,6 @@ import type {
+   ShowtimeStatus,
+   BookingStatus,
+   PaymentStatus,
+-  ShowtimeSeatStatus,
+   BookingChannel,
+   PaymentMethod,
+ } from "@/types/enum";
+@@ -21,7 +20,6 @@ import {
+   paymentStatusMap,
+   roleMap,
+   seatTypeConfigMap,
+-  showtimeSeatStatusMap,
+   showtimeStatusMap,
+   type ActiveStatusType,
+   type BadgeItem,
+@@ -111,8 +109,6 @@ export const ActiveStatusBadge = ({
+   );
+ };
+ 
+-export const IsActiveBadge = (props: ActiveStatusBadgeProps) => <ActiveStatusBadge {...props} />;
+-
+ type ActiveBadgeProps = { isActive?: boolean; className?: string };
+ 
+ const createActiveBadge = (type: ActiveStatusType) => {
+@@ -143,13 +139,6 @@ export const PaymentStatusBadge = ({ status, className }: StatusBadgeProps<Payme
+   <MappedBadge value={status} map={paymentStatusMap} className={className} />
+ );
+ 
+-export const ShowtimeSeatStatusBadge = ({
+-  status,
+-  className,
+-}: StatusBadgeProps<ShowtimeSeatStatus>) => (
+-  <MappedBadge value={status} map={showtimeSeatStatusMap} className={className} />
+-);
+-
+ export const BookingChannelBadge = ({
+   channel,
+   className,
+diff --git a/frontend/src/config/default-constants.ts b/frontend/src/config/default-constants.ts
+index 01afc35..b160cdf 100644
+--- a/frontend/src/config/default-constants.ts
++++ b/frontend/src/config/default-constants.ts
+@@ -1,6 +1,5 @@
+ export const DEFAULT_PAGE = 1;
+ export const DEFAULT_PAGE_SIZE = 10;
+-export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+ 
+ export const SEARCH_DEBOUNCE_MS = 300;
+ 
+@@ -23,7 +22,6 @@ export const ACCEPTED_VIDEO_ACCEPT = ACCEPTED_VIDEO_TYPES.join(",");
+ export const LOOKUP_PAGE_SIZE = 100;
+ export const SEARCH_LOOKUP_PAGE_SIZE = 20;
+ export const DEFAULT_MOVIES_PAGE_LIMIT = 12;
+-export const DEFAULT_BOOKINGS_PAGE_LIMIT = 10;
+ export const TOP_MOVIES_REPORT_LIMIT = 10;
+ 
+ export const API_TIMEOUT_MS = 20_000;
+diff --git a/frontend/src/features/admin/login/api/admin-auth-api.ts b/frontend/src/features/admin/login/api/admin-auth-api.ts
+deleted file mode 100644
+index b190473..0000000
+--- a/frontend/src/features/admin/login/api/admin-auth-api.ts
++++ /dev/null
+@@ -1 +0,0 @@
+-﻿export { authApi as adminAuthApi } from "@/features/auth/api/auth-api";
+diff --git a/frontend/src/features/admin/login/hooks/use-admin-auth.ts b/frontend/src/features/admin/login/hooks/use-admin-auth.ts
+deleted file mode 100644
+index 7b6483f..0000000
+--- a/frontend/src/features/admin/login/hooks/use-admin-auth.ts
++++ /dev/null
+@@ -1 +0,0 @@
+-﻿export { useAdminLogin } from "@/features/auth/hooks/use-auth";
+diff --git a/frontend/src/features/admin/login/types/index.ts b/frontend/src/features/admin/login/types/index.ts
+deleted file mode 100644
+index e5c4409..0000000
+--- a/frontend/src/features/admin/login/types/index.ts
++++ /dev/null
+@@ -1,6 +0,0 @@
+-﻿// Re-exported from shared auth types
+-export type {
+-  LoginRequest as AdminLoginRequest,
+-  LoginResponse as AdminLoginResponse,
+-  LoginUserDto as AdminLoginUserDto,
+-} from "@/features/auth/types";
+diff --git a/frontend/src/features/admin/rooms/components/seat-editor-auto-generate-dialog.tsx b/frontend/src/features/admin/rooms/components/seat-editor-auto-generate-dialog.tsx
+deleted file mode 100644
+index d839918..0000000
+--- a/frontend/src/features/admin/rooms/components/seat-editor-auto-generate-dialog.tsx
++++ /dev/null
+@@ -1,198 +0,0 @@
+-import { useState } from "react";
+-import { Wand2 } from "lucide-react";
+-import {
+-  Dialog,
+-  DialogContent,
+-  DialogDescription,
+-  DialogFooter,
+-  DialogHeader,
+-  DialogTitle,
+-  DialogTrigger,
+-} from "@/components/ui/dialog";
+-import { Button } from "@/components/ui/button";
+-import { Input } from "@/components/ui/input";
+-import { Label } from "@/components/ui/label";
+-import { resolveSeatVisualKind } from "@/components/common/seat-map/seat-map-types";
+-import type { SeatTypeDto } from "@/features/admin/catalog/types";
+-import type { AutoGenerateOptions } from "../types/seat-editor";
+-
+-interface SeatEditorAutoGenerateDialogProps {
+-  rows: number;
+-  cols: number;
+-  seatTypes: SeatTypeDto[] | undefined;
+-  defaultSeatTypeId: number | null;
+-  onGenerate: (options: AutoGenerateOptions) => void;
+-}
+-
+-export const SeatEditorAutoGenerateDialog = ({
+-  rows,
+-  cols,
+-  seatTypes,
+-  defaultSeatTypeId,
+-  onGenerate,
+-}: SeatEditorAutoGenerateDialogProps) => {
+-  const [open, setOpen] = useState(false);
+-  const [formRows, setFormRows] = useState(rows);
+-  const [formCols, setFormCols] = useState(cols);
+-  const [standardSeatTypeId, setStandardSeatTypeId] = useState<number | null>(defaultSeatTypeId);
+-  const [vipSeatTypeId, setVipSeatTypeId] = useState<number | null>(() => {
+-    const vip = seatTypes?.find((t) => resolveSeatVisualKind(t.name) === "vip");
+-    return vip?.seatTypeId ?? null;
+-  });
+-  const [vipRowCount, setVipRowCount] = useState(2);
+-  const [coupleRowCount, setCoupleRowCount] = useState(1);
+-  const [aisleColsText, setAisleColsText] = useState("");
+-
+-  const parseAisleCols = (text: string) =>
+-    text
+-      .split(",")
+-      .map((s) => Number(s.trim()))
+-      .filter((n) => Number.isInteger(n) && n > 0);
+-
+-  const handleSubmit = () => {
+-    const safeRows = Math.min(52, Math.max(1, formRows || 1));
+-    const safeCols = Math.min(60, Math.max(1, formCols || 1));
+-    onGenerate({
+-      rows: safeRows,
+-      cols: safeCols,
+-      standardSeatTypeId,
+-      vipSeatTypeId,
+-      vipRowCount: Math.max(0, Math.min(vipRowCount, safeRows)),
+-      coupleRowCount: Math.max(0, Math.min(coupleRowCount, safeRows)),
+-      aisleCols: parseAisleCols(aisleColsText).filter((c) => c <= safeCols),
+-    });
+-    setOpen(false);
+-  };
+-
+-  return (
+-    <Dialog open={open} onOpenChange={setOpen}>
+-      <DialogTrigger
+-        render={
+-          <Button type="button" variant="outline">
+-            <Wand2 className="size-4" />
+-            <span>Tạo layout tự động</span>
+-          </Button>
+-        }
+-      />
+-      <DialogContent className="sm:max-w-md">
+-        <DialogHeader>
+-          <DialogTitle>Tạo layout ghế tự động</DialogTitle>
+-          <DialogDescription>
+-            Nhập kích thước phòng, layout sẽ được tạo sẵn để bạn chỉnh tay tiếp. Thao tác này thay
+-            thế toàn bộ sơ đồ hiện tại (có thể bấm Hoàn tác nếu cần).
+-          </DialogDescription>
+-        </DialogHeader>
+-
+-        <div className="flex flex-col gap-3">
+-          <div className="flex gap-3">
+-            <div className="flex flex-1 flex-col gap-1.5">
+-              <Label htmlFor="autogen-rows">Số hàng</Label>
+-              <Input
+-                id="autogen-rows"
+-                type="number"
+-                min={1}
+-                max={52}
+-                value={formRows}
+-                onChange={(e) => setFormRows(Number(e.target.value) || 1)}
+-              />
+-            </div>
+-            <div className="flex flex-1 flex-col gap-1.5">
+-              <Label htmlFor="autogen-cols">Số cột</Label>
+-              <Input
+-                id="autogen-cols"
+-                type="number"
+-                min={1}
+-                max={60}
+-                value={formCols}
+-                onChange={(e) => setFormCols(Number(e.target.value) || 1)}
+-              />
+-            </div>
+-          </div>
+-
+-          <div className="flex flex-col gap-1.5">
+-            <Label htmlFor="autogen-standard-type">Loại ghế mặc định</Label>
+-            <select
+-              id="autogen-standard-type"
+-              value={standardSeatTypeId ?? ""}
+-              onChange={(e) => setStandardSeatTypeId(e.target.value ? Number(e.target.value) : null)}
+-              className="h-8 w-full border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+-            >
+-              <option value="">— Không đặt —</option>
+-              {seatTypes?.map((t) => (
+-                <option key={t.seatTypeId} value={t.seatTypeId}>
+-                  {t.name}
+-                </option>
+-              ))}
+-            </select>
+-          </div>
+-
+-          <div className="flex gap-3">
+-            <div className="flex flex-1 flex-col gap-1.5">
+-              <Label htmlFor="autogen-vip-type">Loại ghế VIP</Label>
+-              <select
+-                id="autogen-vip-type"
+-                value={vipSeatTypeId ?? ""}
+-                onChange={(e) => setVipSeatTypeId(e.target.value ? Number(e.target.value) : null)}
+-                className="h-8 w-full border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+-              >
+-                <option value="">— Không có hàng VIP —</option>
+-                {seatTypes?.map((t) => (
+-                  <option key={t.seatTypeId} value={t.seatTypeId}>
+-                    {t.name}
+-                  </option>
+-                ))}
+-              </select>
+-            </div>
+-            <div className="flex w-28 flex-col gap-1.5">
+-              <Label htmlFor="autogen-vip-rows">Số hàng VIP</Label>
+-              <Input
+-                id="autogen-vip-rows"
+-                type="number"
+-                min={0}
+-                value={vipRowCount}
+-                onChange={(e) => setVipRowCount(Math.max(0, Number(e.target.value) || 0))}
+-              />
+-            </div>
+-          </div>
+-          <p className="text-xs text-muted-foreground">
+-            Hàng VIP được tính từ hàng cuối (gần màn hình nhất) trở lên trên.
+-          </p>
+-
+-          <div className="flex flex-col gap-1.5">
+-            <Label htmlFor="autogen-couple-rows">Số hàng ghế đôi (tính từ hàng cuối cùng)</Label>
+-            <Input
+-              id="autogen-couple-rows"
+-              type="number"
+-              min={0}
+-              value={coupleRowCount}
+-              onChange={(e) => setCoupleRowCount(Math.max(0, Number(e.target.value) || 0))}
+-              className="w-28"
+-            />
+-          </div>
+-
+-          <div className="flex flex-col gap-1.5">
+-            <Label htmlFor="autogen-aisles">Cột lối đi (số cột, cách nhau bởi dấu phẩy)</Label>
+-            <Input
+-              id="autogen-aisles"
+-              placeholder="VD: 4, 9"
+-              value={aisleColsText}
+-              onChange={(e) => setAisleColsText(e.target.value)}
+-            />
+-            <p className="text-xs text-muted-foreground">
+-              Các cột này sẽ để trống làm lối đi ở mọi hàng. Có thể bỏ trống.
+-            </p>
+-          </div>
+-        </div>
+-
+-        <DialogFooter>
+-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+-            Hủy
+-          </Button>
+-          <Button type="button" onClick={handleSubmit}>
+-            Tạo layout
+-          </Button>
+-        </DialogFooter>
+-      </DialogContent>
+-    </Dialog>
+-  );
+-};
+diff --git a/frontend/src/features/admin/rooms/hooks/use-admin-rooms.ts b/frontend/src/features/admin/rooms/hooks/use-admin-rooms.ts
+index a7993e1..91324ca 100644
+--- a/frontend/src/features/admin/rooms/hooks/use-admin-rooms.ts
++++ b/frontend/src/features/admin/rooms/hooks/use-admin-rooms.ts
+@@ -49,13 +49,6 @@ export function useAdminUpdateRoom() {
+   });
+ }
+ 
+-export function useAdminDeleteRoom() {
+-  return useMutation({
+-    meta: { invalidates: "roomChanged" },
+-    mutationFn: (id: number) => roomsApi.deleteRoom(id),
+-  });
+-}
+-
+ export function useAdminUpdateSeatLayout(roomId: number) {
+   return useMutation({
+     meta: { invalidates: "seatLayoutChanged" },
+diff --git a/frontend/src/features/admin/rooms/utils/seat-editor-cells.ts b/frontend/src/features/admin/rooms/utils/seat-editor-cells.ts
+index 5c27d04..3b4bb9b 100644
+--- a/frontend/src/features/admin/rooms/utils/seat-editor-cells.ts
++++ b/frontend/src/features/admin/rooms/utils/seat-editor-cells.ts
+@@ -11,7 +11,7 @@ import type {
+   SeatEditorBrush,
+ } from "../types/seat-editor";
+ 
+-export function newCoupleId(seed: string): string {
++function newCoupleId(seed: string): string {
+   return typeof crypto !== "undefined" && "randomUUID" in crypto
+     ? crypto.randomUUID()
+     : `couple-${seed}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+diff --git a/frontend/src/features/admin/showtimes/components/calendar/room-select-filter.tsx b/frontend/src/features/admin/showtimes/components/calendar/room-select-filter.tsx
+deleted file mode 100644
+index 1e96d9e..0000000
+--- a/frontend/src/features/admin/showtimes/components/calendar/room-select-filter.tsx
++++ /dev/null
+@@ -1,52 +0,0 @@
+-import {
+-  Select,
+-  SelectContent,
+-  SelectItem,
+-  SelectTrigger,
+-  SelectValue,
+-} from "@/components/ui/select";
+-import type { AdminRoomDto } from "@/features/admin/rooms/types";
+-import { cn } from "@/lib/utils";
+-
+-interface RoomSelectFilterProps {
+-  value: number | null;
+-  onChange: (value: number | null) => void;
+-  rooms: AdminRoomDto[];
+-  placeholder?: string;
+-  allLabel?: string;
+-  className?: string;
+-}
+-
+-export const RoomSelectFilter = ({
+-  value,
+-  onChange,
+-  rooms,
+-  placeholder = "Phòng chiếu",
+-  allLabel = "Tất cả phòng",
+-  className,
+-}: RoomSelectFilterProps) => {
+-  const currentValue = value ? String(value) : "all";
+-  const currentLabel =
+-    currentValue === "all"
+-      ? allLabel
+-      : (rooms.find((r) => r.roomId === value)?.roomName ?? placeholder);
+-
+-  return (
+-    <Select
+-      value={currentValue}
+-      onValueChange={(v) => onChange(v === "all" ? null : Number(v))}
+-    >
+-      <SelectTrigger className={cn("w-full", className)}>
+-        <SelectValue placeholder={placeholder}>{currentLabel}</SelectValue>
+-      </SelectTrigger>
+-      <SelectContent>
+-        <SelectItem value="all">{allLabel}</SelectItem>
+-        {rooms.map((room) => (
+-          <SelectItem key={room.roomId} value={String(room.roomId)}>
+-            {room.roomName}
+-          </SelectItem>
+-        ))}
+-      </SelectContent>
+-    </Select>
+-  );
+-};
+diff --git a/frontend/src/features/auth/hooks/use-auth.ts b/frontend/src/features/auth/hooks/use-auth.ts
+index 3959f38..efeb500 100644
+--- a/frontend/src/features/auth/hooks/use-auth.ts
++++ b/frontend/src/features/auth/hooks/use-auth.ts
+@@ -1,6 +1,5 @@
+-import { useMutation, useQuery } from "@tanstack/react-query";
++import { useMutation } from "@tanstack/react-query";
+ import { authApi } from "../api/auth-api";
+-import { queryKeys } from "@/api/query-keys";
+ import { queryClient } from "@/api/query-client";
+ import { useAuthStore, refreshTokenStorage, type AuthUser } from "@/stores/auth-store";
+ import type {
+@@ -51,15 +50,6 @@ async function hydrateUserFromMe() {
+ 
+ // ─── Hooks ───────────────────────────────────────────────────────────────────
+ 
+-export function useMe(enabled = false) {
+-  return useQuery({
+-    queryKey: queryKeys.auth.me(),
+-    queryFn: () => authApi.me(),
+-    enabled,
+-    select: (res) => res.data,
+-  });
+-}
+-
+ export function useLogin() {
+   return useMutation({
+     mutationFn: (body: LoginRequest) => authApi.login(body),
+@@ -141,11 +131,3 @@ export function useResendConfirmation() {
+   });
+ }
+ 
+-export function useSocketToken() {
+-  return useMutation({
+-    mutationFn: async () => {
+-      const res = await authApi.getSocketToken();
+-      return res.data.token;
+-    },
+-  });
+-}
+diff --git a/frontend/src/features/client/account/components/ticket-qr-card.tsx b/frontend/src/features/client/account/components/ticket-qr-card.tsx
+deleted file mode 100644
+index 8f7fdba..0000000
+--- a/frontend/src/features/client/account/components/ticket-qr-card.tsx
++++ /dev/null
+@@ -1,27 +0,0 @@
+-import { CheckCircle2 } from "lucide-react";
+-import { formatDateTime } from "@/lib/formatters";
+-import type { BookingTicketDto } from "@/features/client/bookings/types";
+-
+-interface TicketQrCardProps {
+-  ticket: BookingTicketDto;
+-}
+-
+-export const TicketQrCard = ({ ticket }: TicketQrCardProps) => {
+-  return (
+-    <div className="flex flex-col items-center gap-3 border border-border bg-card p-4">
+-      <p className="font-heading text-sm font-semibold text-foreground">
+-        Ghế {ticket.seatRow}
+-        {ticket.seatNumber}
+-      </p>
+-      <img src={ticket.qrCodeImage} alt={`QR ghế ${ticket.seatRow}${ticket.seatNumber}`} className="size-40 border border-border bg-primary-foreground p-2" />
+-      {ticket.isCheckedIn ? (
+-        <span className="flex items-center gap-1 bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+-          <CheckCircle2 className="size-3.5" />
+-          Đã check-in {ticket.checkedInAt ? formatDateTime(ticket.checkedInAt) : ""}
+-        </span>
+-      ) : (
+-        <span className="bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">Chưa soát vé</span>
+-      )}
+-    </div>
+-  );
+-}
+\ No newline at end of file
+diff --git a/frontend/src/features/client/showtimes/hooks/use-showtime-hub.ts b/frontend/src/features/client/showtimes/hooks/use-showtime-hub.ts
+deleted file mode 100644
+index 1863ed0..0000000
+--- a/frontend/src/features/client/showtimes/hooks/use-showtime-hub.ts
++++ /dev/null
+@@ -1,145 +0,0 @@
+-import {
+-  HubConnectionBuilder,
+-  HubConnectionState,
+-  LogLevel,
+-  type HubConnection,
+-} from "@microsoft/signalr";
+-import { useEffect, useRef, useCallback } from "react";
+-import { useAuthStore } from "@/stores/auth-store";
+-import { authApi } from "@/features/auth/api/auth-api";
+-import {
+-  SIGNALR_HUB_URL,
+-  SignalREvents,
+-  type SeatHeldPayload,
+-  type SeatBookedPayload,
+-  type SeatReleasedPayload,
+-  type HoldExpiredPayload,
+-} from "@/lib/signalr";
+-import { ENV } from "@/config/env";
+-import { SIGNALR_RECONNECT_DELAYS_MS } from "@/config/default-constants";
+-
+-export interface ShowtimeHubCallbacks {
+-  onSeatHeld?: (payload: SeatHeldPayload) => void;
+-  onSeatBooked?: (payload: SeatBookedPayload) => void;
+-  onSeatReleased?: (payload: SeatReleasedPayload) => void;
+-  onHoldExpired?: (payload: HoldExpiredPayload) => void;
+-}
+-
+-/**
+- * Hook kết nối SignalR hub cho 1 showtime cụ thể.
+- *
+- * Usage:
+- *   useShowtimeHub({
+- *     showtimeId: 42,
+- *     onSeatHeld: (p) => updateSeats(p.seatIds, "held"),
+- *     onSeatBooked: (p) => updateSeats(p.seatIds, "booked"),
+- *     onSeatReleased: (p) => updateSeats(p.seatIds, "available"),
+- *     onHoldExpired: (p) => handleExpired(p),
+- *   });
+- */
+-export function useShowtimeHub(
+-  params: { showtimeId: number | null } & ShowtimeHubCallbacks,
+-) {
+-  const {
+-    showtimeId,
+-    onSeatHeld,
+-    onSeatBooked,
+-    onSeatReleased,
+-    onHoldExpired,
+-  } = params;
+-  const connectionRef = useRef<HubConnection | null>(null);
+-
+-  // Stable callback refs — không trigger reconnect khi callback thay đổi
+-  const onSeatHeldRef = useRef(onSeatHeld);
+-  const onSeatBookedRef = useRef(onSeatBooked);
+-  const onSeatReleasedRef = useRef(onSeatReleased);
+-  const onHoldExpiredRef = useRef(onHoldExpired);
+-
+-  // Cập nhật ref trong useEffect để tuân thủ quy tắc render của React
+-  useEffect(() => {
+-    onSeatHeldRef.current = onSeatHeld;
+-    onSeatBookedRef.current = onSeatBooked;
+-    onSeatReleasedRef.current = onSeatReleased;
+-    onHoldExpiredRef.current = onHoldExpired;
+-  }, [onSeatHeld, onSeatBooked, onSeatReleased, onHoldExpired]);
+-
+-  useEffect(() => {
+-    if (!showtimeId) return;
+-
+-    const connection = new HubConnectionBuilder()
+-      .withUrl(SIGNALR_HUB_URL, {
+-        accessTokenFactory: async () => {
+-          try {
+-            const res = await authApi.getSocketToken();
+-            return res.data.token;
+-          } catch {
+-            return useAuthStore.getState().accessToken ?? "";
+-          }
+-        },
+-      })
+-      .withAutomaticReconnect(SIGNALR_RECONNECT_DELAYS_MS)
+-      .configureLogging(
+-        ENV.IS_DEV ? LogLevel.Information : LogLevel.Warning,
+-      )
+-      .build();
+-
+-    // Register event handlers
+-    connection.on(SignalREvents.SeatHeld, (payload: SeatHeldPayload) =>
+-      onSeatHeldRef.current?.(payload),
+-    );
+-    connection.on(SignalREvents.SeatBooked, (payload: SeatBookedPayload) =>
+-      onSeatBookedRef.current?.(payload),
+-    );
+-    connection.on(SignalREvents.SeatReleased, (payload: SeatReleasedPayload) =>
+-      onSeatReleasedRef.current?.(payload),
+-    );
+-    connection.on(SignalREvents.HoldExpired, (payload: HoldExpiredPayload) =>
+-      onHoldExpiredRef.current?.(payload),
+-    );
+-
+-    connectionRef.current = connection;
+-
+-    const startAndJoin = async () => {
+-      try {
+-        await connection.start();
+-        await connection.invoke("JoinShowtime", showtimeId);
+-      } catch (err) {
+-        if (ENV.IS_DEV) {
+-          console.warn("[SignalR] Kết nối thất bại:", err);
+-        }
+-      }
+-    };
+-
+-    startAndJoin();
+-
+-    return () => {
+-      const conn = connectionRef.current;
+-      if (!conn) return;
+-
+-      const cleanup = async () => {
+-        try {
+-          if (conn.state === HubConnectionState.Connected) {
+-            await conn.invoke("LeaveShowtime", showtimeId);
+-          }
+-        } catch {
+-          // ignore
+-        } finally {
+-          await conn.stop();
+-        }
+-      };
+-
+-      cleanup();
+-      connectionRef.current = null;
+-    };
+-  }, [showtimeId]);
+-
+-  /** Gọi thủ công nếu cần leave group sớm hơn unmount */
+-  const leaveShowtime = useCallback(async () => {
+-    const conn = connectionRef.current;
+-    if (conn?.state === HubConnectionState.Connected && showtimeId) {
+-      await conn.invoke("LeaveShowtime", showtimeId);
+-    }
+-  }, [showtimeId]);
+-
+-  return { leaveShowtime };
+-}
+diff --git a/frontend/src/hooks/use-query-params.ts b/frontend/src/hooks/use-query-params.ts
+index 4850339..35a60ea 100644
+--- a/frontend/src/hooks/use-query-params.ts
++++ b/frontend/src/hooks/use-query-params.ts
+@@ -7,7 +7,6 @@ import {
+ } from "nuqs";
+ import type { MovieStatus } from "@/types/enum";
+ import {
+-  DEFAULT_BOOKINGS_PAGE_LIMIT,
+   DEFAULT_MOVIES_PAGE_LIMIT,
+   DEFAULT_PAGE,
+   DEFAULT_PAGE_SIZE,
+@@ -167,18 +166,6 @@ export const useAdminPersonParams = (
+   options?: Parameters<typeof useQueryStates<typeof adminPersonParsers>>[1],
+ ) => useQueryStates(adminPersonParsers, options);
+ 
+-// ── Admin reports ─────────────────────────────────────────────────────────────
+-
+-const adminReportParsers = {
+-  fromDate: parseAsString.withDefault(""),
+-  toDate: parseAsString.withDefault(""),
+-  groupBy: parseAsString.withDefault("day"),
+-};
+-
+-export const useAdminReportParams = (
+-  options?: Parameters<typeof useQueryStates<typeof adminReportParsers>>[1],
+-) => useQueryStates(adminReportParsers, options);
+-
+ // ── Client movies ─────────────────────────────────────────────────────────────
+ 
+ const clientMovieParsers = {
+@@ -195,18 +182,6 @@ export const useClientMovieParams = (
+   options?: Parameters<typeof useQueryStates<typeof clientMovieParsers>>[1],
+ ) => useQueryStates(clientMovieParsers, options);
+ 
+-// ── Client bookings ───────────────────────────────────────────────────────────
+-
+-const clientBookingParsers = {
+-  cursor: parseAsString,
+-  limit: parseAsInteger.withDefault(DEFAULT_BOOKINGS_PAGE_LIMIT),
+-  status: parseAsString,
+-};
+-
+-export const useClientBookingParams = (
+-  options?: Parameters<typeof useQueryStates<typeof clientBookingParsers>>[1],
+-) => useQueryStates(clientBookingParsers, options);
+-
+ // ── Client schedule ───────────────────────────────────────────────────────────
+ 
+ const scheduleParsers = {
+@@ -217,13 +192,3 @@ const scheduleParsers = {
+ export const useScheduleParams = (
+   options?: Parameters<typeof useQueryStates<typeof scheduleParsers>>[1],
+ ) => useQueryStates(scheduleParsers, options);
+-
+-// ── Re-export commonly used nuqs parsers for ad-hoc use ──────────────────────
+-
+-export {
+-  debounce,
+-  parseAsInteger,
+-  parseAsString,
+-  parseAsStringLiteral,
+-  useQueryStates,
+-};
+diff --git a/frontend/src/hooks/use-require-auth.ts b/frontend/src/hooks/use-require-auth.ts
+deleted file mode 100644
+index 2d3e7eb..0000000
+--- a/frontend/src/hooks/use-require-auth.ts
++++ /dev/null
+@@ -1,74 +0,0 @@
+-import { useCallback } from "react";
+-import { useLocation, useNavigate } from "react-router";
+-import { useAuthStore } from "@/stores/auth-store";
+-import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
+-
+-interface RequireAuthOptions {
+-  title?: string;
+-  description?: string;
+-  confirmText?: string;
+-  cancelText?: string;
+-}
+-
+-const DEFAULT_OPTIONS: Required<RequireAuthOptions> = {
+-  title: "Yêu cầu đăng nhập",
+-  description: "Bạn cần đăng nhập để thực hiện thao tác này.",
+-  confirmText: "Đăng nhập",
+-  cancelText: "Để sau",
+-};
+-
+-/**
+- * Hook gate hanh dong can auth.
+- * - Neu da dang nhap: thuc hien action ngay lap tuc.
+- * - Neu chua dang nhap: hien AlertDialog xac nhan truoc khi redirect ve /auth/login.
+- * - BUG FIX: Neu session chua khoi tao (!isInitialized), subscribe va chay lai sau khi init xong.
+- */
+-export function useRequireAuth() {
+-  const navigate = useNavigate();
+-  const location = useLocation();
+-  const openAlertDialog = useAlertDialogOpen();
+-
+-  return useCallback(
+-    (action: () => void | Promise<void>, options?: RequireAuthOptions) => {
+-      const opts = { ...DEFAULT_OPTIONS, ...options };
+-
+-      const run = () => {
+-        const { isAuthenticated } = useAuthStore.getState();
+-
+-        if (isAuthenticated) {
+-          action();
+-          return;
+-        }
+-
+-        const redirectTo = `${location.pathname}${location.search}`;
+-        openAlertDialog({
+-          title: opts.title,
+-          description: opts.description,
+-          confirmText: opts.confirmText,
+-          cancelText: opts.cancelText,
+-          onConfirm: () => {
+-            navigate(
+-              `/auth/login?redirect=${encodeURIComponent(redirectTo)}`,
+-            );
+-          },
+-        });
+-      };
+-
+-      const { isInitialized } = useAuthStore.getState();
+-
+-      if (isInitialized) {
+-        run();
+-        return;
+-      }
+-
+-      // BUG FIX: khong drop action khi session chua init xong.
+-      // Subscribe va chay ngay sau khi isInitialized = true.
+-      const unsub = useAuthStore.subscribe((state) => {
+-        if (!state.isInitialized) return;
+-        unsub();
+-        run();
+-      });
+-    },
+-    [navigate, location, openAlertDialog],
+-  );
+-}
+diff --git a/frontend/src/layouts/client/header/header-search.tsx b/frontend/src/layouts/client/header/header-search.tsx
+deleted file mode 100644
+index ddac9c8..0000000
+--- a/frontend/src/layouts/client/header/header-search.tsx
++++ /dev/null
+@@ -1,14 +0,0 @@
+-import { Search } from "lucide-react";
+-import { Input } from "@/components/ui/input";
+-
+-export const HeaderSearch = () => (
+-  <div className="hidden max-w-xs flex-1 md:block">
+-    <div className="relative">
+-      <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+-      <Input placeholder="Tìm kiếm phim, diễn viên..." className="pl-9" />
+-      <kbd className="absolute top-1/2 right-2 -translate-y-1/2 cut-xs bg-secondary px-1.5 py-0.5 text-xs text-muted-foreground">
+-        Ctrl K
+-      </kbd>
+-    </div>
+-  </div>
+-);
+\ No newline at end of file
+diff --git a/frontend/src/lib/formatters.ts b/frontend/src/lib/formatters.ts
+index a08606d..0fa395b 100644
+--- a/frontend/src/lib/formatters.ts
++++ b/frontend/src/lib/formatters.ts
+@@ -62,11 +62,6 @@ export const formatTime = (date?: string | Date | null, fallback = "—") =>
+ export const formatDateTime = (date?: string | Date | null, fallback = "—") =>
+   formatWithPattern(date, "dd/MM/yyyy HH:mm", fallback);
+ 
+-export const formatDateTimeFull = (
+-  date?: string | Date | null,
+-  fallback = "—",
+-) => formatWithPattern(date, "dd/MM/yyyy HH:mm:ss", fallback);
+-
+ export function toDateInputValue(date?: string | Date | null): string | null {
+   const d = toWallDate(date);
+   return d ? format(d, "yyyy-MM-dd") : null;
+diff --git a/frontend/src/lib/toast.ts b/frontend/src/lib/toast.ts
+deleted file mode 100644
+index f6ea632..0000000
+--- a/frontend/src/lib/toast.ts
++++ /dev/null
+@@ -1,4 +0,0 @@
+-import { toast as baseToast } from "@/components/ui/toast";
+-
+-export { baseToast as toast };
+-export default baseToast;
+diff --git a/frontend/src/lib/validators.ts b/frontend/src/lib/validators.ts
+index b60f18a..d6626c1 100644
+--- a/frontend/src/lib/validators.ts
++++ b/frontend/src/lib/validators.ts
+@@ -1,12 +1,5 @@
+ ﻿import { z } from "zod";
+ 
+-// ─── Email ────────────────────────────────────────────────────────────────────
+-
+-export const emailSchema = z
+-  .string()
+-  .min(1, "Vui lòng nhập email.")
+-  .email("Email không hợp lệ.");
+-
+ // ─── Password (strong) ────────────────────────────────────────────────────────
+ // Rules: min 8 chars, uppercase + lowercase, at least 1 digit or special char
+ // Score >= 3 of: length, case-mix, digit, special char
+diff --git a/frontend/src/stores/auth-store.ts b/frontend/src/stores/auth-store.ts
+index 21a4af4..10f869c 100644
+--- a/frontend/src/stores/auth-store.ts
++++ b/frontend/src/stores/auth-store.ts
+@@ -80,14 +80,4 @@ export const useAuthStore = create<AuthStore>()((set) => ({
+ // Granular selectors
+ export const useAuthUser = () => useAuthStore((s) => s.user);
+ export const useIsAuthenticated = () => useAuthStore((s) => s.isAuthenticated);
+-export const useIsAuthInitialized = () => useAuthStore((s) => s.isInitialized);
+ export const useAuthRole = () => useAuthStore((s) => s.user?.role ?? null);
+-
+-export const useAuthActions = () =>
+-  useAuthStore((s) => ({
+-    setCredentials: s.setCredentials,
+-    setAccessToken: s.setAccessToken,
+-    updateUser: s.updateUser,
+-    logout: s.logout,
+-    setInitialized: s.setInitialized,
+-  }));

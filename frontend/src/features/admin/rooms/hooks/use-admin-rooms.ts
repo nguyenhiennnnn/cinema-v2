@@ -49,13 +49,6 @@ export function useAdminUpdateRoom() {
   });
 }
 
-export function useAdminDeleteRoom() {
-  return useMutation({
-    meta: { invalidates: "roomChanged" },
-    mutationFn: (id: number) => roomsApi.deleteRoom(id),
-  });
-}
-
 export function useAdminUpdateSeatLayout(roomId: number) {
   return useMutation({
     meta: { invalidates: "seatLayoutChanged" },

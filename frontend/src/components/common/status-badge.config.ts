@@ -3,7 +3,6 @@ import {
   ShowtimeStatus,
   BookingStatus,
   PaymentStatus,
-  ShowtimeSeatStatus,
   BookingChannel,
   PaymentMethod,
   Role,
@@ -99,12 +98,6 @@ export const paymentStatusMap: Record<PaymentStatus, BadgeItem> = {
   [PaymentStatus.Success]: { label: "Đã thanh toán", variant: "success", icon: CheckCircle2 },
   [PaymentStatus.Failed]: { label: "Thất bại", variant: "destructive", icon: XCircle },
   [PaymentStatus.Refunded]: { label: "Đã hoàn tiền", variant: "outline", icon: XCircle },
-};
-
-export const showtimeSeatStatusMap: Record<ShowtimeSeatStatus, BadgeItem> = {
-  [ShowtimeSeatStatus.Available]: { label: "Còn trống", variant: "success" },
-  [ShowtimeSeatStatus.Held]: { label: "Đang giữ", variant: "warning" },
-  [ShowtimeSeatStatus.Booked]: { label: "Đã đặt", variant: "destructive" },
 };
 
 export const bookingChannelMap: Record<BookingChannel, BadgeItem> = {

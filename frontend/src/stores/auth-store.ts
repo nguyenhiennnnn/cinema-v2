@@ -80,14 +80,4 @@ export const useAuthStore = create<AuthStore>()((set) => ({
 // Granular selectors
 export const useAuthUser = () => useAuthStore((s) => s.user);
 export const useIsAuthenticated = () => useAuthStore((s) => s.isAuthenticated);
-export const useIsAuthInitialized = () => useAuthStore((s) => s.isInitialized);
 export const useAuthRole = () => useAuthStore((s) => s.user?.role ?? null);
-
-export const useAuthActions = () =>
-  useAuthStore((s) => ({
-    setCredentials: s.setCredentials,
-    setAccessToken: s.setAccessToken,
-    updateUser: s.updateUser,
-    logout: s.logout,
-    setInitialized: s.setInitialized,
-  }));

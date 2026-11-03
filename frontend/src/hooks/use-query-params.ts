@@ -7,7 +7,6 @@ import {
 } from "nuqs";
 import type { MovieStatus } from "@/types/enum";
 import {
-  DEFAULT_BOOKINGS_PAGE_LIMIT,
   DEFAULT_MOVIES_PAGE_LIMIT,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -167,18 +166,6 @@ export const useAdminPersonParams = (
   options?: Parameters<typeof useQueryStates<typeof adminPersonParsers>>[1],
 ) => useQueryStates(adminPersonParsers, options);
 
-// ── Admin reports ─────────────────────────────────────────────────────────────
-
-const adminReportParsers = {
-  fromDate: parseAsString.withDefault(""),
-  toDate: parseAsString.withDefault(""),
-  groupBy: parseAsString.withDefault("day"),
-};
-
-export const useAdminReportParams = (
-  options?: Parameters<typeof useQueryStates<typeof adminReportParsers>>[1],
-) => useQueryStates(adminReportParsers, options);
-
 // ── Client movies ─────────────────────────────────────────────────────────────
 
 const clientMovieParsers = {
@@ -195,18 +182,6 @@ export const useClientMovieParams = (
   options?: Parameters<typeof useQueryStates<typeof clientMovieParsers>>[1],
 ) => useQueryStates(clientMovieParsers, options);
 
-// ── Client bookings ───────────────────────────────────────────────────────────
-
-const clientBookingParsers = {
-  cursor: parseAsString,
-  limit: parseAsInteger.withDefault(DEFAULT_BOOKINGS_PAGE_LIMIT),
-  status: parseAsString,
-};
-
-export const useClientBookingParams = (
-  options?: Parameters<typeof useQueryStates<typeof clientBookingParsers>>[1],
-) => useQueryStates(clientBookingParsers, options);
-
 // ── Client schedule ───────────────────────────────────────────────────────────
 
 const scheduleParsers = {
@@ -217,13 +192,3 @@ const scheduleParsers = {
 export const useScheduleParams = (
   options?: Parameters<typeof useQueryStates<typeof scheduleParsers>>[1],
 ) => useQueryStates(scheduleParsers, options);
-
-// ── Re-export commonly used nuqs parsers for ad-hoc use ──────────────────────
-
-export {
-  debounce,
-  parseAsInteger,
-  parseAsString,
-  parseAsStringLiteral,
-  useQueryStates,
-};

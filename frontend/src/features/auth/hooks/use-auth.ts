@@ -1,6 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { authApi } from "../api/auth-api";
-import { queryKeys } from "@/api/query-keys";
 import { queryClient } from "@/api/query-client";
 import { useAuthStore, refreshTokenStorage, type AuthUser } from "@/stores/auth-store";
 import type {
@@ -50,15 +49,6 @@ async function hydrateUserFromMe() {
 }
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
-
-export function useMe(enabled = false) {
-  return useQuery({
-    queryKey: queryKeys.auth.me(),
-    queryFn: () => authApi.me(),
-    enabled,
-    select: (res) => res.data,
-  });
-}
 
 export function useLogin() {
   return useMutation({
@@ -141,11 +131,3 @@ export function useResendConfirmation() {
   });
 }
 
-export function useSocketToken() {
-  return useMutation({
-    mutationFn: async () => {
-      const res = await authApi.getSocketToken();
-      return res.data.token;
-    },
-  });
-}

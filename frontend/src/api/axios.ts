@@ -15,7 +15,6 @@ import { API_TIMEOUT_MS } from "@/config/default-constants";
 
 const BASE_URL = ENV.API_BASE_URL;
 
-/** Must match authApi.refresh() — avoids interceptor depending on auth-api module (circular import risk) */
 const AUTH_REFRESH_URL = `${BASE_URL}/auth/refresh`;
 
 export const apiClient = axios.create({
@@ -182,15 +181,6 @@ export async function apiPut<T>(
   config?: AxiosRequestConfig,
 ) {
   const { data } = await apiClient.put<T>(url, body, config);
-  return data;
-}
-
-export async function apiPatch<T>(
-  url: string,
-  body?: unknown,
-  config?: AxiosRequestConfig,
-) {
-  const { data } = await apiClient.patch<T>(url, body, config);
   return data;
 }
 
