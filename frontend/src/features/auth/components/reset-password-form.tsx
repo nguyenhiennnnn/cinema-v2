@@ -47,8 +47,12 @@ export const ResetPasswordForm = () => {
         <p className="text-sm text-muted-foreground">
           Thiếu mã đặt lại mật khẩu trong đường dẫn.
         </p>
-        <Button variant="outline">
-          <Link to="/auth/forgot-password">Yêu cầu liên kết mới</Link>
+        <Button
+          variant="outline"
+          render={<Link to="/auth/forgot-password" />}
+          nativeButton={false}
+        >
+          Yêu cầu liên kết mới
         </Button>
       </div>
     );

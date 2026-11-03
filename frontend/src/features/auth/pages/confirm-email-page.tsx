@@ -55,8 +55,12 @@ const ConfirmEmailPage = () => {
         <p className="text-sm text-muted-foreground">
           Thiếu mã xác thực trong đường dẫn.
         </p>
-        <Button variant="outline">
-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
+        <Button
+          variant="outline"
+          render={<Link to={ROUTES.auth.login} />}
+          nativeButton={false}
+        >
+          Về trang đăng nhập
         </Button>
       </div>
     );
@@ -81,8 +85,11 @@ const ConfirmEmailPage = () => {
         <p className="text-sm text-muted-foreground">
           Bạn có thể đăng nhập ngay bây giờ.
         </p>
-        <Button>
-          <Link to={ROUTES.auth.login}>Đăng nhập</Link>
+        <Button
+          render={<Link to={ROUTES.auth.login} />}
+          nativeButton={false}
+        >
+          Đăng nhập
         </Button>
       </div>
     );
@@ -134,8 +141,12 @@ const ConfirmEmailPage = () => {
           </form>
         )}
 
-        <Button variant="ghost">
-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
+        <Button
+          variant="ghost"
+          render={<Link to={ROUTES.auth.login} />}
+          nativeButton={false}
+        >
+          Về trang đăng nhập
         </Button>
       </div>
     );

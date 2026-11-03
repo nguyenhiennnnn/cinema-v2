@@ -10,8 +10,10 @@ const BASE = "/showtimes";
 
 export const showtimesApi = {
   // GET /showtimes?date=dd/MM/yyyy — date is required, pass as "dd/MM/yyyy"
-  getSchedule: (date: string) =>
-    apiGet<ApiResponse<WholeCinemaScheduleDto>>(BASE, { params: { date } }),
+  getSchedule: (date: string, screenType?: string | null) =>
+    apiGet<ApiResponse<WholeCinemaScheduleDto>>(BASE, {
+      params: { date, screenType: screenType || undefined },
+    }),
 
   // GET /showtimes/{showtimeId}/seats
   getSeats: (showtimeId: number) =>

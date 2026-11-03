@@ -20,6 +20,7 @@ interface SelectableSeatMapProps {
   selectedIds: Set<number>;
   onToggle: (seat: ShowtimeSeatItemDto) => void;
   highlightedIds?: Set<number>;
+  fitWidth?: boolean;
   className?: string;
 }
 
@@ -50,6 +51,7 @@ export const SelectableSeatMap = ({
   selectedIds,
   onToggle,
   highlightedIds,
+  fitWidth,
   className,
 }: SelectableSeatMapProps) => {
   const cells: SeatCellData[] = seats.map((seat) => ({
@@ -84,6 +86,7 @@ export const SelectableSeatMap = ({
         rowLabels={rowLabels}
         cols={cols}
         cellAt={cellAt}
+        fitWidth={fitWidth}
         renderCell={(cell, _rowLabel, col) => {
           if (!cell) return null;
           if (cell.isAisle) {

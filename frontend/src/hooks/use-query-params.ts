@@ -211,6 +211,7 @@ export const useClientBookingParams = (
 
 const scheduleParsers = {
   date: parseAsString.withDefault(""),
+  format: parseAsString,
 };
 
 export const useScheduleParams = (

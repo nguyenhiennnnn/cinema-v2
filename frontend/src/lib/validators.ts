@@ -31,3 +31,7 @@ export const passwordSchema = z
         "Mật khẩu chưa đủ mạnh. Vui lòng thêm số hoặc ký tự đặc biệt.",
     },
   );
+
+const VN_PHONE_REGEX = /^(0|\+84)\d{9,10}$/;
+
+export const isValidVnPhone = (value: string) => VN_PHONE_REGEX.test(value);

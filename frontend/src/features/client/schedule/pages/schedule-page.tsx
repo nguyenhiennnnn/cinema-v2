@@ -1,5 +1,4 @@
-﻿import { useMemo, useState } from "react";
-import { CalendarX } from "lucide-react";
+﻿import { CalendarX } from "lucide-react";
 import { DateStrip } from "@/components/common/date-strip";
 import { EmptyState } from "@/components/common/empty-state";
 import { ScheduleFilterBar } from "@/features/client/schedule/components/schedule-filter-bar";
@@ -12,25 +11,11 @@ import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
 
 const SchedulePage = () => {
-  const [{ date }, setScheduleParams] = useScheduleParams();
+  const [{ date, format }, setScheduleParams] = useScheduleParams();
   const selectedDate = date || getBusinessToday();
-  const [activeFormat, setActiveFormat] = useState<string | null>(null);
 
-  const { data, isLoading } = useSchedule(selectedDate);
-
-  const formats = useMemo(() => {
-    const set = new Set<string>();
-    data?.movies.forEach((m) => m.showtimes.forEach((s) => set.add(s.screenType ?? "2D")));
-    return Array.from(set);
-  }, [data]);
-
-  const movies = useMemo(() => {
-    if (!data) return [];
-    if (!activeFormat) return data.movies;
-    return data.movies
-      .map((m) => ({ ...m, showtimes: m.showtimes.filter((s) => (s.screenType ?? "2D") === activeFormat) }))
-      .filter((m) => m.showtimes.length > 0);
-  }, [data, activeFormat]);
+  const { data, isLoading } = useSchedule(selectedDate, format);
+  const movies = data?.movies ?? [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -44,10 +29,14 @@ const SchedulePage = () => {
         <p className="mt-1 text-sm text-muted-foreground">Tra cứu lịch chiếu toàn bộ phim tại rạp theo từng ngày.</p>
       </div>
 
-      <DateStrip value={selectedDate} onChange={(value) => setScheduleParams({ date: value })} />
+      <DateStrip value={selectedDate} onChange={(value) => setScheduleParams({ date: value, format: null })} />
 
       <div className="mt-4">
-        <ScheduleFilterBar formats={formats} activeFormat={activeFormat} onFormatChange={setActiveFormat} />
+        <ScheduleFilterBar
+          formats={data?.formats ?? []}
+          activeFormat={format}
+          onFormatChange={(value) => setScheduleParams({ format: value })}
+        />
       </div>
 
       <div className="mt-6 space-y-4">

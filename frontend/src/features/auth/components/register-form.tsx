@@ -85,8 +85,12 @@ export const RegisterForm = () => {
           <span className="font-medium text-foreground">{submittedEmail}</span>{" "}
           để xác thực tài khoản.
         </p>
-        <Button variant="outline">
-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
+        <Button
+          variant="outline"
+          render={<Link to={ROUTES.auth.login} />}
+          nativeButton={false}
+        >
+          Về trang đăng nhập
         </Button>
       </div>
     );

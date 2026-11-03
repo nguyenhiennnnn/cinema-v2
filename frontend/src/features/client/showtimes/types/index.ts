@@ -23,6 +23,7 @@ export interface WholeCinemaMovieDto {
 export interface WholeCinemaScheduleDto {
   date: string;
   movies: WholeCinemaMovieDto[];
+  formats: string[];
 }
 
 // ── Client: Showtime seats ────────────────────────────────────────────────────

@@ -64,6 +64,7 @@ public interface IShowtimeService
 
     Task<WholeCinemaScheduleDto> GetWholeCinemaScheduleAsync(
         DateOnly date,
+        string? screenType,
         CancellationToken cancellationToken
     );
 

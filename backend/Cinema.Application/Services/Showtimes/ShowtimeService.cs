@@ -980,21 +980,32 @@ public class ShowtimeService(
 
     public async Task<WholeCinemaScheduleDto> GetWholeCinemaScheduleAsync(
         DateOnly date,
+        string? screenType,
         CancellationToken cancellationToken
     )
     {
         var dayStart = VietnamTime.StartOfDayUtc(date);
         var dayEnd = VietnamTime.StartOfNextDayUtc(date);
 
-        var showtimes = await db
-            .Showtimes.Include(s => s.Room)
+        var dayQuery = db.Showtimes.Where(s =>
+            s.Status == ShowtimeStatus.Scheduled && s.StartTime >= dayStart && s.StartTime < dayEnd
+        );
+
+        var formats = await dayQuery
+            .Select(s => s.Room.ScreenType != null ? s.Room.ScreenType.Name : "2D")
+            .Distinct()
+            .OrderBy(name => name)
+            .ToListAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(screenType))
+            dayQuery = dayQuery.Where(s =>
+                (s.Room.ScreenType != null ? s.Room.ScreenType.Name : "2D") == screenType
+            );
+
+        var showtimes = await dayQuery
+            .Include(s => s.Room)
                 .ThenInclude(r => r.ScreenType)
             .Include(s => s.Movie)
-            .Where(s =>
-                s.Status == ShowtimeStatus.Scheduled
-                && s.StartTime >= dayStart
-                && s.StartTime < dayEnd
-            )
             .OrderBy(s => s.Movie.Title)
             .ThenBy(s => s.StartTime)
             .ToListAsync(cancellationToken);
@@ -1033,7 +1044,7 @@ public class ShowtimeService(
             ))
             .ToList();
 
-        return new WholeCinemaScheduleDto(date.ToString("dd/MM/yyyy"), movies);
+        return new WholeCinemaScheduleDto(date.ToString("dd/MM/yyyy"), movies, formats);
     }
 
     public async Task<ShowtimeCalendarResponseDto> GetShowtimesCalendarAsync(

@@ -36,8 +36,12 @@ export const ForgotPasswordForm = () => {
           Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi tới hộp thư
           của bạn.
         </p>
-        <Button variant="outline">
-          <Link to={ROUTES.auth.login}>Về trang đăng nhập</Link>
+        <Button
+          variant="outline"
+          render={<Link to={ROUTES.auth.login} />}
+          nativeButton={false}
+        >
+          Về trang đăng nhập
         </Button>
       </div>
     );

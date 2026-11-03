@@ -12,6 +12,7 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
     [HttpGet]
     public async Task<IActionResult> GetSchedule(
         [FromQuery] DateOnly? date,
+        [FromQuery] string? screenType,
         CancellationToken cancellationToken
     )
     {
@@ -23,6 +24,7 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
 
         var result = await showtimeService.GetWholeCinemaScheduleAsync(
             date.Value,
+            screenType,
             cancellationToken
         );
         return Ok(result);

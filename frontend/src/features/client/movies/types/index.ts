@@ -25,6 +25,7 @@ export interface MovieListItemDto {
   averageRating: number;
   ageRating?: AgeRatingCodeDto | null;
   genres: string[];
+  releaseDate?: string | null;
 }
 
 // ── Movie detail ──────────────────────────────────────────────────────────────

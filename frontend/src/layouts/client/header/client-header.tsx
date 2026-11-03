@@ -34,7 +34,7 @@ export const ClientHeader = () => {
 
           <ModeToggle />
 
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={handleOpenMobileMenu}>
+          <Button variant="ghost" size="icon" className="md:hidden" aria-label="Mở menu" onClick={handleOpenMobileMenu}>
             <Menu className="size-5" />
           </Button>
         </div>

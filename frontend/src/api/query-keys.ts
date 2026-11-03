@@ -18,7 +18,8 @@ export const queryKeys = {
   // ── Showtimes (client) ───────────────────────────────────────────────────────
   showtimes: {
     all: () => ["showtimes"] as const,
-    schedule: (date: string) => ["showtimes", "schedule", date] as const,
+    schedule: (date: string, screenType?: string | null) =>
+      ["showtimes", "schedule", date, screenType ?? null] as const,
     seats: (showtimeId: number) => ["showtimes", "seats", showtimeId] as const,
     seatSuggestions: (showtimeId: number, count: number) =>
       ["showtimes", "seat-suggestions", showtimeId, count] as const,

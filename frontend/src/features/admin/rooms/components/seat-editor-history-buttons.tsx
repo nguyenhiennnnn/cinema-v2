@@ -22,6 +22,7 @@ export const SeatEditorHistoryButtons = ({
       variant="outline"
       size="icon"
       title="Hoàn tác"
+      aria-label="Hoàn tác"
       disabled={disabled || !canUndo}
       onClick={onUndo}
     >
@@ -32,6 +33,7 @@ export const SeatEditorHistoryButtons = ({
       variant="outline"
       size="icon"
       title="Làm lại"
+      aria-label="Làm lại"
       disabled={disabled || !canRedo}
       onClick={onRedo}
     >

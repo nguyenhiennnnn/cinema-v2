@@ -2,6 +2,7 @@
 import { AlertTriangle } from "lucide-react";
 
 import { useBookingFlow } from "../hooks/use-booking-flow";
+import { BookingStepper } from "../components/booking/booking-stepper";
 import { BookingShowtimeHeader } from "../components/booking/booking-showtime-header";
 import { BookingSelectionStep } from "../components/booking/booking-selection-step";
 import { BookingPaymentStep } from "../components/booking/booking-payment-step";
@@ -27,6 +28,8 @@ const BookingPage = () => {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <BookingShowtimeHeader data={flow.showtimeSeats.data} isLoading={flow.showtimeSeats.isLoading} />
+
+      <BookingStepper step={flow.step} />
 
       {flow.isResumeLoading && (
         <div className="mx-auto w-full max-w-lg space-y-3">

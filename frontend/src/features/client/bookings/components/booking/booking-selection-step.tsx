@@ -7,6 +7,7 @@ import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
 import { useActiveCombos, useComboSuggestions } from "@/features/client/combos/hooks/use-combos";
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
+import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { ShowtimeSeatStatus } from "@/types/enum";
 import type { ShowtimeSeatsResponseDto } from "@/features/client/showtimes/types";
 
@@ -54,6 +55,7 @@ export const BookingSelectionStep = ({
   onContinue,
 }: BookingSelectionStepProps) => {
   const activeCombos = useActiveCombos();
+  const holdDurationMinutes = useCinemaSettings().data?.holdDurationMinutes;
   const comboSuggestions = useComboSuggestions(data?.showtimeId ?? 0, selectedIds.size);
   const [highlightedIds, setHighlightedIds] = useState<Set<number>>(new Set());
 
@@ -92,6 +94,7 @@ export const BookingSelectionStep = ({
           selectedIds={selectedIds}
           onToggle={(seat) => onToggleSeat(seat.showtimeSeatId)}
           highlightedIds={highlightedIds}
+          fitWidth
         />
 
         <div className="border border-border bg-card p-4">
@@ -119,6 +122,11 @@ export const BookingSelectionStep = ({
         <Button className="max-lg:hidden" disabled={!canHold || isHolding} onClick={onContinue}>
           {isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục thanh toán"}
         </Button>
+        {holdDurationMinutes != null && (
+          <p className="text-center text-xs text-muted-foreground">
+            Ghế được giữ trong {holdDurationMinutes} phút để bạn hoàn tất thanh toán.
+          </p>
+        )}
         {loneSeats.length > 0 && (
           <p className="flex items-start gap-2 border border-warning/40 bg-warning/10 p-3 text-xs text-foreground">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
@@ -135,7 +143,7 @@ export const BookingSelectionStep = ({
           <p className={cn("truncate text-xs text-muted-foreground", loneSeats.length > 0 && "text-warning")}>
             {loneSeats.length > 0
               ? `Không để trống ghế lẻ ${loneSeats.join(", ")}`
-              : `${selectedSeats.length} ghế đã chọn`}
+              : `${selectedSeats.length} ghế đã chọn${holdDurationMinutes != null ? ` · giữ ghế ${holdDurationMinutes} phút` : ""}`}
           </p>
           <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(total)}</p>
         </div>

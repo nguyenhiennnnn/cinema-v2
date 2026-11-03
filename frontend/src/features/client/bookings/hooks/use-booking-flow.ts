@@ -11,6 +11,7 @@ import { findLoneSeats } from "@/components/common/seat-map/seat-map-utils";
 import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
 import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";
+import { isValidVnPhone } from "@/lib/validators";
 import { useAuthUser, useIsAuthenticated } from "@/stores/auth-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 import {
@@ -197,7 +198,8 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
   const canHold =
     selectedSeatIds.size > 0 &&
     loneSeats.length === 0 &&
-    (!isAuthenticated || customerName.trim().length > 0);
+    (!isAuthenticated || customerName.trim().length > 0) &&
+    (customerPhone.trim() === "" || isValidVnPhone(customerPhone.trim()));
 
   const holdAndContinue = async () => {
     if (!isAuthenticated) {

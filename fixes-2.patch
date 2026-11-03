@@ -642,18 +642,18 @@ index 043bbf7..1a2e4d7 100644
        <BookingPriceSummary seats={seats} combos={undefined} comboQuantities={{}} hold={hold} />
  
 diff --git a/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx b/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
-index 60f4207..94893d4 100644
+index 567122d..aae2928 100644
 --- a/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
 +++ b/frontend/src/features/client/bookings/components/booking/booking-selection-step.tsx
-@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
- import { SelectableSeatMap } from "@/components/common/seat-map/selectable-seat-map";
- import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
+@@ -7,6 +7,7 @@ import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
  import { useActiveCombos, useComboSuggestions } from "@/features/client/combos/hooks/use-combos";
+ import { formatCurrency } from "@/lib/formatters";
+ import { cn } from "@/lib/utils";
 +import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
  import { ShowtimeSeatStatus } from "@/types/enum";
  import type { ShowtimeSeatsResponseDto } from "@/features/client/showtimes/types";
  
-@@ -52,6 +53,7 @@ export const BookingSelectionStep = ({
+@@ -54,6 +55,7 @@ export const BookingSelectionStep = ({
    onContinue,
  }: BookingSelectionStepProps) => {
    const activeCombos = useActiveCombos();
@@ -661,7 +661,7 @@ index 60f4207..94893d4 100644
    const comboSuggestions = useComboSuggestions(data?.showtimeId ?? 0, selectedIds.size);
    const [highlightedIds, setHighlightedIds] = useState<Set<number>>(new Set());
  
-@@ -89,6 +91,7 @@ export const BookingSelectionStep = ({
+@@ -92,6 +94,7 @@ export const BookingSelectionStep = ({
            selectedIds={selectedIds}
            onToggle={(seat) => onToggleSeat(seat.showtimeSeatId)}
            highlightedIds={highlightedIds}
@@ -669,8 +669,8 @@ index 60f4207..94893d4 100644
          />
  
          <div className="border border-border bg-card p-4">
-@@ -116,6 +119,11 @@ export const BookingSelectionStep = ({
-         <Button disabled={!canHold || isHolding} onClick={onContinue}>
+@@ -119,6 +122,11 @@ export const BookingSelectionStep = ({
+         <Button className="max-lg:hidden" disabled={!canHold || isHolding} onClick={onContinue}>
            {isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục thanh toán"}
          </Button>
 +        {holdDurationMinutes != null && (
@@ -681,6 +681,15 @@ index 60f4207..94893d4 100644
          {loneSeats.length > 0 && (
            <p className="flex items-start gap-2 border border-warning/40 bg-warning/10 p-3 text-xs text-foreground">
              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+@@ -135,7 +143,7 @@ export const BookingSelectionStep = ({
+           <p className={cn("truncate text-xs text-muted-foreground", loneSeats.length > 0 && "text-warning")}>
+             {loneSeats.length > 0
+               ? `Không để trống ghế lẻ ${loneSeats.join(", ")}`
+-              : `${selectedSeats.length} ghế đã chọn`}
++              : `${selectedSeats.length} ghế đã chọn${holdDurationMinutes != null ? ` · giữ ghế ${holdDurationMinutes} phút` : ""}`}
+           </p>
+           <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(total)}</p>
+         </div>
 diff --git a/frontend/src/features/client/bookings/components/booking/booking-stepper.tsx b/frontend/src/features/client/bookings/components/booking/booking-stepper.tsx
 new file mode 100644
 index 0000000..3ab3d5f
@@ -760,7 +769,7 @@ index 924d1a9..498760a 100644
    const holdAndContinue = async () => {
      if (!isAuthenticated) {
 diff --git a/frontend/src/features/client/bookings/pages/booking-page.tsx b/frontend/src/features/client/bookings/pages/booking-page.tsx
-index 58b3c5b..23c727e 100644
+index 7dcf2f1..11ca3ac 100644
 --- a/frontend/src/features/client/bookings/pages/booking-page.tsx
 +++ b/frontend/src/features/client/bookings/pages/booking-page.tsx
 @@ -2,6 +2,7 @@
@@ -1027,11 +1036,11 @@ index 1c85439..4850339 100644
  
  export const useScheduleParams = (
 diff --git a/frontend/src/layouts/admin/admin-topbar.tsx b/frontend/src/layouts/admin/admin-topbar.tsx
-index 6d3110f..08f8878 100644
+index 22e7f00..854d999 100644
 --- a/frontend/src/layouts/admin/admin-topbar.tsx
 +++ b/frontend/src/layouts/admin/admin-topbar.tsx
-@@ -2,7 +2,7 @@ import { ModeToggle } from "@/components/common/mode-toggle";
- import { Badge } from "@/components/ui/badge";
+@@ -1,7 +1,7 @@
+ import { ModeToggle } from "@/components/common/mode-toggle";
  import { Button } from "@/components/ui/button";
  import { useAuthUser } from "@/stores/auth-store";
 -import { Bell, Globe, PanelLeft } from "lucide-react";
@@ -1039,7 +1048,7 @@ index 6d3110f..08f8878 100644
  import {
    DropdownMenu,
    DropdownMenuContent,
-@@ -12,26 +12,54 @@ import {
+@@ -11,26 +11,54 @@ import {
    DropdownMenuTrigger,
  } from "@/components/ui/dropdown-menu";
  import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";

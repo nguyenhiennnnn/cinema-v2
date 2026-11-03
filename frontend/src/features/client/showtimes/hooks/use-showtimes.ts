@@ -1,12 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { showtimesApi } from "../api/showtimes-api";
 import { queryKeys } from "@/api/query-keys";
 
-export function useSchedule(date: string) {
+export function useSchedule(date: string, screenType?: string | null) {
   return useQuery({
-    queryKey: queryKeys.showtimes.schedule(date),
-    queryFn: () => showtimesApi.getSchedule(date),
+    queryKey: queryKeys.showtimes.schedule(date, screenType),
+    queryFn: () => showtimesApi.getSchedule(date, screenType),
     enabled: !!date,
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

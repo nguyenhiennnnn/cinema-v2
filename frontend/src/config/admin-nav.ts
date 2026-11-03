@@ -150,3 +150,37 @@ export const filterNavGroupsByRole = (
       items: group.items.filter((item) => !role || item.roles.includes(role as Role)),
     }))
     .filter((group) => group.items.length > 0);
+
+export interface AdminBreadcrumb {
+  label: string;
+  to: string;
+}
+
+const ADMIN_SEGMENT_LABELS: Record<string, string> = {
+  genres: "Thể loại phim",
+  languages: "Ngôn ngữ",
+  "age-ratings": "Phân loại độ tuổi",
+  "seat-types": "Loại ghế",
+  "screen-types": "Loại màn hình",
+  "membership-tiers": "Hạng thành viên",
+  positions: "Chức vụ",
+  actors: "Diễn viên",
+  directors: "Đạo diễn",
+  seats: "Sơ đồ ghế",
+};
+
+const ADMIN_NAV_LABELS = new Map(
+  ADMIN_NAV_GROUPS.flatMap((group) => group.items.map((item) => [item.to, item.label] as const)),
+);
+
+export const getAdminBreadcrumbs = (pathname: string): AdminBreadcrumb[] => {
+  const segments = pathname.split("/").filter(Boolean).slice(1);
+
+  return segments.flatMap((segment, index) => {
+    const to = `/admin/${segments.slice(0, index + 1).join("/")}`;
+    const isId = /^\d+$/.test(segment);
+    if (isId && index < segments.length - 1) return [];
+    const label = isId ? "Chi tiết" : (ADMIN_NAV_LABELS.get(to) ?? ADMIN_SEGMENT_LABELS[segment]);
+    return label ? [{ label, to }] : [];
+  });
+};

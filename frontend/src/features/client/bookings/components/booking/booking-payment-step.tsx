@@ -28,7 +28,10 @@ export const BookingPaymentStep = ({
 }: BookingPaymentStepProps) => {
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
-      <BookingHoldTimer expiresAt={hold.expiresAt} />
+      <BookingHoldTimer
+        expiresAt={hold.expiresAt}
+        className="sticky top-16 z-40 justify-center border border-border bg-background px-4 py-2.5"
+      />
 
       <BookingPriceSummary seats={seats} combos={undefined} comboQuantities={{}} hold={hold} />
 

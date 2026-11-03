@@ -15,6 +15,7 @@ export interface CinemaSettingsDto {
   cancelRefundPercent: number;
   cancelDeadlineHours: number;
   stopSellingMinutesBefore: number;
+  holdDurationMinutes: number;
   seatGapRuleMode: SeatGapRuleMode;
 }
 

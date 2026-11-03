@@ -4,11 +4,18 @@ import { ROUTES } from "@/config/routes";
 
 export const HeaderAuthButtons = () => (
   <div className="hidden items-center gap-2 sm:flex">
-    <Button variant="ghost">
-      <Link to={ROUTES.auth.login}>Đăng nhập</Link>
+    <Button
+      variant="ghost"
+      render={<Link to={ROUTES.auth.login} />}
+      nativeButton={false}
+    >
+      Đăng nhập
     </Button>
-    <Button>
-      <Link to={ROUTES.auth.register}>Đăng ký</Link>
+    <Button
+      render={<Link to={ROUTES.auth.register} />}
+      nativeButton={false}
+    >
+      Đăng ký
     </Button>
   </div>
 );

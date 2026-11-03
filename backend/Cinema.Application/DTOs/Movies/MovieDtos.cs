@@ -12,7 +12,8 @@ public record MovieListItemDto(
     string Status,
     decimal AverageRating,
     AgeRatingCodeDto? AgeRating,
-    List<string> Genres
+    List<string> Genres,
+    DateOnly? ReleaseDate
 );
 
 public record CastMemberDto(int ActorId, string FullName, string? AvatarUrl, string? CharacterName);

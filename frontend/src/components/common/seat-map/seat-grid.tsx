@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { CinemaScreen } from "./seat-legend";
 import type { SeatGridCell } from "./seat-map-types";
@@ -12,6 +12,7 @@ interface SeatGridProps {
   onRowLabelClick?: (rowLabel: string) => void;
   rowLabelClassName?: (rowLabel: string) => string | undefined;
   rowLabelTitle?: (rowLabel: string) => string | undefined;
+  fitWidth?: boolean;
 }
 
 const ROW_LABEL = "t-code w-6 shrink-0 text-center text-[13px] text-muted-foreground";
@@ -25,10 +26,24 @@ export const SeatGrid = ({
   onRowLabelClick,
   rowLabelClassName,
   rowLabelTitle,
+  fitWidth = false,
 }: SeatGridProps) => {
   return (
-    <div className={cn("w-full overflow-x-auto pb-2", className)}>
-      <div className="mx-auto flex w-max flex-col gap-1.5">
+    <div className={cn("w-full pb-2", fitWidth ? "@container" : "overflow-x-auto", className)}>
+      <div
+        className={cn(
+          "mx-auto flex w-max flex-col gap-1.5",
+          fitWidth &&
+            "[--fit-gap:0.25rem] @xl:[--fit-gap:0.375rem] [&_.seat]:[--seat-size:min(2.25rem,var(--fit))] [&_.seat]:text-[length:clamp(7px,calc(var(--fit)_*_0.45),13px)]",
+        )}
+        style={
+          fitWidth
+            ? ({
+                "--fit": `min(2.5rem, calc((100cqw - 4rem - ${cols - 1} * var(--fit-gap)) / ${cols}))`,
+              } as CSSProperties)
+            : undefined
+        }
+      >
         {/* thanh màn hình rộng đúng bằng phần ghế (trừ hai cột chữ cái hàng) */}
         <CinemaScreen className="mx-8 mb-8" />
 
@@ -51,8 +66,12 @@ export const SeatGrid = ({
               <span className={ROW_LABEL}>{rowLabel}</span>
             )}
             <div
-              className="grid gap-1.5"
-              style={{ gridTemplateColumns: `repeat(${cols}, minmax(2.25rem, 2.5rem))` }}
+              className={cn("grid", fitWidth ? "gap-[var(--fit-gap)]" : "gap-1.5")}
+              style={{
+                gridTemplateColumns: fitWidth
+                  ? `repeat(${cols}, var(--fit))`
+                  : `repeat(${cols}, minmax(2.25rem, 2.5rem))`,
+              }}
             >
               {Array.from({ length: cols }, (_, i) => i + 1).map((col) => {
                 const cell = cellAt(rowLabel, col);

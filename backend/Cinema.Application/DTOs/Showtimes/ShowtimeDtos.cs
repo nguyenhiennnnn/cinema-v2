@@ -92,7 +92,11 @@ public record WholeCinemaMovieDto(
     List<WholeCinemaShowtimeSlotDto> Showtimes
 );
 
-public record WholeCinemaScheduleDto(string Date, List<WholeCinemaMovieDto> Movies);
+public record WholeCinemaScheduleDto(
+    string Date,
+    List<WholeCinemaMovieDto> Movies,
+    List<string> Formats
+);
 
 public record BulkDateRange(DateOnly From, DateOnly To);
 

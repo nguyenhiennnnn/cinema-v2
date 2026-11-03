@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { CalendarX } from "lucide-react";
 import { DateStrip } from "@/components/common/date-strip";
 import { ShowtimeGroupList } from "@/components/common/showtime-group-list";
@@ -19,6 +20,14 @@ export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps)
   }, [showtimes]);
 
 
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash === "#showtimes") {
+      document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [hash]);
+
   const [manualSelectedDate, setManualSelectedDate] = useState<string | null>(null);
   const selectedDate = manualSelectedDate ?? dateKeys[0] ?? getBusinessToday();
 
@@ -31,7 +40,12 @@ export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps)
     <div id="showtimes" className="scroll-mt-24">
       <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Lịch chiếu & Đặt vé</h2>
 
-      <DateStrip value={selectedDate} onChange={setManualSelectedDate} className="mt-4" />
+      <DateStrip
+        value={selectedDate}
+        onChange={setManualSelectedDate}
+        availableDates={dateKeys}
+        className="mt-4"
+      />
 
       <div className="mt-5">
         {filtered.length === 0 ? (
