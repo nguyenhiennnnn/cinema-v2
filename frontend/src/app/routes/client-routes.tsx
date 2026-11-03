@@ -21,6 +21,7 @@ import ConfirmEmailPage from "@/features/auth/pages/confirm-email-page";
 import ForgotPasswordPage from "@/features/auth/pages/forgot-password-page";
 import ResetPasswordPage from "@/features/auth/pages/reset-password-page";
 import MembershipPage from "@/features/client/membership/pages/membership-page";
+import PolicyPage from "@/features/client/policies/pages/policy-page";
 
 export const clientRoutes: RouteObject[] = [
   {
@@ -32,6 +33,7 @@ export const clientRoutes: RouteObject[] = [
       { path: "movies/:id", element: <MovieDetailPage /> },
       { path: "schedule", element: <SchedulePage /> },
       { path: "membership", element: <MembershipPage /> },
+      { path: "policies/:slug", element: <PolicyPage /> },
       { path: "booking/:showtimeId", element: <BookingPage /> },
       { path: "booking/result", element: <BookingResultPage /> },
       {

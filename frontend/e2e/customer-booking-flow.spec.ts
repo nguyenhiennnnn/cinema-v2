@@ -42,7 +42,14 @@ test("customer end-to-end booking flow: select movie, pick seats, add combos, ho
   await expect(page.getByText(/Ghế \(2\)/i)).toBeVisible();
 
   // 5. If combos are available, increase the first combo quantity
-  const comboPlusButton = page.locator('button:has(svg.lucide-plus)').first();
+  const comboSection = page
+    .locator("div", {
+      has: page.getByRole("heading", { name: /Chọn combo/i }),
+    })
+    .last();
+  const comboPlusButton = comboSection
+    .locator("button:has(svg.lucide-plus)")
+    .first();
   if (await comboPlusButton.isVisible()) {
     await comboPlusButton.click();
     await expect(page.getByText("Combo", { exact: true })).toBeVisible();

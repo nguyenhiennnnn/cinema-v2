@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "@/components/ui/toast";
 import {
@@ -20,6 +20,7 @@ import {
   useCheckout,
   useHoldSeats,
 } from "./use-bookings";
+import { bookingsApi } from "../api/bookings-api";
 import type { HoldBookingResponse, PricedSeat } from "../types";
 
 export type BookingStep = "select" | "payment";
@@ -125,6 +126,67 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
       if (!isResumeMode) resetToSelection();
     },
   });
+
+  // Polling fallback: when the hold timer expires but the SignalR/Hangfire
+  // notification is delayed, poll the booking API every 5 s until the server
+  // confirms the booking is Expired, then show the toast and reset the flow.
+  const expiredNotifiedRef = useRef(false);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollIntervalRef.current !== null) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    const bookingId = freshHoldResult?.bookingId;
+    const expiresAt = freshHoldResult?.expiresAt;
+
+    if (!bookingId || !expiresAt || step !== "payment") {
+      stopPolling();
+      expiredNotifiedRef.current = false;
+      return;
+    }
+
+    const expiryMs = new Date(expiresAt).getTime() - Date.now();
+    if (expiryMs > 0) {
+      stopPolling();
+      return;
+    }
+
+    // Countdown has hit 0 — start polling until server confirms Expired.
+    if (pollIntervalRef.current !== null) return;
+
+    const poll = async () => {
+      if (expiredNotifiedRef.current) {
+        stopPolling();
+        return;
+      }
+      try {
+        const res = await bookingsApi.getBookingDetail(bookingId);
+        if (res.data.status === BookingStatus.Expired) {
+          expiredNotifiedRef.current = true;
+          stopPolling();
+          toast.add({
+            title: "Thời gian giữ ghế đã hết hạn, vui lòng chọn lại.",
+            type: "warning",
+          });
+          if (!isResumeMode) resetToSelection();
+        }
+      } catch {
+        // ignore transient errors, keep polling
+      }
+    };
+
+    poll();
+    pollIntervalRef.current = setInterval(poll, 5_000);
+
+    return stopPolling;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [freshHoldResult?.bookingId, freshHoldResult?.expiresAt, step]);
+
 
   const holdSeatsMutation = useHoldSeats();
   const checkoutMutation = useCheckout(holdResult?.bookingId ?? 0);

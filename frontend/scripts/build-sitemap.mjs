@@ -11,6 +11,10 @@ const STATIC_PAGES = [
   { path: "/movies", changefreq: "daily", priority: "0.9" },
   { path: "/schedule", changefreq: "daily", priority: "0.8" },
   { path: "/membership", changefreq: "monthly", priority: "0.5" },
+  { path: "/policies/terms", changefreq: "yearly", priority: "0.3" },
+  { path: "/policies/privacy", changefreq: "yearly", priority: "0.3" },
+  { path: "/policies/refund", changefreq: "yearly", priority: "0.3" },
+  { path: "/policies/age-rating", changefreq: "yearly", priority: "0.3" },
 ];
 const PAGE_LIMIT = 50; 
 const MAX_PAGES = 200; 

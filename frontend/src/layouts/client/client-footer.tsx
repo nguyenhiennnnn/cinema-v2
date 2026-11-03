@@ -6,8 +6,8 @@ import { BRAND } from "@/config/brand";
 const FOOTER_CATEGORIES = [
   { label: "Phim đang chiếu", to: "/movies?status=now-showing" },
   { label: "Phim sắp chiếu", to: "/movies?status=coming-soon" },
-  { label: "Phòng chiếu đặc biệt", to: "/movies?format=imax" },
-  { label: "Combo bắp nước", to: "/membership" },
+  { label: "Lịch chiếu", to: "/schedule" },
+  { label: "Chương trình thành viên", to: "/membership" },
 ];
 
 const FOOTER_POLICIES = [

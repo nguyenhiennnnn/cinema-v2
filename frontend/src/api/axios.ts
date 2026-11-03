@@ -25,7 +25,6 @@ export const apiClient = axios.create({
   },
 });
 
-// ─── Request Interceptor ──────────────────────────────────────────────────────
 apiClient.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState();
   if (accessToken && config.headers) {
@@ -100,7 +99,8 @@ function isAuthExcludedUrl(url?: string): boolean {
 function redirectToLogin() {
   const currentPath = window.location.pathname + window.location.search;
   const isAuthRoute =
-    currentPath.startsWith("/auth") || currentPath.startsWith(ROUTES.admin.login);
+    currentPath.startsWith("/auth") ||
+    currentPath.startsWith(ROUTES.admin.login);
   if (isAuthRoute) return;
   const isAdminRoute = currentPath.startsWith("/admin");
   window.location.href = isAdminRoute
@@ -108,7 +108,6 @@ function redirectToLogin() {
     : `${ROUTES.auth.login}?redirect=${encodeURIComponent(currentPath)}`;
 }
 
-// ─── Response Interceptor ─────────────────────────────────────────────────────
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -140,12 +139,10 @@ apiClient.interceptors.response.use(
         const hasResponse = (refreshError as AxiosError)?.response != null;
 
         if (!hasResponse || refreshStatus === 401 || refreshStatus === 403) {
-          // Không có response (network/timeout) hoặc token thực sự hết hạn → logout
           logDevError(refreshError, "Token Refresh — phiên đăng nhập hết hạn");
           useAuthStore.getState().logout();
           redirectToLogin();
         } else {
-          // Lỗi server tạm thời (5xx) → giữ session, không logout
           logDevError(
             refreshError,
             "Token Refresh — lỗi server tạm thời, giữ session",

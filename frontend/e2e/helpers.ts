@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 export const CUSTOMER_CREDENTIALS = {
   email: process.env.E2E_CUSTOMER_EMAIL ?? "customer@cinema.local",
@@ -17,42 +17,100 @@ export const ADMIN_CREDENTIALS = {
 const API_BASE_URL =
   process.env.VITE_API_BASE_URL ?? "http://localhost:8080/api/v1";
 
-const SQL_SA_PASSWORD = process.env.SQL_SA_PASSWORD ?? "Hien@12345";
-const SQL_CONTAINER_NAME = process.env.SQL_CONTAINER_NAME ?? "cinema-sqlserver";
-const SQL_DB_NAME = process.env.SQL_DB_NAME ?? "CinemaDb";
+const DATABASE_URL = process.env.E2E_DATABASE_URL ?? process.env.DATABASE_URL;
+const PSQL_IMAGE = process.env.E2E_PSQL_IMAGE ?? "postgres:17-alpine";
+
+async function runSql(sql: string): Promise<boolean> {
+  if (!DATABASE_URL) {
+    console.warn("Could not run SQL: DATABASE_URL is not set");
+    return false;
+  }
+  try {
+    await execFileAsync(
+      "docker",
+      [
+        "run",
+        "--rm",
+        "-e",
+        "DATABASE_URL",
+        "-e",
+        "E2E_SQL",
+        PSQL_IMAGE,
+        "sh",
+        "-c",
+        'psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "$E2E_SQL"',
+      ],
+      {
+        timeout: 120_000,
+        env: { ...process.env, DATABASE_URL, E2E_SQL: sql },
+      },
+    );
+    return true;
+  } catch (err) {
+    console.warn(
+      "Could not run SQL via psql:",
+      err instanceof Error ? err.message : err,
+    );
+    return false;
+  }
+}
+
+let customerApiToken: string | null = null;
+let adminApiToken: string | null = null;
+
+async function loginForToken(
+  page: Page,
+  path: string,
+  credentials: { email: string; password: string },
+): Promise<string | null> {
+  const res = await page.request.post(`${API_BASE_URL}${path}`, {
+    data: { email: credentials.email, password: credentials.password },
+  });
+  if (!res.ok()) return null;
+  const body = await res.json();
+  return body.data?.accessToken ?? null;
+}
+
+export async function getCustomerApiToken(page: Page): Promise<string | null> {
+  customerApiToken ??= await loginForToken(
+    page,
+    "/auth/login",
+    CUSTOMER_CREDENTIALS,
+  );
+  return customerApiToken;
+}
+
+async function getAdminApiToken(page: Page): Promise<string | null> {
+  adminApiToken ??= await loginForToken(
+    page,
+    "/auth/admin-login",
+    ADMIN_CREDENTIALS,
+  );
+  return adminApiToken;
+}
 
 export async function ensureNoPendingBookings(page: Page) {
   try {
     const apiContext = page.request;
-    const loginRes = await apiContext.post(`${API_BASE_URL}/auth/login`, {
-      data: {
-        email: CUSTOMER_CREDENTIALS.email,
-        password: CUSTOMER_CREDENTIALS.password,
-      },
-    });
+    const token = await getCustomerApiToken(page);
+    if (!token) return;
 
-    if (loginRes.ok()) {
-      const body = await loginRes.json();
-      const token = body.data?.accessToken;
-      if (token) {
-        const bookingsRes = await apiContext.get(
-          `${API_BASE_URL}/bookings?status=Pending`,
+    const bookingsRes = await apiContext.get(
+      `${API_BASE_URL}/bookings?status=Pending`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    if (bookingsRes.ok()) {
+      const listBody = await bookingsRes.json();
+      const items = listBody.data?.items ?? [];
+      for (const item of items) {
+        await apiContext.post(
+          `${API_BASE_URL}/bookings/${item.bookingId}/cancel`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
-        if (bookingsRes.ok()) {
-          const listBody = await bookingsRes.json();
-          const items = listBody.data?.items ?? [];
-          for (const item of items) {
-            await apiContext.post(
-              `${API_BASE_URL}/bookings/${item.bookingId}/cancel`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              },
-            );
-          }
-        }
       }
     }
   } catch {
@@ -63,12 +121,32 @@ export async function ensureNoPendingBookings(page: Page) {
 export async function loginAsCustomer(page: Page) {
   await ensureNoPendingBookings(page);
 
-  await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
-  await page.getByLabel("Email").fill(CUSTOMER_CREDENTIALS.email!);
-  await page
-    .getByLabel("Mật khẩu", { exact: true })
-    .fill(CUSTOMER_CREDENTIALS.password!);
-  await page.getByRole("button", { name: "Đăng nhập" }).click();
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
+    await page.getByLabel("Email").fill(CUSTOMER_CREDENTIALS.email!);
+    await page
+      .getByLabel("Mật khẩu", { exact: true })
+      .fill(CUSTOMER_CREDENTIALS.password!);
+    await page.getByRole("button", { name: "Đăng nhập" }).click();
+
+    const redirected = await page
+      .waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+        waitUntil: "commit",
+        timeout: 15_000,
+      })
+      .then(() => true)
+      .catch(() => false);
+
+    if (redirected) return;
+
+    if (attempt < MAX_ATTEMPTS) {
+      // Transient DB failure (e.g. Neon cold-start) – wait briefly then retry
+      await page.waitForTimeout(2_000);
+    }
+  }
+
+  // Final hard assertion so the test fails with a clear message
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
     waitUntil: "commit",
     timeout: 15_000,
@@ -76,12 +154,32 @@ export async function loginAsCustomer(page: Page) {
 }
 
 export async function loginAsAdmin(page: Page) {
-  await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
-  await page.getByLabel("Email quản trị").fill(ADMIN_CREDENTIALS.email!);
-  await page
-    .getByLabel("Mật khẩu", { exact: true })
-    .fill(ADMIN_CREDENTIALS.password!);
-  await page.getByRole("button", { name: "Đăng nhập quản trị" }).click();
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
+    await page.getByLabel("Email quản trị").fill(ADMIN_CREDENTIALS.email!);
+    await page
+      .getByLabel("Mật khẩu", { exact: true })
+      .fill(ADMIN_CREDENTIALS.password!);
+    await page.getByRole("button", { name: "Đăng nhập quản trị" }).click();
+
+    const redirected = await page
+      .waitForURL((url) => !url.pathname.startsWith("/admin/login"), {
+        waitUntil: "commit",
+        timeout: 15_000,
+      })
+      .then(() => true)
+      .catch(() => false);
+
+    if (redirected) return;
+
+    if (attempt < MAX_ATTEMPTS) {
+      // Transient DB failure (e.g. Neon cold-start) – wait briefly then retry
+      await page.waitForTimeout(2_000);
+    }
+  }
+
+  // Final hard assertion so the test fails with a clear message
   await page.waitForURL((url) => !url.pathname.startsWith("/admin/login"), {
     waitUntil: "commit",
     timeout: 15_000,
@@ -94,19 +192,6 @@ export interface TestTicketInfo {
   movieTitle: string;
   seatRow: string;
   seatNumber: number;
-}
-
-export async function getCustomerApiToken(page: Page): Promise<string | null> {
-  const apiContext = page.request;
-  const loginRes = await apiContext.post(`${API_BASE_URL}/auth/login`, {
-    data: {
-      email: CUSTOMER_CREDENTIALS.email,
-      password: CUSTOMER_CREDENTIALS.password,
-    },
-  });
-  if (!loginRes.ok()) return null;
-  const body = await loginRes.json();
-  return body.data?.accessToken ?? null;
 }
 
 export async function getLatestPendingBookingId(
@@ -128,16 +213,9 @@ export async function getLatestPendingBookingId(
 export async function expireBookingHoldInDb(
   bookingId: number,
 ): Promise<boolean> {
-  try {
-    await execAsync(
-      `docker exec ${SQL_CONTAINER_NAME} /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SQL_SA_PASSWORD}" -d ${SQL_DB_NAME} -C -Q "UPDATE Bookings SET ExpiresAt = DATEADD(minute, -1, GETUTCDATE()) WHERE BookingId = ${bookingId};"`,
-      { timeout: 15000 },
-    );
-    return true;
-  } catch (err) {
-    console.warn("Could not expire booking hold via sqlcmd:", err);
-    return false;
-  }
+  return runSql(
+    `UPDATE "Bookings" SET "ExpiresAt" = (NOW() AT TIME ZONE 'UTC') - INTERVAL '1 minute' WHERE "BookingId" = ${bookingId};`,
+  );
 }
 
 export async function cancelBookingViaApi(
@@ -192,43 +270,17 @@ export async function createEligibleTicketForCheckin(
   const apiContext = page.request;
 
   try {
-    if (SQL_SA_PASSWORD) {
-      try {
-        const sql =
-          "UPDATE Showtimes SET StartTime = DATEADD(minute, 15, GETUTCDATE()), " +
-          "EndTime = DATEADD(minute, 135, GETUTCDATE()) WHERE ShowtimeId = 1;";
-        await execAsync(
-          `docker exec ${SQL_CONTAINER_NAME} /opt/mssql-tools18/bin/sqlcmd ` +
-            `-S localhost -U sa -P "${SQL_SA_PASSWORD}" -d ${SQL_DB_NAME} -C -Q "${sql}"`,
-          { timeout: 15000 },
-        );
-      } catch (err) {
-        console.warn("Could not update showtime start time via sqlcmd:", err);
-      }
-    }
+    await runSql(
+      `UPDATE "Showtimes" SET "StartTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '15 minutes', "EndTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '135 minutes' WHERE "ShowtimeId" = 1;`,
+    );
 
     // 1. Admin login to obtain admin token
-    const adminLoginRes = await apiContext.post(
-      `${API_BASE_URL}/auth/admin-login`,
-      {
-        data: {
-          email: ADMIN_CREDENTIALS.email,
-          password: ADMIN_CREDENTIALS.password,
-        },
-      },
-    );
-    if (!adminLoginRes.ok()) return null;
-    const adminToken = (await adminLoginRes.json()).data.accessToken;
+    const adminToken = await getAdminApiToken(page);
+    if (!adminToken) return null;
 
     // 2. Customer login to obtain customer token
-    const custLoginRes = await apiContext.post(`${API_BASE_URL}/auth/login`, {
-      data: {
-        email: CUSTOMER_CREDENTIALS.email,
-        password: CUSTOMER_CREDENTIALS.password,
-      },
-    });
-    if (!custLoginRes.ok()) return null;
-    const custToken = (await custLoginRes.json()).data.accessToken;
+    const custToken = await getCustomerApiToken(page);
+    if (!custToken) return null;
 
     // Cancel pending bookings first
     await ensureNoPendingBookings(page);

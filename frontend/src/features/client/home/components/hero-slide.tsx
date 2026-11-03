@@ -29,12 +29,12 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
   const reveal = (i: number): { className?: string; style?: CSSProperties } =>
     entering ? { className: "hero-reveal", style: { "--i": i } as CSSProperties } : {};
 
-  const metaReveal    = reveal(0);
-  const titleReveal   = reveal(1);
-  const statsReveal   = reveal(2);
+  const metaReveal = reveal(0);
+  const titleReveal = reveal(1);
+  const statsReveal = reveal(2);
   const dividerReveal = reveal(3);
   const actionsReveal = reveal(4);
-  const posterReveal  = reveal(5);
+  const posterReveal = reveal(5);
   const href = `/movies/${movie.movieId}`;
 
   return (
@@ -51,10 +51,8 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
         leaving && "hero-leave pointer-events-none",
       )}
     >
-      {/* ── Cột trái: nội dung ────────────────────────────────── */}
       <div className="min-w-0 md:max-w-lg lg:max-w-xl">
 
-        {/* Badges: độ tuổi + thể loại */}
         <div
           style={metaReveal.style}
           className={cn("flex flex-wrap items-center gap-2", metaReveal.className)}
@@ -70,7 +68,6 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
           ))}
         </div>
 
-        {/* Đường nhấn đỏ + tiêu đề */}
         <div style={titleReveal.style} className={cn("mt-5", titleReveal.className)}>
           <div className="mb-4 h-[3px] w-10 bg-primary" />
           <Title className="t-display line-clamp-3 pb-1 text-scrim-foreground">
@@ -78,7 +75,6 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
           </Title>
         </div>
 
-        {/* Stats — thời lượng + điểm — dạng số nổi bật */}
         <div
           style={statsReveal.style}
           className={cn(
@@ -86,7 +82,6 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
             statsReveal.className,
           )}
         >
-          {/* Thời lượng */}
           <div className="flex flex-col gap-0.5">
             <span className="t-numeral text-2xl text-scrim-foreground">
               {formatDuration(movie.durationMinutes)}
@@ -97,12 +92,10 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
             </span>
           </div>
 
-          {/* Divider dọc */}
           {movie.averageRating > 0 && (
             <div className="h-10 w-px bg-scrim-foreground/20" aria-hidden />
           )}
 
-          {/* Điểm đánh giá */}
           {movie.averageRating > 0 && (
             <div className="flex flex-col gap-0.5">
               <span className="flex items-baseline gap-1.5">
@@ -119,14 +112,12 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
           )}
         </div>
 
-        {/* Đường tách kiểu perfo */}
         <div
           style={dividerReveal.style}
           className={cn("mt-7 perf-h w-full max-w-[200px]", dividerReveal.className)}
           aria-hidden
         />
 
-        {/* Actions */}
         <div
           style={actionsReveal.style}
           className={cn("mt-6 flex flex-wrap gap-3", actionsReveal.className)}
@@ -150,7 +141,6 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
         </div>
       </div>
 
-      {/* ── Cột phải: poster ─────────────────────────────────── */}
       <Link
         to={href}
         tabIndex={leaving ? -1 : undefined}

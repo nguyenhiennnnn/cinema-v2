@@ -122,8 +122,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       target: dev
     container_name: perfo-frontend
     depends_on:
@@ -135,7 +135,7 @@ services:
       VITE_SIGNALR_HUB_URL: ${VITE_SIGNALR_HUB_URL:-http://localhost:8080/hubs/showtimes}
       VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app/frontend
       - /app/node_modules
     restart: unless-stopped
     networks:

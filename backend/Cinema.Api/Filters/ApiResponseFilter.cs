@@ -50,11 +50,6 @@ public class ApiResponseFilter : IActionFilter
 [AttributeUsage(AttributeTargets.Method)]
 public class RawResponseAttribute : Attribute;
 
-/// <summary>
-/// Gắn message thành công (lấy từ Messages.resx) vào envelope <c>ApiResponse.Message</c>.
-/// Dùng <c>nameof(Messages.Success_X)</c> để key được kiểm tra lúc compile.
-/// Message động (phụ thuộc kết quả) thì trả <c>ApiResponse.SuccessResponse(data, Messages.X)</c> trực tiếp.
-/// </summary>
 [AttributeUsage(AttributeTargets.Method)]
 public class SuccessMessageAttribute(string resourceKey) : Attribute
 {

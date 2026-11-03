@@ -106,8 +106,7 @@ export interface BulkDeleteShowtimesResponse {
   totalFailed: number;
 }
 
-// ── Admin showtime calendar (theo khoảng ngày) ─────────────────────────────────
-// Backend AdminShowtimeCalendarFilter(DateOnly From, DateOnly To, int? RoomId, int? MovieId, string? Status)
+// ── Admin showtime calendar ─────────────────────────────────
 
 export interface AdminShowtimeCalendarParams {
   from: string; // "yyyy-MM-dd"
@@ -158,8 +157,7 @@ export interface AutoScheduleRequest {
   basePrice: number;
   roomIds?: number[];
   allowAfterHours?: boolean;
-  /** Xếp nhiều ngày: từ `date` đến `toDate` (tối đa 31 ngày). */
-  toDate?: string; // "yyyy-MM-dd"
+  toDate?: string;
 }
 
 export interface AutoScheduleItemDto {
@@ -190,12 +188,10 @@ export interface ApplyAutoScheduleRequest {
   items: UpsertShowtimeRequest[];
 }
 
-// ── Clone (nhân bản lịch chiếu sang tuần khác) ───────────────────────────────
-
 export interface CloneShowtimesRequest {
   sourceFrom: string; // "yyyy-MM-dd"
   sourceTo: string;
-  shiftDays: number; // số ngày dịch chuyển, >= 1 (7 = tuần sau)
+  shiftDays: number;
   roomIds?: number[];
   allowAfterHours?: boolean;
 }

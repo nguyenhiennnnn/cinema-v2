@@ -21,33 +21,27 @@ interface SeatEditorToolbarProps {
   isSaving?: boolean;
   isDirty: boolean;
 
-  // undo/redo
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
 
-  // preview mode
   previewMode: boolean;
   onTogglePreview: () => void;
 
-  // multi-select + bulk edit
   selectionMode: boolean;
   onToggleSelectionMode: () => void;
   selectedCount: number;
   onApplyToSelection: () => void;
   onClearSelection: () => void;
 
-  // copy/paste row
   isPickingCopySource: boolean;
   copySourceRow: string | null;
   onStartCopyRow: () => void;
   onCancelCopyRow: () => void;
 
-  // validation
   onValidate: () => void;
 
-  // auto-generate
   defaultSeatTypeId: number | null;
   onAutoGenerate: (options: AutoGenerateOptions) => void;
 }

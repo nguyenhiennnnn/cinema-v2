@@ -155,7 +155,7 @@ services:
   - type: web
     name: cinema-web
     runtime: static
-    buildCommand: cd frontend && npm ci && npm run build:full
+    buildCommand: npm ci && npm run build:frontend:full
     staticPublishPath: ./frontend/dist
     autoDeployTrigger: commit
     envVars:

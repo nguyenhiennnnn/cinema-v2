@@ -13,3 +13,25 @@
 **/obj
 **/logs
 **/node_modules
+
+# ── Frontend image (context = thu muc goc) ──
+backend/
+load-tests/
+.agents/
+*.patch
+**/dist
+**/dist-ssr
+**/e2e
+**/playwright-report
+**/test-results
+.env
+.env.*
+!.env.example
+**/.env.*
+!**/.env.example
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+*.md

@@ -27,7 +27,6 @@ export interface HoldBookingResponse {
 
 // ── Checkout ──────────────────────────────────────────────────────────────────
 
-// Backend CheckoutRequest takes string not enum
 export interface CheckoutRequest {
   paymentMethod: string;
 }

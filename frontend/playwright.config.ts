@@ -1,7 +1,8 @@
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(import.meta.dirname, ".env") });
 
 export default defineConfig({
   testDir: "./e2e",
