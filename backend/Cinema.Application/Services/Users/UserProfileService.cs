@@ -77,19 +77,18 @@ public class UserProfileService(IAppDbContext db) : IUserProfileService
         CancellationToken cancellationToken
     )
     {
-        MembershipTierBriefDto? tierDto = null;
-        if (profile.TierId is not null)
-        {
-            var tier = await db.MembershipTiers.FirstOrDefaultAsync(
-                t => t.TierId == profile.TierId,
-                cancellationToken
-            );
-            if (tier is not null)
-                tierDto = tier.Adapt<MembershipTierBriefDto>();
-        }
+        // Điểm/hạng tính trực tiếp từ sổ điểm 12 tháng để khớp với mức giảm giá khi đặt vé,
+        // không đọc profile.Points/TierId (bản cache, có thể cũ tới 1 giờ).
+        var (points, currentTier) = await LoyaltyWindow.GetStandingAsync(
+            db,
+            user.UserId,
+            DateTime.UtcNow,
+            cancellationToken
+        );
+        var tierDto = currentTier?.Adapt<MembershipTierBriefDto>();
 
         var nextTierEntity = await db
-            .MembershipTiers.Where(t => t.MinPoints > profile.Points)
+            .MembershipTiers.Where(t => t.MinPoints > points)
             .OrderBy(t => t.MinPoints)
             .FirstOrDefaultAsync(cancellationToken);
         var nextTierDto = nextTierEntity is null
@@ -97,7 +96,7 @@ public class UserProfileService(IAppDbContext db) : IUserProfileService
             : new NextTierDto(
                 nextTierEntity.TierId,
                 nextTierEntity.TierName,
-                nextTierEntity.MinPoints - profile.Points
+                nextTierEntity.MinPoints - points
             );
 
         return new UserProfileDto(
@@ -108,7 +107,7 @@ public class UserProfileService(IAppDbContext db) : IUserProfileService
             user.Avatar,
             user.DateOfBirth,
             user.Gender.ToDtoGender(),
-            profile.Points,
+            points,
             profile.TotalSpent,
             tierDto,
             nextTierDto

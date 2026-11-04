@@ -33,6 +33,25 @@ public class AuthService(
     private readonly BrandOptions _brand = brandOptions?.Value ?? new();
     private readonly int _refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
 
+    // Points/hạng trả về cho client lấy từ sổ điểm 12 tháng, không dùng bản cache trên CustomerProfile.
+    private async Task<LoginUserDto> ToLoginUserDtoAsync(
+        User user,
+        CancellationToken cancellationToken
+    )
+    {
+        var dto = user.Adapt<LoginUserDto>();
+        if (user.CustomerProfile is null)
+            return dto;
+
+        var (points, tier) = await LoyaltyWindow.GetStandingAsync(
+            db,
+            user.UserId,
+            DateTime.UtcNow,
+            cancellationToken
+        );
+        return dto with { MembershipTierName = tier?.TierName, Points = points };
+    }
+
     public async Task<RegisterResponse> RegisterAsync(
         RegisterRequest request,
         CancellationToken cancellationToken
@@ -176,7 +195,7 @@ public class AuthService(
         var accessToken = tokenService.GenerateAccessToken(user);
         var refreshToken = await IssueRefreshTokenAsync(user.UserId, cancellationToken);
 
-        var userDto = user.Adapt<LoginUserDto>();
+        var userDto = await ToLoginUserDtoAsync(user, cancellationToken);
 
         return new LoginResponse(
             accessToken.AccessToken,
@@ -291,7 +310,7 @@ public class AuthService(
 
         var accessToken = tokenService.GenerateAccessToken(user);
         var refreshToken = await IssueRefreshTokenAsync(user.UserId, cancellationToken);
-        var userDto = user.Adapt<LoginUserDto>();
+        var userDto = await ToLoginUserDtoAsync(user, cancellationToken);
 
         return new LoginResponse(
             accessToken.AccessToken,
@@ -358,7 +377,7 @@ public class AuthService(
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        var userDto = existing.User.Adapt<LoginUserDto>();
+        var userDto = await ToLoginUserDtoAsync(existing.User, cancellationToken);
 
         return new RefreshResponse(
             accessToken.AccessToken,

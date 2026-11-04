@@ -268,8 +268,14 @@ public class GeminiAiAssistantService(
                 .FirstOrDefaultAsync(u => u.UserId == userId.Value, cancellationToken);
             if (user is not null)
             {
-                var points = user.CustomerProfile?.Points ?? 0;
-                var tier = user.CustomerProfile?.Tier?.TierName ?? "Thành viên";
+                var standing = await LoyaltyWindow.GetStandingAsync(
+                    db,
+                    user.UserId,
+                    DateTime.UtcNow,
+                    cancellationToken
+                );
+                var points = standing.Points;
+                var tier = standing.Tier?.TierName ?? "Thành viên";
                 userInfoStr =
                     $"Tên: {user.FullName}, Email: {user.Email}, Điểm tích lũy: {points}, Hạng: {tier}";
             }

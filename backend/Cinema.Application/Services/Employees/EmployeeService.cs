@@ -396,15 +396,28 @@ public class EmployeeService : IEmployeeService
             .Take(limit)
             .ToListAsync(cancellationToken);
 
+        // Hạng/giảm giá hiển thị cho nhân viên phải khớp với mức giảm thực tế khi giữ ghế
+        // (tính từ sổ điểm 12 tháng), không dùng Tier cache trên profile.
+        var standings = await LoyaltyWindow.GetStandingsAsync(
+            db,
+            users.Select(u => u.UserId).ToList(),
+            DateTime.UtcNow,
+            cancellationToken
+        );
+
         return users
-            .Select(u => new CustomerLookupItemDto(
-                UserId: u.UserId,
-                FullName: u.FullName,
-                PhoneLast4: u.Phone?.Length >= 4 ? u.Phone[^4..] : null,
-                MaskedEmail: MaskEmail(u.Email),
-                TierName: u.CustomerProfile?.Tier?.TierName,
-                DiscountPercent: u.CustomerProfile?.Tier?.DiscountPercent ?? 0m
-            ))
+            .Select(u =>
+            {
+                var tier = standings.TryGetValue(u.UserId, out var st) ? st.Tier : null;
+                return new CustomerLookupItemDto(
+                    UserId: u.UserId,
+                    FullName: u.FullName,
+                    PhoneLast4: u.Phone?.Length >= 4 ? u.Phone[^4..] : null,
+                    MaskedEmail: MaskEmail(u.Email),
+                    TierName: tier?.TierName,
+                    DiscountPercent: tier?.DiscountPercent ?? 0m
+                );
+            })
             .ToList();
     }
 

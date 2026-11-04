@@ -37,6 +37,44 @@ public static class LoyaltyWindow
             .OrderByDescending(t => t.MinPoints)
             .FirstOrDefaultAsync(ct);
 
+    public static async Task<(int Points, MembershipTier? Tier)> GetStandingAsync(
+        IAppDbContext db,
+        int userId,
+        DateTime utcNow,
+        CancellationToken ct
+    )
+    {
+        var points = await SumActiveAsync(db, userId, utcNow, ct);
+        return (points, await ResolveTierAsync(db, points, ct));
+    }
+
+    public static async Task<Dictionary<int, (int Points, MembershipTier? Tier)>> GetStandingsAsync(
+        IAppDbContext db,
+        IReadOnlyCollection<int> userIds,
+        DateTime utcNow,
+        CancellationToken ct
+    )
+    {
+        var result = new Dictionary<int, (int Points, MembershipTier? Tier)>();
+        if (userIds.Count == 0)
+            return result;
+
+        var cutoff = Cutoff(utcNow);
+        var sums = await db
+            .LoyaltyPointEntries.Where(e => userIds.Contains(e.UserId) && e.EarnedAt > cutoff)
+            .GroupBy(e => e.UserId)
+            .Select(g => new { UserId = g.Key, Points = g.Sum(e => e.Points - e.RevokedPoints) })
+            .ToDictionaryAsync(x => x.UserId, x => x.Points, ct);
+
+        var tiers = await db.MembershipTiers.OrderByDescending(t => t.MinPoints).ToListAsync(ct);
+        foreach (var id in userIds)
+        {
+            var points = sums.GetValueOrDefault(id);
+            result[id] = (points, tiers.FirstOrDefault(t => t.MinPoints <= points));
+        }
+        return result;
+    }
+
     public static async Task ResyncProfileAsync(
         IAppDbContext db,
         CustomerProfile profile,

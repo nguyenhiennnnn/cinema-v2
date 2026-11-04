@@ -38,6 +38,11 @@ export const ProfileStatsCard = ({ profile }: ProfileStatsCardProps) => {
           </p>
         </div>
       )}
+
+      <p className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
+        Điểm tích lũy được tính trong 12 tháng gần nhất; điểm cũ hơn sẽ tự hết hạn và có thể làm
+        thay đổi hạng. Ưu đãi giảm giá của hạng chỉ áp dụng trên tiền vé, không áp dụng cho combo.
+      </p>
     </div>
   );
 }
