@@ -69,7 +69,12 @@ public interface IBookingService
 
     Task ConfirmBookingAndGenerateTicketsAsync(int bookingId, CancellationToken cancellationToken);
     Task ProcessPaymentFailureAsync(int bookingId, CancellationToken cancellationToken);
-    Task ReverseLoyaltyAsync(int userId, decimal finalAmount, CancellationToken cancellationToken);
+    Task ReverseLoyaltyAsync(
+        int userId,
+        int bookingId,
+        decimal finalAmount,
+        CancellationToken cancellationToken
+    );
 
     Task<RefundEligibility> CalculateRefundEligibilityAsync(
         DateTime showtimeStartTime,

@@ -164,7 +164,7 @@ const AdminBookingDetailPage = () => {
                 <span className="tabular-nums text-foreground">{formatCurrency(b.totalAmount)}</span>
               </div>
               <div className="flex justify-between border-b border-border/50 pb-2">
-                <span className="text-muted-foreground">Giảm giá</span>
+                <span className="text-muted-foreground">Giảm giá (chỉ trên vé)</span>
                 <span className="tabular-nums text-foreground">-{formatCurrency(b.discountAmount)}</span>
               </div>
               <div className="flex justify-between pt-1">

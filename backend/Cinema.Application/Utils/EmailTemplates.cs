@@ -4,35 +4,20 @@ using Cinema.Application.Options;
 
 namespace Cinema.Application.Utils;
 
-/// <summary>
-/// Email giao dịch của Perfo, dựng theo design system trong
-/// .agents/skills/perfo-design-system (vẽ lại bằng HTML table + inline style cho email client).
-///
-/// Quy ước:
-/// - Màu là HEX quy đổi từ token OKLCH ở frontend/src/index.css (:root và .dark), vì email client
-///   không đọc được oklch(). Đổi token thì đổi các hằng số màu bên dưới.
-/// - Chữ tối thiểu 13px, câu thường, không viết hoa cả chuỗi, không monospace (mã dùng kiểu t-code).
-/// - Phẳng và đặc: không viền bao khối, không bóng, không gradient, không bo góc (trừ chấm của logo).
-/// - Mỗi email một khối primary đặc: nút chính (ActionLink) hoặc cuống vé (BookingConfirmed).
-/// - Khấc và đục lỗ chỉ dùng ở vé điện tử trong BookingConfirmed.
-/// - Trạng thái luôn có ký hiệu và chữ đi kèm, không chỉ dựa vào màu.
-/// </summary>
 public static class EmailTemplates
 {
-    // Light: :root. Dark: .dark (chỉ khai báo ở khối @media trong Layout).
-    private const string ColorBackground = "#f8f3eb"; // --background
-    private const string ColorCard = "#fefbf7"; // --card
-    private const string ColorSecondary = "#ece5dc"; // --secondary
-    private const string ColorForeground = "#1e1311"; // --foreground
-    private const string ColorMuted = "#6a5a51"; // --muted-foreground
-    private const string ColorBorder = "#dad3ca"; // --border
-    private const string ColorPrimary = "#a50013"; // --primary
-    private const string ColorPrimaryForeground = "#fdfaf4"; // --primary-foreground
-    private const string ColorSuccess = "#187c49"; // --success
-    private const string ColorDestructive = "#d41101"; // --destructive
-    private const string ColorWarningForeground = "#211201"; // --warning-foreground
+    private const string ColorBackground = "#f8f3eb";
+    private const string ColorCard = "#fefbf7";
+    private const string ColorSecondary = "#ece5dc";
+    private const string ColorForeground = "#1e1311";
+    private const string ColorMuted = "#6a5a51";
+    private const string ColorBorder = "#dad3ca";
+    private const string ColorPrimary = "#a50013";
+    private const string ColorPrimaryForeground = "#fdfaf4";
+    private const string ColorSuccess = "#187c49";
+    private const string ColorDestructive = "#d41101";
+    private const string ColorWarningForeground = "#211201";
 
-    // Nền huy hiệu: giống badge ở frontend (màu trạng thái 10% trên card ở light, 20% trên card ở dark).
     private const string TintSuccess = "#e7eee6";
     private const string TintDestructive = "#fae4de";
     private const string TintWarning = "#faf0df";
@@ -41,8 +26,6 @@ public static class EmailTemplates
     private const string FontHeading = "'Archivo', 'Arial Narrow', Arial, sans-serif";
     private const string FontSymbol = "'Segoe UI Symbol', 'Apple Symbols', Arial, sans-serif";
 
-    // Kiểu chữ tương ứng t-h2, t-numeral, t-code trong frontend/src/index.css.
-    // font-stretch là phương án dự phòng cho client không đọc font-variation-settings.
     private const string StyleH2 =
         $"font-family:{FontHeading}; font-stretch:100%; font-weight:700; font-size:28px; line-height:1.15; letter-spacing:-0.01em;";
     private const string StyleNumeral =
@@ -50,7 +33,6 @@ public static class EmailTemplates
     private const string StyleCode =
         $"font-family:{FontHeading}; font-stretch:80%; font-variation-settings:'wdth' 80; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:0.04em;";
 
-    // Ký hiệu trạng thái. &#xFE0E; ép hiển thị dạng chữ, tránh bị đổi thành emoji.
     private const string SymbolCheck = "&#10003;&#xFE0E;";
     private const string SymbolCross = "&#10005;&#xFE0E;";
     private const string SymbolAlert = "!";
@@ -61,12 +43,16 @@ public static class EmailTemplates
 
     private static readonly Tone Success = new("ok", TintSuccess, ColorSuccess, "mk-ok");
     private static readonly Tone Danger = new("err", TintDestructive, ColorDestructive, "mk-err");
-    private static readonly Tone Warning = new("warn", TintWarning, ColorWarningForeground, "mk-warn");
+    private static readonly Tone Warning = new(
+        "warn",
+        TintWarning,
+        ColorWarningForeground,
+        "mk-warn"
+    );
     private static readonly Tone Neutral = new("neutral", ColorSecondary, ColorForeground, "tx");
 
     private static string Enc(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
 
-    // Backend chạy invariant globalization (Alpine), nên không dựa vào culture: luôn ra 120.000 như frontend.
     private static string MoneyDigits(decimal amount) => amount.ToString("N0", MoneyFormat);
 
     private static string Money(decimal amount) => $"{MoneyDigits(amount)} VNĐ";
@@ -116,7 +102,9 @@ public static class EmailTemplates
                 </style>
               </head>
               <body class="bg-page tx" style="margin:0; padding:0; background-color:{{ColorBackground}}; font-family:{{FontBody}}; font-size:15px; line-height:1.55; color:{{ColorForeground}};">
-                <span style="display:none; max-height:0; overflow:hidden; opacity:0; mso-hide:all;">{{Enc(preheader)}}</span>
+                <span style="display:none; max-height:0; overflow:hidden; opacity:0; mso-hide:all;">{{Enc(
+                preheader
+            )}}</span>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="bg-page" style="background-color:{{ColorBackground}};">
                   <tr>
                     <td align="center" style="padding:32px 16px;">
@@ -165,20 +153,24 @@ public static class EmailTemplates
     private static string MutedParagraph(string html) =>
         $"""<p class="tx-mut" style="margin:0; font-size:13px; line-height:1.5; color:{ColorMuted};">{html}</p>""";
 
-    // Nút chính: bg-primary, chữ primary-foreground, cao 44px, nhãn câu thường, không mũi tên.
     private static string Button(string label, string url) =>
         $"""
             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 20px 0;">
               <tr>
                 <td class="bg-pri" style="background-color:{ColorPrimary};">
-                  <a href="{Enc(url)}" target="_blank" style="display:inline-block; padding:13px 24px; font-family:{FontBody}; font-size:15px; line-height:18px; font-weight:500; color:{ColorPrimaryForeground}; text-decoration:none;">{label}</a>
+                  <a href="{Enc(
+                url
+            )}" target="_blank" style="display:inline-block; padding:13px 24px; font-family:{FontBody}; font-size:15px; line-height:18px; font-weight:500; color:{ColorPrimaryForeground}; text-decoration:none;">{label}</a>
                 </td>
               </tr>
             </table>
-            <p class="tx-mut" style="margin:0 0 20px 0; font-size:13px; line-height:1.5; color:{ColorMuted};">Nếu nút không mở được, hãy sao chép liên kết này vào trình duyệt:<br /><a href="{Enc(url)}" target="_blank" class="tx" style="color:{ColorForeground}; text-decoration:underline; word-break:break-all;">{Enc(url)}</a></p>
+            <p class="tx-mut" style="margin:0 0 20px 0; font-size:13px; line-height:1.5; color:{ColorMuted};">Nếu nút không mở được, hãy sao chép liên kết này vào trình duyệt:<br /><a href="{Enc(
+                url
+            )}" target="_blank" class="tx" style="color:{ColorForeground}; text-decoration:underline; word-break:break-all;">{Enc(
+                url
+            )}</a></p>
             """;
 
-    // Huy hiệu: nền tint, ký hiệu màu trạng thái, nhãn màu foreground (tương phản cao).
     private static string Badge(string text, Tone tone, string symbol) =>
         $"""
             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px 0;">
@@ -188,7 +180,6 @@ public static class EmailTemplates
             </table>
             """;
 
-    // Khối cần chú ý: nền tint phẳng, không viền, không vạch viền trái. Ký hiệu đứng đầu dòng.
     private static string Callout(string html, Tone tone, string symbol) =>
         $"""
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="tone-{tone.Css}" style="background-color:{tone.Bg}; margin:0 0 20px 0;">
@@ -199,7 +190,12 @@ public static class EmailTemplates
             </table>
             """;
 
-    private static string DetailRow(string label, string value, bool isLast = false, bool code = false)
+    private static string DetailRow(
+        string label,
+        string value,
+        bool isLast = false,
+        bool code = false
+    )
     {
         var line = isLast ? string.Empty : $"border-bottom:1px solid {ColorBorder};";
         var valueStyle = code ? $"{StyleCode} font-size:15px;" : "font-size:15px; font-weight:600;";
@@ -212,16 +208,16 @@ public static class EmailTemplates
             """;
     }
 
-    // Số tiền là nhân vật chính: t-numeral cỡ lớn, đơn vị nhỏ hơn.
     private static string DetailRowTotal(string label, decimal amount) =>
         $"""
             <tr>
               <td class="tx" style="padding:16px 16px 12px 0; vertical-align:baseline; font-size:15px; line-height:1.4; font-weight:600; color:{ColorForeground};">{label}</td>
-              <td class="tx" style="padding:12px 0; vertical-align:baseline; white-space:nowrap; {StyleNumeral} font-size:28px; color:{ColorForeground}; text-align:right;">{MoneyDigits(amount)}<span style="font-family:{FontBody}; font-size:15px; font-weight:600; letter-spacing:0;">&nbsp;VNĐ</span></td>
+              <td class="tx" style="padding:12px 0; vertical-align:baseline; white-space:nowrap; {StyleNumeral} font-size:28px; color:{ColorForeground}; text-align:right;">{MoneyDigits(
+                amount
+            )}<span style="font-family:{FontBody}; font-size:15px; font-weight:600; letter-spacing:0;">&nbsp;VNĐ</span></td>
             </tr>
             """;
 
-    // Khối chi tiết: nền secondary (bậc tông, không viền), đường kẻ border giữa các dòng như đường kẻ bảng.
     private static string DetailCard(params string[] rows) =>
         $"""
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="bg-sec" style="background-color:{ColorSecondary}; margin:4px 0 20px 0;">
@@ -235,8 +231,6 @@ public static class EmailTemplates
             </table>
             """;
 
-    // Cuống vé: chỗ duy nhất dùng khấc và đục lỗ. Khấc là hai nửa hình tròn màu nền trang cắt vào mép
-    // tại đường xé; dải chấm nằm trên nền primary. Bố cục xếp dọc (kiểu mobile) để chạy ổn ở mọi client.
     private static string TicketStub(string bookingCode) =>
         $"""
             <tr>
@@ -258,7 +252,9 @@ public static class EmailTemplates
             <tr>
               <td class="bg-pri" style="background-color:{ColorPrimary}; padding:8px 28px 28px 28px;">
                 <p style="margin:0 0 4px 0; font-size:13px; line-height:1.5; font-weight:500; color:{ColorPrimaryForeground};">Mã đặt vé</p>
-                <p style="margin:0; {StyleNumeral} font-size:32px; letter-spacing:0.04em; word-break:break-all; color:{ColorPrimaryForeground};">{Enc(bookingCode)}</p>
+                <p style="margin:0; {StyleNumeral} font-size:32px; letter-spacing:0.04em; word-break:break-all; color:{ColorPrimaryForeground};">{Enc(
+                bookingCode
+            )}</p>
               </td>
             </tr>
             """;
@@ -311,12 +307,7 @@ public static class EmailTemplates
             )}
             """;
 
-        return Layout(
-            brand,
-            $"Vé {bookingCode} đã được xác nhận",
-            body,
-            TicketStub(bookingCode)
-        );
+        return Layout(brand, $"Vé {bookingCode} đã được xác nhận", body, TicketStub(bookingCode));
     }
 
     public static string BookingCancelledRefunded(
@@ -341,11 +332,7 @@ public static class EmailTemplates
             )}
             """;
 
-        return Layout(
-            brand,
-            $"Đơn đặt vé {bookingCode} đã hủy, hoàn {Money(refundAmount)}",
-            body
-        );
+        return Layout(brand, $"Đơn đặt vé {bookingCode} đã hủy, hoàn {Money(refundAmount)}", body);
     }
 
     public static string ShowtimeCancelledAutoRefunded(

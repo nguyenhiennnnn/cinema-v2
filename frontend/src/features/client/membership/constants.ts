@@ -37,7 +37,7 @@ export const TIER_VISUALS = [
 
 export const COMPARE_ROWS = [
   { label: "Tích điểm mỗi giao dịch", unlockAt: 0, icon: Sparkles },
-  { label: "Chiết khấu hóa đơn vé & bắp nước", unlockAt: 1, icon: Percent },
+  { label: "Chiết khấu trên giá vé (không áp dụng combo)", unlockAt: 1, icon: Percent },
   { label: "Ưu tiên giữ chỗ sự kiện", unlockAt: 2, icon: CalendarCheck },
   { label: "Combo bắp nước miễn phí sinh nhật", unlockAt: 3, icon: Gift },
 ] as const;
@@ -49,9 +49,9 @@ export const FAQ_ITEMS = [
       "Mỗi 10.000 VNĐ chi tiêu cho vé xem phim hoặc bắp nước tại rạp (thanh toán thành công) sẽ được cộng 1 điểm thưởng vào tài khoản của bạn. Điểm được cộng tự động ngay sau khi đơn hàng hoàn tất.",
   },
   {
-    question: "Hạng thẻ của tôi có bị hết hạn không?",
+    question: "Điểm và hạng thẻ của tôi có bị hết hạn không?",
     answer:
-      "Hạng thẻ được xét lại theo tổng điểm tích lũy trong năm dương lịch. Nếu không đạt đủ điểm duy trì hạng vào cuối kỳ đánh giá, tài khoản sẽ tự động điều chỉnh về hạng phù hợp với điểm hiện có.",
+      "Điểm có hiệu lực trong 12 tháng kể từ ngày tích. Hạng thẻ luôn được xét theo tổng điểm còn hiệu lực trong 12 tháng gần nhất; khi điểm cũ hết hạn và tổng điểm không còn đủ ngưỡng, tài khoản sẽ tự động điều chỉnh về hạng phù hợp.",
   },
   {
     question: "Hủy vé thì điểm thưởng đã tích có bị trừ không?",

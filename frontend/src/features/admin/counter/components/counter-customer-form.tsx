@@ -118,7 +118,7 @@ export const CounterCustomerForm = ({
           <span className="font-medium t-numeral">
             {selectedCustomer.discountPercent}%
           </span>{" "}
-          sẽ được áp dụng.
+          sẽ được áp dụng trên tiền vé (không áp dụng cho combo).
         </p>
       )}
 

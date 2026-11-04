@@ -11,8 +11,6 @@ public static class ConnectionStringExtensions
             configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection");
 
-        // Strip surrounding quotes that may be added when pasting into Render Dashboard
-        // e.g. "postgresql://..." -> postgresql://...
         raw = raw.Trim().Trim('"').Trim('\'');
 
         if (
@@ -21,8 +19,6 @@ public static class ConnectionStringExtensions
         )
             return raw;
 
-        // Parse URI-format connection string (e.g. from Render / Neon / Supabase)
-        // Strip query string before parsing as Uri, then re-apply SSL options manually
         var queryIndex = raw.IndexOf('?');
         var baseUri = queryIndex >= 0 ? raw[..queryIndex] : raw;
         var queryString = queryIndex >= 0 ? raw[(queryIndex + 1)..] : string.Empty;
@@ -38,8 +34,7 @@ public static class ConnectionStringExtensions
             Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : null,
             Database = uri.AbsolutePath.TrimStart('/'),
         };
-
-        // Apply sslmode from query string if present (e.g. ?sslmode=require)
+        
         if (!string.IsNullOrEmpty(queryString))
         {
             var sslMode = queryString

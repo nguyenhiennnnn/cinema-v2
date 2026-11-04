@@ -506,6 +506,12 @@ if (!app.Environment.IsEnvironment("Testing"))
         backgroundJobOptions.ShowtimeLifecycleCron,
         new RecurringJobOptions { TimeZone = Cinema.Application.Utils.VietnamTime.Zone }
     );
+    RecurringJob.AddOrUpdate<ExpireLoyaltyPointsJob>(
+        RecurringJobIds.ExpireLoyaltyPoints,
+        j => j.RunAsync(CancellationToken.None),
+        backgroundJobOptions.ExpireLoyaltyPointsCron,
+        new RecurringJobOptions { TimeZone = Cinema.Application.Utils.VietnamTime.Zone }
+    );
 }
 
 app.Run();

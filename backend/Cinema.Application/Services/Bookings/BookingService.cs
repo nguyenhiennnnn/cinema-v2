@@ -355,6 +355,7 @@ public class BookingService(
                     : 0m;
             await ReverseLoyaltyAsync(
                 booking.UserId.Value,
+                booking.BookingId,
                 amountToReverse,
                 settings,
                 cancellationToken
@@ -742,6 +743,7 @@ public class BookingService(
             if (booking.UserId is not null)
                 await ApplyLoyaltyAsync(
                     booking.UserId.Value,
+                    booking.BookingId,
                     booking.FinalAmount,
                     cancellationToken
                 );
@@ -832,16 +834,18 @@ public class BookingService(
 
     public async Task ReverseLoyaltyAsync(
         int userId,
+        int bookingId,
         decimal finalAmount,
         CancellationToken cancellationToken
     )
     {
         var settings = await GetCinemaSettingsAsync(cancellationToken);
-        await ReverseLoyaltyAsync(userId, finalAmount, settings, cancellationToken);
+        await ReverseLoyaltyAsync(userId, bookingId, finalAmount, settings, cancellationToken);
     }
 
     private async Task ReverseLoyaltyAsync(
         int userId,
+        int bookingId,
         decimal finalAmount,
         CinemaSettings settings,
         CancellationToken cancellationToken
@@ -854,15 +858,26 @@ public class BookingService(
         if (profile is null)
             return;
 
-        var pointsToRevoke = (int)Math.Floor(finalAmount / settings.PointsPerAmount);
-        profile.Points = Math.Max(0, profile.Points - pointsToRevoke);
-        profile.TotalSpent = Math.Max(0, profile.TotalSpent - finalAmount);
+        // Chỉ trừ vào đúng dòng điểm của booking đó: nếu dòng đã trượt khỏi cửa sổ 12 tháng
+        // thì hoàn tiền không làm giảm điểm của cửa sổ hiện tại.
+        var entry = await db.LoyaltyPointEntries.FirstOrDefaultAsync(
+            e => e.BookingId == bookingId,
+            cancellationToken
+        );
+        if (entry is not null)
+        {
+            var revoke = LoyaltyWindow.PointsFor(finalAmount, settings.PointsPerAmount);
+            entry.RevokedPoints = Math.Min(entry.Points, entry.RevokedPoints + revoke);
+        }
 
-        var eligibleTier = await db
-            .MembershipTiers.Where(t => t.MinPoints <= profile.Points)
-            .OrderByDescending(t => t.MinPoints)
-            .FirstOrDefaultAsync(cancellationToken);
-        profile.TierId = eligibleTier?.TierId;
+        profile.TotalSpent = Math.Max(0, profile.TotalSpent - finalAmount);
+        await LoyaltyWindow.ResyncProfileAsync(
+            db,
+            profile,
+            pendingNewPoints: 0,
+            DateTime.UtcNow,
+            cancellationToken
+        );
     }
 
     private async Task ReleaseAndCancelBookingAsync(
@@ -893,6 +908,7 @@ public class BookingService(
 
     private async Task ApplyLoyaltyAsync(
         int userId,
+        int bookingId,
         decimal finalAmount,
         CancellationToken cancellationToken
     )
@@ -905,26 +921,33 @@ public class BookingService(
             return;
 
         var settings = await GetCinemaSettingsAsync(cancellationToken);
+        var now = DateTime.UtcNow;
+        var earned = LoyaltyWindow.PointsFor(finalAmount, settings.PointsPerAmount);
 
-        profile.Points += (int)Math.Floor(finalAmount / settings.PointsPerAmount);
+        if (earned > 0)
+            db.LoyaltyPointEntries.Add(
+                new LoyaltyPointEntry
+                {
+                    UserId = userId,
+                    BookingId = bookingId,
+                    Points = earned,
+                    EarnedAt = now,
+                }
+            );
+
+        var oldTierId = profile.TierId;
         profile.TotalSpent += finalAmount;
+        // Entry mới chưa Save nên cộng thêm `earned` vào tổng các dòng đã lưu.
+        await LoyaltyWindow.ResyncProfileAsync(db, profile, earned, now, cancellationToken);
 
-        var eligibleTier = await db
-            .MembershipTiers.Where(t => t.MinPoints <= profile.Points)
-            .OrderByDescending(t => t.MinPoints)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (eligibleTier is not null && eligibleTier.TierId != profile.TierId)
-        {
+        if (profile.TierId != oldTierId)
             logger.LogInformation(
-                "TierUpgraded UserId {UserId} FromTierId {From} ToTierId {To} Points {Points}",
+                "TierChanged UserId {UserId} FromTierId {From} ToTierId {To} Points {Points}",
                 userId,
+                oldTierId,
                 profile.TierId,
-                eligibleTier.TierId,
                 profile.Points
             );
-            profile.TierId = eligibleTier.TierId;
-        }
     }
 
     private async Task<Booking> CreateHoldBookingAsync(
@@ -1068,9 +1091,10 @@ public class BookingService(
         );
         var seatTotal = heldSeats.Sum(s => s.Price);
         var totalAmount = seatTotal + comboTotal;
+        // Giảm giá hạng thành viên chỉ áp dụng trên tiền vé, KHÔNG áp dụng cho combo.
         var discountAmount = await CalculateDiscountAmountAsync(
             bookingUserId,
-            totalAmount,
+            seatTotal,
             cancellationToken
         );
         var finalAmount = totalAmount - discountAmount;
@@ -1135,7 +1159,7 @@ public class BookingService(
 
     private async Task<decimal> CalculateDiscountAmountAsync(
         int? bookingUserId,
-        decimal totalAmount,
+        decimal ticketAmount,
         CancellationToken cancellationToken
     )
     {
@@ -1157,7 +1181,7 @@ public class BookingService(
             return 0m;
 
         return Math.Round(
-            totalAmount * tier.DiscountPercent / 100m,
+            ticketAmount * tier.DiscountPercent / 100m,
             0,
             MidpointRounding.AwayFromZero
         );

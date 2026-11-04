@@ -14,6 +14,7 @@ public interface IAppDbContext
     DbSet<User> Users { get; }
     DbSet<MembershipTier> MembershipTiers { get; }
     DbSet<CustomerProfile> CustomerProfiles { get; }
+    DbSet<LoyaltyPointEntry> LoyaltyPointEntries { get; }
     DbSet<Position> Positions { get; }
     DbSet<Employee> Employees { get; }
     DbSet<ScreenType> ScreenTypes { get; }

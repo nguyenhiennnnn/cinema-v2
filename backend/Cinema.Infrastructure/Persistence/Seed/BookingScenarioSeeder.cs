@@ -786,9 +786,10 @@ internal static class BookingScenarioSeeder
                 );
             }
 
-            var total = p.Seats.Sum(s => s.Price) + comboTotal;
+            var seatTotal = p.Seats.Sum(s => s.Price);
+            var total = seatTotal + comboTotal;
 
-            // Giảm giá theo hạng thành viên tại thời điểm đặt (giống CalculateDiscountAmountAsync).
+            // Giảm giá theo hạng thành viên tại thời điểm đặt, CHỈ trên tiền vé (giống CalculateDiscountAmountAsync).
             CustomerProfile? profile = null;
             var discount = 0m;
             if (
@@ -799,7 +800,7 @@ internal static class BookingScenarioSeeder
             )
             {
                 discount = Math.Round(
-                    total * tier.DiscountPercent / 100m,
+                    seatTotal * tier.DiscountPercent / 100m,
                     0,
                     MidpointRounding.AwayFromZero
                 );
@@ -856,7 +857,21 @@ internal static class BookingScenarioSeeder
             // Cộng điểm / tổng chi tiêu / nâng hạng (giống ApplyLoyaltyAsync).
             if (profile is not null)
             {
-                profile.Points += (int)Math.Floor(final / _settings.PointsPerAmount);
+                var earned = (int)Math.Floor(final / _settings.PointsPerAmount);
+                if (earned > 0)
+                    db.LoyaltyPointEntries.Add(
+                        new LoyaltyPointEntry
+                        {
+                            UserId = profile.UserId,
+                            Booking = booking,
+                            Points = earned,
+                            EarnedAt = paidAt,
+                        }
+                    );
+
+                // Chỉ điểm còn trong cửa sổ 12 tháng mới tính vào Points hiện tại.
+                if (paidAt > Cinema.Application.Utils.LoyaltyWindow.Cutoff(now))
+                    profile.Points += earned;
                 profile.TotalSpent += final;
                 var eligible = _tiersDesc.FirstOrDefault(t => t.MinPoints <= profile.Points);
                 if (eligible is not null)

@@ -45,7 +45,7 @@ export const BookingPriceSummary = ({ seats, combos, comboQuantities, hold }: Bo
       )}
       {hold && hold.discountAmount > 0 && (
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Giảm giá</span>
+          <span className="text-muted-foreground">Giảm giá hạng thành viên (áp dụng cho vé)</span>
           <span className="font-medium text-primary">-{formatCurrency(hold.discountAmount)}</span>
         </div>
       )}

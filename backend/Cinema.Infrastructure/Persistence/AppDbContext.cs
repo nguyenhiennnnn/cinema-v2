@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<User> Users => Set<User>();
     public DbSet<MembershipTier> MembershipTiers => Set<MembershipTier>();
     public DbSet<CustomerProfile> CustomerProfiles => Set<CustomerProfile>();
+    public DbSet<LoyaltyPointEntry> LoyaltyPointEntries => Set<LoyaltyPointEntry>();
     public DbSet<Position> Positions => Set<Position>();
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<ScreenType> ScreenTypes => Set<ScreenType>();
