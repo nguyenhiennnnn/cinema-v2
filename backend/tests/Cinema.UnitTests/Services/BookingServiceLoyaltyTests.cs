@@ -35,10 +35,12 @@ public class BookingServiceLoyaltyTests : BookingServiceTestBase
         profile.Points = 150;
         profile.TotalSpent = 1_500_000m;
         profile.TierId = silverId;
+        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 1_500_000m);
+        LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 150, DateTime.UtcNow);
         await Db.SaveChangesAsync();
         var sut = CreateSut();
 
-        await sut.ReverseLoyaltyAsync(customer.UserId, 600_000m, CancellationToken.None);
+        await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 600_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
 
         var reloaded = await Db.CustomerProfiles.AsNoTracking().SingleAsync(p => p.UserId == customer.UserId);
@@ -55,10 +57,12 @@ public class BookingServiceLoyaltyTests : BookingServiceTestBase
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
         profile.Points = 150;
         profile.TierId = silverId;
+        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 1_500_000m);
+        LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 150, DateTime.UtcNow);
         await Db.SaveChangesAsync();
         var sut = CreateSut();
 
-        await sut.ReverseLoyaltyAsync(customer.UserId, 100_000m, CancellationToken.None);
+        await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
 
         var reloaded = await Db.CustomerProfiles.AsNoTracking().SingleAsync(p => p.UserId == customer.UserId);

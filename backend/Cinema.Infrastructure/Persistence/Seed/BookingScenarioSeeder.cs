@@ -5,33 +5,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Cinema.Infrastructure.Persistence.Seed;
 
-/// <summary>
-/// Seed toàn bộ kịch bản nghiệp vụ booking, bám sát logic của BookingService / PaymentService /
-/// SeatExpirationService / ShowtimeService để dữ liệu "khớp DB" và khớp luồng thật:
-///
-/// Booking.Status
-///   Confirmed  : ghế Booked + vé có QR "{BookingCode}-{Hàng}{Số}", payment Success (online: VNPay/Momo/Stripe, quầy: Cash)
-///   Pending    : ghế Held (HeldByUserId = khách / nhân viên quầy, HeldUntil = ExpiresAt), có/không payment Pending
-///   Expired    : hết hạn giữ ghế, ghế đã trả về Available, payment (nếu có) = Failed
-///   Cancelled  : (a) hủy khi còn Pending / thanh toán thất bại -> payment Failed
-///                (b) khách hủy sau khi thanh toán (còn hạn hoàn tiền) -> payment Refunded
-///                (c) thanh toán xong nhưng ghế đã hết hạn giữ -> tự động hoàn tiền toàn bộ
-///                (d) rạp hủy suất chiếu -> hoàn tự động (cổng) hoặc chờ hoàn thủ công (Cash)
-/// Channel: Online (không có nhân viên) / Counter (bắt buộc có nhân viên, khách vãng lai hoặc thành viên)
-/// Check-in: đã check-in toàn bộ / một phần / chưa check-in / no-show
-/// Loyalty : giảm giá theo hạng tại thời điểm đặt, cộng điểm + TotalSpent + nâng hạng theo thứ tự thời gian
-/// Review  : chỉ khách đã check-in suất Completed của phim đó; AverageRating tính lại từ review
-/// Review-ready: mỗi khách trong pool luôn có sẵn <see cref="ReviewReadyPerUser"/> phim đã đi hết các bước trước
-///               (đặt vé, thanh toán thành công, check-in suất Completed) và CHƯA có review -> đăng nhập là đánh giá được ngay.
-/// Suất đặc biệt (ShowtimeSeeder.Special*): đang chiếu, sắp chiếu, quá hạn hoàn tiền, hết vé, bị hủy.
-///
-/// Mã booking dạng "BKD{yyyyMMdd}{nnnn}" (tiền tố BKD để phân biệt và làm dấu idempotent).
-/// </summary>
 internal static class BookingScenarioSeeder
 {
     internal const string CodePrefix = "BKD";
 
-    /// <summary>Số phim "đã xem, chưa review" được đảm bảo cho mỗi khách trong pool.</summary>
     internal const int ReviewReadyPerUser = 3;
 
     public static async Task SeedAsync(

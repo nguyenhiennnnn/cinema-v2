@@ -1166,17 +1166,22 @@ public class BookingService(
         if (bookingUserId is null)
             return 0m;
 
-        var profile = await db.CustomerProfiles.FirstOrDefaultAsync(
+        var hasProfile = await db.CustomerProfiles.AnyAsync(
             p => p.UserId == bookingUserId,
             cancellationToken
         );
-        if (profile?.TierId is null)
+        if (!hasProfile)
             return 0m;
 
-        var tier = await db.MembershipTiers.FirstOrDefaultAsync(
-            t => t.TierId == profile.TierId,
+        // Hạng tính thẳng từ sổ điểm trong cửa sổ 12 tháng (không tin profile.TierId là bản cache),
+        // nên điểm vừa hết hạn có hiệu lực ngay, không phải chờ job hằng giờ.
+        var points = await LoyaltyWindow.SumActiveAsync(
+            db,
+            bookingUserId.Value,
+            DateTime.UtcNow,
             cancellationToken
         );
+        var tier = await LoyaltyWindow.ResolveTierAsync(db, points, cancellationToken);
         if (tier is null)
             return 0m;
 

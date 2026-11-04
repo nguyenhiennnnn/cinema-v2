@@ -253,10 +253,12 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
         profile.Points = 50;
         profile.TotalSpent = 500_000m;
+        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 500_000m);
+        LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 50, DateTime.UtcNow);
         await Db.SaveChangesAsync();
         var sut = CreateSut();
 
-        await sut.ReverseLoyaltyAsync(customer.UserId, 100_000m, CancellationToken.None);
+        await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
 
         var reloaded = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
@@ -272,10 +274,12 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
         profile.Points = 2;
         profile.TotalSpent = 5_000m;
+        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 20_000m);
+        LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 2, DateTime.UtcNow);
         await Db.SaveChangesAsync();
         var sut = CreateSut();
 
-        await sut.ReverseLoyaltyAsync(customer.UserId, 100_000m, CancellationToken.None);
+        await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
 
         var reloaded = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
@@ -291,7 +295,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var sut = CreateSut();
 
         await Should.NotThrowAsync(() =>
-            sut.ReverseLoyaltyAsync(employeeUser.UserId, 100_000m, CancellationToken.None)
+            sut.ReverseLoyaltyAsync(employeeUser.UserId, 0, 100_000m, CancellationToken.None)
         );
     }
 

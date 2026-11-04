@@ -8,6 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Cinema.Infrastructure.Persistence.Seed;
 
+/// <summary>
+/// Seed runtime (chạy sau khi migrate). Dữ liệu tĩnh (role, phòng, ghế, phim, combo...) nằm trong
+/// <see cref="SeedData"/> (HasData). File này bổ sung dữ liệu động, phụ thuộc thời gian hiện tại:
+/// tài khoản test, phòng đặc biệt, suất chiếu (quá khứ/hiện tại/tương lai) và toàn bộ kịch bản
+/// booking - payment - check-in - review (xem <see cref="BookingScenarioSeeder"/>).
+/// Mọi bước đều idempotent: chạy lại nhiều lần không tạo trùng.
+/// </summary>
 public static class DbInitializer
 {
     private const int CustomerRoleId = 1;
@@ -20,6 +27,7 @@ public static class DbInitializer
     private const string LoungeRoomName = "Premium Lounge 05";
     private const string MaintenanceRoomName = "Cinema Hall 06 (Bảo trì)";
 
+    // Token demo (plain text) — chỉ để test các flow verify email / reset password.
     internal const string DemoEmailConfirmToken = "demo-email-confirm-token";
     internal const string DemoPasswordResetToken = "demo-password-reset-token";
     internal const string DemoExpiredResetToken = "demo-expired-reset-token";
@@ -250,9 +258,7 @@ public static class DbInitializer
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            logger.LogInformation(
-                "Seeding demo scenarios (showtimes, bookings, payments, reviews)..."
-            );
+            logger.LogInformation("Seeding demo scenarios (showtimes, bookings, payments, reviews)...");
 
             // Thứ tự quan trọng: suất đặc biệt trước (giữ chỗ phòng/giờ), rồi mới lấp suất thường xung quanh.
             var specials = await ShowtimeSeeder.CreateSpecialsAsync(
@@ -409,9 +415,8 @@ public static class DbInitializer
             CreatedAt = DateTime.UtcNow,
         };
         // Tài khoản Google: mật khẩu ngẫu nhiên (giống AuthService khi đăng nhập Google lần đầu).
-        var password = seed.GoogleId is null
-            ? seed.Password
-            : Guid.NewGuid().ToString("N") + "Aa1!";
+        var password =
+            seed.GoogleId is null ? seed.Password : Guid.NewGuid().ToString("N") + "Aa1!";
         user.PasswordHash = hasher.HashPassword(user, password);
 
         db.Users.Add(user);
@@ -496,12 +501,7 @@ public static class DbInitializer
         foreach (var t in tokens)
         {
             var hash = HashToken(t.Raw);
-            if (
-                await db.UserVerificationTokens.AnyAsync(
-                    x => x.TokenHash == hash,
-                    cancellationToken
-                )
-            )
+            if (await db.UserVerificationTokens.AnyAsync(x => x.TokenHash == hash, cancellationToken))
                 continue;
 
             var userId = await db
@@ -578,10 +578,7 @@ public static class DbInitializer
 
         // Phòng đang bảo trì (IsActive = false) — không được xếp suất chiếu.
         if (
-            !await db.CinemaRooms.AnyAsync(
-                r => r.RoomName == MaintenanceRoomName,
-                cancellationToken
-            )
+            !await db.CinemaRooms.AnyAsync(r => r.RoomName == MaintenanceRoomName, cancellationToken)
         )
         {
             var room = new CinemaRoom
@@ -693,8 +690,7 @@ public static class DbInitializer
                         SeatRow = row,
                         SeatNumber = col,
                         SeatTypeId = seatTypeId,
-                        CoupleId =
-                            seatTypeId == 3 ? CoupleGuid(roomId, rowIdx, (col + 1) / 2) : null,
+                        CoupleId = seatTypeId == 3 ? CoupleGuid(roomId, rowIdx, (col + 1) / 2) : null,
                         IsActive = true,
                         IsAisle = false,
                     }

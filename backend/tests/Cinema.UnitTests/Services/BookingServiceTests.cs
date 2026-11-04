@@ -178,16 +178,8 @@ public class BookingServiceHoldSeatsTests : BookingServiceTestBase
     public async Task HoldSeatsAsync_CustomerWithDiscountTier_AppliesDiscountToFinalAmount()
     {
         var customer = TestDataSeeder.AddCustomer(Db);
-        var tier = new MembershipTier
-        {
-            TierName = "Gold",
-            MinPoints = 0,
-            DiscountPercent = 10m,
-        };
-        Db.MembershipTiers.Add(tier);
-        await Db.SaveChangesAsync();
-        var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
-        profile.TierId = tier.TierId;
+        await LoyaltyTestHelper.ReplaceTiersAsync(Db);
+        LoyaltyTestHelper.AddEntry(Db, customer.UserId, null, 200, DateTime.UtcNow);
         await Db.SaveChangesAsync();
 
         var room = TestDataSeeder.AddRoom(Db);

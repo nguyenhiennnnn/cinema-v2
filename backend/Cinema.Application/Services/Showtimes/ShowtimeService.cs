@@ -206,6 +206,7 @@ public class ShowtimeService(
                 Messages.Conflict_ShowtimeHasConfirmedBookings
             );
 
+        // Khách đang giữ ghế / đang thanh toán (Pending) cũng không được bị đổi suất giữa chừng.
         var now = DateTime.UtcNow;
         var hasActiveCheckout =
             await db.Bookings.AnyAsync(
