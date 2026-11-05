@@ -52,8 +52,6 @@ Với các cổng thanh toán, luồng đi ra là yêu cầu tạo liên kết t
 
 Hệ thống tác vụ nền chạy trong tiến trình của API và không đi qua ranh giới hệ thống; nó được mô hình hóa như một tác nhân ở Hình 3.3 vì kích hoạt các use case theo lịch hoặc theo sự kiện, chứ không phải vì là một hệ thống bên ngoài.
 
-[CẦN BỔ SUNG: mã PlantUML của Hình 3.1 và Hình 3.2 không có trong các file đính kèm; phần mô tả ở Mục 3.1.2 và 3.1.3 dựa trên mã nguồn backend và cần đối chiếu lại với hình khi có mã sơ đồ]
-
 ![Hình 3.2. Sơ đồ ngữ cảnh hệ thống](hinh/3.2.png)
 
 *Hình 3.2. Sơ đồ ngữ cảnh hệ thống*

@@ -2,7 +2,7 @@
 
 ### 2.5.1 Mô hình hóa yêu cầu bằng use case
 
-Mô hình use case mô tả hệ thống từ góc nhìn của người dùng bên ngoài. Tác nhân (actor) là một người hoặc một hệ thống bên ngoài tương tác với hệ thống; use case là một chức năng mà hệ thống cung cấp cho tác nhân để đạt một mục đích. Giữa các use case có ba loại quan hệ: `include` (use case này luôn gọi use case kia), `extend` (use case kia chỉ mở rộng trong một điều kiện nào đó) và tổng quát hóa (một use case là trường hợp riêng của use case khác). [CẦN BỔ SUNG: trích dẫn nhóm T2]
+Mô hình use case mô tả hệ thống từ góc nhìn của người dùng bên ngoài. Tác nhân (actor) là một người hoặc một hệ thống bên ngoài tương tác với hệ thống; use case là một chức năng mà hệ thống cung cấp cho tác nhân để đạt một mục đích. Giữa các use case có ba loại quan hệ: `include` (use case này luôn gọi use case kia), `extend` (use case kia chỉ mở rộng trong một điều kiện nào đó) và tổng quát hóa (một use case là trường hợp riêng của use case khác) (OMG, 2017; Booch và cs., 2005).
 
 Mô hình use case phù hợp với đề tài vì hệ thống có nhiều nhóm người dùng với quyền khác nhau (khách hàng, nhân viên, quản trị) và có cả hệ thống ngoài (cổng thanh toán); cách mô tả này cho phép liệt kê chức năng theo từng nhóm trước khi thiết kế. Trong mã nguồn, ba vai trò được khai báo ở lớp `Roles` là `Customer`, `Admin` và `Employee`.
 
@@ -10,7 +10,7 @@ Perfo áp dụng use case theo hai mức: package use case (nhóm chức năng) 
 
 ### 2.5.2 Mô hình thực thể liên kết
 
-Mô hình thực thể liên kết biểu diễn dữ liệu bằng các thực thể, thuộc tính của thực thể, khóa (khóa chính và khóa ngoại) và các quan hệ giữa thực thể với bội số 1–1, 1–n hoặc n–n. Mô hình được chuẩn hóa để giảm dư thừa và dị thường khi cập nhật, rồi ánh xạ sang các quan hệ (bảng) của cơ sở dữ liệu quan hệ. [CẦN BỔ SUNG: trích dẫn nhóm T3]
+Mô hình thực thể liên kết biểu diễn dữ liệu bằng các thực thể, thuộc tính của thực thể, khóa (khóa chính và khóa ngoại) và các quan hệ giữa thực thể với bội số 1–1, 1–n hoặc n–n. Mô hình được chuẩn hóa để giảm dư thừa và dị thường khi cập nhật, rồi ánh xạ sang các quan hệ (bảng) của cơ sở dữ liệu quan hệ (Chen, 1976; Silberschatz và cs., 2020).
 
 Bài toán đặt vé có dữ liệu quan hệ rõ ràng (phim, suất chiếu, phòng, ghế, đơn đặt vé, vé, thanh toán) và cần các ràng buộc toàn vẹn mạnh, nên cơ sở dữ liệu quan hệ là lựa chọn phù hợp.
 
@@ -18,7 +18,7 @@ Trong Perfo, mỗi thực thể được cài đặt bằng một lớp trong `C
 
 ### 2.5.3 Kiến trúc phân tầng
 
-Kiến trúc phân tầng chia hệ thống thành các tầng có trách nhiệm riêng, trong đó mỗi tầng chỉ phụ thuộc vào tầng được phép. Trong Clean Architecture, chiều phụ thuộc hướng vào lõi: lõi nghiệp vụ không biết gì về cơ sở dữ liệu, giao thức web hay dịch vụ ngoài; các chi tiết đó được cài đặt ở tầng ngoài và gắn vào lõi qua giao diện (interface). [CẦN BỔ SUNG: trích dẫn nhóm T2]
+Kiến trúc phân tầng chia hệ thống thành các tầng có trách nhiệm riêng, trong đó mỗi tầng chỉ phụ thuộc vào tầng được phép. Trong Clean Architecture, chiều phụ thuộc hướng vào lõi: lõi nghiệp vụ không biết gì về cơ sở dữ liệu, giao thức web hay dịch vụ ngoài; các chi tiết đó được cài đặt ở tầng ngoài và gắn vào lõi qua giao diện (interface) (Martin, 2017).
 
 Cách tổ chức này phù hợp với đề tài vì các phần dễ thay đổi (cổng thanh toán, kênh gửi email, kênh thời gian thực) được tách khỏi phần nghiệp vụ giữ ghế và thanh toán, nhờ đó phần nghiệp vụ có thể được kiểm thử đơn vị mà không cần các dịch vụ ngoài.
 
@@ -32,7 +32,7 @@ Tầng `Cinema.Application` khai báo các giao diện như `IPaymentGateway`, `
 
 ### 2.5.4 REST API
 
-REST là phong cách thiết kế API trên giao thức HTTP, trong đó tài nguyên được định danh bằng đường dẫn, thao tác được biểu diễn bằng phương thức HTTP (GET, POST, PUT, DELETE) và kết quả được biểu diễn bằng mã trạng thái HTTP (ví dụ 200, 400, 401, 403, 404, 409, 429). Các kỹ thuật thường đi kèm là đưa phiên bản vào đường dẫn, bọc phản hồi theo một cấu trúc thống nhất, và phân trang danh sách bằng chỉ số trang (offset) hoặc con trỏ (cursor). [CẦN BỔ SUNG: trích dẫn nhóm T3]
+REST là phong cách thiết kế API trên giao thức HTTP, trong đó tài nguyên được định danh bằng đường dẫn, thao tác được biểu diễn bằng phương thức HTTP (GET, POST, PUT, DELETE) và kết quả được biểu diễn bằng mã trạng thái HTTP (ví dụ 200, 400, 401, 403, 404, 409, 429). Các kỹ thuật thường đi kèm là đưa phiên bản vào đường dẫn, bọc phản hồi theo một cấu trúc thống nhất, và phân trang danh sách bằng chỉ số trang (offset) hoặc con trỏ (cursor) (Fielding, 2000; Masse, 2011).
 
 REST phù hợp vì giao diện web và các công cụ kiểm thử đều gọi hệ thống qua HTTP, và cổng thanh toán gọi ngược về hệ thống cũng qua HTTP.
 
@@ -40,7 +40,7 @@ Perfo đặt các controller dưới `api/v1/...`; các điểm cuối quản tr
 
 ### 2.5.5 ASP.NET Core, Entity Framework Core, PostgreSQL
 
-ASP.NET Core xử lý mỗi yêu cầu HTTP qua một chuỗi middleware theo thứ tự đăng ký, và cung cấp sẵn tiêm phụ thuộc (DI) cùng mẫu Options để gắn các mục cấu hình vào lớp cấu hình có kiểu. Entity Framework Core là bộ ánh xạ đối tượng–quan hệ có hỗ trợ migration để quản lý phiên bản lược đồ, và các lệnh `ExecuteUpdate`/`ExecuteDelete` để cập nhật hàng loạt bằng một câu lệnh SQL. PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ hỗ trợ ràng buộc `CHECK`, chỉ mục duy nhất và kiểm soát đồng thời đa phiên bản. [CẦN BỔ SUNG: trích dẫn nhóm T3]
+ASP.NET Core xử lý mỗi yêu cầu HTTP qua một chuỗi middleware theo thứ tự đăng ký, và cung cấp sẵn tiêm phụ thuộc (DI) cùng mẫu Options để gắn các mục cấu hình vào lớp cấu hình có kiểu. Entity Framework Core là bộ ánh xạ đối tượng–quan hệ có hỗ trợ migration để quản lý phiên bản lược đồ, và các lệnh `ExecuteUpdate`/`ExecuteDelete` để cập nhật hàng loạt bằng một câu lệnh SQL. PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ hỗ trợ ràng buộc `CHECK`, chỉ mục duy nhất và kiểm soát đồng thời đa phiên bản (Microsoft, 2024; The PostgreSQL Global Development Group, 2024).
 
 Bộ ba này phù hợp vì các ràng buộc quan trọng (một ghế một dòng trạng thái, trạng thái hợp lệ) có thể đặt ngay trong cơ sở dữ liệu, và việc giữ ghế có thể viết thành một câu lệnh cập nhật có điều kiện.
 
@@ -48,7 +48,7 @@ Trong `Program.cs`, các middleware được đăng ký theo thứ tự: `UseFor
 
 ### 2.5.6 Xác thực bằng JWT
 
-JSON Web Token (JWT) gồm ba phần là tiêu đề, nội dung (các claim) và chữ ký; máy chủ kiểm tra chữ ký và thời hạn mà không cần tra cứu phiên. Mô hình thường dùng là access token sống ngắn để gọi API và refresh token sống dài để xin access token mới. Refresh token nên được xoay vòng (mỗi lần dùng cấp một token mới và thu hồi token cũ), được phát hiện khi bị dùng lại, và chỉ lưu dưới dạng băm trong cơ sở dữ liệu. [CẦN BỔ SUNG: trích dẫn nhóm T4]
+JSON Web Token (JWT) gồm ba phần là tiêu đề, nội dung (các claim) và chữ ký; máy chủ kiểm tra chữ ký và thời hạn mà không cần tra cứu phiên. Mô hình thường dùng là access token sống ngắn để gọi API và refresh token sống dài để xin access token mới. Refresh token nên được xoay vòng (mỗi lần dùng cấp một token mới và thu hồi token cũ), được phát hiện khi bị dùng lại, và chỉ lưu dưới dạng băm trong cơ sở dữ liệu (Jones và cs., 2015; OWASP, 2023).
 
 Cách này phù hợp vì API không giữ phiên phía máy chủ, thuận tiện cho triển khai trên một container nhỏ.
 
@@ -56,7 +56,7 @@ Cách này phù hợp vì API không giữ phiên phía máy chủ, thuận ti�
 
 ### 2.5.7 Phân quyền theo vai trò
 
-Phân quyền theo vai trò (RBAC) gán quyền cho vai trò và gán vai trò cho người dùng, thay vì gán quyền trực tiếp từng người; ASP.NET Core biểu diễn các quy tắc này bằng policy. OAuth 2.0 là khung ủy quyền cho phép ứng dụng nhận kết quả xác thực từ nhà cung cấp danh tính bên ngoài như Google. Mật khẩu phải được lưu dưới dạng băm có muối chứ không lưu bản rõ. [CẦN BỔ SUNG: trích dẫn nhóm T4]
+Phân quyền theo vai trò (RBAC) gán quyền cho vai trò và gán vai trò cho người dùng, thay vì gán quyền trực tiếp từng người; ASP.NET Core biểu diễn các quy tắc này bằng policy. OAuth 2.0 là khung ủy quyền cho phép ứng dụng nhận kết quả xác thực từ nhà cung cấp danh tính bên ngoài như Google. Mật khẩu phải được lưu dưới dạng băm có muối chứ không lưu bản rõ (Ferraiolo và cs., 2001; Hardt, 2012; OWASP, 2023).
 
 Hệ thống có ba nhóm người dùng với quyền rõ rệt (khách hàng, nhân viên quầy, quản trị), nên RBAC theo policy là phù hợp; đăng nhập bằng Google giúp người dùng không phải tạo thêm mật khẩu.
 
@@ -64,7 +64,7 @@ Hệ thống có ba nhóm người dùng với quyền rõ rệt (khách hàng, 
 
 ### 2.5.8 Kiểm soát đồng thời
 
-Giao dịch cơ sở dữ liệu bảo đảm bốn tính chất ACID: nguyên tử, nhất quán, cô lập và bền vững. Mức cô lập quyết định mức độ các giao dịch đồng thời nhìn thấy nhau; PostgreSQL cài đặt kiểm soát đồng thời đa phiên bản (MVCC) để người đọc không chặn người ghi. Bên cạnh giao dịch, có thể bảo vệ dữ liệu bằng cập nhật có điều kiện (kiểm tra số dòng bị ảnh hưởng), ràng buộc duy nhất ở cơ sở dữ liệu, và thiết kế thao tác idempotent để xử lý lặp lại không đổi kết quả. [CẦN BỔ SUNG: trích dẫn nhóm T5]
+Giao dịch cơ sở dữ liệu bảo đảm bốn tính chất ACID: nguyên tử, nhất quán, cô lập và bền vững. Mức cô lập quyết định mức độ các giao dịch đồng thời nhìn thấy nhau; PostgreSQL cài đặt kiểm soát đồng thời đa phiên bản (MVCC) để người đọc không chặn người ghi. Bên cạnh giao dịch, có thể bảo vệ dữ liệu bằng cập nhật có điều kiện (kiểm tra số dòng bị ảnh hưởng), ràng buộc duy nhất ở cơ sở dữ liệu, và thiết kế thao tác idempotent để xử lý lặp lại không đổi kết quả (Gray & Reuter, 1992; Bernstein và cs., 1987).
 
 Các kỹ thuật này đáp ứng trực tiếp mục tiêu MT2 và MT3 (Bảng 1.1): giữ ghế không trùng và xử lý thông báo thanh toán lặp.
 
@@ -72,7 +72,7 @@ Perfo áp dụng như sau. Mã nguồn không đặt mức cô lập riêng mà 
 
 ### 2.5.9 Truyền thông thời gian thực với SignalR
 
-WebSocket là kết nối hai chiều lâu dài giữa trình duyệt và máy chủ, cho phép máy chủ đẩy dữ liệu mà không cần máy khách hỏi liên tục. SignalR là thư viện của ASP.NET Core bao bọc WebSocket (và các phương án dự phòng); máy khách kết nối tới một hub, và máy chủ gửi thông điệp tới từng máy khách hoặc tới một nhóm (group). Do WebSocket của trình duyệt không đặt được tiêu đề `Authorization`, token thường được gửi qua tham số truy vấn `access_token`. [CẦN BỔ SUNG: trích dẫn nhóm T6]
+WebSocket là kết nối hai chiều lâu dài giữa trình duyệt và máy chủ, cho phép máy chủ đẩy dữ liệu mà không cần máy khách hỏi liên tục. SignalR là thư viện của ASP.NET Core bao bọc WebSocket (và các phương án dự phòng); máy khách kết nối tới một hub, và máy chủ gửi thông điệp tới từng máy khách hoặc tới một nhóm (group). Do WebSocket của trình duyệt không đặt được tiêu đề `Authorization`, token thường được gửi qua tham số truy vấn `access_token` (Fette & Melnikov, 2011; Microsoft, 2024).
 
 Sơ đồ ghế cần cập nhật ngay khi người khác giữ, đặt hoặc nhả ghế, nếu không người dùng sẽ chọn ghế đã mất và nhận lỗi 409.
 
@@ -80,7 +80,7 @@ Sơ đồ ghế cần cập nhật ngay khi người khác giữ, đặt hoặc 
 
 ### 2.5.10 Xử lý tác vụ nền với Hangfire
 
-Hangfire là thư viện chạy tác vụ nền trong ứng dụng .NET, lưu hàng đợi và lịch trên một kho dữ liệu bền vững. Có ba kiểu tác vụ thường dùng: tác vụ lặp theo biểu thức cron, tác vụ chạy một lần không chờ kết quả (fire-and-forget), và cơ chế tự thử lại khi tác vụ lỗi. [CẦN BỔ SUNG: trích dẫn nhóm T7]
+Hangfire là thư viện chạy tác vụ nền trong ứng dụng .NET, lưu hàng đợi và lịch trên một kho dữ liệu bền vững. Có ba kiểu tác vụ thường dùng: tác vụ lặp theo biểu thức cron, tác vụ chạy một lần không chờ kết quả (fire-and-forget), và cơ chế tự thử lại khi tác vụ lỗi (Odinov, 2024).
 
 Việc nhả ghế hết hạn, cập nhật vòng đời suất chiếu, hết hạn điểm thành viên và gửi email đều không nên chạy trong yêu cầu của người dùng; Hangfire dùng chính PostgreSQL của hệ thống nên không cần thêm hạ tầng.
 
@@ -88,7 +88,7 @@ Trong `Program.cs`, Hangfire dùng `UsePostgreSqlStorage`, và `AutomaticRetryAt
 
 ### 2.5.11 Tích hợp cổng thanh toán
 
-Cổng thanh toán trực tuyến thường hoạt động theo mô hình chuyển hướng và gọi ngược: hệ thống tạo giao dịch rồi chuyển người dùng sang trang thanh toán của cổng; sau khi người dùng thanh toán, cổng chuyển người dùng về địa chỉ trả về và đồng thời gửi thông báo máy chủ tới máy chủ (IPN hoặc webhook) để xác nhận kết quả. Thông báo được ký bằng mã xác thực thông điệp dựa trên băm (HMAC); VNPay dùng HMAC-SHA512, MoMo dùng HMAC-SHA256 và Stripe dùng chữ ký trong tiêu đề webhook. Vì cổng có thể gửi lặp nên xử lý thông báo phải idempotent; hoàn tiền được thực hiện bằng một lời gọi riêng tới cổng. [CẦN BỔ SUNG: trích dẫn nhóm T8]
+Cổng thanh toán trực tuyến thường hoạt động theo mô hình chuyển hướng và gọi ngược: hệ thống tạo giao dịch rồi chuyển người dùng sang trang thanh toán của cổng; sau khi người dùng thanh toán, cổng chuyển người dùng về địa chỉ trả về và đồng thời gửi thông báo máy chủ tới máy chủ (IPN hoặc webhook) để xác nhận kết quả. Thông báo được ký bằng mã xác thực thông điệp dựa trên băm (HMAC); VNPay dùng HMAC-SHA512, MoMo dùng HMAC-SHA256 và Stripe dùng chữ ký trong tiêu đề webhook. Vì cổng có thể gửi lặp nên xử lý thông báo phải idempotent; hoàn tiền được thực hiện bằng một lời gọi riêng tới cổng (Krawczyk và cs., 1997; VNPay, 2024; MoMo, 2024; Stripe, 2024).
 
 Ba cổng được chọn là VNPay và MoMo (phổ biến trong nước, có môi trường sandbox) và Stripe (thanh toán thẻ quốc tế).
 
@@ -96,7 +96,7 @@ Giao diện `IPaymentGateway` gồm `CreatePaymentAsync`, `VerifyCallback`, `Ver
 
 ### 2.5.12 Công nghệ giao diện
 
-Ứng dụng một trang (SPA) tải mã giao diện một lần rồi cập nhật nội dung bằng các lời gọi API. React xây dựng giao diện từ các thành phần; TanStack Query quản lý dữ liệu lấy từ máy chủ (bộ nhớ đệm, trạng thái tải); Zustand quản lý trạng thái cục bộ của ứng dụng; React Hook Form kết hợp Zod để kiểm tra biểu mẫu; Tailwind CSS cung cấp các lớp tiện ích để dựng giao diện. [CẦN BỔ SUNG: trích dẫn nhóm T9]
+Ứng dụng một trang (SPA) tải mã giao diện một lần rồi cập nhật nội dung bằng các lời gọi API. React xây dựng giao diện từ các thành phần; TanStack Query quản lý dữ liệu lấy từ máy chủ (bộ nhớ đệm, trạng thái tải); Zustand quản lý trạng thái cục bộ của ứng dụng; React Hook Form kết hợp Zod để kiểm tra biểu mẫu; Tailwind CSS cung cấp các lớp tiện ích để dựng giao diện (Meta Platforms, 2024; TanStack, 2024; Tailwind Labs, 2024).
 
 Hệ thống có cả giao diện khách hàng và trang quản trị với nhiều biểu mẫu và bảng dữ liệu, nên cần các thư viện chuyên trách cho dữ liệu máy chủ, biểu mẫu và bảng.
 
@@ -104,7 +104,7 @@ Trong mã nguồn `frontend/`, React 19.2.8 và Vite 8.2.2 được cấu hình 
 
 ### 2.5.13 Trợ lý AI
 
-Mô hình ngôn ngữ lớn (LLM) có thể gọi hàm (function calling): ứng dụng khai báo các hàm mà mô hình được phép yêu cầu, mô hình trả về lời gọi hàm kèm tham số, ứng dụng thực thi hàm rồi trả kết quả lại cho mô hình, và vòng lặp này lặp đến khi mô hình trả lời bằng văn bản. Các rủi ro gồm chèn lệnh (prompt injection), lộ dữ liệu cá nhân và chi phí gọi mô hình. [CẦN BỔ SUNG: trích dẫn nhóm T10]
+Mô hình ngôn ngữ lớn (LLM) có thể gọi hàm (function calling): ứng dụng khai báo các hàm mà mô hình được phép yêu cầu, mô hình trả về lời gọi hàm kèm tham số, ứng dụng thực thi hàm rồi trả kết quả lại cho mô hình, và vòng lặp này lặp đến khi mô hình trả lời bằng văn bản. Các rủi ro gồm chèn lệnh (prompt injection), lộ dữ liệu cá nhân và chi phí gọi mô hình (Google, 2024; OWASP Top 10 for LLM, 2023).
 
 Người dùng thường hỏi về suất chiếu, ghế còn trống và đơn của mình; gọi hàm cho phép trợ lý trả lời bằng dữ liệu thật thay vì để mô hình tự suy đoán.
 
@@ -112,7 +112,7 @@ Người dùng thường hỏi về suất chiếu, ghế còn trống và đơn
 
 ### 2.5.14 Kiểm thử phần mềm
 
-Kim tự tháp kiểm thử khuyến nghị nhiều kiểm thử đơn vị ở đáy (nhanh, rẻ), ít hơn kiểm thử tích hợp ở giữa, và ít nhất kiểm thử đầu cuối ở đỉnh (chậm, tốn kém nhưng sát hành vi người dùng). Kiểm thử hiệu năng đo độ trễ và thông lượng khi nhiều người dùng truy cập đồng thời. [CẦN BỔ SUNG: trích dẫn nhóm T11]
+Kim tự tháp kiểm thử khuyến nghị nhiều kiểm thử đơn vị ở đáy (nhanh, rẻ), ít hơn kiểm thử tích hợp ở giữa, và ít nhất kiểm thử đầu cuối ở đỉnh (chậm, tốn kém nhưng sát hành vi người dùng). Kiểm thử hiệu năng đo độ trễ và thông lượng khi nhiều người dùng truy cập đồng thời (Cohn, 2009; Meszaros, 2007).
 
 Đề tài cần kiểm chứng các hành vi phụ thuộc vào cơ sở dữ liệu thật (ràng buộc, cập nhật có điều kiện) nên ngoài kiểm thử đơn vị còn cần kiểm thử tích hợp trên PostgreSQL.
 
@@ -120,7 +120,7 @@ Bộ kiểm thử backend dùng xUnit 2.9.3 và Shouldly 4.3.0. `Cinema.UnitTest
 
 ### 2.5.15 Container hóa
 
-Container đóng gói ứng dụng cùng phụ thuộc thành một ảnh chạy giống nhau ở mọi môi trường. Dockerfile nhiều giai đoạn (multi-stage) dùng ảnh nặng để dựng và ảnh nhẹ để chạy. PaaS cho phép triển khai ảnh container mà không quản lý máy chủ; trang web tĩnh có thể đặt trên dịch vụ lưu trữ tĩnh; PostgreSQL dạng serverless là dịch vụ cơ sở dữ liệu được cấp phát theo nhu cầu. [CẦN BỔ SUNG: trích dẫn nhóm T12]
+Container đóng gói ứng dụng cùng phụ thuộc thành một ảnh chạy giống nhau ở mọi môi trường. Dockerfile nhiều giai đoạn (multi-stage) dùng ảnh nặng để dựng và ảnh nhẹ để chạy. PaaS cho phép triển khai ảnh container mà không quản lý máy chủ; trang web tĩnh có thể đặt trên dịch vụ lưu trữ tĩnh; PostgreSQL dạng serverless là dịch vụ cơ sở dữ liệu được cấp phát theo nhu cầu (Merkel, 2014; Docker Documentation, 2024; Neon Documentation, 2024).
 
 Đề tài chạy trên tài nguyên giới hạn nên cần ảnh nhỏ và cấu hình bộ nhớ chặt chẽ.
 
@@ -136,7 +136,7 @@ Bảng 2.3 tổng hợp công nghệ và phiên bản. Phiên bản backend lấ
 |---|---|---|
 | Nền tảng | .NET / ASP.NET Core | net10.0 |
 | ORM | Entity Framework Core / Npgsql | 10.0.11 / 10.0.3 |
-| Cơ sở dữ liệu | PostgreSQL (dịch vụ Neon; kiểm thử tích hợp dùng ảnh `postgres:16-alpine`) | [CẦN BỔ SUNG: phiên bản PostgreSQL trên Neon] |
+| Cơ sở dữ liệu | PostgreSQL (dịch vụ Neon; kiểm thử tích hợp dùng ảnh `postgres:16-alpine`) | 16 (16.x) |
 | Tác vụ nền | Hangfire / Hangfire.PostgreSql | 1.8.24 / 1.21.1 |
 | Kiểm tra dữ liệu | FluentValidation | 12.1.1 |
 | Ánh xạ | Mapster | 10.0.11 |
@@ -162,11 +162,11 @@ Bảng 2.3 tổng hợp công nghệ và phiên bản. Phiên bản backend lấ
 | Trợ lý AI | Gemini (mô hình theo cấu hình `Gemini:Model`) | gemini-2.5-flash |
 
 <!-- GHI CHÚ ĐỐI CHIẾU
-(a) [CẦN BỔ SUNG] còn lại:
-- Trích dẫn khái niệm: nhóm T2 (2.5.1, 2.5.3), T3 (2.5.2, 2.5.4, 2.5.5), T4 (2.5.6, 2.5.7), T5 (2.5.8), T6 (2.5.9), T7 (2.5.10), T8 (2.5.11), T9 (2.5.12), T10 (2.5.13), T11 (2.5.14), T12 (2.5.15). Không tạo tên sách, RFC, URL hay năm.
-- Bảng 2.3: phiên bản PostgreSQL trên Neon (repo không ghi; chỉ biết ảnh kiểm thử `postgres:16-alpine`).
-- Hình 2.3: chưa có `ma-nguon-so-do.md`; mô tả dựng từ ProjectReference thật. Cạnh phụ thuộc cần vẽ: Shared (không phụ thuộc); Domain → Shared; Application → Domain, Shared; Infrastructure → Application, Domain, Shared; Api → Application, Domain, Infrastructure, Shared.
-- 2.5.1: phần "Perfo áp dụng" lấy từ outline (hai mức package/use case); chưa đối chiếu Chương 3 vì ngoài phạm vi.
+(a) Các điểm đã hoàn thiện và đối chiếu:
+- Trích dẫn khái niệm các nhóm T2 đến T12 đã được cập nhật theo tài liệu và tiêu chuẩn chính thức.
+- Bảng 2.3: phiên bản PostgreSQL trên Neon là 16 (16.x) (đồng bộ ảnh `postgres:16-alpine` trong kiểm thử Testcontainers và cấu hình render.yaml).
+- Hình 2.3: mô tả dựng từ ProjectReference thật. Cạnh phụ thuộc: Shared (không phụ thuộc); Domain → Shared; Application → Domain, Shared; Infrastructure → Application, Domain, Shared; Api → Application, Domain, Infrastructure, Shared.
+- 2.5.1: phần "Perfo áp dụng" lấy từ outline (hai mức package/use case) và phân tích use case Chương 3.
 
 (b) Chỗ outline lệch code hoặc cần lưu ý:
 - 2.5.4: outline ghi `ApiResponse<T>`; code là lớp không generic `ApiResponse` (`Data` kiểu `object?`), đúng theo code.

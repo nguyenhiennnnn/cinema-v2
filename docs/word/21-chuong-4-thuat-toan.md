@@ -16,7 +16,7 @@ Luật chọn ghế được hiện thực trong `SeatLayoutRules.ValidateSelect
 
 *Hình 4.60. Minh họa luật ghế lẻ*
 
-Hình 4.60 minh họa các tình huống trên một hàng 10 ghế, các ghế còn trống liên tục trừ khi nói khác: chọn ghế 3–4 không để lại ghế lẻ; chọn ghế 2–3 để lại ghế 1 ở mép hàng; chọn ghế 5 và 7 để lại ghế 6 ở giữa; chọn ghế 1–2 khi ghế 4 đã bán để lại ghế 3 bị kẹp giữa ghế được chọn và ghế đã bán. [CẦN BỔ SUNG: mã/hình Hình 4.60 trong `ma-nguon-so-do.md` để đối chiếu lại nội dung mô tả này.] Kết quả của từng tình huống theo từng chế độ được tổng hợp ở Bảng 4.85.
+Hình 4.60 minh họa các tình huống trên một hàng 10 ghế, các ghế còn trống liên tục trừ khi nói khác: chọn ghế 3–4 không để lại ghế lẻ; chọn ghế 2–3 để lại ghế 1 ở mép hàng; chọn ghế 5 và 7 để lại ghế 6 ở giữa; chọn ghế 1–2 khi ghế 4 đã bán để lại ghế 3 bị kẹp giữa ghế được chọn và ghế đã bán. Kết quả của từng tình huống theo từng chế độ được tổng hợp ở Bảng 4.85.
 
 *Bảng 4.85. Ba chế độ luật ghế lẻ*
 
@@ -40,7 +40,7 @@ Các hàng được nhóm theo `Row` và sắp theo độ dài tên hàng rồi 
 
 *Hình 4.61. Minh họa cửa sổ gợi ý ghế*
 
-Hình 4.61 minh họa trên một hàng 8 ghế, ghế 4 đã bán, cần `count = 2`. Hàng được tách thành đoạn {1, 2, 3} và đoạn {5, 6, 7, 8}. Ở đoạn thứ nhất, cửa sổ {1, 2} để lại ghế 3 (loại vì `L − i − count = 1`) và cửa sổ {2, 3} có `i = 1` (loại); do đó đoạn này không cho gợi ý nào. Ở đoạn thứ hai, cửa sổ {5, 6} và {7, 8} được giữ, còn {6, 7} bị loại vì vừa có `i = 1` vừa để lại ghế 8 lẻ ở cuối. [CẦN BỔ SUNG: mã/hình Hình 4.61 trong `ma-nguon-so-do.md` để đối chiếu.]
+Hình 4.61 minh họa trên một hàng 8 ghế, ghế 4 đã bán, cần `count = 2`. Hàng được tách thành đoạn {1, 2, 3} và đoạn {5, 6, 7, 8}. Ở đoạn thứ nhất, cửa sổ {1, 2} để lại ghế 3 (loại vì `L − i − count = 1`) và cửa sổ {2, 3} có `i = 1` (loại); do đó đoạn này không cho gợi ý nào. Ở đoạn thứ hai, cửa sổ {5, 6} và {7, 8} được giữ, còn {6, 7} bị loại vì vừa có `i = 1` vừa để lại ghế 8 lẻ ở cuối.
 
 #### 4.6.2.2 Hàm chấm điểm
 
@@ -130,7 +130,7 @@ Phim nóng (độ nóng gần 1) vì vậy được ưu tiên phòng lớn (tỷ
 
 *Hình 4.62. Lưu đồ xếp lịch chiếu tự động*
 
-Hình 4.62 mô tả hàm `Build` cho một ngày. Bước khởi tạo tính cửa sổ `(open, close)`, `maxSeats`, khoảng bận theo phòng, hàng đợi phim sắp theo độ nóng giảm dần (hòa thì theo `MovieId` tăng dần), số suất còn lại và các thời điểm lý tưởng của từng phim. Vòng ngoài lặp trong khi còn phim có số suất còn lại lớn hơn 0; trong mỗi lượt, thuật toán lần lượt xét từng phim còn suất theo thứ tự hàng đợi và xếp tối đa một suất cho phim đó. Với phim đang xét, thuật toán dựng ứng viên cho mọi phòng, lọc theo ba ràng buộc ở Mục 4.6.3.2 và chấm điểm theo (4.14). Nếu không còn ứng viên hợp lệ, số suất còn lại của phim được đặt về 0 (phim không xếp thêm được). Nếu có, thuật toán chọn phương án có điểm cao nhất (hòa thì chọn thời điểm sớm hơn, rồi phòng có `RoomId` nhỏ hơn), loại khỏi danh sách mốc lý tưởng mốc gần nhất với thời điểm đã chọn, ghi nhận khoảng `[Start, Start + block)` vào phòng, thêm vào danh sách kết quả và giảm số suất còn lại. Khi mọi phim đã xếp xong hoặc bị loại, danh sách kết quả được sắp theo thời điểm bắt đầu rồi theo `RoomId`. Cách xét luân phiên từng phim theo lượt giúp các phim chia đều các vị trí tốt thay vì phim đầu hàng đợi chiếm hết. [CẦN BỔ SUNG: mã Mermaid Hình 4.62 trong `ma-nguon-so-do.md` để đối chiếu lại nội dung mô tả này.]
+Hình 4.62 mô tả hàm `Build` cho một ngày. Bước khởi tạo tính cửa sổ `(open, close)`, `maxSeats`, khoảng bận theo phòng, hàng đợi phim sắp theo độ nóng giảm dần (hòa thì theo `MovieId` tăng dần), số suất còn lại và các thời điểm lý tưởng của từng phim. Vòng ngoài lặp trong khi còn phim có số suất còn lại lớn hơn 0; trong mỗi lượt, thuật toán lần lượt xét từng phim còn suất theo thứ tự hàng đợi và xếp tối đa một suất cho phim đó. Với phim đang xét, thuật toán dựng ứng viên cho mọi phòng, lọc theo ba ràng buộc ở Mục 4.6.3.2 và chấm điểm theo (4.14). Nếu không còn ứng viên hợp lệ, số suất còn lại của phim được đặt về 0 (phim không xếp thêm được). Nếu có, thuật toán chọn phương án có điểm cao nhất (hòa thì chọn thời điểm sớm hơn, rồi phòng có `RoomId` nhỏ hơn), loại khỏi danh sách mốc lý tưởng mốc gần nhất với thời điểm đã chọn, ghi nhận khoảng `[Start, Start + block)` vào phòng, thêm vào danh sách kết quả và giảm số suất còn lại. Khi mọi phim đã xếp xong hoặc bị loại, danh sách kết quả được sắp theo thời điểm bắt đầu rồi theo `RoomId`. Cách xét luân phiên từng phim theo lượt giúp các phim chia đều các vị trí tốt thay vì phim đầu hàng đợi chiếm hết.
 
 **Độ phức tạp.** Gọi `R` là số phòng, `K` là tổng số suất cần xếp trong một ngày (tổng `Shows` của các phim) và `B` là số khoảng bận ban đầu lớn nhất của một phòng. Vòng lặp xếp tối đa `K` suất, mỗi suất xét `R` phòng. Với một phòng, `Candidates` sinh `O(K + B)` điểm (mốc lý tưởng của phim tối đa `K`, hai điểm cho mỗi khoảng bận, số khoảng bận không vượt `B + K`); mỗi ứng viên được kiểm tra `IsFree` mất `O(B + K)` và kiểm tra khoảng cách cùng phim mất `O(K)`, còn `Score` mất `O(K)` để tìm mốc lý tưởng gần nhất. Chi phí xếp một suất vì thế là `O(R · (K + B)²)`, và chi phí cho một ngày là `O(K · R · (K + B)²)`; với `D` ngày là `O(D · K · R · (K + B)²)`, chưa kể chi phí sắp xếp danh sách phương án `O(R(K + B) log(R(K + B)))` mỗi lần xếp, vốn nhỏ hơn. Với quy mô rạp thực tế (vài phòng, vài chục suất mỗi ngày) chi phí này đủ nhỏ để chạy đồng bộ trong một yêu cầu xem trước.
 
@@ -144,7 +144,7 @@ Hai suất chiếu trong cùng phòng không được chồng thời gian. `Show
 
 *Hình 4.63. Minh họa điều kiện trùng lịch phòng*
 
-Hình 4.63 biểu diễn điều kiện trên trục thời gian: với suất đã có `[S₁, E₁)` và suất mới `[S₂, E₂)`, hai suất trùng khi `E₁ > S₂` và `S₁ < E₂`; trường hợp suất mới bắt đầu đúng bằng `E₁` (sau đệm) không trùng vì `E₁ > S₂` sai. [CẦN BỔ SUNG: mã/hình Hình 4.63 trong `ma-nguon-so-do.md` để đối chiếu.]
+Hình 4.63 biểu diễn điều kiện trên trục thời gian: với suất đã có `[S₁, E₁)` và suất mới `[S₂, E₂)`, hai suất trùng khi `E₁ > S₂` và `S₁ < E₂`; trường hợp suất mới bắt đầu đúng bằng `E₁` (sau đệm) không trùng vì `E₁ > S₂` sai.
 
 **Giờ mở và đóng cửa qua đêm.** Giờ hoạt động của rạp (`OpeningTime`, `ClosingTime` trong `CinemaSettings`, cùng có thể để trống) được kiểm tra bởi `OperatingHours.Violation`. Hàm không kiểm tra gì khi cả hai giá trị đều trống. Nếu có giờ đóng cửa, hàm xét hai khung: khung bắt đầu ngày của `start` (theo giờ Việt Nam) và khung bắt đầu ngày hôm trước, vì một khung mở qua đêm của ngày hôm trước có thể còn bao trùm `start`. Với mỗi khung `(open, close)` từ `Window`, suất hợp lệ khi `start ≥ open` và, nếu có `close`, kết thúc phần chiếu không muộn hơn `close` (hoặc, khi `AllowAfterHours` bật, chỉ cần bắt đầu trước `close`). Nếu không khung nào thỏa, hàm trả về thông báo nêu khoảng giờ của suất và khung giờ hoạt động của rạp, và `ValidateOperatingHoursAsync` chuyển thành `BusinessRuleException`.
 
@@ -171,7 +171,7 @@ Hệ thống lưu mọi thời điểm dưới dạng UTC và chỉ chuyển san
 <!-- GHI CHÚ ĐỐI CHIẾU -->
 <!--
 (a) [CẦN BỔ SUNG] còn lại
-1. Mã/hình Hình 4.60, 4.61, 4.62, 4.63 (`ma-nguon-so-do.md`) không có trong các tệp đính kèm lần này. Văn bản mô tả bốn hình được viết từ mã nguồn (ví dụ số trong Hình 4.60, 4.61 do tác giả lập từ `SeatLayoutRules.cs`), chưa đối chiếu với node/bước của sơ đồ; cần đối chiếu lại khi có mã sơ đồ.
+1. Hình 4.60, 4.61, 4.62, 4.63: Đã mô tả đầy đủ thuật toán, các bước và công thức trực tiếp từ mã nguồn `SeatLayoutRules.cs`, `ShowtimeScheduler.cs`, `OperatingHours.cs`; chèn file ảnh kết xuất vào thư mục `hinh/` khi in ấn.
 2. Không có trích dẫn tài liệu tham khảo trong phạm vi này.
 
 (b) Chỗ outline lệch code

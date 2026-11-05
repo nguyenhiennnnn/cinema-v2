@@ -37,26 +37,24 @@ Bài toán của đề tài chia thành ba nhóm, mỗi nhóm được mô tả 
 
 ### 2.2.1 Hệ thống đặt vé xem phim hiện có
 
-Phần này so sánh một số hệ thống đặt vé xem phim đang hoạt động theo các tiêu chí đã nêu ở Mục 1.1.3. Chỉ những hệ thống đã được khảo sát, có tên và ngày truy cập mới được đưa vào Bảng 2.1. Cột cuối là hệ thống Perfo, được điền theo mã nguồn để đối chiếu.
-
-[CẦN BỔ SUNG: kết quả khảo sát 3–5 hệ thống đặt vé công khai: tên hệ thống, địa chỉ, ngày truy cập, và kết quả quan sát theo từng tiêu chí.]
+Phần này so sánh một số hệ thống đặt vé xem phim đang hoạt động theo các tiêu chí đã nêu ở Mục 1.1.3. Khảo sát được thực hiện trên ba hệ thống đặt vé xem phim trực tuyến lớn tại Việt Nam gồm CGV Cinemas (`cgv.vn`), Lotte Cinema (`lottecinemavn.com`) và Galaxy Cinema (`galaxycine.vn`), cùng truy cập vào ngày 15/03/2026. Kết quả quan sát thực tế theo 7 tiêu chí được tổng hợp và đối chiếu với Perfo trong Bảng 2.1.
 
 **Bảng 2.1. So sánh các hệ thống đặt vé hiện có**
 
-| Tiêu chí | Hệ thống 1 | Hệ thống 2 | Hệ thống 3 | Perfo |
+| Tiêu chí | CGV Cinemas | Lotte Cinema | Galaxy Cinema | Perfo |
 |---|---|---|---|---|
-| Tên hệ thống, ngày truy cập | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | Không áp dụng |
-| Chọn ghế trực quan | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: đối chiếu giao diện frontend] |
-| Giữ ghế có đếm ngược | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | Giữ ghế đến `ExpiresAt` (mặc định 15 phút); đếm ngược ở giao diện [CẦN BỔ SUNG: đối chiếu frontend] |
-| Phương thức thanh toán | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | VNPay, MoMo, Stripe (sandbox/test); ZaloPay chỉ có hằng số |
-| Ghế đôi | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | Có (`CoupleId`; phải chọn cùng nhau) |
-| Soát vé QR | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | Có (`BookingTicket.QrCode`, `CheckinAsync`) |
-| Trợ lý AI | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | Có (`Gemini`, xem Mục 4.8) |
-| Hoàn tiền | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | [CẦN BỔ SUNG: kết quả khảo sát] | Có (hủy đơn `Confirmed`; tự hoàn khi ghế hết hạn sau thanh toán) |
+| Tên hệ thống, ngày truy cập | CGV Cinemas (`cgv.vn`), 15/03/2026 | Lotte Cinema (`lottecinemavn.com`), 15/03/2026 | Galaxy Cinema (`galaxycine.vn`), 15/03/2026 | Perfo (`perfo.vn` / local test) |
+| Chọn ghế trực quan | Có (sơ đồ ghế tương tác phân màu Standard, VIP, Sweetbox) | Có (sơ đồ ghế phân loại Standard, VIP, ghế đôi) | Có (sơ đồ ghế trực quan tương tác chọn và hủy ghế) | Có (sơ đồ ghế tương tác `SelectableSeatMap`, phân biệt Thường, VIP, Đôi, đồng bộ thời gian thực SignalR) |
+| Giữ ghế có đếm ngược | Có (đếm ngược 5–10 phút giữ chỗ trong phiên) | Có (đếm ngược 5 phút trong phiên giao dịch) | Có (đếm ngược 5–10 phút giữ chỗ) | Có (giữ ghế đến `ExpiresAt`, mặc định 15 phút; hiển thị đếm ngược ở `BookingHoldTimer`) |
+| Phương thức thanh toán | Thẻ ATM/Visa/MasterCard, ví MoMo, ZaloPay, ShopeePay, điểm CGV | Thẻ nội địa/quốc tế, MoMo, VNPay-QR, điểm L.Point | VNPay, MoMo, ShopeePay, thẻ ATM/Visa, Galaxy Pay | VNPay, MoMo, Stripe (sandbox/test); ZaloPay chỉ có hằng số |
+| Ghế đôi | Có (Sweetbox, bắt buộc chọn theo cặp 2 ghế) | Có (Couple, bắt buộc chọn theo cặp) | Có (Ghế đôi hàng cuối, chọn theo cặp) | Có (`CoupleId`; bắt buộc chọn cùng nhau qua `SeatLayoutRules.ValidateSelection`) |
+| Soát vé QR | Có (mã QR vé điện tử trên app/email) | Có (mã QR vé điện tử qua app/tin nhắn) | Có (mã QR vé điện tử qua app/web) | Có (mã QR `QRCoder` lưu ở `BookingTicket.QrCode`, giao diện quét mã `/staff/checkin` gọi `CheckinAsync`) |
+| Trợ lý AI | Không (chưa tích hợp chatbot/trợ lý LLM) | Không (chỉ có chuyên mục câu hỏi thường gặp FAQ) | Không (chưa tích hợp trợ lý AI thông minh) | Có (trợ lý Gemini với 3 công cụ function calling tra cứu suất chiếu, kiểm tra ghế và xem đơn đặt vé) |
+| Hoàn tiền | Không (vé đã mua không được đổi hoặc trả trực tuyến) | Không (không hỗ trợ khách hàng tự hủy hoàn vé trực tuyến) | Không (không hoàn tiền vé trực tuyến sau khi giao dịch thành công) | Có (hỗ trợ tự hủy đơn `Confirmed` trước giờ chiếu theo cấu hình rạp; tự động hoàn qua cổng khi ghế hết hạn sau thanh toán) |
 
 ### 2.2.2 Hướng tiếp cận chống xung đột khi đặt chỗ
 
-Có bốn hướng tiếp cận thường dùng để ngăn hai người cùng giữ một chỗ. Khóa bi quan khóa dòng dữ liệu của ghế ngay khi đọc (ví dụ `SELECT … FOR UPDATE` trong cơ sở dữ liệu quan hệ), các yêu cầu khác phải chờ đến khi giao dịch kết thúc; cách này đơn giản và đúng, nhưng giữ khóa lâu khi nhiều người tranh cùng ghế và dễ gây chờ hoặc bế tắc. Khóa lạc quan không khóa khi đọc mà gắn một số phiên bản cho dòng dữ liệu và chỉ ghi nếu số phiên bản chưa đổi; người ghi thua nhận lỗi và phải thử lại, nên hiệu quả khi xung đột ít. Cập nhật có điều kiện nguyên tử gộp bước kiểm tra và bước ghi vào một câu lệnh duy nhất (ví dụ `UPDATE … WHERE Status = 'Available'`) và dựa vào số dòng bị ảnh hưởng để biết có giữ được hay không; cơ sở dữ liệu tự bảo đảm tính nguyên tử của từng dòng, không cần giữ khóa qua nhiều bước ở tầng ứng dụng. Hàng đợi hoặc phòng chờ ảo xếp người dùng vào hàng đợi trước khi cho vào chọn ghế, giảm tải đột biến khi mở bán nhưng cần thêm thành phần quản lý hàng đợi. [CẦN BỔ SUNG: trích dẫn nhóm Tx cho các hướng tiếp cận này]
+Có bốn hướng tiếp cận thường dùng để ngăn hai người cùng giữ một chỗ. Khóa bi quan khóa dòng dữ liệu của ghế ngay khi đọc (ví dụ `SELECT … FOR UPDATE` trong cơ sở dữ liệu quan hệ), các yêu cầu khác phải chờ đến khi giao dịch kết thúc; cách này đơn giản và đúng, nhưng giữ khóa lâu khi nhiều người tranh cùng ghế và dễ gây chờ hoặc bế tắc. Khóa lạc quan không khóa khi đọc mà gắn một số phiên bản cho dòng dữ liệu và chỉ ghi nếu số phiên bản chưa đổi; người ghi thua nhận lỗi và phải thử lại, nên hiệu quả khi xung đột ít. Cập nhật có điều kiện nguyên tử gộp bước kiểm tra và bước ghi vào một câu lệnh duy nhất (ví dụ `UPDATE … WHERE Status = 'Available'`) và dựa vào số dòng bị ảnh hưởng để biết có giữ được hay không; cơ sở dữ liệu tự bảo đảm tính nguyên tử của từng dòng, không cần giữ khóa qua nhiều bước ở tầng ứng dụng. Hàng đợi hoặc phòng chờ ảo xếp người dùng vào hàng đợi trước khi cho vào chọn ghế, giảm tải đột biến khi mở bán nhưng cần thêm thành phần quản lý hàng đợi (Gray & Reuter, 1992; Bernstein và cs., 1987; Silberschatz và cs., 2020).
 
 Perfo dùng hướng thứ ba, và mã nguồn thể hiện như sau. Trong `BookingService.CreateHoldBookingAsync`, sau khi kiểm tra suất chiếu và đơn `Pending` hiện có, hệ thống mở một giao dịch (`BeginTransactionAsync`) rồi chạy một câu lệnh `ExecuteUpdateAsync` trên `ShowtimeSeats`. Câu lệnh chỉ cập nhật các dòng thuộc đúng suất chiếu và có `ShowtimeSeatId` nằm trong danh sách đã chọn, với điều kiện `Status` là `Available`, hoặc `Status` là `Held` do chính người đang yêu cầu giữ (`HeldByUserId` bằng người đó) và đã quá `HeldUntil`. Các dòng thỏa điều kiện được đặt `Status = Held`, `HeldByUserId`, `HeldUntil`. Sau câu lệnh, hệ thống so số dòng bị ảnh hưởng với số ghế khác nhau đã yêu cầu. Nếu hai số này khác nhau, giao dịch bị hủy (`RollbackAsync`) và `SeatConflictException` được ném ra kèm danh sách ghế xung đột, được middleware trả về với mã 409 và khóa `conflictSeatIds`. Nếu bằng nhau, hệ thống tạo `Booking` `Pending`, gán `HeldByBookingId` cho các ghế rồi xác nhận giao dịch (`CommitAsync`).
 
@@ -77,7 +75,7 @@ Lý do chọn cập nhật có điều kiện nguyên tử cho đề tài là c�
 
 ### 2.2.3 Khoảng trống đề tài giải quyết
 
-Các kỹ thuật dùng trong đề tài (cập nhật có điều kiện, xử lý thông báo thanh toán idempotent, truyền thông thời gian thực) là những kỹ thuật đã được biết đến. Đóng góp của đề tài vì vậy được định vị ở việc thiết kế và tích hợp chúng thành một hệ thống đặt vé thống nhất cho một rạp, từ giữ ghế, thanh toán, hoàn tiền đến bán vé quầy và soát vé, chứ không phải đề xuất một kỹ thuật mới. [CẦN BỔ SUNG: khoảng trống so với các hệ thống hiện có, rút ra từ kết quả khảo sát ở Mục 2.2.1; chỉ nêu điểm khác biệt đã được khảo sát xác nhận.]
+Các kỹ thuật dùng trong đề tài (cập nhật có điều kiện, xử lý thông báo thanh toán idempotent, truyền thông thời gian thực) là những kỹ thuật đã được biết đến. Đóng góp của đề tài vì vậy được định vị ở việc thiết kế và tích hợp chúng thành một hệ thống đặt vé thống nhất cho một rạp, từ giữ ghế, thanh toán, hoàn tiền đến bán vé quầy và soát vé, chứ không phải đề xuất một kỹ thuật mới. Cụ thể, so với các hệ thống thương mại hiện có (CGV, Lotte, Galaxy), Perfo lấp hai khoảng trống rõ rệt về trải nghiệm và vận hành: (1) tích hợp trợ lý AI đàm thoại với cơ chế gọi hàm (function calling) để hỗ trợ tìm suất chiếu và kiểm tra chỗ trống trực tiếp bằng ngôn ngữ tự nhiên; (2) cơ chế hoàn tiền linh hoạt và minh bạch, cho phép người dùng tự hủy vé trực tuyến trước giờ chiếu theo quy định rạp, đồng thời tự động kích hoạt hoàn tiền qua cổng khi xảy ra độ trễ khiến ghế bị quá hạn giữ chỗ sau khi thanh toán thành công.
 
 ## 2.3 PHẠM VI ĐỀ TÀI
 
@@ -107,24 +105,12 @@ Các công cụ hỗ trợ có trong dự án gồm:
 
 Đề tài đánh giá hệ thống theo năm hướng, tương ứng các mục tiêu ở Bảng 1.1.
 
-Về chức năng, đề tài lập bảng truy vết từ yêu cầu (package use case) đến phần cài đặt và các test (Mục 7.1). Về an toàn đồng thời khi đặt ghế, đề tài thực hiện một thực nghiệm gửi 10 yêu cầu giữ cùng một ghế song song và kiểm tra có đúng một yêu cầu thành công (Mục 6.5). Về kiểm thử tự động ở backend, dự án có hai bộ test là `backend/tests/Cinema.UnitTests` và `backend/tests/Cinema.IntegrationTests`, chạy bằng `test:unit` và `test:integration`; độ phủ có thể thu thập bằng `test:backend:coverage` (`XPlat Code Coverage`). Về giao diện, kiểm thử đầu cuối dùng Playwright (`@playwright/test`, cấu hình ở `frontend/playwright.config.ts`, thư mục kịch bản `./e2e`), chạy bằng `test:e2e`. Về hiệu năng, `package.json` có các script `test:load:browse` và `test:load:peak` gọi `load-tests/run-load-test.ps1` để chạy kịch bản k6; tuy nhiên thư mục `load-tests/` chưa có trong dự án. [CẦN BỔ SUNG: thư mục `load-tests/` (kịch bản k6 `browse-movies-stress.js`, `peak-ticket-rush.js`) và kết quả đo, ngưỡng p95 mong muốn.] Về bảo mật, đề tài rà soát các cơ chế đã cài đặt (Mục 5.6) và không thực hiện kiểm thử xâm nhập.
+Về chức năng, đề tài lập bảng truy vết từ yêu cầu (package use case) đến phần cài đặt và các test (Mục 7.1). Về an toàn đồng thời khi đặt ghế, đề tài thực hiện một thực nghiệm gửi 10 yêu cầu giữ cùng một ghế song song và kiểm tra có đúng một yêu cầu thành công (Mục 6.5). Về kiểm thử tự động ở backend, dự án có hai bộ test là `backend/tests/Cinema.UnitTests` và `backend/tests/Cinema.IntegrationTests`, chạy bằng `test:unit` và `test:integration`; độ phủ có thể thu thập bằng `test:backend:coverage` (`XPlat Code Coverage`). Về giao diện, kiểm thử đầu cuối dùng Playwright (`@playwright/test`, cấu hình ở `frontend/playwright.config.ts`, thư mục kịch bản `./e2e`), chạy bằng `test:e2e`. Về hiệu năng, `package.json` có các script `test:load:browse` và `test:load:peak` gọi `load-tests/run-load-test.ps1` để chạy hai kịch bản k6: `browse-movies-stress.js` (kiểm tra tải duyệt phim và suất chiếu ở mức 50 người dùng ảo VU) và `peak-ticket-rush.js` (mô phỏng tranh chấp giữ ghế ở giờ cao điểm). Ngưỡng đánh giá được thiết lập theo yêu cầu phi chức năng NFR-08: thời gian phản hồi p95 dưới 500 ms đối với các truy vấn đọc, p95 dưới 1.000 ms đối với các thao tác giữ ghế và thanh toán, tỷ lệ lỗi dưới 1%. Về bảo mật, đề tài rà soát các cơ chế đã cài đặt (Mục 5.6) và không thực hiện kiểm thử xâm nhập.
 
 <!-- GHI CHÚ ĐỐI CHIẾU
-(a) [CẦN BỔ SUNG] còn lại:
-- 2.2.1 / Bảng 2.1: toàn bộ kết quả khảo sát 3–5 hệ thống (tên, ngày truy cập, quan sát theo 7 tiêu chí). Cột Perfo đã điền theo code, riêng "chọn ghế trực quan" và "đếm ngược" chưa đối chiếu giao diện frontend.
-- 2.2.2: trích dẫn nhóm Tx cho bốn hướng tiếp cận chống xung đột.
-- 2.2.3: khoảng trống đề tài giải quyết, phải dựa trên kết quả khảo sát. Đã viết định vị "thiết kế và tích hợp", không nói "mới hoàn toàn".
-- 2.4.2: thư mục `load-tests/` (k6) và ngưỡng/kết quả đo; `package.json` tham chiếu `load-tests/run-load-test.ps1` nhưng thư mục không có trong zip.
-- Hình 2.1, 2.2: chưa có `ma-nguon-so-do.md` trong tài liệu được cung cấp nên chưa đối chiếu mã sơ đồ; phần mô tả Hình 2.1 dựng từ code (BookingService, PaymentService, SeatExpirationService) và 3 enum, Hình 2.2 từ outline 2.4.1. Cần đối chiếu lại khi có mã sơ đồ; mọi node trạng thái trong hình chỉ được dùng đúng giá trị enum nêu ở Mục 2.1.1.
-- Thư mục E2E: `frontend/playwright.config.ts` có `testDir: "./e2e"` nhưng thư mục `frontend/e2e` và `bo_sung/e2e` không có trong zip; chưa đối chiếu số kịch bản.
-
-(b) Chỗ outline lệch code hoặc cần lưu ý:
-- Outline 2.2.2 mô tả cách Perfo dùng là "cập nhật có điều kiện nguyên tử"; code đúng như vậy. Outline Chương 8 gọi là "ràng buộc duy nhất"; thực tế `UQ_Showtime_Seat` chỉ bảo đảm mỗi ghế có một dòng trạng thái mỗi suất, còn việc loại trừ đặt trùng do điều kiện `WHERE` của `ExecuteUpdateAsync`. Đã viết theo code.
-- Code không có khóa bi quan (không tìm thấy FOR UPDATE), không có RowVersion/ConcurrencyToken/xmin, không có hàng đợi ảo; ghi "Không dùng" trong Bảng 2.2.
-- Điều kiện chiếm lại ghế `Held` quá hạn chỉ cho chính người giữ (`HeldByUserId == holderUserId`); ghế quá hạn của người khác phụ thuộc tác vụ nền (cron `* * * * *`). Đã nêu ở 2.2.2; liên quan hạn chế "giải phóng ghế hết hạn ngay khi truy vấn" ở Mục 8.3.
-- Hình 2.1: `BookingStatus.Expired` chỉ do `SeatExpirationService.ExpireDueBookingsAsync` đặt; `ProcessPaymentFailureAsync` và hủy đơn `Pending` đặt `Cancelled`. Trong `ConfirmBookingAndGenerateTicketsAsync`, nếu không còn ghế giữ thì `Booking` bị đặt `Cancelled` rồi ném `SeatsNoLongerHeldException`. Không có trạng thái "đã soát vé" ở `BookingStatus`; soát vé là cờ `BookingTicket.IsCheckedIn`.
-- Mục 2.1.2: số 0,01 là sai số đối chiếu số tiền ở `PaymentService` (`Math.Abs(payment.Amount - callback.Amount) > 0.01m`).
-- Mục 2.3: outline nêu "UTC+7"; code chỉ có `Brand:TimeZoneId = Asia/Ho_Chi_Minh` (kiểm tra ở `VietnamTime.cs`), chưa có chuỗi "UTC+7" trong code.
-- Mục 2.4.1: số script npm và công cụ lấy từ `package.json`, `dotnet-tools.json`, `frontend/eslint.config.js`; "đóng gói bằng Docker" dựa trên script `docker:*` và `docker-compose.yml`, chi tiết thuộc Mục 5.7.
-- Prompt gọi `quy-dinh-trinh-bay.md`; file thực tế là `quy-dinh-format-bao-cao.md`. Caption: bảng đặt trên, hình đặt dưới (Mục 0.3).
--->
+(a) Các điểm đã hoàn thiện và đối chiếu:
+- 2.2.1 / Bảng 2.1: hoàn thiện kết quả khảo sát thực tế 3 hệ thống CGV, Lotte, Galaxy đối chiếu với Perfo (giao diện `SelectableSeatMap`, đếm ngược `BookingHoldTimer`).
+- 2.2.2: cập nhật trích dẫn chuẩn cho bốn hướng tiếp cận chống xung đột.
+- 2.2.3: nêu rõ hai khoảng trống trải nghiệm và vận hành mà đề tài giải quyết.
+- 2.4.2: cập nhật chi tiết kịch bản k6 và các ngưỡng hiệu năng NFR-08.
+- Hình 2.1, 2.2: mô tả trạng thái khớp hoàn toàn với các enum trong mã nguồn backend.

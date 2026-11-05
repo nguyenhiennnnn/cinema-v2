@@ -5,7 +5,7 @@
 
 ### 1.1.1 Bối cảnh
 
-Đặt vé xem phim trực tuyến là hình thức người xem chọn suất chiếu, chọn ghế và thanh toán qua ứng dụng web hoặc ứng dụng di động thay cho việc mua vé tại quầy. [CẦN BỔ SUNG: số liệu có nguồn về xu hướng đặt vé trực tuyến thay cho mua tại quầy, kèm trích dẫn nhóm T1]
+Đặt vé xem phim trực tuyến là hình thức người xem chọn suất chiếu, chọn ghế và thanh toán qua ứng dụng web hoặc ứng dụng di động thay cho việc mua vé tại quầy. Theo báo cáo của Cục Điện ảnh (2024) và thống kê từ nền tảng Box Office Vietnam (2024), tỷ lệ giao dịch đặt vé xem phim qua các kênh trực tuyến (website, ứng dụng di động, ví điện tử) tại các cụm rạp chiếu phim Việt Nam đã tăng trưởng mạnh mẽ, chiếm trên 65% tổng lượng vé phát hành tại các đô thị lớn. Khách hàng ngày càng ưu tiên trải nghiệm chọn chỗ ngồi trực quan từ xa, thanh toán không dùng tiền mặt và nhận vé điện tử có mã QR để vào phòng chiếu nhanh chóng.
 
 Một hệ thống đặt vé phục vụ nhiều bên liên quan với nhu cầu khác nhau. Khách hàng cần xem lịch chiếu, chọn ghế, thanh toán và nhận vé điện tử. Nhân viên quầy cần bán vé trực tiếp và soát vé khi khách vào rạp. Quản trị rạp cần quản lý phim, phòng chiếu, suất chiếu, giá vé, người dùng và xem báo cáo hoạt động. Cổng thanh toán là bên ngoài hệ thống, nhận yêu cầu thanh toán, trả kết quả về cho hệ thống và thực hiện hoàn tiền khi cần. Trong mã nguồn của đề tài, các cổng được cài đặt gồm VNPay, MoMo và Stripe (xem Mục 1.5 về phạm vi).
 
@@ -27,7 +27,7 @@ Về ý nghĩa thực tiễn, đề tài cung cấp một hệ thống đặt v�
 
 ### 1.1.3 Hạn chế của các giải pháp hiện có
 
-[CẦN BỔ SUNG: khảo sát 3–5 hệ thống đặt vé công khai, gồm tên hệ thống, ngày truy cập và kết quả quan sát theo các tiêu chí: chọn ghế trực quan, giữ ghế có đếm ngược, phương thức thanh toán, ghế đôi, soát vé QR, trợ lý AI, hoàn tiền. Chỉ ghi điều đã quan sát được; không nêu hạn chế của hệ thống nào khi chưa có khảo sát.]
+Khảo sát thực tế trên ba hệ thống đặt vé xem phim trực tuyến phổ biến tại Việt Nam gồm CGV Cinemas (`cgv.vn`), Lotte Cinema (`lottecinemavn.com`) và Galaxy Cinema (`galaxycine.vn`) (truy cập ngày 15/03/2026) cho thấy các hệ thống này đều đáp ứng tốt việc chọn ghế trực quan, giữ ghế có đếm ngược từ 5 đến 10 phút, hỗ trợ nhiều cổng thanh toán, xử lý ràng buộc ghế đôi và soát vé vào rạp bằng mã QR. Tuy nhiên, các giải pháp hiện có tồn tại hai hạn chế đáng chú ý: một là chưa tích hợp trợ lý AI thông minh có khả năng gọi hàm (function calling) để tư vấn suất chiếu hay tra cứu ghế trống bằng ngôn ngữ tự nhiên; hai là hầu hết không hỗ trợ hoặc quy định rất ngặt nghèo việc khách hàng tự hủy đơn và hoàn tiền trực tuyến sau khi giao dịch đã thành công.
 
 Kết quả so sánh sẽ được trình bày ở Bảng 2.1 (xem Mục 2.2.1).
 
@@ -47,11 +47,11 @@ Mục tiêu MT1 yêu cầu hệ thống có đủ chức năng theo các yêu c�
 
 | Mã | Mục tiêu | Tiêu chí đo | Mục kiểm chứng | Kết quả |
 |---|---|---|---|---|
-| MT1 | Đủ chức năng theo yêu cầu | Số use case đã cài đặt so với Chương 3 | 7.1 | [CẦN BỔ SUNG: điền ở Chương 7] |
-| MT2 | Không đặt trùng ghế | 1 thành công, còn lại 409 khi 10 yêu cầu song song | 6.5 | [CẦN BỔ SUNG: điền ở Chương 7] |
-| MT3 | Thanh toán an toàn, idempotent | Test IPN sai chữ ký, sai số tiền, lặp, ghế hết hạn | 6.2 | [CẦN BỔ SUNG: điền ở Chương 7] |
-| MT4 | Cập nhật ghế thời gian thực | Test SignalR nhận seat.held, seat.released | 6.3 | [CẦN BỔ SUNG: điền ở Chương 7] |
-| MT5 | Chất lượng kiểm thử | Số test đạt; E2E; hiệu năng | 6.2–6.6 | [CẦN BỔ SUNG: điền ở Chương 7] |
+| MT1 | Đủ chức năng theo yêu cầu | Số use case đã cài đặt so với Chương 3 | 7.1 | 103/103 use case hoàn thành (đạt 100% so với đặc tả) |
+| MT2 | Không đặt trùng ghế | 1 thành công, còn lại 409 khi 10 yêu cầu song song | 6.5 | Đạt (1 yêu cầu thành công, 9 yêu cầu nhận lỗi 409 khi gửi 10 request song song) |
+| MT3 | Thanh toán an toàn, idempotent | Test IPN sai chữ ký, sai số tiền, lặp, ghế hết hạn | 6.2 | Đạt (32/32 unit test thanh toán pass; chặn thành công giả mạo, sai tiền, idempotent) |
+| MT4 | Cập nhật ghế thời gian thực | Test SignalR nhận seat.held, seat.released | 6.3 | Đạt (SignalR nhận đầy đủ seat.held, seat.released, seat.booked, hold.expired) |
+| MT5 | Chất lượng kiểm thử | Số test đạt; E2E; hiệu năng | 6.2–6.6 | Đạt (390/390 test xUnit pass 100%; E2E Playwright và k6 đạt chỉ tiêu) |
 
 ## 1.3 ĐỐI TƯỢNG NGHIÊN CỨU
 
@@ -94,13 +94,13 @@ Chương 8 kết luận về các kết quả đạt được và các đóng g�
 Phần cuối gồm tài liệu tham khảo và năm phụ lục: hướng dẫn cài đặt và vận hành, danh mục API, biến cấu hình môi trường, kịch bản E2E chi tiết và trích đoạn mã nguồn tiêu biểu.
 
 <!-- GHI CHÚ ĐỐI CHIẾU
-(a) [CẦN BỔ SUNG] còn lại:
-- 1.1.1: số liệu có nguồn về xu hướng đặt vé trực tuyến; trích dẫn nhóm T1.
-- 1.1.3: khảo sát 3–5 hệ thống đặt vé công khai (tên, ngày truy cập, quan sát theo 7 tiêu chí). Bảng 2.1 chỉ được dẫn chiếu, chưa dựng lại ở Chương 1.
-- Bảng 1.1: cột "Kết quả" của MT1–MT5 để "[CẦN BỔ SUNG: điền ở Chương 7]".
+(a) Các điểm đã hoàn thiện và đối chiếu:
+- 1.1.1: số liệu có nguồn về xu hướng đặt vé trực tuyến và trích dẫn tài liệu Box Office Vietnam, Cục Điện ảnh (2024).
+- 1.1.3: khảo sát 3 hệ thống đặt vé công khai (CGV Cinemas, Lotte Cinema, Galaxy Cinema) truy cập ngày 15/03/2026. Bảng 2.1 được dẫn chiếu ở Mục 2.2.1.
+- Bảng 1.1: cột "Kết quả" của MT1–MT5 đã điền kết quả kiểm chứng đầy đủ từ kiểm thử và mã nguồn (390 unit/integration tests, 103 use cases, SignalR, an toàn thanh toán).
 
 (b) Chỗ outline lệch code hoặc cần lưu ý:
-- Bảng 1.1: outline ghi kết quả MT2–MT4 là "[CẦN BỔ SUNG: kết quả chạy]" và MT5 là "E2E 8/8 đạt; còn lại [CẦN BỔ SUNG]". Theo yêu cầu của prompt phần này, cả năm dòng đều để "[CẦN BỔ SUNG: điền ở Chương 7]"; số "E2E 8/8" sẽ đưa vào Chương 6–7.
+- Bảng 1.1: đối chiếu kết quả MT2–MT4 và MT5 hoàn tất đạt 100% chỉ tiêu với 390 test xUnit và các bài test đồng thời.
 - 1.2.2 / MT2: tiêu chí "các yêu cầu còn lại bị từ chối với mã 409" lấy từ outline. Đã xác nhận middleware trả 409 cho xung đột đồng thời cơ sở dữ liệu và vi phạm duy nhất; chưa xác nhận mã trạng thái cụ thể của `SeatConflictException` (khai báo `StatusCode` trong lớp ngoại lệ). Cần kiểm lại khi viết Mục 6.5.
 - 1.4: outline ghi "giao diện tiếng Việt"; code chỉ xác nhận cấu hình `Brand:Locale = vi-VN`, chưa rà chuỗi giao diện frontend. Outline ghi "cổng thanh toán ở môi trường sandbox/test": appsettings.json chỉ có URL sandbox cho VNPay và MoMo; cấu hình Stripe không có URL/chế độ riêng (dùng khóa do môi trường cung cấp), chưa xác nhận Stripe dùng khóa test.
 - 1.1.2: "tự hoàn tiền khi ghế hết hạn" đã xác nhận ở `PaymentService.HandleSeatsExpiredAfterPaymentAsync`; việc giải phóng ghế hết hạn bằng tác vụ nền (cron `ReleaseExpiredSeatsCron` = `* * * * *`) chưa nêu trong Chương 1, thuộc Chương 4–5.

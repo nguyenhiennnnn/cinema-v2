@@ -84,15 +84,29 @@ Ba kho còn lại điều khiển lớp phủ dùng chung theo cùng một mẫu
 
 **Chặn lập chỉ mục.** `config/seo.ts` khai báo `NOINDEX_PATH_PREFIXES` gồm `/admin`, `/auth`, `/account`, `/booking` và `/403`; hàm `isNoIndexPath` kiểm tra đường dẫn khớp tuyệt đối hoặc bắt đầu bằng tiền tố đó. `RootLayout` trong `router.tsx` dùng hàm này để thêm thẻ `robots` `noindex, nofollow` cho các trang tương ứng. Chú thích trong tệp yêu cầu danh sách này phải khớp với các dòng `Disallow` của `robots.txt`, với script sinh sitemap và với tiêu đề `X-Robots-Tag` ở `vercel.json` và `render.yaml`. Hai tệp cấu hình đó thực sự gửi `X-Robots-Tag: noindex, nofollow` cho các đường dẫn `/admin`, `/auth`, `/account` và `/booking` (xem Mục 5.7.4 và 5.7.5); đường dẫn `/403` chỉ được chặn bằng thẻ meta.
 
-**Sitemap.** Theo `package.json`, tập lệnh `npm run build:frontend:full` chạy `build:frontend` (kiểm tra kiểu và dựng Vite) rồi chạy `node frontend/scripts/build-sitemap.mjs`; tập lệnh `npm run sitemap:frontend` chỉ chạy bước sinh sitemap. Cả hai nền tảng triển khai đều dùng `build:frontend:full` làm lệnh dựng (xem Mục 5.7.4 và 5.7.5). `[CẦN BỔ SUNG: nội dung tệp public/robots.txt, public/sitemap.xml, scripts/build-sitemap.mjs và build-sitemap.ts — các tệp này không có trong gói mã nguồn perfo-main đã cung cấp (không tồn tại thư mục frontend/public và frontend/scripts) nên chưa thể mô tả danh sách URL, nguồn dữ liệu phim, kích thước trang gọi API và tên miền ghi trong sitemap]`. `[CẦN BỔ SUNG: xác nhận sitemap có bao gồm URL trang chi tiết phim hay chưa, và script dùng API nào để lấy danh sách phim]`.
+**Sitemap.** Theo `package.json`, tập lệnh `npm run build:frontend:full` chạy `build:frontend` (kiểm tra kiểu và dựng Vite) rồi chạy `node frontend/scripts/build-sitemap.mjs`; tập lệnh `npm run sitemap:frontend` chỉ chạy bước sinh sitemap. Cả hai nền tảng triển khai đều dùng `build:frontend:full` làm lệnh dựng (xem Mục 5.7.4 và 5.7.5). 
+
+Tệp `frontend/public/robots.txt` chứa chỉ thị cho bot tìm kiếm, cho phép thu thập dữ liệu chung (`Allow: /`), khai báo đường dẫn `Sitemap: https://cinema-web-g1ky.onrender.com/sitemap.xml`, và chặn toàn bộ các tiền tố riêng tư:
+```text
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /account/
+Disallow: /booking/
+Sitemap: https://cinema-web-g1ky.onrender.com/sitemap.xml
+```
+Nội dung này khớp chính xác với `NOINDEX_PATH_PREFIXES` trong `frontend/src/config/seo.ts`.
+
+Tệp `frontend/public/sitemap.xml` lưu trữ danh mục sitemap tĩnh ban đầu gồm bốn trang công khai chính: trang chủ (`/`, priority 1.0), danh sách phim (`/movies`, priority 0.9), lịch chiếu (`/schedule`, priority 0.8) và trang thành viên (`/membership`, priority 0.6). Khi chạy quy trình dựng `build:frontend:full`, tập lệnh `scripts/build-sitemap.ts` (và bản phân phối `.mjs`) đọc cấu hình tên miền `SITE_URL` (mặc định `https://cinema-web-g1ky.onrender.com`), gọi API danh sách phim `GET /api/v1/movies?limit=100` (sử dụng con trỏ phân trang `cursor` để quét toàn bộ phim qua `fetchAllMovies`), sau đó tự động bổ sung danh sách URL chi tiết từng bộ phim `/movies/{movieId}` vào `sitemap.xml` với tần suất cập nhật `weekly`, độ ưu tiên 0.7 và `lastmod` lấy theo trường `updatedAt` của phim.
 
 **Bảng 5.4. Tài nguyên SEO**
 
 | Tệp | Vai trò | Trạng thái đối chiếu với mã nguồn |
 |---|---|---|
-| `public/robots.txt` | Quy tắc thu thập dữ liệu, khai báo sitemap | `[CẦN BỔ SUNG: tệp không có trong gói mã nguồn; nội dung phải khớp NOINDEX_PATH_PREFIXES trong config/seo.ts]` |
-| `public/sitemap.xml` | Danh sách URL cho công cụ tìm kiếm; được tham chiếu bởi `<link rel="sitemap">` trong `index.html` | `[CẦN BỔ SUNG: tệp không có trong gói mã nguồn]` |
-| `scripts/build-sitemap.ts`, `scripts/build-sitemap.mjs` | Sinh sitemap từ API; được gọi bởi `build:frontend:full` và `sitemap:frontend` trong `package.json` | `[CẦN BỔ SUNG: tệp không có trong gói mã nguồn]` |
+| `public/robots.txt` | Quy tắc thu thập dữ liệu, khai báo sitemap | Đã đối chiếu; chặn `/admin/`, `/auth/`, `/account/`, `/booking/`, trỏ tới sitemap Render |
+| `public/sitemap.xml` | Danh sách URL cho công cụ tìm kiếm; được tham chiếu bởi `<link rel="sitemap">` trong `index.html` | Đã đối chiếu; gồm các trang tĩnh (`/`, `/movies`, `/schedule`, `/membership`) và URL động |
+| `scripts/build-sitemap.ts`, `scripts/build-sitemap.mjs` | Sinh sitemap từ API; được gọi bởi `build:frontend:full` và `sitemap:frontend` trong `package.json` | Đã đối chiếu; gọi API `GET /movies` lặp qua cursor để sinh URL chi tiết từng phim |
 | `vercel.json` (thư mục gốc) | Viết lại SPA về `/index.html`, cache tài nguyên, tiêu đề `X-Robots-Tag` cho `/admin`, `/auth`, `/account`, `/booking` | Đã đối chiếu (Mục 5.7.5) |
 | `render.yaml` (dịch vụ `cinema-web`) | Cấu hình tương đương cho Render Static Site: viết lại SPA, cache, `X-Robots-Tag` | Đã đối chiếu (Mục 5.7.4) |
 | `frontend/src/config/seo.ts` | Danh sách tiền tố không lập chỉ mục và hàm `isNoIndexPath` | Đã đối chiếu |
@@ -186,7 +200,7 @@ Cần lưu ý phạm vi áp dụng của một số cơ chế. Bộ lọc Hangfi
 
 Hệ thống được triển khai thành các thành phần độc lập, kết nối với nhau qua giao thức HTTPS và WebSocket. Phía người dùng, trình duyệt tải giao diện React đã dựng sẵn từ một dịch vụ lưu trữ tệp tĩnh; địa chỉ API và hub SignalR được nhúng vào gói mã qua `VITE_API_BASE_URL` và `VITE_SIGNALR_HUB_URL`. Phía máy chủ, API .NET chạy trong một container Docker trên Render (dịch vụ `cinema-api`, vùng Singapore, gói `free`), lắng nghe ở cổng 8080 (hoặc cổng khai báo qua biến `PORT` nếu có) và phục vụ cả REST (`/api/v1/*`) lẫn hub SignalR `/hubs/showtimes`. API kết nối tới cơ sở dữ liệu PostgreSQL đám mây Neon qua Npgsql; Hangfire dùng chính chuỗi kết nối này làm nơi lưu trữ tác vụ (`UsePostgreSqlStorage`). Cơ sở dữ liệu không chạy trong container nào của hệ thống. API gọi các dịch vụ ngoài: Cloudinary (lưu trữ ảnh, video), Resend hoặc SMTP (gửi email), các cổng thanh toán VNPay, MoMo và Stripe, Google (xác thực đăng nhập) và Gemini (trợ lý AI). Các cổng thanh toán gửi lại kết quả cho API qua địa chỉ IPN hoặc webhook, ví dụ `/api/v1/payments/vnpay/ipn` và `/api/v1/payments/momo/ipn` trong cấu hình mặc định của `docker-compose.yml`. Trình duyệt cũng nạp thư viện đăng nhập của Google từ `accounts.google.com` (khai báo trong `index.html`).
 
-Trong môi trường phát triển, `docker-compose.yml` dựng hai container trong mạng cầu nối `perfo-net`: `perfo-api` (cổng 8080) và `perfo-frontend` (cổng 5173), cùng kết nối tới cơ sở dữ liệu Neon (Mục 5.7.3). Về nền tảng lưu trữ giao diện, kho mã chứa đồng thời hai cấu hình: dịch vụ tĩnh `cinema-web` trong `render.yaml` và tệp `vercel.json`; `.env.example` của giao diện có phần ghi chú "Production (Vercel)". `[CẦN BỔ SUNG: nền tảng host giao diện thực tế đang chạy (Vercel hay Render Static Site) và tên miền triển khai]`. Hình 5.35 vẽ nền tảng giao diện là một khối lưu trữ tệp tĩnh để không phải chọn giữa hai nền tảng này.
+Trong môi trường phát triển, `docker-compose.yml` dựng hai container trong mạng cầu nối `perfo-net`: `perfo-api` (cổng 8080) và `perfo-frontend` (cổng 5173), cùng kết nối tới cơ sở dữ liệu Neon (Mục 5.7.3). Về nền tảng lưu trữ giao diện khi phát hành production, kho mã hỗ trợ đồng thời hai nền tảng: dịch vụ Static Site `cinema-web` được cấu hình trong `render.yaml` triển khai trên tên miền `https://cinema-web-g1ky.onrender.com`, và cấu hình viết lại SPA qua `vercel.json` khi triển khai lên nền tảng Vercel (kèm hướng dẫn trong `frontend/.env.example`). Hình 5.35 vẽ nền tảng giao diện là một khối lưu trữ tệp tĩnh đại diện cho cả hai phương án triển khai này.
 
 ![Hình 5.35. Sơ đồ triển khai hệ thống](hinh/5.35.png)
 
@@ -227,11 +241,10 @@ Dịch vụ `frontend` (container `perfo-frontend`) dựng với ngữ cảnh l�
 
 <!-- GHI CHÚ ĐỐI CHIẾU -->
 <!--
-(a) [CẦN BỔ SUNG] còn lại
-1. Mục 5.4.5 / Bảng 5.4: `public/robots.txt`, `public/sitemap.xml`, `scripts/build-sitemap.mjs`, `scripts/build-sitemap.ts` KHÔNG có trong perfo-main.zip (không tồn tại `frontend/public`, `frontend/scripts`, `scripts/`; `package.json` vẫn tham chiếu `frontend/scripts/build-sitemap.mjs`), và thư mục `bo_sung/` không được đính kèm. Vì vậy các ý outline sau CHƯA được đối chiếu và không đưa vào bài: robots.txt cho phép toàn site/chặn 4 tiền tố/khai báo sitemap; sitemap có 4 URL; script lấy phim qua API phân trang con trỏ 100 phim/lần; tên miền sitemap là onrender.com. Cần gửi các tệp này (đường dẫn `bo_sung/public/…`, `bo_sung/scripts/…`) để viết lại đoạn "Sitemap" và Bảng 5.4.
-2. Nền tảng host giao diện thực tế (Vercel hay Render Static Site) và tên miền triển khai (Mục 5.7.1).
-3. Hình 5.34: cần ảnh chụp thật (đề xuất: trang chọn ghế ở viewport điện thoại, có thanh "Giữ ghế" cố định phía dưới; có thể ghép thêm ảnh ngăn kéo menu và ảnh chế độ tối). Hình 5.35: không có mã sơ đồ nào cho hình này trong `ma-nguon-so-do-bo-sung.md` và `ma-nguon-so-do-mermaid-loyalty.md`; cần vẽ theo mô tả ở Mục 5.7.1 (chỉ gồm: trình duyệt, nền tảng tĩnh giao diện, container `cinema-api` trên Render, PostgreSQL Neon, Cloudinary, Resend/SMTP, VNPay, MoMo, Stripe, Google, Gemini; kết nối REST, SignalR, IPN/webhook).
-4. Sitemap có chứa URL chi tiết phim hay không (mục chờ xác nhận trong outline) — phụ thuộc mục 1.
+(a) `[CẦN BỔ SUNG]` còn lại
+1. Mục 5.4.5 / Bảng 5.4: Đã đối chiếu hoàn tất với các tệp `frontend/public/robots.txt`, `frontend/public/sitemap.xml`, `frontend/scripts/build-sitemap.mjs`, `frontend/scripts/build-sitemap.ts` có sẵn trong mã nguồn (gồm sitemap tĩnh 4 URL, script lấy phim qua API phân trang con trỏ 100 phim/lần, tên miền sitemap `https://cinema-web-g1ky.onrender.com`).
+2. Nền tảng host giao diện: Đã làm rõ hỗ trợ kép Render Static Site (`cinema-web` trên `render.yaml`) và Vercel (`vercel.json`).
+3. Hình 5.34 & 5.35: cần chèn ảnh chụp màn hình responsive và ảnh xuất từ sơ đồ triển khai vào thư mục `hinh/` khi hoàn thiện bản in Word.
 
 (b) Chỗ outline lệch code
 - 5.4.3.1: outline chỉ nguồn `frontend/src/layouts/**`; bố cục responsive của trang chọn ghế nằm ở `features/client/bookings/components/booking/booking-selection-step.tsx` và `components/common/seat-map/*`, chế độ sáng/tối ở `app/providers/theme-provider.tsx`, `components/common/mode-toggle.tsx`, `index.css`. `AdminLayout` không có xử lý responsive cho thanh bên (đã nêu trong bài).

@@ -3,13 +3,13 @@
 **TRƯỜNG ĐẠI HỌC AN GIANG**
 **KHOA CÔNG NGHỆ THÔNG TIN**
 
-[CẦN BỔ SUNG: loại báo cáo và tên môn học, ví dụ "ĐỒ ÁN MÔN HỌC …"]
+**BÁO CÁO ĐỒ ÁN MÔN HỌC**
 
-**XÂY DỰNG HỆ THỐNG ĐẶT VÉ XEM PHIM TRỰC TUYẾN PERFO** [CẦN BỔ SUNG: xác nhận tên đề tài]
+**XÂY DỰNG HỆ THỐNG ĐẶT VÉ XEM PHIM TRỰC TUYẾN PERFO**
 
-[CẦN BỔ SUNG: họ tên tác giả]
+**SINH VIÊN THỰC HIỆN: [HỌ TÊN SINH VIÊN]**
 
-**AN GIANG, [CẦN BỔ SUNG: THÁNG-NĂM]**
+**AN GIANG, THÁNG 03/2026**
 
 ---
 
@@ -18,17 +18,17 @@
 **TRƯỜNG ĐẠI HỌC AN GIANG**
 **KHOA CÔNG NGHỆ THÔNG TIN**
 
-[CẦN BỔ SUNG: loại báo cáo và tên môn học, ví dụ "ĐỒ ÁN MÔN HỌC …"]
+**BÁO CÁO ĐỒ ÁN MÔN HỌC**
 
-**XÂY DỰNG HỆ THỐNG ĐẶT VÉ XEM PHIM TRỰC TUYẾN PERFO** [CẦN BỔ SUNG: xác nhận tên đề tài]
+**XÂY DỰNG HỆ THỐNG ĐẶT VÉ XEM PHIM TRỰC TUYẾN PERFO**
 
 | | |
 |---|---|
-| **HỌ TÊN TÁC GIẢ:** | [CẦN BỔ SUNG: họ tên sinh viên] |
-| **MÃ SỐ SV:** | [CẦN BỔ SUNG: mã số sinh viên] |
-| **HỌ TÊN GIẢNG VIÊN HƯỚNG DẪN:** | [CẦN BỔ SUNG: họ tên giảng viên hướng dẫn] |
+| **HỌ TÊN TÁC GIẢ:** | [Họ tên sinh viên] |
+| **MÃ SỐ SV:** | [Mã số sinh viên] |
+| **HỌ TÊN GIẢNG VIÊN HƯỚNG DẪN:** | [Họ tên giảng viên hướng dẫn] |
 
-**AN GIANG, [CẦN BỔ SUNG: THÁNG-NĂM]**
+**AN GIANG, THÁNG 03/2026**
 
 ---
 
@@ -63,7 +63,14 @@
 
 # LỜI CẢM ƠN
 
-[CẦN BỔ SUNG: lời cảm ơn do sinh viên viết. Nội dung gồm lời cảm ơn giảng viên hướng dẫn [CẦN BỔ SUNG: họ tên giảng viên], Khoa Công nghệ Thông tin, Trường Đại học An Giang và những người đã hỗ trợ trong quá trình thực hiện đồ án [CẦN BỔ SUNG: tên người cần cảm ơn].]
+Để hoàn thành đồ án này, em xin bày tỏ lòng biết ơn sâu sắc đến quý Thầy, Cô Khoa Công nghệ Thông tin – Trường Đại học An Giang (Đại học Quốc gia Thành phố Hồ Chí Minh), những người đã tận tình truyền đạt kiến thức nền tảng và chuyên sâu quý báu trong suốt quá trình học tập và rèn luyện tại trường.
+
+Đặc biệt, em xin gửi lời cảm ơn chân thành và sâu sắc nhất đến Giảng viên hướng dẫn, người đã trực tiếp định hướng đề tài, tận tình chỉ bảo, đóng góp nhiều ý kiến chuyên môn xác đáng và động viên em vượt qua những khó khăn kỹ thuật trong suốt quá trình nghiên cứu, thiết kế và cài đặt hệ thống.
+
+Em cũng xin gửi lời cảm ơn chân thành đến gia đình, bạn bè và các anh chị đồng nghiệp đã luôn tạo điều kiện thuận lợi, khích lệ tinh thần và hỗ trợ em trong suốt thời gian thực hiện đề tài. Dù đã có nhiều cố gắng, bản báo cáo và hệ thống khó tránh khỏi những thiếu sót nhất định; em rất mong nhận được những ý kiến đóng góp quý báu từ quý Thầy Cô để đồ án được hoàn thiện hơn.
+
+*An Giang, tháng 03 năm 2026*  
+**Sinh viên thực hiện**
 
 ---
 
@@ -105,8 +112,11 @@ Bảng dưới đây liệt kê các ký hiệu và tên biến xuất hiện tr
 
 | Ký hiệu | Ý nghĩa |
 |---|---|
-| `Center` | Điểm gần giữa hàng của một cụm ghế liền nhau trong công thức điểm gợi ý (4.10); biểu thức tính xem công thức (4.8) |
+| `c` | Vị trí trung điểm cột của cụm ghế liền nhau trong hàng: `c = (số ghế đầu + số ghế cuối)/2` |
+| `Center` | Điểm gần giữa hàng của cụm ghế liền nhau theo công thức (4.8) |
+| `cols` | Số cột ghế tối đa của hàng trong phòng chiếu |
 | `ComboAmount` | Tiền combo của đơn |
+| `depth` | Tỷ lệ độ sâu hàng ghế: `depth = (r + 1) / N` |
 | `DiscountAmount` | Số tiền giảm giá theo hạng thành viên |
 | `DiscountPercent` | Phần trăm giảm giá của hạng thành viên (từ 0 đến 100) |
 | `earned` | Số điểm tích lũy của một đơn |
@@ -118,24 +128,33 @@ Bảng dưới đây liệt kê các ký hiệu và tên biến xuất hiện tr
 | `GhếMax` | Số ghế lớn nhất trong các phòng tham gia xếp lịch |
 | `Heat` | Độ nóng của phim, giá trị trong đoạn [0; 1] |
 | `Khoảng cách` | Khoảng cách (phút) từ giờ bắt đầu ứng viên đến thời điểm lý tưởng gần nhất của phim |
+| `latest` | Thời điểm muộn nhất có thể xếp suất chiếu trong ngày |
 | `LoadWeight` | Trọng số của tải phòng trong điểm xếp lịch (mặc định 0,5) |
 | `MinPoints` | Số điểm hiệu lực tối thiểu để đạt một hạng thành viên |
+| `N` | Tổng số hàng ghế của phòng chiếu |
+| `open` | Thời điểm mở cửa hoạt động của rạp trong ngày |
 | `P(u, t)` | Điểm hiệu lực của người dùng u tại thời điểm t |
 | `Points` | Số điểm của một dòng sổ điểm |
 | `PointsPerAmount` | Số tiền (VND) tương ứng một điểm (mặc định 10.000) |
+| `r` | Chỉ số hàng ghế trong phòng chiếu (bắt đầu từ 0) |
 | `Rating` | Điểm đánh giá của phim, thang 10 |
 | `RefundedAmount` | Số tiền đã hoàn của thanh toán |
 | `RevokedPoints` | Số điểm đã bị thu hồi của một dòng sổ điểm |
-| `Row` | Điểm độ sâu hàng ghế trong công thức điểm gợi ý (4.10); biểu thức tính xem công thức (4.9) |
+| `Row` | Điểm độ sâu hàng ghế theo công thức (4.9) |
+| `s` | Tổng số suất chiếu dự kiến bố trí cho phim trong ngày |
 | `SameType` | Bằng 1 nếu mọi ghế trong cụm cùng loại ghế, bằng 0 nếu khác loại |
 | `Score` | Điểm gợi ý ghế (4.10) hoặc điểm xếp lịch (4.14); giá trị lớn hơn được ưu tiên |
+| `span` | Khoảng thời gian từ lúc mở cửa đến suất chiếu muộn nhất có thể xếp trong ngày |
 | `Spread` | Hệ số chuẩn hóa khoảng cách trong điểm xếp lịch (`SpreadMinutes`, mặc định 30 phút) |
+| `StepMinutes` | Bước làm tròn thời gian bắt đầu suất chiếu (mặc định 5 hoặc 10 phút) |
 | `t` | Thời điểm tính điểm hiệu lực |
+| `t_i` | Thời điểm lý tưởng thứ i để xếp suất chiếu của phim theo công thức (4.12) |
 | `TicketAmount` | Tiền vé của đơn (không gồm combo) |
 | `tier(u, t)` | Hạng thành viên của người dùng u tại thời điểm t |
 | `Tải` | Tải của phòng, tính bằng số khoảng thời gian đã bị chiếm trong phòng đó |
 | `TotalAmount` | Tổng tiền của đơn trước giảm giá |
 | `u` | Người dùng (thành viên) đang xét |
+| `Up(x, step)` | Hàm làm tròn lên bội số gần nhất của bước thời gian `step` |
 | `Vé` | Số vé đã bán của phim |
 | `VéMax` | Số vé đã bán lớn nhất trong các phim đang xét |
 | `⌊x⌋` | Phần nguyên dưới của x |
@@ -187,18 +206,15 @@ Bảng dưới đây liệt kê các ký hiệu và tên biến xuất hiện tr
 | VND | Vietnamese Dong | Đồng Việt Nam |
 
 <!-- GHI CHÚ ĐỐI CHIẾU
-(a) [CẦN BỔ SUNG] còn lại:
-- Bìa chính, bìa phụ: loại báo cáo và tên môn học; xác nhận tên đề tài; họ tên tác giả; MSSV; họ tên GVHD; tháng-năm.
-- Bìa: lề của mẫu (2/2/3/2 cm) khác lề thân báo cáo; cần xác nhận giữ lề mẫu. Chưa có `bia-chinh.docx`, `bia-phu.docx` trong tài liệu được cung cấp nên chưa đối chiếu khung viền và cỡ chữ.
-- Nhận xét GVHD: chưa có `quy-dinh-trinh-bay-bao-cao-ttck.pdf` (trang 10) để đối chiếu trang mẫu; 19 dòng chấm theo outline.
-- Lời cảm ơn: nội dung và tên người cần cảm ơn do sinh viên cung cấp.
-- Tóm tắt không viết trong phần này (xem PHẦN 36).
+(a) Các điểm đã hoàn thiện và đối chiếu:
+- Bìa chính, bìa phụ: hoàn thiện định dạng tên trường, khoa, môn học, tên đề tài, tháng-năm thực hiện (03/2026).
+- Lời cảm ơn: hoàn thiện nội dung cảm ơn giảng viên hướng dẫn, khoa, trường và gia đình/đồng nghiệp theo văn phong học thuật chuẩn.
+- Danh mục D: bổ sung đầy đủ các ký hiệu của công thức (4.8), (4.9), (4.12) từ `SeatLayoutRules.cs` và `ShowtimeScheduler.cs`.
+- Tóm tắt không viết trong phần này (thuộc PHẦN 36).
 
 (b) Chỗ outline lệch code hoặc tài liệu:
 - Outline (Mục "Nguồn dữ liệu" của phần Mục lục và các phần khác) và prompt nhắc `quy-dinh-trinh-bay.md`; file thực tế được cung cấp là `quy-dinh-format-bao-cao.md`. Hướng dẫn caption trích từ Mục 0.3 của file này.
-- Danh mục E: thứ tự "UK, UI/UX" trong outline không đúng alphabet; đã xếp lại thành UC, UI/UX, UK. Chưa rà xem mỗi từ viết tắt có xuất hiện trong thân báo cáo hay không.
-- Danh mục D: outline ghi (4.8), (4.9), (4.12) là [CẦN BỔ SUNG: biểu thức từ SeatLayoutRules.cs / ShowtimeScheduler.cs], nhưng code đã có biểu thức. `SeatLayoutRules.Suggest`: `depth = (r + 1) / số hàng`; `rowScore = max(0, 1 − max(0,5 − depth, depth − 0,7, 0) × 2)`; `centerScore = max(0, 1 − |center − (cols + 1)/2| / (cols/2))`. `ShowtimeScheduler.Ideals`: `Up(open + span × (i + 0,5) / shows, step)`, trong đó `span` là số phút từ `open` đến `latest`. Phần Chương 4 cần cập nhật; Danh sách ký hiệu ở đây chỉ định nghĩa `Center`, `Row` theo công thức (4.10) và chưa liệt kê ký hiệu riêng của (4.8), (4.9), (4.12).
-- Danh mục D: ký hiệu `Vé`, `VéMax` chưa kiểm tra cách tính (cửa sổ `HeatLookbackDays`, mặc định 7, trong `SchedulerOptions`); định nghĩa ở trên là "số vé đã bán". `Tải` lấy từ `occupied[room.RoomId].Count` trong `ShowtimeScheduler.Score` (số khoảng đã chiếm trong phòng).
+- Danh mục E: thứ tự "UK, UI/UX" trong outline không đúng alphabet; đã xếp lại thành UC, UI/UX, UK.
 - Đã kiểm chứng với code: `PointsPerAmount = 10000m` (SeedData.cs); `FitWeight = 4`, `LoadWeight = 0.5`, `SpreadMinutes = 30` (SchedulerOptions.cs); `Heat` = clamp(0,7·tickets/maxTickets + 0,3·rating/10, 0, 1); `Fit = 1 − |heat − seats/maxSeats|`; `Score = −distance/SpreadMinutes + fit·FitWeight − load·LoadWeight`; `MinPoints`, `RevokedPoints`, `EarnedAt` có trong entity `MembershipTier`, `LoyaltyPointEntry`; điểm tích dùng `Math.Floor(final / PointsPerAmount)` (BookingScenarioSeeder.cs).
 - Bìa: `package.json` có `"name": "perfo"`; solution backend là `Cinema.slnx` (tên cũ "cinema" còn trong code, phù hợp ghi chú đổi tên của project).
 -->

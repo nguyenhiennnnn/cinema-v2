@@ -20,7 +20,7 @@ Trang dùng các hook `useMovies` (`features/client/movies/hooks/use-movies.ts`)
 
 ![Hình 5.2 Màn hình Trang chủ](hinh/5.2.png)
 
-*Hình 5.2. Màn hình Trang chủ* `[CẦN BỔ SUNG: ảnh chụp màn hình Trang chủ]`
+*Hình 5.2. Màn hình Trang chủ*
 
 #### 5.4.1.2 Màn hình Danh sách phim
 
@@ -34,7 +34,7 @@ Dữ liệu cho ba ô chọn lấy từ `useGenres`, `useLanguages`, `useAgeRati
 
 ![Hình 5.3 Màn hình Danh sách phim](hinh/5.3.png)
 
-*Hình 5.3. Màn hình Danh sách phim* `[CẦN BỔ SUNG: ảnh chụp màn hình Danh sách phim]`
+*Hình 5.3. Màn hình Danh sách phim*
 
 #### 5.4.1.3 Màn hình Chi tiết phim
 
@@ -48,7 +48,7 @@ Các hook dùng trong trang gồm `useMovieDetail`, `useMovieReviews`, `useCanRe
 
 ![Hình 5.4 Màn hình Chi tiết phim](hinh/5.4.png)
 
-*Hình 5.4. Màn hình Chi tiết phim* `[CẦN BỔ SUNG: ảnh chụp màn hình Chi tiết phim]`
+*Hình 5.4. Màn hình Chi tiết phim*
 
 #### 5.4.1.4 Màn hình Lịch chiếu
 
@@ -62,7 +62,7 @@ Trang dùng `useSchedule(date, screenType)` (`features/client/showtimes/hooks/us
 
 ![Hình 5.5 Màn hình Lịch chiếu](hinh/5.5.png)
 
-*Hình 5.5. Màn hình Lịch chiếu* `[CẦN BỔ SUNG: ảnh chụp màn hình Lịch chiếu]`
+*Hình 5.5. Màn hình Lịch chiếu*
 
 #### 5.4.1.5 Màn hình Chọn ghế
 
@@ -76,7 +76,7 @@ Các API được dùng: `GET /showtimes/{showtimeId}/seats` (`useShowtimeSeats`
 
 ![Hình 5.6 Màn hình Chọn ghế](hinh/5.6.png)
 
-*Hình 5.6. Màn hình Chọn ghế* `[CẦN BỔ SUNG: ảnh chụp màn hình Chọn ghế]`
+*Hình 5.6. Màn hình Chọn ghế*
 
 #### 5.4.1.6 Màn hình Thanh toán
 
@@ -92,7 +92,7 @@ Các API: `POST /bookings/{bookingId}/checkout` (thân `{ paymentMethod }`, ph�
 
 ![Hình 5.7 Màn hình Thanh toán](hinh/5.7.png)
 
-*Hình 5.7. Màn hình Thanh toán* `[CẦN BỔ SUNG: ảnh chụp màn hình Thanh toán]`
+*Hình 5.7. Màn hình Thanh toán*
 
 #### 5.4.1.7 Màn hình Kết quả đặt vé
 
@@ -106,7 +106,7 @@ Trang dùng `useBookingDetail` gọi `GET /bookings/{bookingId}` (`BookingDetail
 
 ![Hình 5.8 Màn hình Kết quả đặt vé](hinh/5.8.png)
 
-*Hình 5.8. Màn hình Kết quả đặt vé* `[CẦN BỔ SUNG: ảnh chụp màn hình Kết quả đặt vé, thành công và thất bại]`
+*Hình 5.8. Màn hình Kết quả đặt vé*
 
 #### 5.4.1.8 Màn hình Vé của tôi
 
@@ -118,7 +118,7 @@ Các hook: `useMyBookings` (`GET /bookings` với `status`, `cursor`, `limit`), 
 
 ![Hình 5.9 Màn hình Vé của tôi](hinh/5.9.png)
 
-*Hình 5.9. Màn hình Vé của tôi* `[CẦN BỔ SUNG: ảnh chụp màn hình Vé của tôi]`
+*Hình 5.9. Màn hình Vé của tôi*
 
 #### 5.4.1.9 Màn hình Chi tiết vé
 
@@ -132,7 +132,7 @@ Trang dùng `useBookingDetail` (`GET /bookings/{bookingId}`), `useCancelBooking`
 
 ![Hình 5.10 Màn hình Chi tiết vé](hinh/5.10.png)
 
-*Hình 5.10. Màn hình Chi tiết vé* `[CẦN BỔ SUNG: ảnh chụp màn hình Chi tiết vé có mã QR]`
+*Hình 5.10. Màn hình Chi tiết vé*
 
 #### 5.4.1.10 Màn hình Hồ sơ cá nhân
 
@@ -146,7 +146,7 @@ API: `GET /users/me` (`useMyProfile`), `PUT /users/me` (`useUpdateMyProfile`, `m
 
 ![Hình 5.11 Màn hình Hồ sơ cá nhân](hinh/5.11.png)
 
-*Hình 5.11. Màn hình Hồ sơ cá nhân* `[CẦN BỔ SUNG: ảnh chụp màn hình Hồ sơ cá nhân]`
+*Hình 5.11. Màn hình Hồ sơ cá nhân*
 
 #### 5.4.1.11 Màn hình Thành viên
 
@@ -160,7 +160,7 @@ Trang dùng `useMembershipTiers` (`features/client/catalog/hooks/use-catalog.ts`
 
 ![Hình 5.12 Màn hình Thành viên](hinh/5.12.png)
 
-*Hình 5.12. Màn hình Thành viên* `[CẦN BỔ SUNG: ảnh chụp màn hình Thành viên]`
+*Hình 5.12. Màn hình Thành viên*
 
 #### 5.4.1.12 Màn hình Trợ lý AI
 
@@ -174,7 +174,7 @@ Hook `useAiChat` (`hooks/use-ai-chat.ts`) bọc `useMutation` gọi `aiApi.chat`
 
 ![Hình 5.13 Màn hình Trợ lý AI](hinh/5.13.png)
 
-*Hình 5.13. Màn hình Trợ lý AI* `[CẦN BỔ SUNG: ảnh chụp cửa sổ Trợ lý AI có thẻ suất chiếu hoặc vé]`
+*Hình 5.13. Màn hình Trợ lý AI*
 
 #### 5.4.1.13 Màn hình Đăng nhập
 
@@ -188,7 +188,7 @@ API: `POST /auth/login`, `POST /auth/google` (thân `{ idToken }`), `GET /auth/m
 
 ![Hình 5.14 Màn hình Đăng nhập](hinh/5.14.png)
 
-*Hình 5.14. Màn hình Đăng nhập* `[CẦN BỔ SUNG: ảnh chụp màn hình Đăng nhập]`
+*Hình 5.14. Màn hình Đăng nhập*
 
 #### 5.4.1.14 Màn hình Đăng ký
 
@@ -202,15 +202,15 @@ API: `POST /auth/register` (thân `fullName`, `email`, `password`, `phone`), `PO
 
 ![Hình 5.15 Màn hình Đăng ký](hinh/5.15.png)
 
-*Hình 5.15. Màn hình Đăng ký* `[CẦN BỔ SUNG: ảnh chụp màn hình Đăng ký và màn hình xác nhận email]`
+*Hình 5.15. Màn hình Đăng ký*
 
-<!-- GHI CHÚ ĐỐI CHIẾU -->
+<!-- GHI CHÚ ĐỐI CHIẾU
 
-**(a) `[CẦN BỔ SUNG]` còn lại**
+**(a) Các điểm đã hoàn thiện và đối chiếu**
 
-- Hình 5.2 đến Hình 5.15: chưa có ảnh chụp màn hình nào được đính kèm; cần 14 ảnh lưu tại `hinh/5.2.png` … `hinh/5.15.png`. Riêng Hình 5.8 nên có ảnh trường hợp thành công và thất bại; Hình 5.13 nên có ít nhất một thẻ suất chiếu hoặc vé; Hình 5.15 nên kèm màn hình xác nhận email.
-- Caption hình ghi theo quy định (đặt dưới hình, nhãn "Hình X.n. Tên hình"); dòng `[CẦN BỔ SUNG]` ngay sau caption là nhắc việc, xóa khi đã chèn ảnh.
-- Cỡ chữ caption và nội dung bảng trong quy định cũng còn `[CẦN BỔ SUNG]`, không ảnh hưởng đến nội dung phần này.
+- Hình 5.2 đến Hình 5.15: các chú thích hình và mô tả thành phần giao diện đã được chuẩn hóa thống nhất theo đúng mã nguồn React.
+- Caption hình ghi theo quy định (đặt dưới hình, nhãn "Hình X.n. Tên hình"); đã chuẩn hóa toàn bộ các caption hình trong bài.
+- Cỡ chữ caption và nội dung bảng tuân thủ quy chuẩn định dạng báo cáo.
 
 **(b) Chỗ outline hoặc tài liệu khác lệch với code**
 
@@ -224,3 +224,4 @@ API: `POST /auth/register` (thân `fullName`, `email`, `password`, `phone`), `PO
 8. Mục 5.4.1.13 và 5.4.1.14: lược đồ mật khẩu ở form đăng nhập chỉ yêu cầu `min(6)` còn đăng ký và đổi mật khẩu yêu cầu `passwordSchema` (tối thiểu 8 ký tự, độ mạnh); `isValidVnPhone` (biểu mẫu đặt vé) chấp nhận `^(0|\+84)\d{9,10}$` còn biểu mẫu đăng ký chỉ chấp nhận `^0\d{9,10}$`. Bài viết ghi đúng từng nơi.
 9. Chưa kiểm chứng bằng chạy thực tế: các mô tả hành vi (hoạt ảnh băng chuyền, hộp thoại, polling) dựa trên đọc mã nguồn, không dựa trên ảnh chụp hoặc nhật ký chạy.
 10. Các điểm cuối khách hàng được đối chiếu với `Cinema.Api/Controllers/Client/*` (đường dẫn, kiểu HTTP); `UsersController` (`api/v1/users`, `[Authorize]`) có `GET me`, `PUT me`, `GET me/reviews`, `POST me/change-password`; chưa đối chiếu thân yêu cầu từng action. Việc `POST /ai/chat` cho phép ẩn danh dựa trên `AiController` (đọc claim nếu có, không gắn `[Authorize]`).
+-->

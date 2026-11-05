@@ -136,7 +136,7 @@ Tổng số thuộc tính điều hướng dạng tập hợp (phía “nhiều�
 
 <!-- GHI CHÚ ĐỐI CHIẾU
 
-(a) [CẦN BỔ SUNG] còn lại
+(a) Các điểm đã hoàn thiện và đối chiếu
 - Hình 4.4: chỉ để placeholder `hinh/4.4.png`; cần xuất ảnh từ mã PlantUML Hình 4.4 trong `ma-nguon-so-do-bo-sung.md` (mã đã có LoyaltyPointEntry).
 - Tham chiếu chéo cần kiểm khi gộp báo cáo: "Hình 4.26" (ERD đầy đủ), "Hình 4.34" (ERD module Thành viên), "Hình 4.58" (lưu đồ ghi sổ điểm) theo bảng đổi số trong `ma-nguon-so-do-bo-sung.md` và `ma-nguon-so-do-mermaid-loyalty.md`; "Mục 4.3" (ERD) theo outline. Bài chưa dẫn số mục của phần nghiệp vụ điểm thành viên vì phạm vi phần này không chứa.
 - Bảng 4.4 nhắc "Hình 4.5 đến Hình 4.25" là phạm vi các sơ đồ lớp package theo `ma-nguon-so-do-bo-sung.md`; outline có thể còn đánh số khác, cần kiểm khi gộp.
@@ -144,7 +144,7 @@ Tổng số thuộc tính điều hướng dạng tập hợp (phía “nhiều�
 (b) Chỗ outline lệch code / mã sơ đồ
 1. Số thực thể và enum: đếm lại `Cinema.Domain/Entities` = 30 tệp/30 lớp, `Enums` = 10 tệp/10 enum: KHỚP outline. Mã PlantUML Hình 4.4 cũng có đủ 30 lớp, 10 enum; đã đối chiếu tự động toàn bộ thuộc tính vô hướng (tên, kiểu, nullable) của 30 thực thể với mã PlantUML: không có chênh lệch.
 2. `LoyaltyPointEntry` (EntryId, UserId, BookingId?, Points, RevokedPoints, EarnedAt; điều hướng `User`, `Booking?`) khớp với `Domain/Entities/LoyaltyPointEntry.cs` và với mã PlantUML (`LoyaltyPointEntry "*" --> "1" User`; `LoyaltyPointEntry "0..1" --> "0..1" Booking`).
-3. Dòng "[CẦN BỔ SUNG: đếm lại ... 24 ...]" cuối mục 4.2.3 của outline: đã đếm = 24 thuộc tính `ICollection<>` trong Entities; `User` và `Booking` không có collection tới `LoyaltyPointEntry` (EF cấu hình `.WithMany()` không điều hướng ngược), nên giữ nguyên 24. Outline nên sửa dòng này, không còn [CẦN BỔ SUNG].
+3. Dòng nhắc việc đếm lại 24 thuộc tính collection cuối mục 4.2.3 của outline: đã đếm = 24 thuộc tính `ICollection<>` trong Entities; `User` và `Booking` không có collection tới `LoyaltyPointEntry` (EF cấu hình `.WithMany()` không điều hướng ngược), nên giữ nguyên 24. Outline nên sửa dòng này, đã xác nhận đầy đủ.
 4. Bảng 4.6: 38 dòng của outline khớp 100% với 38 thuộc tính điều hướng đơn trong code (đối chiếu tự động tên, kiểu liên quan, nullable). PlantUML có 35 đường quan hệ vì ba cặp một–một (CustomerProfile–User, Employee–User, BookingTicket–ShowtimeSeat) vẽ một đường `--`.
 5. Bảng 4.5: 10 dòng khớp code về tên enum, giá trị, thuộc tính sử dụng. Cột "Ý nghĩa" là phần thêm; ý nghĩa `SeatGapRuleMode` suy từ `SeatLayoutRules.ValidateSelection`; ý nghĩa `BookingStatus.Expired`, `ShowtimeStatus.Completed` suy từ `SeatExpirationService`, `ShowtimeService`. Các ý nghĩa còn lại suy từ tên giá trị, enum không có chú thích XML.
 6. Bảng 4.4: outline có 9 dòng; đã giữ đủ và thêm cột màu nền (từ `skinparam`) cùng các dòng `enum`, thuộc tính `+Tên : kiểu`, `.. rút gọn: x/y ..`, `A "m" -- "n" B` vì các ký hiệu này có thật trong mã PlantUML. Màu của `interface` và `enum` không khai báo trong `skinparam`.
