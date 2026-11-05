@@ -56,8 +56,8 @@ Hệ thống quản lý và bán vé rạp chiếu phim, gồm:
 |---|---|---|
 | Web khách hàng | Xem phim, lịch chiếu, chọn ghế, giữ ghế, thanh toán online, xem vé QR, hủy vé, đánh giá phim, xem hạng thành viên, chat trợ lý AI | `frontend/src/app/routes/client-routes.tsx` |
 | Web quản trị / nhân viên | Dashboard, quản lý phim, suất chiếu, phòng/ghế, combo, đặt vé, thanh toán, báo cáo, người dùng, nhân viên, đánh giá, cài đặt, danh mục; bán vé tại quầy; soát vé QR | `frontend/src/app/routes/admin-routes.tsx` |
-| REST API | ASP.NET Core, tiền tố `/api/v1`, 129 endpoint (bảng đầy đủ ở [02](#s02)) | `backend/Cinema.Api/Controllers` |
-| Job nền | Hangfire (lưu trên PostgreSQL): giải phóng ghế hết hạn, vòng đời suất chiếu/phim, hoàn tiền khi hủy suất, gửi email | `backend/Cinema.Application/BackgroundJobs` |
+| REST API | ASP.NET Core, tiền tố `/api/v1`, 137 endpoint (bảng đầy đủ ở [02](#s02)) | `backend/Cinema.Api/Controllers` |
+| Job nền | Hangfire (lưu trên PostgreSQL): giải phóng ghế hết hạn, vòng đời suất chiếu/phim, hoàn tiền khi hủy suất, gửi email, quét hết hạn điểm thành viên theo cửa sổ 12 tháng | `backend/Cinema.Application/BackgroundJobs` |
 | Realtime | SignalR hub `/hubs/showtimes` đẩy trạng thái ghế theo suất chiếu | `backend/Cinema.Infrastructure/Realtime` |
 | Tích hợp ngoài | VNPay, MoMo, Stripe (thanh toán/hoàn tiền); Resend và SMTP/MailKit (email); Cloudinary (ảnh/video); Google Sign-In; Gemini (trợ lý AI) | `backend/Cinema.Infrastructure`, `Cinema.Application/Services/Ai` |
 
@@ -68,11 +68,11 @@ Actor: khách vãng lai (chưa đăng nhập), khách hàng (`Customer`), nhân 
 | Lớp | Công nghệ (phiên bản theo `csproj`/`package.json`) | Vai trò |
 |---|---|---|
 | Backend | .NET `net10.0`, ASP.NET Core | Web API |
-| ORM / DB | EF Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3; PostgreSQL 16 (`docker-compose.yml`: `postgres:16-alpine`) | Lưu dữ liệu, migration |
+| ORM / DB | EF Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3; PostgreSQL 16 (`docker-compose.yml`: `postgres:16-alpine`) | Lưu dữ liệu, migration (4 migration) |
 | Validation | FluentValidation 12.1.1 | Kiểm tra request (filter `ValidationActionFilter`) |
 | Mapping | Mapster 10.0.11 | DTO mapping (`MappingConfig`) |
 | Auth | `Microsoft.AspNetCore.Authentication.JwtBearer`, `System.IdentityModel.Tokens.Jwt`, `PasswordHasher<User>` (Identity.Core), `Google.Apis.Auth` | JWT, hash mật khẩu, đăng nhập Google |
-| Job | Hangfire 1.8.24 + `Hangfire.PostgreSql` | Tác vụ nền và retry |
+| Job | Hangfire 1.8.24 + `Hangfire.PostgreSql` | Tác vụ nền và retry (4 recurring jobs + background queue) |
 | Realtime | SignalR | Đẩy trạng thái ghế |
 | Thanh toán | `Stripe.net` 52.4.0; VNPay và MoMo gọi HTTP trực tiếp (`VnPayGateway`, `MomoGateway`) | Cổng thanh toán |
 | Email | MailKit 4.17.0, Resend (HTTP) | Gửi email |
@@ -81,7 +81,7 @@ Actor: khách vãng lai (chưa đăng nhập), khách hàng (`Customer`), nhân 
 | Log | Serilog.AspNetCore | Ghi log |
 | API doc | Swashbuckle (chỉ hiển thị khi `ASPNETCORE_ENVIRONMENT=Development`, theo comment trong `Program.cs`) | Swagger 2 doc: `client`, `admin` |
 | Frontend | React 19, `react-router` 7, TanStack Query 5, TanStack Table, Zustand 5, axios, react-hook-form + zod 3, `@microsoft/signalr` 10, recharts, tailwindcss 4, vite 8, `jsqr` (đọc QR bằng camera) | SPA |
-| Test | xUnit (`Cinema.UnitTests`, `Cinema.IntegrationTests`), Playwright (đã cấu hình nhưng chưa có spec, xem [13](#s13)) | Kiểm thử |
+| Test | xUnit (`Cinema.UnitTests`, `Cinema.IntegrationTests` - 390 test), Playwright (đã cấu hình nhưng chưa có spec, xem [13](#s13)) | Kiểm thử |
 | Triển khai | Docker (`backend/Dockerfile`, `frontend/Dockerfile`), `docker-compose.yml`, `render.yaml` (Render: web service Docker + static site + PostgreSQL) | Chạy dev/prod |
 
 Lưu ý: comment trong `Program.cs` còn nhắc SQL Server và MediatR, nhưng code thực tế dùng PostgreSQL (`UsePostgreSqlStorage` cho Hangfire) và không dùng MediatR; một số script trong `package.json` (`docker:logs:db`, `docker:exec:db`) vẫn trỏ về `sqlserver`. Đây là phần còn sót, không phản ánh runtime hiện tại.
@@ -143,7 +143,7 @@ Chức năng từng project backend:
 
 | Project | Chức năng | Ghi chú |
 |---|---|---|
-| `Cinema.Domain` | 29 entity (`Cinema.Domain/Entities`) + 9 enum | Xem [03](#s03) |
+| `Cinema.Domain` | 30 entity (`Cinema.Domain/Entities`) + 10 enum | Xem [03](#s03) |
 | `Cinema.Shared` | `Roles` (`Customer`, `Admin`, `Employee`), `Policies`, `SignalREvents`, các `AppException` kèm HTTP status | Xem 4.0 ở [04-modules](#s04) |
 | `Cinema.Application` | Toàn bộ quy tắc nghiệp vụ; không phụ thuộc EF provider cụ thể ngoài `AppDbContext` | Xem [04](#s04) |
 | `Cinema.Infrastructure` | DbContext, cổng thanh toán, email, Cloudinary, SignalR notifier | Xem [08](#s08) |
@@ -202,7 +202,7 @@ Quan sát khi đọc code:
 
 ## 2.3 Ma trận quyền theo endpoint
 
-Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chưa đăng nhập. Sinh trực tiếp từ attribute `[Authorize]`/`[AllowAnonymous]` của 129 endpoint trong `backend/Cinema.Api/Controllers`.
+Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chưa đăng nhập. Sinh trực tiếp từ attribute `[Authorize]`/`[AllowAnonymous]` của 137 endpoint trong `backend/Cinema.Api/Controllers`.
 
 
 ### AdminActorsController
@@ -213,6 +213,7 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 | POST | `/api/v1/admin/actors` | AdminOnly | – | – | – | ✓ |  | `Create` |
 | PUT | `/api/v1/admin/actors/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Update` |
 | DELETE | `/api/v1/admin/actors/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Delete` |
+| DELETE | `/api/v1/admin/actors/bulk` | AdminOnly | – | – | – | ✓ |  | `BulkDelete` |
 
 ### AdminAgeRatingsController
 
@@ -241,6 +242,7 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 | POST | `/api/v1/admin/combos` | AdminOnly | – | – | – | ✓ |  | `Create` |
 | PUT | `/api/v1/admin/combos/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Update` |
 | PUT | `/api/v1/admin/combos/{id:int}/toggle` | AdminOnly | – | – | – | ✓ |  | `Toggle` |
+| PUT | `/api/v1/admin/combos/bulk/status` | AdminOnly | – | – | – | ✓ |  | `BulkSetActive` |
 
 ### AdminDashboardController
 
@@ -257,6 +259,7 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 | POST | `/api/v1/admin/directors` | AdminOnly | – | – | – | ✓ |  | `Create` |
 | PUT | `/api/v1/admin/directors/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Update` |
 | DELETE | `/api/v1/admin/directors/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Delete` |
+| DELETE | `/api/v1/admin/directors/bulk` | AdminOnly | – | – | – | ✓ |  | `BulkDelete` |
 
 ### AdminEmployeesController
 
@@ -301,6 +304,7 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 | POST | `/api/v1/admin/movies` | AdminOnly | – | – | – | ✓ |  | `Create` |
 | PUT | `/api/v1/admin/movies/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Update` |
 | DELETE | `/api/v1/admin/movies/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Delete` |
+| DELETE | `/api/v1/admin/movies/bulk` | AdminOnly | – | – | – | ✓ |  | `BulkDelete` |
 
 ### AdminPaymentsController
 
@@ -332,6 +336,7 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 |---|---|---|:-:|:-:|:-:|:-:|---|---|
 | GET | `/api/v1/admin/reviews` | AdminOnly | – | – | – | ✓ |  | `GetReviews` |
 | DELETE | `/api/v1/admin/reviews/{id:int}` | AdminOnly | – | – | – | ✓ |  | `Delete` |
+| DELETE | `/api/v1/admin/reviews/bulk` | AdminOnly | – | – | – | ✓ |  | `BulkDelete` |
 
 ### AdminRoomsController
 
@@ -398,8 +403,10 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 |---|---|---|:-:|:-:|:-:|:-:|---|---|
 | GET | `/api/v1/admin/users` | AdminOnly | – | – | – | ✓ |  | `GetUsers` |
 | GET | `/api/v1/admin/users/admins` | AdminOnly | – | – | – | ✓ |  | `GetAdminUsers` |
+| GET | `/api/v1/admin/users/customers` | StaffOnly | – | – | ✓ | ✓ |  | `SearchCustomers` |
 | PUT | `/api/v1/admin/users/{id:int}/status` | AdminOnly | – | – | – | ✓ |  | `UpdateStatus` |
 | PUT | `/api/v1/admin/users/{id:int}/role` | AdminOnly | – | – | – | ✓ |  | `UpdateRole` |
+| PUT | `/api/v1/admin/users/bulk/status` | AdminOnly | – | – | – | ✓ |  | `BulkUpdateStatus` |
 
 ### AiController
 
@@ -496,6 +503,7 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 | Method | Route | Policy | Khách | Customer | Employee | Admin | Rate limit | Hàm |
 |---|---|---|:-:|:-:|:-:|:-:|---|---|
 | GET | `/api/v1/payments/vnpay/ipn` | Công khai (không attribute, không có FallbackPolicy) | ✓ | ✓ | ✓ | ✓ |  | `VnPayIpn` |
+| POST | `/api/v1/payments/vnpay/ipn` | Công khai (không attribute, không có FallbackPolicy) | ✓ | ✓ | ✓ | ✓ |  | `VnPayIpn` |
 | POST | `/api/v1/payments/momo/ipn` | Công khai (không attribute, không có FallbackPolicy) | ✓ | ✓ | ✓ | ✓ |  | `MomoIpn` |
 | POST | `/api/v1/payments/stripe/webhook` | Công khai (không attribute, không có FallbackPolicy) | ✓ | ✓ | ✓ | ✓ |  | `StripeWebhook` |
 
@@ -509,9 +517,10 @@ Ký hiệu: ✓ được gọi; – không được gọi. Cột "Khách" = chư
 | Hồ sơ cá nhân, đổi mật khẩu, vé của tôi | – | ✓ | ✓ | ✓ |
 | Giữ ghế/thanh toán/hủy online (`/bookings/*`, chỉ cần đăng nhập, **không giới hạn role**) | – | ✓ | ✓ | ✓ |
 | Viết/sửa/xóa đánh giá của mình | – | ✓ | – | – |
-| Bán vé tại quầy, soát vé, xem danh sách đặt vé, xem phim/suất chiếu ở admin | – | – | ✓ | ✓ |
+| Bán vé tại quầy, soát vé, tra cứu khách hàng/hạng thành viên cho quầy (`GET /admin/users/customers`), xem danh sách đặt vé, xem phim/suất chiếu ở admin | – | – | ✓ | ✓ |
 | Tạo/sửa/xóa phim, suất chiếu (đơn lẻ, hàng loạt, tự động xếp lịch, nhân bản) | – | – | – | ✓ |
 | Phòng/ghế, combo, danh mục, thanh toán, báo cáo, dashboard, người dùng, nhân viên, đánh giá, cài đặt, upload | – | – | – | ✓ |
+| Thao tác hàng loạt (Bulk): xóa phim, xóa đánh giá, xóa đạo diễn/diễn viên, cập nhật trạng thái combo, cập nhật trạng thái người dùng | – | – | – | ✓ |
 | Webhook/IPN thanh toán | công khai (xác thực bằng chữ ký cổng) | | | |
 
 Lưu ý: `GET /admin/movies`, `GET /admin/showtimes`, `GET /admin/showtimes/calendar`, `GET /admin/bookings*` và các endpoint quầy/soát vé dùng `StaffOnly` nên nhân viên gọi được; sidebar web admin hiển thị đúng các mục này cho `Employee` (`admin-sidebar.tsx`). Frontend có component `AdminOnlyRoute` nhưng **không được dùng trong `admin-routes.tsx`**: mọi route `/admin/*` chỉ qua `AdminProtectedRoute` (Admin hoặc Employee); nhân viên gõ tay URL admin-only sẽ vào được trang nhưng API trả `403`.
@@ -522,7 +531,7 @@ Lưu ý: `GET /admin/movies`, `GET /admin/showtimes`, `GET /admin/showtimes/cale
 
 # 3. Mô hình dữ liệu
 
-Nguồn: `backend/Cinema.Domain/Entities/*.cs`, `backend/Cinema.Domain/Enums/*.cs`, `backend/Cinema.Infrastructure/Persistence/Configurations/*.cs`, migration `Migrations/20261030084711_InitialCreate.cs` (migration duy nhất). Enum trạng thái được lưu dạng **chuỗi** (`HasConversion<string>()`) kèm check constraint `IN (...)`.
+Nguồn: `backend/Cinema.Domain/Entities/*.cs`, `backend/Cinema.Domain/Enums/*.cs`, `backend/Cinema.Infrastructure/Persistence/Configurations/*.cs`, 4 migration trong `backend/Cinema.Infrastructure/Migrations` (`20261030084711_InitialCreate.cs`, `20261031095302_PendingModelChanges.cs`, `20261101120000_AddSeatGapRuleMode.cs`, `20261104150128_AddLoyaltyTable.cs`). Enum trạng thái được lưu dạng **chuỗi** (`HasConversion<string>()`) kèm check constraint `IN (...)` cho 8/10 enum.
 
 ## 3.1 Sơ đồ ERD
 
@@ -533,6 +542,7 @@ erDiagram
   User ||--o| Employee : "UserId (unique)"
   Position ||--o{ Employee : "PositionId"
   MembershipTier ||--o{ CustomerProfile : "TierId"
+  User ||--o{ LoyaltyPointEntry : "UserId"
   User ||--o{ RefreshToken : ""
   User ||--o{ UserVerificationToken : ""
   Movie ||--o{ MovieGenre : ""
@@ -559,6 +569,7 @@ erDiagram
   Booking ||--o{ BookingCombo : ""
   Combo ||--o{ BookingCombo : ""
   Booking ||--o{ Payment : ""
+  Booking ||--o| LoyaltyPointEntry : "BookingId (unique nullable)"
   ShowtimeSeat }o--o| User : "HeldByUserId"
 ```
 
@@ -568,7 +579,8 @@ erDiagram
 |---|---|---|---|
 | `Role` | Vai trò | `RoleName` (`Customer`, `Admin`, `Employee`) | unique `RoleName` |
 | `User` | Tài khoản (khách, nhân viên, admin) | `Email`, `PasswordHash`, `GoogleId?`, `RoleId`, `IsActive`, `EmailConfirmed`, `Phone?`, `Gender?`, `DateOfBirth?`, `Avatar?` | unique `Email`; unique có lọc `GoogleId IS NOT NULL`; `CK_Users_Gender` ∈ Male/Female/Other |
-| `CustomerProfile` | Hồ sơ thành viên (PK = `UserId`) | `Points`, `TotalSpent`, `TierId?` | cascade theo User; `Points` mặc định 0 |
+| `CustomerProfile` | Hồ sơ thành viên (PK = `UserId`, đóng vai trò bản cache điểm/hạng) | `Points`, `TotalSpent`, `TierId?` | cascade theo User; `Points` mặc định 0 |
+| `LoyaltyPointEntry` | Sổ giao dịch điểm tích lũy thành viên (cửa sổ 12 tháng) | `EntryId`, `UserId`, `BookingId?`, `Points`, `RevokedPoints` (default 0), `EarnedAt` (UTC) | PK `EntryId`; FK Users (Cascade); FK Bookings (Restrict, nullable); unique có lọc `UX_LoyaltyPointEntries_Booking` (`BookingId IS NOT NULL`); index `IX_LoyaltyPointEntries_User_EarnedAt` (`UserId, EarnedAt`); `CK_LoyaltyPointEntries_Points` (`Points >= 0`); `CK_LoyaltyPointEntries_Revoked` (`RevokedPoints >= 0 AND RevokedPoints <= Points`) |
 | `MembershipTier` | Hạng thành viên | `TierName`, `MinPoints`, `DiscountPercent` | unique `TierName`; `CK_MembershipTiers_Discount` 0–100 |
 | `Employee` | Hồ sơ nhân viên | `UserId`, `PositionId?`, `HireDate?`, `IsActive` | unique `UserId` |
 | `Position` | Chức vụ | `Name` | unique `Name` |
@@ -588,7 +600,7 @@ erDiagram
 | `Combo` / `BookingCombo` | Combo bắp nước / combo trong đơn | `Combo.Price`, `IsActive`; `BookingCombo.Quantity`, `UnitPrice` (giá chốt) | `CK_Combos_Price` ≥ 0; `CK_BookingCombos_Quantity` > 0 |
 | `Payment` | Giao dịch thanh toán/hoàn tiền | `PaymentMethod`, `TransactionId?`, `GatewayTransactionId?`, `GatewayResponseCode?`, `Amount`, `Status`, `PaidAt?`, `RefundTransactionId?`, `RefundedAmount?`, `RefundedAt?`, `AmountReceived?`, `ChangeGiven?` | `CK_Payments_Method/Amount/Status`; index `BookingId`, `Status` |
 | `Review` | Đánh giá phim | `Rating`, `Comment?` | unique (`UserId`,`MovieId`); **`CK_Reviews_Rating` 1–5** |
-| `CinemaSettings` | Cấu hình rạp (một dòng duy nhất) | `OpeningTime?`, `ClosingTime?`, `PointsPerAmount`, `CancelRefundPercent`, `CancelDeadlineHours`, `StopSellingMinutesBefore`, thông tin liên hệ | `CK_CinemaSettings_Id` Id = 1 |
+| `CinemaSettings` | Cấu hình rạp (một dòng duy nhất `Id = 1`) | `OpeningTime?`, `ClosingTime?`, `PointsPerAmount`, `CancelRefundPercent`, `CancelDeadlineHours`, `StopSellingMinutesBefore`, `HoldDurationMinutes`, `CheckInOpenMinutes`, `SeatGapRuleMode`, thông tin liên hệ | `CK_CinemaSettings_Id` Id = 1; `HoldDurationMinutes` mặc định 15; `CheckInOpenMinutes` mặc định 30; `SeatGapRuleMode` mặc định `Strict` |
 
 ### Enum
 
@@ -600,17 +612,24 @@ erDiagram
 | `MovieStatus` | `ComingSoon`, `NowShowing`, `Ended` |
 | `PaymentMethod` | `VNPay`, `Momo`, `Cash`, `Stripe` |
 | `PaymentStatus` | `Pending`, `Success`, `Failed`, `Refunded` |
+| `SeatGapRuleMode` | `Strict`, `AllowEdge`, `Off` (quy tắc ghế lẻ) |
 | `ShowtimeSeatStatus` | `Available`, `Held`, `Booked` |
 | `ShowtimeStatus` | `Scheduled`, `Cancelled`, `Completed` |
 | `VerificationTokenPurpose` | `EmailConfirmation`, `PasswordReset` |
 
-### Ghi chú về ràng buộc
+### Ghi chú về ràng buộc và migration
 
+* **Lịch sử migration**: Hiện hệ thống có 4 migration EF Core trong `backend/Cinema.Infrastructure/Migrations`:
+  1. `20261030084711_InitialCreate`: Cấu trúc ban đầu gồm 29 entity và các bảng nối, index, check constraint.
+  2. `20261031095302_PendingModelChanges`: Thêm hai cột `CheckInOpenMinutes` và `HoldDurationMinutes` vào `CinemaSettings` và cập nhật bản ghi mẫu (`CancelRefundPercent = 0`, `CheckInOpenMinutes = 30`, `HoldDurationMinutes = 15`).
+  3. `20261101120000_AddSeatGapRuleMode`: Thêm cột `SeatGapRuleMode` kiểu `varchar(20)` vào `CinemaSettings` với giá trị mặc định `"Strict"`.
+  4. `20261104150128_AddLoyaltyTable`: Tạo bảng sổ điểm `LoyaltyPointEntries` kèm khóa ngoại, unique index có lọc (`BookingId IS NOT NULL`), index `(UserId, EarnedAt)`, và ràng buộc CHECK (`Points >= 0`, `RevokedPoints >= 0 AND RevokedPoints <= Points`); đồng thời chuẩn hóa kiểu cột `SeatGapRuleMode`.
+* **Ràng buộc CHECK cho Enum**: 8 trong 10 enum có check constraint trong DB; riêng `SeatGapRuleMode` và `VerificationTokenPurpose` không có check constraint ở DB, tính hợp lệ do tầng ứng dụng đảm nhiệm.
 * **Không có exclusion constraint chống trùng giờ chiếu** trong migration. `ExceptionHandlingMiddleware` có xử lý lỗi PostgreSQL `23P01` với tên `EX_Showtimes_Room_NoOverlap`, nhưng tên này chỉ xuất hiện trong middleware (tìm toàn repo). Chống trùng giờ hiện chỉ do `ShowtimeService.EnsureNoOverlapAsync` ở tầng ứng dụng, nên về lý thuyết có thể xảy ra race giữa hai yêu cầu đồng thời (chưa có test cho tình huống này).
 * **Chống giữ trùng ghế** dựa vào câu lệnh cập nhật có điều kiện (`ExecuteUpdate` chuyển `Available → Held`, kiểm tra số dòng bị ảnh hưởng) trong `BookingService.CreateHoldBookingAsync`; unique `UQ_Showtime_Seat` chỉ đảm bảo mỗi ghế có một dòng cho mỗi suất; có integration test chạy song song (`HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409`).
 * **Vé cũ còn trong DB sau khi hủy**: khi hủy booking đã xác nhận, ghế được trả về `Available` nhưng dòng `BookingTicket` không bị xóa. Khi ghế được xác nhận lại ở booking mới, `ConfirmBookingAndGenerateTicketsAsync` xóa các `BookingTicket` cũ của booking không phải `Confirmed` trên cùng ghế để không vi phạm unique `ShowtimeSeatId`.
-* Thời gian lưu dạng `timestamp without time zone` (UTC); nghiệp vụ "ngày kinh doanh" dùng giờ Việt Nam (`Utils/VietnamTime.cs`, `DateTimeUtils.cs`).
-* Mặc định `CinemaSettings`: cột DB `CancelRefundPercent` default 0, nhưng dòng seed trong migration có `CancelRefundPercent = 100`, `CancelDeadlineHours = 2`, `StopSellingMinutesBefore = 0`, `PointsPerAmount = 10000`, mở cửa `08:00`, đóng cửa `23:59` (xem [12](#s12)).
+* Thời gian lưu dạng `timestamp without time zone` (UTC); riêng bảng `LoyaltyPointEntries.EarnedAt` lưu `timestamp with time zone` (UTC); nghiệp vụ "ngày kinh doanh" dùng giờ Việt Nam (`Utils/VietnamTime.cs`, `DateTimeUtils.cs`).
+* Mặc định `CinemaSettings`: dòng seed ban đầu có `CancelRefundPercent = 100`, nhưng sau migration `PendingModelChanges` giá trị được cập nhật thành `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `StopSellingMinutesBefore = 0`, `PointsPerAmount = 10000`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `SeatGapRuleMode = Strict`, mở cửa `08:00`, đóng cửa `23:59` (xem [12](#s12)).
 
 ## 3.3 Sơ đồ chuyển trạng thái
 
@@ -957,9 +976,12 @@ sequenceDiagram
 
 ## 4.5 Đặt vé và giữ ghế (`BookingService`, `SeatExpirationService`)
 
-**Mục đích:** khách chọn ghế → giữ ghế có thời hạn → thanh toán; một booking gồm nhiều vé, combo, giảm giá theo hạng.
+**Mục đích:** khách chọn ghế → giữ ghế có thời hạn → thanh toán; một booking gồm nhiều vé, combo, giảm giá theo hạng thành viên (chỉ áp dụng trên tiền vé).
 
-**Giá trị cấu hình thật** (`Options/BookingOptions.cs`, `appsettings.json` mục `Booking`): `HoldDurationMinutes` = 15; `RoomBufferMinutes` = 15; `CheckInOpenMinutes` = 30; `MaxSeatsPerBooking` = 10; `MaxComboQuantity` = 10 (giá trị tối đa dùng trong validator).
+**Giá trị cấu hình thật**:
+* `HoldDurationMinutes` và `CheckInOpenMinutes` được cấu hình động trong `CinemaSettings` ở DB (mặc định 15 phút và 30 phút; giới hạn validator lần lượt 1–120 phút và 0–240 phút), có fallback về hằng số class `CinemaSettings.DefaultHoldDurationMinutes` (15) và `DefaultCheckInOpenMinutes` (30).
+* `RoomBufferMinutes` = 15; `MaxSeatsPerBooking` = 10; `MaxComboQuantity` = 10 (giá trị tối đa cấu hình trong `Options/BookingOptions.cs` và validator).
+* `SeatGapRuleMode` lưu trong `CinemaSettings` (`Strict`, `AllowEdge`, `Off`, mặc định `Strict`).
 
 | Mã | Mô tả | Điều kiện | Kết quả/lỗi | Nguồn |
 |---|---|---|---|---|
@@ -969,10 +991,10 @@ sequenceDiagram
 | BK-04 | `CustomerName` bắt buộc ≤ 100; `CustomerPhone` tùy chọn, ≤ 20 và khớp `PhoneRegex` | — | 400; 400 "Thiếu tên khách hàng." | `BookingValidators.cs`, `CreateHoldBookingAsync` |
 | BK-05 | Mỗi khách chỉ có một booking `Pending` cho một suất chiếu (online) | Đã có | 409 "Đang có một booking Pending khác chưa hoàn tất cho suất chiếu này." | `CreateHoldBookingAsync` |
 | BK-06 | Giữ ghế nguyên tử: chuyển `Available → Held` bằng câu lệnh cập nhật có điều kiện; ghế `Held` đã quá hạn chỉ chính người giữ cũ giành lại ngay; ghế bị người khác giữ/đặt → thất bại | Có ghế xung đột | 409 `SeatConflictException` kèm `conflictSeatIds` (toàn bộ giao dịch bị rollback) | `CreateHoldBookingAsync`; test `HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409` |
-| BK-07 | `HeldUntil` = `min(now + HoldDurationMinutes, StartTime)`; `Booking.ExpiresAt` đặt bằng cùng mốc | — | — | `CreateHoldBookingAsync`, `Utils/BookingSeatHold.cs` |
-| BK-08 | Quy tắc chọn ghế (chỉ **online**): ghế đôi chọn cùng cặp, không để trống ghế lẻ giữa các ghế đã chọn/đã bán | — | 422 với thông báo từ `SeatLayoutRules.ValidateSelection` | `HoldSeatsAsync` (gọi `ValidateSelection`); kênh quầy **không** gọi |
+| BK-07 | `HeldUntil` = `min(now + HoldDurationMinutes, StartTime)`; `HoldDurationMinutes` đọc từ `CinemaSettings`; `Booking.ExpiresAt` đặt bằng cùng mốc | — | — | `CreateHoldBookingAsync`, `Utils/BookingSeatHold.cs` |
+| BK-08 | Quy tắc chọn ghế (chỉ **online**): ghế đôi phải chọn cùng cặp; quy tắc ghế lẻ áp dụng theo `CinemaSettings.SeatGapRuleMode` (`Strict`: chặn mọi ghế lẻ; `AllowEdge`: cho phép ghế lẻ ở sát mép hàng hoặc lối đi; `Off`: tắt kiểm tra ghế lẻ). Kênh quầy (`Counter`) luôn dùng `SeatGapRuleMode.Off` | Vi phạm quy tắc ghế | 422 với thông báo từ `SeatLayoutRules.ValidateSelection` | `HoldSeatsAsync`, `SeatLayoutRules.cs` |
 | BK-09 | Combo: `comboId` phải tồn tại và đang bán; `Quantity` 1..`MaxComboQuantity`; đơn giá chốt vào `BookingCombo.UnitPrice` | — | 400 "Một hoặc nhiều comboId không tồn tại hoặc đã ngừng bán." | `BuildBookingCombosAsync` |
-| BK-10 | Giá: `TotalAmount` = tổng giá ghế (`ShowtimeSeat.Price`) + tổng combo; `DiscountAmount` = làm tròn `TotalAmount × DiscountPercent hạng / 100` (0 chữ số thập phân, away-from-zero); `FinalAmount` = `Total − Discount` | Khách có hạng | — | `CreateHoldBookingAsync`, `CalculateDiscountAmountAsync` |
+| BK-10 | **Giá và chiết khấu thành viên**: `seatTotal` = tổng giá ghế (`ShowtimeSeat.Price`); `comboTotal` = tổng combo; `TotalAmount` = `seatTotal + comboTotal`. **Giảm giá hạng thành viên CHỈ ÁP DỤNG TRÊN TIỀN VÉ (`seatTotal`), KHÔNG ÁP DỤNG CHO COMBO**. `DiscountAmount` = `Math.Round(seatTotal × DiscountPercent / 100, 0, MidpointRounding.AwayFromZero)`. Hạng thành viên tính trực tiếp từ sổ điểm trong cửa sổ 12 tháng (`LoyaltyWindow.SumActiveAsync` & `ResolveTierAsync`), không tin bản cache `profile.TierId`. `FinalAmount = TotalAmount − DiscountAmount` | Khách có hạng thành viên | — | `CreateHoldBookingAsync`, `CalculateDiscountAmountAsync` |
 | BK-11 | Mã booking duy nhất, thử lại có giới hạn | Không sinh được | 422 "Không thể sinh mã booking duy nhất, vui lòng thử lại." | `GenerateUniqueBookingCodeAsync` |
 | BK-12 | Xem chi tiết booking phải là chủ | — | 403 "Bạn không phải chủ booking này." | `GetBookingDetailAsync` |
 | BK-13 | Hết hạn: job mỗi phút chuyển booking `Pending` có `ExpiresAt <= now` sang `Expired`, trả ghế `Held` về `Available`, payment `Pending` → `Failed`; ngoài ra giải phóng ghế `Held` quá `HeldUntil` không còn booking Pending | Cron `ReleaseExpiredSeatsCron` | — | `SeatExpirationService.ExpireDueBookingsAsync`, `ReleaseStaleHeldSeatsAsync` |
@@ -1017,6 +1039,7 @@ sequenceDiagram
 | GET | `/api/v1/admin/payments` | AdminOnly | `AdminPayments.GetPayments` |
 | GET | `/api/v1/admin/payments/{id:int}` | AdminOnly | `AdminPayments.GetDetail` |
 | GET | `/api/v1/payments/vnpay/ipn` | Công khai | `Payments.VnPayIpn` |
+| POST | `/api/v1/payments/vnpay/ipn` | Công khai | `Payments.VnPayIpn` |
 | POST | `/api/v1/payments/momo/ipn` | Công khai | `Payments.MomoIpn` |
 | POST | `/api/v1/payments/stripe/webhook` | Công khai | `Payments.StripeWebhook` |
 
@@ -1034,10 +1057,10 @@ sequenceDiagram
 | RF-03 | Booking đã `Cancelled`/`Expired` không hủy lại | — | 422 "Booking không ở trạng thái có thể hủy (đã Cancelled/Expired)." | như trên |
 | RF-04 | Có vé đã check-in thì không tự hủy | — | 422 "Booking đã có vé được check-in — vui lòng liên hệ trực tiếp rạp để được hỗ trợ." | như trên |
 | RF-05 | Booking quầy (`Cash`) hoặc không xác định giao dịch cổng thì không tự hủy/hoàn | — | 422 "Booking thanh toán tại quầy hoặc chưa xác định được giao dịch — vui lòng liên hệ trực tiếp rạp…" | như trên |
-| RF-06 | Điều kiện hoàn: `CancelRefundPercent > 0` (nếu ≤ 0: "Rạp hiện không hỗ trợ hoàn tiền."); còn ít nhất `CancelDeadlineHours` giờ trước giờ chiếu (nếu muộn hơn: "Đã quá hạn hoàn tiền — chỉ áp dụng trước giờ chiếu ít nhất N giờ."); tiền hoàn = `Math.Round(Payment.Amount × CancelRefundPercent / 100, 0)`. Giá trị seed: 100% và 2 giờ | Không đủ điều kiện | 422 với `IneligibleReason` | `BookingService.CalculateRefundEligibility` (private static); test `CancelBookingAsync_ReturnsRoundedRefundAmount` |
+| RF-06 | Điều kiện hoàn: `CancelRefundPercent > 0` (nếu ≤ 0: "Rạp hiện không hỗ trợ hoàn tiền."); còn ít nhất `CancelDeadlineHours` giờ trước giờ chiếu (nếu muộn hơn: "Đã quá hạn hoàn tiền — chỉ áp dụng trước giờ chiếu ít nhất N giờ."); tiền hoàn = `Math.Round(Payment.Amount × CancelRefundPercent / 100, 0)`. Giá trị seed ban đầu: 100% và 2 giờ (migration sau đặt lại mặc định DB 0% và 2 giờ) | Không đủ điều kiện | 422 với `IneligibleReason` | `BookingService.CalculateRefundEligibility` (private static); test `CancelBookingAsync_ReturnsRoundedRefundAmount` |
 | RF-07 | Chống hủy đồng thời: chuyển `Confirmed → Cancelled` bằng cập nhật có điều kiện trước khi gọi cổng | Thua cuộc đua | 409 "Booking đang được xử lý hoặc đã được hủy." | `CancelBookingAsync` |
 | RF-08 | Hoàn tiền qua cổng; thất bại → rollback | Cổng lỗi | 422 "Hoàn tiền thất bại: …. Vui lòng thử lại sau hoặc liên hệ rạp." | `CancelBookingAsync` |
-| RF-09 | Thành công: `Payment.Refunded`, `RefundedAmount`, `RefundedAt`, `RefundTransactionId`; trả ghế về `Available` (vé cũ vẫn còn trong DB); đảo điểm thành viên với số tiền `FinalAmount × RefundAmount / Payment.Amount` (hoàn một phần thì đảo một phần); gửi email "Xác nhận hủy vé & hoàn tiền" | — | `Cancelled` | `CancelBookingAsync`, `ReleaseConfirmedBookingSeatsAsync`, `ReverseLoyaltyAsync` |
+| RF-09 | Thành công: `Payment.Refunded`, `RefundedAmount`, `RefundedAt`, `RefundTransactionId`; trả ghế về `Available` (vé cũ vẫn còn trong DB); thu hồi điểm tương ứng: `ReverseLoyaltyAsync` tìm bản ghi `LoyaltyPointEntry` của booking đó và ghi nhận `RevokedPoints += revoke`. **Nếu booking đã quá 12 tháng (trượt ra ngoài cửa sổ 12 tháng), việc thu hồi không làm giảm điểm hiệu lực trong cửa sổ hiện tại**. Đồng bộ lại `CustomerProfile.Points` và `TierId` (`LoyaltyWindow.ResyncProfileAsync`); gửi email "Xác nhận hủy vé & hoàn tiền" | — | `Cancelled` | `CancelBookingAsync`, `ReleaseConfirmedBookingSeatsAsync`, `ReverseLoyaltyAsync`, `LoyaltyWindow.cs` |
 | RF-10 | `CalculateRefundEligibilityAsync` (public, có trong `IBookingService`) **không được controller nào gọi**; không có endpoint xem trước số tiền hoàn. Frontend không có bước xem trước từ API riêng (**chưa xác định** cách UI hiển thị số tiền hoàn) | — | Có khung, chưa dùng ngoài `CancelBookingAsync` | `IBookingService`, tìm toàn backend |
 
 ---
@@ -1054,10 +1077,10 @@ sequenceDiagram
 | TK-02 | Booking phải `Confirmed` | — | 422 "Vé không còn hiệu lực (booking đã hủy hoặc chưa thanh toán)." | `CheckinAsync` |
 | TK-03 | Mỗi vé chỉ check-in một lần (cập nhật có điều kiện `!IsCheckedIn`) | Quét lại | 409 "Vé đã check-in trước đó." | `CheckinAsync` |
 | TK-04 | Suất không `Cancelled` | — | 422 "Suất chiếu đã bị hủy." | `CheckinAsync` |
-| TK-05 | Mở check-in trước giờ chiếu `CheckInOpenMinutes` (30) phút | Sớm hơn | 422 "Chưa tới giờ check-in (mở trước giờ chiếu 30 phút)." | `CheckinAsync` |
+| TK-05 | Mở check-in trước giờ chiếu `CheckInOpenMinutes` phút (đọc từ `CinemaSettings`, mặc định 30 phút, tối đa 240 phút) | Sớm hơn | 422 "Chưa tới giờ check-in (mở trước giờ chiếu N phút)." | `CheckinAsync`, `GetCheckInOpenMinutesAsync` |
 | TK-06 | Không check-in sau `EndTime` (gồm buffer) | Muộn hơn | 422 "Suất chiếu đã kết thúc." | `CheckinAsync` |
 
-Email xác nhận ghi "có mặt trước 15 phút" trong khi mở check-in là 30 phút: hai con số độc lập, không xung đột nhưng khác nhau (`EmailTemplates.BookingConfirmed` vs `BookingOptions.CheckInOpenMinutes`).
+Email xác nhận ghi "có mặt trước 15 phút" trong khi mở check-in là 30 phút (hoặc theo cấu hình `CheckInOpenMinutes`): hai con số độc lập, không xung đột nhưng khác nhau (`EmailTemplates.BookingConfirmed` vs `CinemaSettings.CheckInOpenMinutes`).
 
 ---
 
@@ -1067,8 +1090,9 @@ Email xác nhận ghi "có mặt trước 15 phút" trong khi mở check-in là 
 
 | Mã | Mô tả | Điều kiện | Kết quả/lỗi | Nguồn |
 |---|---|---|---|---|
-| CT-01 | Giữ ghế dùng cùng lõi `CreateHoldBookingAsync` với kênh `Counter`: không áp `StopSellingMinutesBefore`, không áp `ValidateSelection`; `CreatedByEmployeeId` bắt buộc (ràng buộc `CK_Booking_Channel_Employee`) | — | Booking `Pending` | `CounterHoldSeatsAsync` |
+| CT-01 | Giữ ghế dùng cùng lõi `CreateHoldBookingAsync` với kênh `Counter`: không áp `StopSellingMinutesBefore`, luôn dùng `SeatGapRuleMode.Off` (không chặn ghế lẻ ở quầy, chỉ kiểm tra ghế đôi); `CreatedByEmployeeId` bắt buộc (ràng buộc `CK_Booking_Channel_Employee`) | — | Booking `Pending` | `CounterHoldSeatsAsync`, `SeatLayoutRules.ValidateSelection` |
 | CT-02 | Khách quầy có thể gắn `UserId` hội viên (để tích điểm/giảm hạng) hoặc để khách vãng lai kèm tên | — | `CK_Booking_Customer_Identity` | `Validators/Bookings/BookingValidators.cs`, cấu hình `BookingConfiguration` |
+| CT-02b | Nhân viên tra cứu khách hàng/hội viên tại quầy qua `GET /admin/users/customers` (theo 4 số cuối điện thoại hoặc từ khóa tên/email) để gắn `UserId`; mức giảm giá trả về được tính thời gian thực từ sổ điểm 12 tháng (`LoyaltyWindow.GetStandingsAsync`) và chỉ áp dụng trên tiền vé (không áp dụng cho combo) | — | Danh sách `CustomerLookupItemDto` | `EmployeeService.SearchCustomersAsync`, `AdminUsersController` |
 | CT-03 | Thu tiền chỉ cho booking kênh `Counter`, `Pending`, chưa hết hạn | — | 422 "Chỉ có thể thu tiền tại quầy cho booking tạo tại quầy." / "Booking không ở trạng thái Pending hoặc đã hết hạn giữ ghế." | `CounterCheckoutAsync` |
 | CT-04 | `AmountReceived` phải ≥ `FinalAmount`; tiền thối = `AmountReceived − FinalAmount` | Thiếu | 422 "Số tiền nhận không đủ." | `CounterCheckoutAsync` |
 | CT-05 | Thành công: `Payment` `Cash` `Success` (lưu `AmountReceived`, `ChangeGiven`), xác nhận booking, sinh vé | — | — | `CounterCheckoutAsync` |
@@ -1089,14 +1113,15 @@ Giao diện quầy tính tổng tạm tính chỉ từ ghế (không gồm combo
 
 ## 4.10 Combo / đồ ăn (`ComboService`)
 
-**Actor:** khách (xem combo đang bán, nhận gợi ý), `Admin` (CRUD, bật/tắt).
+**Actor:** khách (xem combo đang bán, nhận gợi ý), `Admin` (CRUD, bật/tắt, cập nhật trạng thái hàng loạt).
 
 | Mã | Mô tả | Điều kiện | Kết quả | Nguồn |
 |---|---|---|---|---|
 | CB-01 | `Name` ≤ 150, `Description` ≤ 500, `Price` ≥ 0, `ImageUrl` ≤ 255 | Tạo/sửa | 400 | `Validators/Combos/ComboValidators.cs` |
-| CB-02 | Không xóa combo; chỉ bật/tắt `IsActive` | `PUT /admin/combos/{id}/toggle` | Combo tắt không đặt được (BK-09) | `ComboService.ToggleComboAsync` |
+| CB-02 | Không xóa combo; chỉ bật/tắt `IsActive` đơn lẻ | `PUT /admin/combos/{id}/toggle` | Combo tắt không đặt được (BK-09) | `ComboService.ToggleComboAsync` |
 | CB-03 | Giá combo chốt vào `BookingCombo.UnitPrice` khi giữ ghế; đổi giá sau không ảnh hưởng booking cũ | — | — | `BookingService.BuildBookingCombosAsync` |
 | CB-04 | Gợi ý combo theo suất và số ghế: tối đa `MaxComboSuggestions` = 3 | `GET /combos/suggestions?showtimeId&seatCount` | Danh sách `ComboSuggestionDto` | `ComboService.GetComboSuggestionsAsync` (công thức ở [06](#s06)) |
+| CB-05 | Bật/tắt trạng thái hàng loạt: cập nhật `IsActive` cho danh sách combo theo `BulkStatusRequest` | `PUT /admin/combos/bulk/status` | `BulkActionResponse` (thành công/thất bại theo từng mục) | `ComboService.SetCombosActiveAsync`, `BulkOperation` |
 
 **Endpoint**
 
@@ -1106,26 +1131,30 @@ Giao diện quầy tính tổng tạm tính chỉ từ ghế (không gồm combo
 | POST | `/api/v1/admin/combos` | AdminOnly | `AdminCombos.Create` |
 | PUT | `/api/v1/admin/combos/{id:int}` | AdminOnly | `AdminCombos.Update` |
 | PUT | `/api/v1/admin/combos/{id:int}/toggle` | AdminOnly | `AdminCombos.Toggle` |
+| PUT | `/api/v1/admin/combos/bulk/status` | AdminOnly | `AdminCombos.BulkSetActive` |
 | GET | `/api/v1/combos` | Công khai | `Combos.GetCombos` |
 | GET | `/api/v1/combos/suggestions` | Công khai | `Combos.GetSuggestions` |
 
 
 ---
 
-## 4.11 Tích lũy điểm và hạng thành viên (`BookingService`, `Catalog`)
+## 4.11 Tích lũy điểm và hạng thành viên (`BookingService`, `Catalog`, `LoyaltyWindow`, `LoyaltyExpiryService`)
 
-**Mục đích:** khách có `CustomerProfile` (`Points`, `TotalSpent`, `TierId`); điểm tính khi xác nhận booking; hạng quyết định % giảm giá cho lần đặt sau.
+**Mục đích:** Khách hàng có `CustomerProfile` (`Points`, `TotalSpent`, `TierId`) và sổ điểm chi tiết `LoyaltyPointEntry`. Điểm tích lũy được xét theo **cửa sổ trượt 12 tháng gần nhất**; hạng thành viên quyết định mức chiết khấu **chỉ trên tiền vé** cho các lần đặt tiếp theo.
 
 | Mã | Mô tả | Điều kiện | Kết quả | Nguồn |
 |---|---|---|---|---|
-| LY-01 | Điểm cộng = `floor(FinalAmount / PointsPerAmount)`; `PointsPerAmount` mặc định 10.000 (VNĐ) trong `CinemaSettings` (validator > 0) | Booking có `UserId` được xác nhận | `Points += điểm`, `TotalSpent += FinalAmount` | `BookingService.ApplyLoyaltyAsync`, `Validators/Settings/SettingValidators.cs` |
-| LY-02 | Hạng = hạng có `MinPoints` cao nhất mà `Points` đạt; khi **cộng điểm** chỉ nâng hạng, không hạ | — | `TierId` cập nhật nếu khác | `ApplyLoyaltyAsync` |
-| LY-03 | Khi hoàn tiền/hủy suất đảo điểm tương ứng và **xét lại hạng** theo điểm mới (có thể hạ) | Hủy booking đã xác nhận có `UserId` | `Points`, `TotalSpent` giảm; `TierId` tính lại | `ReverseLoyaltyAsync` |
-| LY-04 | Giảm giá = `DiscountPercent` của hạng hiện tại áp lên `TotalAmount` (BK-10) | Khách có hạng | `DiscountAmount` | `CalculateDiscountAmountAsync` |
-| LY-05 | **Không có chức năng đổi điểm** (redeem) và **không có voucher/mã khuyến mãi**: không entity, không endpoint | — | Điểm chỉ dùng để xét hạng | Tìm toàn backend |
-| LY-06 | Sửa `MinPoints`/`DiscountPercent` của hạng không xét lại hạng của khách hiện có | — | — | `CatalogService.UpdateMembershipTierAsync` |
+| LY-01 | **Cộng điểm**: `earned = floor(FinalAmount / PointsPerAmount)`; `PointsPerAmount` mặc định 10.000 VNĐ trong `CinemaSettings`. Nếu `earned > 0`, ghi một bản ghi mới vào sổ điểm `LoyaltyPointEntry` với `EarnedAt = DateTime.UtcNow` và `BookingId = booking.BookingId` | Booking có `UserId` được xác nhận thanh toán | Sinh bản ghi `LoyaltyPointEntry`, `TotalSpent += FinalAmount` | `BookingService.ApplyLoyaltyAsync`, `LoyaltyWindow.PointsFor` |
+| LY-01b | **Cửa sổ trượt 12 tháng** (`LoyaltyWindow.Months = 12`): Điểm tích lũy chỉ có giá trị trong vòng 12 tháng kể từ ngày tích. Điểm hiệu lực của một khách = tổng `(Points − RevokedPoints)` của các dòng có `EarnedAt > DateTime.UtcNow.AddMonths(-12)`. Điểm cũ hơn mốc cắt 12 tháng sẽ tự động hết hiệu lực | Quét điểm / tính hạng | Các dòng quá 12 tháng bị loại khỏi tổng điểm hiệu lực | `Utils/LoyaltyWindow.cs::SumActiveAsync`, `Cutoff` |
+| LY-02 | **Xác định hạng thành viên**: Hạng hiện tại là hạng có `MinPoints` cao nhất mà tổng điểm hiệu lực trong cửa sổ 12 tháng đạt được (`LoyaltyWindow.ResolveTierAsync`). Khi tích thêm điểm mới, nếu đạt ngưỡng hạng mới hệ thống nâng hạng ngay và ghi log `TierChanged` | Điểm hiệu lực đạt ngưỡng | Cập nhật `TierId` trên `CustomerProfile` | `ApplyLoyaltyAsync`, `LoyaltyWindow.ResyncProfileAsync` |
+| LY-03 | **Hoàn tiền và thu hồi điểm**: `ReverseLoyaltyAsync` nhận `bookingId` và tìm đúng dòng `LoyaltyPointEntry` tương ứng: `entry.RevokedPoints = Math.Min(entry.Points, entry.RevokedPoints + revoke)`. **Nếu booking đã quá 12 tháng (đã trượt khỏi cửa sổ hiệu lực), việc hoàn tiền không làm giảm điểm trong cửa sổ 12 tháng hiện tại**. Sau đó gọi `ResyncProfileAsync` tính lại điểm và hạng hiện tại (có thể bị hạ hạng nếu điểm giảm dưới ngưỡng) | Hủy booking đã xác nhận có `UserId` | Cập nhật `RevokedPoints` của entry, giảm `TotalSpent`, tính lại `Points` và `TierId` | `BookingService.ReverseLoyaltyAsync`, `LoyaltyWindow.ResyncProfileAsync` |
+| LY-04 | **Chiết khấu thành viên CHỈ ÁP TRÊN TIỀN VÉ**: `DiscountAmount = Math.Round(seatTotal × DiscountPercent / 100, 0, MidpointRounding.AwayFromZero)`. **Tuyệt đối không áp dụng giảm giá cho combo bắp nước**. Hạng thành viên để tính giảm giá được tính trực tiếp từ sổ điểm trong cửa sổ 12 tháng (`LoyaltyWindow.SumActiveAsync` & `ResolveTierAsync`), không tin bản cache trên `CustomerProfile.TierId` | Khách có hạng thành viên | `DiscountAmount` trừ vào tiền vé | `BookingService.CalculateDiscountAmountAsync` |
+| LY-05 | **Job hết hạn điểm hằng giờ**: Job nền `ExpireLoyaltyPointsJob` (chạy phút thứ 5 mỗi giờ) quét toàn bộ hồ sơ khách hàng, đối chiếu tổng điểm sổ 12 tháng và cập nhật lại `CustomerProfile.Points` cùng `TierId` nếu có điểm bị trôi khỏi cửa sổ | Cron `ExpireLoyaltyPointsCron` (`5 * * * *`) | Đồng bộ `CustomerProfile` cho các khách hàng có điểm hết hạn | `BackgroundJobs/ExpireLoyaltyPointsJob.cs`, `Services/Bookings/LoyaltyExpiryService.cs` |
+| LY-06 | **Tính toán thời gian thực tại các API đọc**: `UserProfileService.GetMyProfileAsync`, `AuthService.LoginAsync/RefreshAsync/GoogleLoginAsync`, `GeminiAiAssistantService` và `EmployeeService.SearchCustomersAsync` luôn gọi `LoyaltyWindow.GetStandingAsync` / `GetStandingsAsync` tính từ sổ điểm 12 tháng. Đảm bảo thông tin điểm/hạng hiển thị cho khách và quầy luôn chuẩn xác từng giây, không bị trễ theo chu kỳ job | Đọc thông tin người dùng | Điểm và hạng trả về luôn tính từ sổ điểm 12 tháng | `UserProfileService.cs`, `AuthService.cs`, `EmployeeService.cs` |
+| LY-07 | **Không có đổi điểm & voucher**: Không có tính năng đổi điểm lấy quà/vé (redeem), không có mã khuyến mãi/voucher. Điểm chỉ dùng duy nhất để xếp hạng và hưởng % chiết khấu vé | — | Điểm thuần túy dùng để thăng/giữ hạng | Tìm toàn repo |
+| LY-08 | Sửa `MinPoints`/`DiscountPercent` của hạng trong danh mục không tự động quét lại toàn bộ khách hàng ngay (chỉ áp dụng khi khách có giao dịch hoặc job quét) | — | — | `CatalogService.UpdateMembershipTierAsync` |
 
-`MembershipTier` có `TierName` unique, `MinPoints` ≥ 0, `DiscountPercent` 0–100 (`CK_MembershipTiers_Discount`). Hồ sơ khách: `GET /users/me` trả điểm, hạng (`UserProfileService.GetMyProfileAsync`). Trang `/membership` ở frontend hiển thị các hạng từ `GET /membership-tiers`.
+`MembershipTier` có `TierName` unique, `MinPoints` ≥ 0, `DiscountPercent` 0–100 (`CK_MembershipTiers_Discount`). Hồ sơ khách: `GET /users/me` trả điểm, hạng, và số điểm còn thiếu để lên hạng kế tiếp (`NextTierDto`).
 
 ---
 
@@ -1137,9 +1166,10 @@ Giao diện quầy tính tổng tạm tính chỉ từ ghế (không gồm combo
 | RV-02 | Phải có vé đã **check-in** của phim đó mới được đánh giá | Chưa check-in | 422 "Bạn cần check-in xem phim này trước khi đánh giá." | `CreateReviewAsync` |
 | RV-03 | Chỉ chủ đánh giá được sửa/xóa của mình | — | 403 "Bạn không phải chủ đánh giá này." | `UpdateReviewAsync`, `DeleteMyReviewAsync` |
 | RV-04 | `Comment` ≤ 1000 | — | 400 | `Validators/Reviews/ReviewValidators.cs` |
-| RV-05 | **Thang điểm không nhất quán:** validator cho `Rating` 1–10, nhưng ràng buộc DB `CK_Reviews_Rating` là 1–5 (và `CK_Movies_AverageRating` 0–5); giao diện dùng 5 sao; `ShowtimeScheduler.Heat` chia `AverageRating` cho 10. Điểm 6–10 qua validator sẽ bị DB từ chối (lỗi check constraint → 400) | Gửi `rating` > 5 | Lỗi | `ReviewValidators.cs`, `ReviewConfiguration.cs`, `Utils/ShowtimeScheduler.cs::Heat` |
-| RV-06 | Admin xóa mọi đánh giá; admin xem danh sách | — | — | `ReviewService.DeleteReviewAsync`, `GetReviewsAdminAsync` |
+| RV-05 | **Thang điểm không nhất quán:** validator cho `Rating` 1–10, nhưng ràng buộc DB `CK_Reviews_Rating` là 1–5 (và `CK_Movies_AverageRating` 0–5); giao diện dùng 5 sao; `ShowtimeScheduler.Heat` chia `AverageRating` cho 10. Điểm 6–10 qua validator sẽ bị DB từ chối (lỗi check constraint → 400) | Gửi `rating` > 5 | Lỗi DB 400 | `ReviewValidators.cs`, `ReviewConfiguration.cs`, `Utils/ShowtimeScheduler.cs::Heat` |
+| RV-06 | Admin xóa mọi đánh giá đơn lẻ; admin xem danh sách | — | — | `ReviewService.DeleteReviewAsync`, `GetReviewsAdminAsync` |
 | RV-07 | `GET /movies/{id}/can-review` công khai: trả trạng thái đánh giá của người dùng hiện tại nếu có token (`GetUserMovieReviewStatusAsync`) | — | — | `MoviesController` |
+| RV-08 | **Xóa đánh giá hàng loạt**: Admin xóa nhiều đánh giá theo `BulkDeleteReviewsRequest`. Hệ thống xóa từng đánh giá hợp lệ và tự động tính lại `AverageRating` cho toàn bộ các phim bị ảnh hưởng | `DELETE /admin/reviews/bulk` | `BulkDeleteReviewsResponse` | `ReviewService.BulkDeleteReviewsAsync` |
 
 Các endpoint đánh giá nằm trong `MoviesController` (xem bảng 4.2) và `AdminReviewsController`:
 
@@ -1147,6 +1177,7 @@ Các endpoint đánh giá nằm trong `MoviesController` (xem bảng 4.2) và `A
 |---|---|---|---|
 | GET | `/api/v1/admin/reviews` | AdminOnly | `AdminReviews.GetReviews` |
 | DELETE | `/api/v1/admin/reviews/{id:int}` | AdminOnly | `AdminReviews.Delete` |
+| DELETE | `/api/v1/admin/reviews/bulk` | AdminOnly | `AdminReviews.BulkDelete` |
 
 
 ---
@@ -1193,6 +1224,9 @@ Một dòng duy nhất `CinemaSettings` (`Id = 1`, `CK_CinemaSettings_Id`).
 | ST-04 | `PointsPerAmount` > 0 | 400 | như trên |
 | ST-05 | `CancelRefundPercent` 0–100; `CancelDeadlineHours` ≥ 0 (service còn kiểm lại: 422 "CancelRefundPercent phải trong khoảng 0-100." / "CancelDeadlineHours không được âm.") | 400/422 | `UpdateSettingsAsync` |
 | ST-06 | `StopSellingMinutesBefore` 0–1440 | 400 | `SettingValidators.cs` |
+| ST-07 | `HoldDurationMinutes`: thời gian giữ ghế online, trong khoảng 1–120 phút (mặc định 15) | 400 | `SettingValidators.cs`, `CinemaSettings.DefaultHoldDurationMinutes` |
+| ST-08 | `CheckInOpenMinutes`: thời gian mở check-in trước giờ chiếu, trong khoảng 0–240 phút (mặc định 30) | 400 | `SettingValidators.cs`, `CinemaSettings.DefaultCheckInOpenMinutes` |
+| ST-09 | `SeatGapRuleMode`: chế độ kiểm tra ghế lẻ khi đặt vé online (`Strict`: chặn mọi ghế lẻ; `AllowEdge`: cho phép ghế lẻ sát mép hàng hoặc lối đi; `Off`: tắt quy tắc ghế lẻ; mặc định `Strict`) | 400 | `SettingValidators.cs`, `Domain/Enums/SeatGapRuleMode.cs` |
 
 `GET /settings` công khai (`SettingsController`); `GET`/`PUT /admin/settings` dành `AdminOnly`.
 
@@ -1216,7 +1250,7 @@ Một dòng duy nhất `CinemaSettings` (`Id = 1`, `CK_CinemaSettings_Id`).
 | AI-03 | Công cụ AI được gọi: `search_showtimes` (tối đa 8 suất), `get_seat_availability` (tối đa 40 nhãn ghế), `get_my_bookings` (tối đa 5 booking, cần đăng nhập) | — | `Services/Ai/AiToolExecutor.cs` |
 | AI-04 | Giới hạn vòng lặp: `MaxToolRounds` = 4, `MaxTotalToolCalls` = 8, `MaxCards` = 6 | — | `GeminiAiAssistantService` |
 | AI-05 | Ghế trống theo AI = `Available` hoặc `Held` đã quá `HeldUntil` | — | `AiToolExecutor.GetSeatAvailabilityAsync` |
-| AI-06 | Prompt hệ thống kèm giờ mở/đóng cửa (mặc định chữ "08:00"/"23:30" khi chưa cấu hình) và thông tin người dùng đăng nhập (tên, email) gửi tới Gemini | — | `GeminiAiAssistantService` |
+| AI-06 | Prompt hệ thống kèm giờ mở/đóng cửa (mặc định chữ "08:00"/"23:30" khi chưa cấu hình) và thông tin người dùng đăng nhập (tên, email, điểm và hạng lấy theo thời gian thực từ sổ điểm 12 tháng qua `LoyaltyWindow.GetStandingAsync`) gửi tới Gemini | — | `GeminiAiAssistantService` |
 | AI-07 | Endpoint công khai; `UserId` lấy từ claim nếu có | — | `AiController.Chat` |
 
 Trợ lý chỉ đọc dữ liệu (không đặt vé, không thay đổi dữ liệu).
@@ -1232,11 +1266,14 @@ Trợ lý chỉ đọc dữ liệu (không đặt vé, không thay đổi dữ l
 
 | Mã | Mô tả | Điều kiện | Kết quả/lỗi | Nguồn |
 |---|---|---|---|---|
-| EMP-01 | Khóa/mở tài khoản; khóa thu hồi toàn bộ refresh token | `PUT /admin/users/{id}/status` | — | `UpdateUserStatusAsync`; test `EmployeeServiceUserStatusTests` |
+| EMP-01 | Khóa/mở tài khoản đơn lẻ: khóa thu hồi toàn bộ refresh token; nếu có hồ sơ `Employee` thì cập nhật đồng bộ `Employee.IsActive = request.IsActive`. Chặn tự khóa bản thân (`Rule_CannotLockSelf`), chặn khóa Admin đang hoạt động cuối cùng (`Rule_CannotLockLastAdmin`) | `PUT /admin/users/{id}/status` | 400 nếu tự khóa hoặc khóa Admin cuối | `UpdateUserStatusAsync`; test `EmployeeServiceUserStatusTests` |
 | EMP-02 | Đổi role: `roleId` phải tồn tại | — | 400 "roleId không tồn tại." | `UpdateUserRoleAsync` |
 | EMP-03 | Không hạ role xuống `Customer` khi còn hồ sơ `Employee` đang hoạt động | — | 409 "Không thể hạ role xuống Customer khi còn hồ sơ Employee đang hoạt động — vô hiệu hóa Employee trước." | `UpdateUserRoleAsync` |
 | EMP-04 | Tạo hồ sơ nhân viên: user phải tồn tại (404), chưa có hồ sơ (409 "userId đã có hồ sơ Employee."), role phải là Admin hoặc Employee (422), `positionId` tồn tại (404) | — | như cột trước | `CreateEmployeeAsync` |
 | EMP-05 | Sửa hồ sơ: `positionId` phải tồn tại | — | 400 "positionId không tồn tại." | `UpdateEmployeeAsync` |
+| EMP-06 | **Tra cứu khách hàng cho quầy vé**: nhân viên hoặc admin tìm kiếm khách hàng theo 4 số cuối điện thoại hoặc từ khóa tên/email (tối đa `limit` kết quả). Hạng thành viên và % giảm giá trả về được tính thời gian thực từ sổ điểm 12 tháng (`LoyaltyWindow.GetStandingsAsync`) | `GET /admin/users/customers` (StaffOnly) | Danh sách `CustomerLookupItemDto` | `EmployeeService.SearchCustomersAsync`, `AdminUsersController` |
+| EMP-07 | **Khóa/mở tài khoản hàng loạt**: Admin cập nhật trạng thái `IsActive` cho danh sách user theo `BulkStatusRequest`. Áp dụng đầy đủ quy tắc không tự khóa mình, không khóa Admin hoạt động cuối cùng, thu hồi refresh token và đồng bộ `Employee.IsActive` | `PUT /admin/users/bulk/status` (AdminOnly) | `BulkActionResponse` | `EmployeeService.BulkUpdateUserStatusAsync` |
+| EMP-08 | **Xóa hàng loạt (Phim / Diễn viên / Đạo diễn)**: Admin xóa nhiều mục theo danh sách Id. Phim đã có suất chiếu sẽ tự động chuyển sang `Ended` thay vì xóa thật; diễn viên/đạo diễn đang được phim tham chiếu sẽ bị từ chối theo từng mục | `DELETE /admin/movies/bulk`, `.../actors/bulk`, `.../directors/bulk` | Response danh sách kết quả từng mục | `MovieService.BulkDeleteMoviesAsync`, `CatalogService` |
 
 **Endpoint**
 
@@ -1247,8 +1284,10 @@ Trợ lý chỉ đọc dữ liệu (không đặt vé, không thay đổi dữ l
 | PUT | `/api/v1/admin/employees/{id:int}` | AdminOnly | `AdminEmployees.Update` |
 | GET | `/api/v1/admin/users` | AdminOnly | `AdminUsers.GetUsers` |
 | GET | `/api/v1/admin/users/admins` | AdminOnly | `AdminUsers.GetAdminUsers` |
+| GET | `/api/v1/admin/users/customers` | StaffOnly | `AdminUsers.SearchCustomers` |
 | PUT | `/api/v1/admin/users/{id:int}/status` | AdminOnly | `AdminUsers.UpdateStatus` |
 | PUT | `/api/v1/admin/users/{id:int}/role` | AdminOnly | `AdminUsers.UpdateRole` |
+| PUT | `/api/v1/admin/users/bulk/status` | AdminOnly | `AdminUsers.BulkUpdateStatus` |
 
 
 ---
@@ -1403,13 +1442,18 @@ Lưu ý:
 ```mermaid
 sequenceDiagram
   participant ST as Nhân viên (web admin /admin/counter)
-  participant API as AdminBookingsController
+  participant API as AdminBookingsController, AdminUsersController
   participant DB as PostgreSQL
+  opt Tra cứu hội viên
+    ST->>API: GET /admin/users/customers?keyword=... (tìm theo 4 số cuối SĐT, tên, email)
+    API->>DB: Đọc Users + tính điểm/hạng từ sổ điểm 12 tháng (LoyaltyWindow)
+    API-->>ST: Danh sách khách, hạng và % giảm giá vé
+  end
   ST->>API: POST /admin/bookings/counter-hold {showtimeId, seatIds, customerName/userId, combos}
-  API->>DB: Cần claim EmployeeId; giữ ghế (Channel=Counter, CreatedByEmployeeId)
+  API->>DB: Cần claim EmployeeId; giữ ghế (Channel=Counter, CreatedByEmployeeId, SeatGapRuleMode.Off, chiết khấu chỉ tính trên tiền vé)
   API-->>ST: bookingId, FinalAmount
   ST->>API: POST /admin/bookings/{id}/counter-checkout {paymentMethod, amountReceived}
-  API->>DB: AmountReceived ≥ FinalAmount; Payment Cash Success (ChangeGiven); Booking Confirmed; tạo vé
+  API->>DB: AmountReceived ≥ FinalAmount; Payment Cash Success (ChangeGiven); Booking Confirmed; tạo vé; tạo LoyaltyPointEntry nếu có UserId
   API-->>ST: vé có QR, tiền thối
   ST->>API: POST /admin/bookings/checkin {qrCode} (soát vé, quét camera hoặc nhập mã)
 ```
@@ -1418,12 +1462,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-  C[Booking Confirmed, có UserId] --> A["Points += floor(FinalAmount / PointsPerAmount)<br/>TotalSpent += FinalAmount<br/>Tier = hạng cao nhất có MinPoints ≤ Points (chỉ nâng)"]
-  R[Khách hủy có hoàn / rạp hủy suất] --> V["Points và TotalSpent giảm tương ứng<br/>Tier tính lại theo điểm mới (có thể hạ)"]
-  A --> D["Lần đặt sau: DiscountAmount = TotalAmount × DiscountPercent(hạng) / 100"]
+  C[Booking Confirmed, có UserId] --> A["earned = floor(FinalAmount / PointsPerAmount)<br/>Tạo dòng LoyaltyPointEntry(earned, EarnedAt=now)<br/>TotalSpent += FinalAmount<br/>Điểm hiệu lực = tổng các dòng trong 12 tháng gần nhất<br/>Tier = hạng cao nhất có MinPoints ≤ Điểm hiệu lực (nâng hạng)"]
+  R[Khách hủy có hoàn / rạp hủy suất] --> V["Ghi nhận RevokedPoints vào đúng dòng LoyaltyPointEntry của booking<br/>Nếu booking > 12 tháng: không làm giảm điểm hiệu lực hiện tại<br/>TotalSpent giảm, Tier tính lại theo điểm hiệu lực mới (có thể hạ)"]
+  A --> D["Lần đặt sau: DiscountAmount = seatTotal (tiền vé) × DiscountPercent(hạng) / 100<br/>(Tuyệt đối không áp dụng cho combo)"]
 ```
 
-Không có bước "đổi điểm" (xem 4.19).
+Hệ thống có job nền `ExpireLoyaltyPointsJob` chạy hằng giờ (phút thứ 5 mỗi giờ) để quét và đồng bộ lại điểm và hạng cho các tài khoản có điểm hết hạn 12 tháng. Không có bước "đổi điểm" (xem 4.19).
 
 ---
 
@@ -1436,11 +1480,11 @@ Các ví dụ số dưới đây là **minh họa** do tài liệu tính từ c�
 ## 6.1 Tính giá
 
 1. **Giá ghế** (chốt lúc tạo suất): `ShowtimeSeat.Price = Showtime.BasePrice × SeatType.PriceMultiplier` (`ShowtimeService.GenerateShowtimeSeatsAsync`). Ví dụ: `BasePrice = 90.000 VNĐ`, ghế thường hệ số 1.0 → 90.000; ghế VIP hệ số 1.5 → 135.000.
-2. **Tổng tạm tính** (`TotalAmount`) = Σ giá ghế + Σ (`BookingCombo.UnitPrice × Quantity`). Ví dụ: 2 ghế thường (180.000) + 1 combo 70.000 → 250.000.
-3. **Giảm giá** = làm tròn 0 chữ số (`Math.Round`, away-from-zero) của `TotalAmount × DiscountPercent / 100` theo hạng hiện tại (`CalculateDiscountAmountAsync`). Hạng 10% → 25.000.
-4. **Thành tiền** `FinalAmount = TotalAmount − DiscountAmount` = 225.000.
-5. **Điểm** = `floor(225.000 / 10.000)` = 22 điểm (`PointsPerAmount` = 10.000 theo seed).
-6. **Hoàn tiền khi khách hủy** (đủ điều kiện): `Math.Round(Payment.Amount × CancelRefundPercent / 100, 0)`. Với 225.000 và 50% → 112.500. Điểm đảo = `FinalAmount × RefundAmount / Payment.Amount` (ở đây 225.000 × 112.500 / 225.000 = 112.500 → 11 điểm).
+2. **Tổng tạm tính** (`TotalAmount`) = `seatTotal` (tổng giá ghế) + `comboTotal` (tổng `BookingCombo.UnitPrice × Quantity`). Ví dụ: 2 ghế thường (180.000) + 1 combo 70.000 → `TotalAmount = 250.000`.
+3. **Giảm giá hạng thành viên**: làm tròn 0 chữ số (`Math.Round`, away-from-zero) của `seatTotal × DiscountPercent / 100` theo hạng thành viên hiện tại (**CHỈ ÁP DỤNG TRÊN TIỀN VÉ, KHÔNG ÁP DỤNG CHO COMBO**). Ví dụ: hạng 10% → `180.000 × 10% = 18.000` (thay vì 25.000 nếu tính trên cả combo).
+4. **Thành tiền** `FinalAmount = TotalAmount − DiscountAmount` = `250.000 − 18.000 = 232.000`.
+5. **Điểm tích lũy**: `earned = floor(FinalAmount / PointsPerAmount)` = `floor(232.000 / 10.000) = 23 điểm` (`PointsPerAmount` = 10.000 theo cấu hình). Tạo một dòng `LoyaltyPointEntry` mới với `EarnedAt = DateTime.UtcNow`, có hiệu lực trong 12 tháng.
+6. **Hoàn tiền khi khách hủy** (đủ điều kiện): `Math.Round(Payment.Amount × CancelRefundPercent / 100, 0)`. Với 232.000 và 50% → 116.000. Điểm thu hồi = `floor((FinalAmount × RefundAmount / Payment.Amount) / PointsPerAmount)`. Dòng `LoyaltyPointEntry` tương ứng được ghi nhận `RevokedPoints += revoke`.
 
 Không có khuyến mãi theo mã, không có phụ thu theo khung giờ/ngày lễ.
 
@@ -1463,10 +1507,13 @@ Với `count` ghế liền nhau, mỗi hàng chọn cửa sổ tốt nhất rồ
   * Điểm độ sâu: `depth = (chỉ số hàng + 1)/số hàng`; `rowScore = max(0, 1 − max(0,5 − depth, depth − 0,7, 0) × 2)`; tức hàng ở khoảng 50–70% chiều sâu là tốt nhất.
 * Ví dụ: 10 cột, 10 hàng, hàng thứ 5 (depth 0,5), chọn ghế 5–6 cùng loại: tâm 5,5 = giữa → 0,45 + 0,45 + 0,1 = **1,0**.
 
-## 6.4 Quy tắc chọn ghế hợp lệ (`ValidateSelection`, chỉ kênh online)
+## 6.4 Quy tắc chọn ghế hợp lệ (`ValidateSelection`)
 
-* Chọn một ghế đôi thì phải chọn cả cặp: "Ghế đôi phải được chọn cùng nhau."
-* Sau khi coi các ghế đã chọn là bị chiếm, nếu một ghế trống **đứng lẻ giữa** (đoạn trống dài 1) mà kề với ghế vừa chọn thì từ chối: "Không thể để trống ghế lẻ X{n}. Vui lòng chọn lại để không bỏ lẻ ghế." Ví dụ: hàng A trống A1–A5; chọn A2 → A1 thành lẻ, từ chối; chọn A1–A2 hợp lệ.
+* **Ghế đôi**: Chọn một ghế đôi thì bắt buộc phải chọn cả cặp cùng `CoupleId`: `"Ghế đôi phải được chọn cùng nhau."`.
+* **Quy tắc ghế lẻ** phụ thuộc chế độ cấu hình `CinemaSettings.SeatGapRuleMode`:
+  * `SeatGapRuleMode.Off`: Tắt hoàn toàn kiểm tra ghế lẻ (chỉ kiểm tra ghế đôi). Kênh quầy (`Counter`) luôn gọi chế độ này.
+  * `SeatGapRuleMode.AllowEdge`: Cho phép ghế trống lẻ nằm ở **sát mép hàng** hoặc **sát lối đi**; chỉ từ chối khi ghế lẻ bị kẹp giữa hai ghế (ví dụ giữa ghế vừa chọn và ghế đã đặt): `"Không thể để trống ghế lẻ X{n}. Vui lòng chọn lại để không bỏ lẻ ghế."`.
+  * `SeatGapRuleMode.Strict` (mặc định): Chặn mọi trường hợp để trống đúng 1 ghế lẻ kề với ghế vừa chọn, kể cả ở sát mép hàng. Ví dụ hàng A trống A1–A5: chọn A2 thì A1 thành ghế lẻ đứng một mình → từ chối; chọn A1–A2 → hợp lệ.
 
 ## 6.5 Tự động xếp lịch (`ShowtimeScheduler.Build`)
 
@@ -1495,9 +1542,13 @@ Với `count` ghế liền nhau, mỗi hàng chọn cửa sổ tốt nhất rồ
 * Giữ combo có `size > 0` hoặc đã có bán; sắp điểm giảm dần rồi giá tăng dần; lấy tối đa 3. Nhãn: "Phù hợp cho N người" / "Phù hợp cho N người (xK)" / "Bán chạy cùng thể loại"; cờ "bán chạy nhất" khi `sold = sold_cao_nhất > 0`.
 * Ví dụ: 3 người, combo mô tả có 3 đồ uống (`size = 3`) → `quantity = 1`, `fit = 3`; combo `size = 2` → `quantity = 2`, `fit = 3 − min(3, 4 − 3 + 1) = 1`.
 
-## 6.7 Tính điểm và hạng
+## 6.7 Tính điểm và hạng thành viên (`LoyaltyWindow`)
 
-Xem LY-01..LY-06 và 6.1. Ví dụ hạng: các hạng có `MinPoints` 0 / 100 / 500; khách đang 98 điểm, thanh toán 225.000 (+22) → 120 điểm → nâng lên hạng `MinPoints = 100`. Khi hoàn đủ → trừ 22 → 98 → xét lại thành hạng thấp hơn.
+Xem LY-01..LY-08 và 6.1.
+* **Sổ điểm và cửa sổ trượt 12 tháng**: Điểm thành viên không còn lưu thuần túy dạng số cộng dồn mà quản lý qua sổ chi tiết `LoyaltyPointEntry`. Điểm chỉ có giá trị trong vòng 12 tháng kể từ ngày tích (`EarnedAt > now.AddMonths(-12)`).
+* **Tính toán tức thời (Zero Stale)**: Mọi thao tác tính giảm giá vé, hiển thị hồ sơ cá nhân, hay đăng nhập đều tính điểm active từ sổ điểm `LoyaltyWindow.SumActiveAsync` và xác định hạng trực tiếp `ResolveTierAsync`. Ví dụ: khách có giao dịch 500 điểm tích từ 11 tháng trước (còn hạn) và 200 điểm tích từ 13 tháng trước (đã hết hạn) → tổng điểm hiệu lực hiện tại là 500 điểm.
+* **Hoàn tiền thông minh**: Khi khách hủy vé hoặc rạp hủy suất, hệ thống thu hồi đúng vào dòng điểm đã phát sinh của đơn đặt vé đó. Nếu đơn đặt vé đó đã quá 12 tháng, điểm thu hồi không ảnh hưởng đến tổng điểm hiệu lực trong cửa sổ 12 tháng hiện tại của khách.
+* **Job đồng bộ hằng giờ**: `ExpireLoyaltyPointsJob` chạy phút thứ 5 mỗi giờ sẽ đồng bộ lại các cột cache `Points` và `TierId` trên bảng `CustomerProfiles` cho các khách hàng có điểm vừa hết hạn.
 
 ## 6.8 Giữ ghế và tranh chấp
 
@@ -1517,10 +1568,11 @@ Cấu hình trong `Cinema.Api/Program.cs`: lưu trữ PostgreSQL (`Hangfire.Post
 |---|---|---|---|---|---|
 | `ReleaseExpiredSeatsJob` (id `RecurringJobIds.ReleaseExpiredSeats`) | Recurring, `BackgroundJobs:ReleaseExpiredSeatsCron` mặc định `* * * * *` (mỗi phút) | `SeatExpirationService.ExpireDueBookingsAsync`: booking `Pending` có `ExpiresAt <= now` → `Expired`, payment `Pending` → `Failed`, ghế → `Available`, phát `hold.expired`; cũng dọn ghế `Held` quá hạn không còn booking `Pending` (`ReleaseStaleHeldSeatsAsync`, không phát realtime) | Có: chỉ tác động bản ghi còn ở trạng thái chờ; chạy lại không đổi kết quả (test `SeatExpirationServiceTests`) | Retry toàn cục 3 lần | `BackgroundJobs/ReleaseExpiredSeatsJob.cs`, `Services/Bookings/SeatExpirationService.cs` |
 | `ShowtimeLifecycleJob` (id `RecurringJobIds.UpdateShowtimeLifecycle`) | Recurring, `ShowtimeLifecycleCron` mặc định `* * * * *` | Gọi lần lượt `CompleteEndedShowtimesAsync` (suất `Scheduled` có `EndTime` đã qua → `Completed`) rồi `EndMoviesWithoutUpcomingShowtimesAsync` (phim `NowShowing` có suất nhưng hết suất tương lai → `Ended`) | Có (chuyển trạng thái một chiều) | Retry toàn cục | `BackgroundJobs/ShowtimeLifecycleJob.cs`, `ShowtimeService` |
+| `ExpireLoyaltyPointsJob` (id `RecurringJobIds.ExpireLoyaltyPoints`) | Recurring, `BackgroundJobs:ExpireLoyaltyPointsCron` mặc định `5 * * * *` (phút thứ 5 mỗi giờ, múi giờ Việt Nam) | `LoyaltyExpiryService.RecalculateAllAsync`: quét toàn bộ sổ điểm `LoyaltyPointEntries` trong cửa sổ 12 tháng (`EarnedAt > now - 12 tháng`), tính lại tổng điểm và hạng cho toàn bộ `CustomerProfiles` có điểm hoặc hạng; cập nhật lại DB nếu phát hiện lệch điểm do hết hạn | Có (tính toán thuần túy dựa trên sổ điểm) | Retry toàn cục | `BackgroundJobs/ExpireLoyaltyPointsJob.cs`, `Services/Bookings/LoyaltyExpiryService.cs` |
 | `ShowtimeRefundJob` | Enqueue (một lần/payment) khi rạp hủy suất, từ `ShowtimeService.DeleteShowtimeAsync` | Hoàn **toàn bộ** `Payment.Amount` qua cổng; thành công → `Payment.Refunded` + email "đã hoàn tiền"; thất bại → ném lỗi để Hangfire retry; ở lần retry cuối (`RetryCount` bằng số lần cho phép) gửi email "hoàn tiền thủ công" (nếu booking có `User`) rồi vẫn ném lỗi để đánh dấu job thất bại | Có: chỉ hoàn khi `Payment.Status == Success`, booking `Cancelled`, suất `Cancelled` và phương thức không phải `Cash`; ngược lại thoát sớm (chạy lại không hoàn hai lần) | 3 lần, 30 giây / 2 phút / 10 phút | `BackgroundJobs/ShowtimeRefundJob.cs` |
 | `SendEmailJob` | Enqueue từ Auth, Booking, Payment, Showtime, `ShowtimeRefundJob` | Gọi `IEmailService.SendAsync(to, subject, html)` | Không (có thể gửi trùng nếu retry sau khi đã gửi) | Retry toàn cục 3 lần | `BackgroundJobs/SendEmailJob.cs` |
 
-Ghi chú: có test cho `SeatExpirationService`, `ShowtimeLifecycle` và `ShowtimeRefundJob` (thành công idempotent; cổng từ chối thì giữ ở hàng đợi thủ công, trong `ShowtimeServiceFixesTests`); `SendEmailJob` **chưa có unit test** (xem [13](#s13)).
+Ghi chú: có test cho `SeatExpirationService`, `ShowtimeLifecycle`, `LoyaltyExpiryService` (`LoyaltyWindowTests`) và `ShowtimeRefundJob` (thành công idempotent; cổng từ chối thì giữ ở hàng đợi thủ công, trong `ShowtimeServiceFixesTests`); `SendEmailJob` **chưa có unit test** (xem [13](#s13)).
 
 ## 7.2 Realtime (SignalR)
 
@@ -1624,9 +1676,9 @@ Nguồn: `Cinema.Application/Options/*.cs`, `Cinema.Api/appsettings.json`, `apps
 | `Jwt:AccessTokenExpirationSeconds` | Thời hạn access token | 3600 | Phiên đăng nhập |
 | `Jwt:RefreshTokenExpirationDays` | Thời hạn refresh token | 30 | Duy trì đăng nhập |
 | `Jwt:SocketTokenExpirationSeconds` | Thời hạn socket token | 300 | Kết nối SignalR |
-| `Booking:HoldDurationMinutes` | Thời gian giữ ghế | 15 | BK-07, BK-13 |
+| `Booking:HoldDurationMinutes` | Thời gian giữ ghế mặc định nền (fallback) | 15 | BK-07, BK-13 (vận hành đọc từ `CinemaSettings`) |
 | `Booking:RoomBufferMinutes` | Buffer dọn phòng cộng vào `EndTime` | 15 | SHW-05 |
-| `Booking:CheckInOpenMinutes` | Mở check-in trước giờ chiếu | 30 | TK-05 |
+| `Booking:CheckInOpenMinutes` | Mở check-in trước giờ chiếu mặc định (fallback) | 30 | TK-05 (vận hành đọc từ `CinemaSettings`) |
 | `Booking:MaxSeatsPerBooking` | Số ghế tối đa mỗi booking | 10 (chỉ trong class `BookingOptions`) | BK-03 |
 | `Booking:MaxComboQuantity` | Số lượng tối đa mỗi combo | 10 (chỉ trong class) | BK-09 |
 | `Booking:PointsPerVnd` | **Không có trong `BookingOptions`; không dùng** | 0.0001 | Không có (điểm thật tính bằng `CinemaSettings.PointsPerAmount`) |
@@ -1635,6 +1687,7 @@ Nguồn: `Cinema.Application/Options/*.cs`, `Cinema.Api/appsettings.json`, `apps
 | `RateLimit:BookingHoldPermitLimit` / `BookingHoldWindowSeconds` | Giới hạn `booking-hold` | 10 / 60 | `POST /bookings/hold` |
 | `BackgroundJobs:ReleaseExpiredSeatsCron` | Lịch giải phóng ghế | `* * * * *` (mỗi phút) | BK-13 |
 | `BackgroundJobs:ShowtimeLifecycleCron` | Lịch cập nhật vòng đời | `* * * * *` | SHW-16 |
+| `BackgroundJobs:ExpireLoyaltyPointsCron` | Lịch quét hết hạn điểm thành viên (12 tháng) | `5 * * * *` (phút thứ 5 mỗi giờ) | LY-05 |
 | `BackgroundJobs:RetryAttempts` | Số lần retry job | 3 | Hangfire, `ShowtimeRefundJob` |
 | `BackgroundJobs:RetryDelaysSeconds` | Trì hoãn giữa các lần retry | `[30, 120, 600]` | như trên |
 | `Scheduler:StepMinutes` | Bước thử giờ | 5 | **Chưa nối** vào `ShowtimeService` (SHW-17) |
@@ -1651,16 +1704,19 @@ Nguồn: `Cinema.Application/Options/*.cs`, `Cinema.Api/appsettings.json`, `apps
 
 ## 9.2 Cấu hình trong DB (`CinemaSettings`, một dòng `Id = 1`)
 
-Sửa tại `PUT /admin/settings` (trang Cài đặt). Giá trị seed lấy từ migration `InitialCreate`.
+Sửa tại `PUT /admin/settings` (trang Cài đặt). Giá trị seed lấy từ migration `InitialCreate` và được cập nhật qua `PendingModelChanges`, `AddSeatGapRuleMode`.
 
 | Trường | Ý nghĩa | Seed/mặc định | Ảnh hưởng nghiệp vụ |
 |---|---|---|---|
 | `Name`, `Address`, `Phone`, `Email`, `TaxCode`, `LogoUrl` | Thông tin rạp | Theo seed | Hiển thị; `Email` nhận cảnh báo hoàn tiền thủ công (PAY-06) |
 | `OpeningTime`, `ClosingTime` | Giờ hoạt động | 08:00 / 23:59 | SHW-06; prompt AI |
 | `PointsPerAmount` | VNĐ cho 1 điểm | 10.000 | LY-01 |
-| `CancelRefundPercent` | % hoàn khi khách hủy | 100 (cột DB mặc định 0, nhưng dòng seed là 100) | RF-06 |
+| `CancelRefundPercent` | % hoàn khi khách hủy | 0 (seed ban đầu 100, migration `PendingModelChanges` cập nhật 0) | RF-06 |
 | `CancelDeadlineHours` | Hạn hủy hoàn tiền (giờ trước giờ chiếu) | 2 | RF-06 |
 | `StopSellingMinutesBefore` | Ngừng bán online trước giờ chiếu | 0 (không giới hạn) | BK-02 |
+| `HoldDurationMinutes` | Thời gian giữ ghế online (phút) | 15 (khoảng 1–120) | BK-07, BK-13 |
+| `CheckInOpenMinutes` | Mở check-in trước giờ chiếu (phút) | 30 (khoảng 0–240) | TK-05 |
+| `SeatGapRuleMode` | Chế độ kiểm tra ghế lẻ (`Strict`, `AllowEdge`, `Off`) | `Strict` | BK-08, 6.4 |
 
 ## 9.3 Cấu hình frontend
 
@@ -1703,19 +1759,20 @@ Nhân viên gõ tay URL admin-only vẫn vào được khung trang; mọi API t�
 
 | Trang | Role | Thao tác | API gọi | Validation phía client | Trạng thái UI |
 |---|---|---|---|---|---|
-| Đặt vé (`features/client/bookings`) | Khách đăng nhập | Chọn ghế trên sơ đồ, xem gợi ý ghế, chọn combo + gợi ý combo, nhập tên/SĐT, chọn cổng thanh toán, đếm ngược giữ ghế (`use-countdown`) | `GET /showtimes/{id}/seats`, `/seat-suggestions`, `/combos`, `/combos/suggestions`, `POST /bookings/hold`, `/bookings/{id}/checkout`, `/cancel` | Tên bắt buộc; nút giữ ghế chỉ bật khi hợp lệ (`canHold`); số điện thoại hiển thị là bắt buộc nhưng không chặn `canHold` | Loading/skeleton sơ đồ; hết hạn giữ ghế; lỗi `409` ghế xung đột |
+| Đặt vé (`features/client/bookings`) | Khách đăng nhập | Chọn ghế trên sơ đồ, xem gợi ý ghế, chọn combo + gợi ý combo, nhập tên/SĐT, chọn cổng thanh toán, đếm ngược giữ ghế (`use-countdown`) | `GET /showtimes/{id}/seats`, `/seat-suggestions`, `/combos`, `/combos/suggestions`, `POST /bookings/hold`, `/bookings/{id}/checkout`, `/cancel` | Tên bắt buộc; nút giữ ghế chỉ bật khi hợp lệ (`canHold`); số điện thoại hiển thị là bắt buộc nhưng không chặn `canHold`; tóm tắt giá ghi rõ "Giảm giá hạng thành viên (áp dụng cho vé)" | Loading/skeleton sơ đồ; hết hạn giữ ghế; lỗi `409` ghế xung đột |
 | Kết quả thanh toán | Khách | Hiển thị thành công/thất bại/đang xử lý; tải vé có QR | `GET /bookings/{id}` (thăm dò) | — | Đang chờ → thành công/thất bại |
 | Vé của tôi | Khách | Xem danh sách, chi tiết vé (QR), hủy vé | `GET /bookings`, `/bookings/{id}`, `POST /bookings/{id}/cancel` | — | Loading/empty/error |
+| Hồ sơ & Hạng TV (`features/client/account`, `/membership`) | Khách | Xem điểm tích lũy, hạng hiện tại, tiến trình lên hạng, lịch sử vé; trang hội viên so sánh quyền lợi | `GET /users/me`, `GET /membership-tiers` | — | Ghi chú điểm tính trong 12 tháng gần nhất, điểm cũ tự hết hạn; chiết khấu chỉ áp trên giá vé |
 | Đánh giá | Khách | Gửi/sửa/xóa đánh giá | `POST/PUT/DELETE /movies/{id}/reviews`, `GET /users/me/reviews` | Giao diện 5 sao (DB 1–5; validator server 1–10) | — |
 | Trợ lý AI | Mọi người | Chat | `POST /ai/chat` | — | Loading/lỗi |
-| Quầy bán vé (`features/admin/counter`) | Admin, Employee | Chọn suất → ghế → khách/hội viên → combo → thu tiền mặt | `POST /admin/bookings/counter-hold`, `/{id}/counter-checkout` | Tổng tạm tính chỉ cộng ghế (không combo); số tiền thật lấy từ server; tiền nhận phải ≥ tổng | Loading/in vé |
+| Quầy bán vé (`features/admin/counter`) | Admin, Employee | Tra cứu hội viên (SĐT/từ khóa), chọn suất → ghế → khách/hội viên → combo → thu tiền mặt | `GET /admin/users/customers`, `POST /admin/bookings/counter-hold`, `/{id}/counter-checkout` | Form khách báo rõ % giảm chỉ áp trên vé; tổng tạm tính chỉ cộng ghế; tiền nhận phải ≥ tổng | Loading/in vé |
 | Soát vé (`features/admin/checkin`) | Admin, Employee | Quét QR bằng camera (`jsqr`, `use-qr-camera-scanner`) hoặc nhập mã; âm thanh kết quả | `POST /admin/bookings/checkin` | Mã bắt buộc | Quét/kết quả thành công/lỗi |
 | Suất chiếu (`features/admin/showtimes`) | Admin, Employee xem; ghi chỉ Admin | Lịch, tạo, sửa, hủy; tạo hàng loạt; tự động xếp lịch (xem trước/áp dụng); nhân bản; hủy hàng loạt | `/admin/showtimes/*` | `startTime`, `fromDate/toDate`, `daysOfWeek` ≥ 1, giờ chiếu, ngày bắt đầu/kết thúc nhân bản bắt buộc | Loading/danh sách bỏ qua (`skipped`) |
 | Phòng/ghế | Admin | Tạo/sửa phòng, trình soạn sơ đồ ghế, tự sinh lưới | `/admin/rooms/*` | Tên phòng bắt buộc, tối đa **100** ký tự ở client (server ≤ **50**: lệch) | — |
-| Phim | Admin/Staff xem | CRUD phim, diễn viên, tải ảnh/video | `/admin/movies/*`, `/admin/uploads/*` | Tiêu đề ≤ 200, ≥ 1 thể loại, trạng thái bắt buộc | — |
-| Combo, Danh mục, Nhân viên, Khách hàng, Đánh giá, Thanh toán | Admin | CRUD/xem | `/admin/*` tương ứng | Combo: tên ≤ 150, mô tả ≤ 500; vai trò bắt buộc ở form đổi role | — |
+| Phim | Admin/Staff xem | CRUD phim, diễn viên, đạo diễn (kèm xóa hàng loạt), tải ảnh/video | `/admin/movies/*`, `/admin/uploads/*` | Tiêu đề ≤ 200, ≥ 1 thể loại, trạng thái bắt buộc | — |
+| Combo, Danh mục, Nhân viên, Khách hàng, Đánh giá, Thanh toán | Admin | CRUD/xem (hỗ trợ xóa hàng loạt đánh giá, cập nhật trạng thái hàng loạt cho combo và user) | `/admin/*` tương ứng | Combo: tên ≤ 150, mô tả ≤ 500; vai trò bắt buộc ở form đổi role | — |
 | Báo cáo, Dashboard | Admin | Biểu đồ (recharts) | `/admin/reports/*`, `/admin/dashboard/*` | Khoảng ngày | — |
-| Cài đặt | Admin | Sửa cấu hình rạp | `GET/PUT /admin/settings` | Tên rạp, địa chỉ bắt buộc; email hợp lệ | — |
+| Cài đặt | Admin | Sửa cấu hình rạp, thời gian giữ ghế, thời gian mở check-in, chế độ kiểm tra ghế lẻ | `GET/PUT /admin/settings` | Tên rạp, địa chỉ bắt buộc; email hợp lệ; chế độ ghế lẻ Strict/AllowEdge/Off | — |
 
 Form đăng nhập: email hợp lệ, mật khẩu ≥ 6 ký tự (server yêu cầu ≥ 8 với chữ hoa/thường/số khi đăng ký). Đăng ký: họ tên ≥ 2 ký tự, SĐT tùy chọn, `passwordSchema`, xác nhận mật khẩu khớp.
 
@@ -1799,36 +1856,46 @@ Theo `docker-compose.yml`/`.env.example`: `docker compose up` (PostgreSQL 16 + A
 
 # 13. Kiểm thử
 
-Nguồn: `backend/tests/Cinema.UnitTests` (xUnit), `backend/tests/Cinema.IntegrationTests` (xUnit, host thử nghiệm). Đếm theo thuộc tính `[Fact]`/`[Theory]` (không đếm từng dòng dữ liệu của Theory): **321 test** (35 file).
+Nguồn: `backend/tests/Cinema.UnitTests` (xUnit), `backend/tests/Cinema.IntegrationTests` (xUnit, host thử nghiệm). Đếm theo thuộc tính `[Fact]`/`[Theory]` (không đếm từng dòng dữ liệu của Theory): **390 test** (40 file).
 
 ## 13.1 Tóm tắt theo module
 
 | Module | File test (số test) | Hành vi được bảo vệ (theo tên test/nội dung đọc) | Vùng chưa có test |
 |---|---|---|---|
 | Xác thực | `AuthServiceTests` (24), `JwtTokenServiceTests` (9), `AuthValidatorsTests` (15), `AuthEndpointsTests` (11, tích hợp) | Đăng ký/đăng nhập, xác thực email, refresh/quay vòng token, đặt lại mật khẩu, JWT claims, validator | Đăng nhập Google end-to-end; rate limit `auth` |
-| Đặt vé/giữ ghế | `BookingServiceTests` (21), `BookingServiceSeatHoldTests` (6), `BookingValidatorsTests` (20), `BookingFlowEndpointsTests` (6) | Giữ ghế tạo booking `Pending`, xung đột ghế rollback toàn bộ (có test đồng thời), một khách một booking `Pending` mỗi suất, giảm giá theo hạng, checkout (chủ sở hữu, hết hạn, cổng chưa cấu hình), xác nhận idempotent, ghế không còn giữ → hủy booking, hủy Pending/trong hạn/quá hạn hoàn, hoàn tiền làm tròn, `ProcessPaymentFailure` | `ValidateSelection` chỉ gián tiếp; `GetBookingsAdminAsync` lọc nâng cao |
-| Quầy/soát vé | `BookingServiceCounterCheckinTests` (13), `AdminBookingsEndpointsTests` (9) | Giữ ghế quầy (khách vãng lai không tài khoản; khách `Customer` gọi bị 403; thiếu hồ sơ `Employee` → 422), thu tiền mặt và tiền thối, thiếu tiền → 422 và booking vẫn `Pending`, check-in hợp lệ / đã check-in 409 / QR lạ 404 / sớm hơn 30 phút 422 | Xung đột ghế giữa quầy và online |
-| Điểm thành viên | `BookingServiceLoyaltyTests` (4) | Đảo điểm: tụt dưới ngưỡng thì hạ hạng, còn đủ thì giữ hạng; hoàn một phần đảo điểm theo tỉ lệ; email xác nhận chứa tên phim | Đảo điểm khi hủy suất chiếu (chỉ được kiểm gián tiếp) |
-| Thanh toán | `PaymentServiceVnPayTests` (8), `PaymentServiceStripeTests` (16) | IPN VNPay, webhook Stripe (kể cả thành công muộn sau thất bại), tự hoàn khi ghế mất | **MoMo** (không có test), `PaymentAdminService` |
+| Đặt vé/giữ ghế | `BookingServiceTests` (22), `BookingServiceSeatHoldTests` (6), `BookingValidatorsTests` (20), `BookingFlowEndpointsTests` (6) | Giữ ghế tạo booking `Pending`, xung đột ghế rollback toàn bộ (có test đồng thời), một khách một booking `Pending` mỗi suất, giảm giá theo hạng (chỉ trên vé ghế, không giảm combo), checkout (chủ sở hữu, hết hạn, cổng chưa cấu hình), xác nhận idempotent, ghế không còn giữ → hủy booking, hủy Pending/trong hạn/quá hạn hoàn, hoàn tiền làm tròn, `ProcessPaymentFailure` (giữ Pending nếu hold còn hạn để retry, release ghế nếu hold đã hết) | `GetBookingsAdminAsync` lọc nâng cao |
+| Quầy/soát vé | `BookingServiceCounterCheckinTests` (18), `AdminBookingsEndpointsTests` (9) | Giữ ghế quầy (khách vãng lai dùng tên/phone request; khách có `UserId` dùng thông tin tài khoản nếu role `Customer` và đang hoạt động, chặn nếu inactive hoặc sai role hoặc 404), thu tiền mặt và tính tiền thối, thiếu tiền → 422 và booking vẫn `Pending`, check-in hợp lệ trong cửa sổ động (`CheckInOpenMinutes`) / đã check-in 409 / QR lạ 404 / trước giờ mở cửa 422 / suất đã kết thúc 422 | Xung đột ghế giữa quầy và online |
+| Điểm thành viên & Cửa sổ 12 tháng | `LoyaltyWindowTests` (19), `BookingServiceLoyaltyTests` (4) | Cửa sổ trượt 12 tháng (`LoyaltyWindow`), điểm cũ > 12 tháng không tính vào hạng, điểm mới trong hạn áp dụng hạng ngay cả khi cache trống; bỏ qua cache cũ khi sổ cái trống; đảo điểm giảm hạng khi hoàn tiền; hoàn một phần chỉ chạm entry của chính booking đó; giảm giá chỉ trên vé ghế; làm tròn giá giảm; booking không có sổ cái vẫn giảm `TotalSpent`; `RecalculateAllAsync` dọn sạch điểm hết hạn và đồng bộ lại cache profile & tier idempotent | Đảo điểm khi hủy suất chiếu hàng loạt (chỉ được kiểm gián tiếp qua `ShowtimeRefundJob`) |
+| Sơ đồ ghế & Quy tắc khoảng trống | `SeatLayoutRulesTests` (19), `RoomServiceSeatLayoutTests` (8), `AdminRoomsEndpointsTests` (8) | 3 chế độ `SeatGapRuleMode` (`Strict`: bắt ghế đơn sát tường và chia hàng; `AllowEdge`: cho phép ghế đơn sát tường nhưng cấm giữa 2 khoảng trống; `Off`: cho phép mọi khoảng trống); ghế đôi bắt buộc chọn cả cặp bất kể mode; gợi ý ghế (`Suggest`) tìm ghế liền kề không để lại ghế đơn sát mép, tính tổng tiền, không tách ghế đôi, giới hạn top mỗi hàng; chặn đổi sơ đồ khi có suất sắp tới | — |
+| Cài đặt hệ thống | `SettingsServiceTests` (11) | Đọc/cập nhật `CinemaSettings` (Id=1); cập nhật `HoldDurationMinutes`, `CheckInOpenMinutes`, `SeatGapRuleMode`, giờ mở/đóng cửa; kiểm tra biên `CancelRefundPercent` (0–100), `CancelDeadlineHours` (≥0), `OperatingTime` hợp lệ; giữ nguyên giá trị khi trường tùy chọn bị bỏ qua | — |
+| Thanh toán | `PaymentServiceVnPayTests` (8), `PaymentServiceStripeTests` (16), `PaymentServiceMomoTests` (8) | IPN VNPay (GET & POST), webhook Stripe (chữ ký, thành công muộn sau thất bại, tự hoàn khi ghế mất); MoMo IPN (`ProcessMomoIpnAsync`: chữ ký hợp lệ/không hợp lệ trả mã 97, không tìm thấy giao dịch trả 1, sai số tiền trả 4 giữ `Pending`, callback trùng lặp xử lý idempotent, callback thất bại đổi trạng thái `Failed`, chưa cấu hình gateway trả 99) | `PaymentAdminService` |
+| Phim & Đánh giá hàng loạt | `AdminMoviesBulkEndpointsTests` (3), `AdminReviewsBulkEndpointsTests` (3), `ReviewServiceTests` (2) | Xóa hàng loạt phim (chặn nếu vượt trần 50, kiểm tra suất chiếu, xóa thành công và xóa một phần); xóa hàng loạt review (tính lại `AverageRating` của phim, xóa một phần, chặn vượt trần 50); tạo đánh giá cập nhật `AverageRating` của phim | Mâu thuẫn thang điểm 1–5/1–10 (RV-05) không được bảo vệ; CRUD phim đơn lẻ |
 | Giữ ghế hết hạn | `SeatExpirationServiceTests` (7) | Hết hạn booking, trả ghế, phát `hold.expired` | — |
 | Suất chiếu | `ShowtimeServiceCreateTests` (14), `ShowtimeServiceFixesTests` (19), `ShowtimeServiceAutoScheduleTests` (4), `ShowtimeLifecycleTests` (5), `ShowtimeValidatorsTests` (15), `AdminShowtimesBulkEndpointsTests` (6) | Tạo (sinh một `ShowtimeSeat` cho mỗi ghế hoạt động không phải lối đi), giá ghế theo hệ số, trùng giờ (kể cả suất liền kề sau buffer hợp lệ, bỏ qua suất đã hủy), giờ hoạt động, sửa bị chặn khi có booking `Pending`/giữ ghế/`Confirmed` (suất hết hạn không chặn), hủy suất (đưa job hoàn tiền thay vì gọi cổng, đánh dấu payment `Pending` thất bại), `ShowtimeRefundJob` thành công idempotent và khi cổng từ chối thì giữ ở hàng đợi thủ công, hàng loạt bỏ qua mục trùng/quá khứ, xếp lịch theo khoảng ngày, nhân bản lịch (chạy lần hai bị bỏ qua) | Race trùng giờ (không có ràng buộc DB); `ShowtimeRefundJob` lần retry cuối gửi email thủ công |
-| Thuật toán | `ShowtimeSchedulerTests` (7), `OperatingHoursTests` (6) | Xếp lịch theo độ hot, khung giờ, qua đêm | Gợi ý ghế (`SeatLayoutRules.Suggest`) và gợi ý combo (không thấy file test chuyên biệt theo tên file) |
-| Phòng/ghế | `RoomServiceSeatLayoutTests` (8), `AdminRoomsEndpointsTests` (8) | Sơ đồ ghế, ghế đôi, chặn đổi khi có suất sắp tới | — |
+| Thuật toán & giờ hoạt động | `ShowtimeSchedulerTests` (7), `OperatingHoursTests` (6) | Xếp lịch theo độ hot, khung giờ, qua đêm | Gợi ý combo (`ComboService.GetSuggestedCombosAsync`) |
 | Nhân viên/người dùng | `EmployeeServiceUserStatusTests` (2) | Khóa tài khoản thu hồi token | Đổi role, tạo nhân viên, `UserProfileService` |
 | Báo cáo/dashboard | `ReportServiceTests` (9), `DashboardServiceTests` (8) | Doanh thu ròng, top phim, hiệu suất; dashboard: % thay đổi doanh thu hôm nay so với hôm qua, booking `Pending` còn hạn giữ, tỉ lệ lấp đầy suất hôm nay, `days` của insights bị chặn trần 90, ranh giới nửa đêm giờ Việt Nam, thanh toán hoàn một phần chỉ tính phần giữ lại | — |
-| Đánh giá | `ReviewServiceTests` (2) | Tạo đánh giá cập nhật `AverageRating` của phim; đánh giá thứ hai tính lại trung bình toàn bộ | Mâu thuẫn thang điểm 1–5/1–10 (RV-05) không được bảo vệ |
 | Tiện ích | `CodeGeneratorTests` (5), `DateTimeUtilsTests` (9), `EmailTemplatesTests` (7), `EnumConvertersTests` (10) | Sinh mã, thời gian, template email, enum | — |
 | Cấu hình | `ProductionOptionsValidatorTests` (5) | Kiểm tra cấu hình bắt buộc ở Production | — |
 | Realtime | `SignalRShowtimeHubTests` (3, tích hợp) | Nhận sự kiện theo nhóm suất | Xác thực hub |
 
 ## 13.2 Vùng chưa có test
 
-* **MoMo**, `SendEmailJob`, `PaymentAdminService`, `ComboService` (kể cả gợi ý), `CatalogService`, `MovieService`, `SettingsService`, `GeminiAiAssistantService`, `AiToolExecutor`, `CloudinaryFileStorage`, `GoogleAuthService`.
+* Backend: `SendEmailJob`, `PaymentAdminService`, `ComboService` (kể cả gợi ý combo), `CatalogService`, `MovieService` (CRUD đơn lẻ - đã có test xóa hàng loạt), `GeminiAiAssistantService`, `AiToolExecutor`, `CloudinaryFileStorage`, `GoogleAuthService`, `ExpireLoyaltyPointsJob` (bản thân Hangfire job wrapper - logic lõi `LoyaltyWindowService.RecalculateAllAsync` đã có 5 test).
 * Frontend: không có unit test; `playwright.config.ts` có nhưng **thư mục `e2e` không tồn tại và không có file spec**; không có CI (`.github` không có trong repo).
 
 ## 13.3 Dùng test để xác nhận hành vi
 
-Những hành vi đã đối chiếu với test: giữ ghế đồng thời chỉ một bên thắng (`HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409`), giá ghế theo hệ số (`SeatPriceUsesSeatTypeMultiplier`), hoàn tiền làm tròn (`CancelBookingAsync_ReturnsRoundedRefundAmount`), hoàn điểm tỉ lệ (`CancelBookingAsync_PartialRefund_RevokesLoyaltyProportionallyToRefund`), thanh toán thành công muộn (`SuccessAfterPaymentMarkedFailed_StillConfirmsBooking`). Các tên test này lấy từ kết quả liệt kê khi đọc; chưa chạy bộ test (môi trường đọc code không có .NET SDK/DB).
+Những hành vi đã đối chiếu với test:
+1. Giữ ghế đồng thời chỉ một bên thắng (`HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409`).
+2. Giá ghế theo hệ số (`SeatPriceUsesSeatTypeMultiplier`).
+3. Hoàn tiền làm tròn (`CancelBookingAsync_ReturnsRoundedRefundAmount`).
+4. Thanh toán thành công muộn vẫn xác nhận booking (`SuccessAfterPaymentMarkedFailed_StillConfirmsBooking`).
+5. MoMo IPN xử lý chuẩn xác idempotency và chữ ký (`ProcessMomoIpnAsync_ValidSuccessfulCallback_MarksPaymentSuccessAndConfirmsBooking`, `ProcessMomoIpnAsync_InvalidSignature_Returns97AndDoesNotTouchPayment`).
+6. Quy tắc ghế trống kiểm tra theo 3 chế độ `SeatGapRuleMode` (`Strict`, `AllowEdge`, `Off`) và ghế đôi không bao giờ bị tách (`ValidateSelection_CouplePickedPartiallyEvenWhenGapRuleOff_ReturnsMessage`, `Suggest_CoupleSeatsAreNeverSplitAcrossWindow`).
+7. Giảm giá thành viên chỉ áp dụng trên vé ghế, không giảm trên combo (`HoldSeatsAsync_DiscountAppliesToTicketsOnly_NotCombo`).
+8. Cửa sổ trượt 12 tháng của điểm thành viên (`LoyaltyWindowTests`): Điểm quá 12 tháng tự động loại trừ khỏi phân hạng (`HoldSeatsAsync_PointsOlderThan12Months_DoNotCount`), cache profile cũ bị loại bỏ khi sổ cái thay đổi (`HoldSeatsAsync_StaleTierInProfileCache_IsIgnoredWhenLedgerHasNoPoints`), hoàn tiền một phần chỉ khấu trừ sổ cái của chính booking đó (`ReverseLoyaltyAsync_PartialRefund_OnlyTouchesOwnEntry`).
+9. Cài đặt hệ thống trong DB được kiểm tra biên nghiêm ngặt (`UpdateSettingsAsync_RefundPercentOutOfRange_ThrowsAndDoesNotPersist`, `UpdateSettingsAsync_NegativeCancelDeadlineHours_Throws`).
 
 ---
 
@@ -1841,11 +1908,11 @@ Những hành vi đã đối chiếu với test: giữ ghế đồng thời ch�
 | Suất chiếu | `Showtime` | Một buổi chiếu một phim ở một phòng; `Status`: `Scheduled`, `Cancelled`, `Completed` |
 | Ghế của suất | `ShowtimeSeat` | Ghế vật lý gắn với một suất, có trạng thái và giá chốt |
 | Còn trống / Đang giữ / Đã đặt | `Available` / `Held` / `Booked` | Trạng thái `ShowtimeSeatStatus` |
-| Giữ ghế | `Hold`, `HoldSeatsAsync`, `HeldUntil`, `HeldByUserId` | Giữ ghế có thời hạn (mặc định 15 phút) trước khi thanh toán |
+| Giữ ghế | `Hold`, `HoldSeatsAsync`, `HeldUntil`, `HeldByUserId` | Giữ ghế có thời hạn theo `HoldDurationMinutes` (mặc định 15 phút, cấu hình động 1–120 phút) trước khi thanh toán |
 | Đặt vé | `Booking` | Đơn gồm vé và combo; `Pending`, `Confirmed`, `Cancelled`, `Expired` |
 | Hết hạn | `Expired`, `ExpiresAt` | Booking `Pending` quá hạn giữ ghế |
 | Vé | `BookingTicket` | Vé từng ghế, có `QrCode`, `IsCheckedIn` |
-| Soát vé / Check-in | `CheckinAsync`, `CheckInOpenMinutes` | Quét QR tại rạp; mở trước giờ chiếu 30 phút |
+| Soát vé / Check-in | `CheckinAsync`, `CheckInOpenMinutes` | Quét QR tại rạp; mở trước giờ chiếu theo `CheckInOpenMinutes` (mặc định 30 phút, cấu hình động 0–240 phút) |
 | Kênh bán | `BookingChannel`: `Online`, `Counter` | Online qua web; quầy do nhân viên |
 | Quầy bán vé | `Counter`, `CounterHoldSeatsAsync`, `CounterCheckoutAsync` | Bán vé tại rạp, thu tiền mặt |
 | Thanh toán | `Payment`, `PaymentMethod`, `PaymentStatus` | `VNPay`, `Momo`, `Stripe`, `Cash` |
@@ -1859,20 +1926,26 @@ Những hành vi đã đối chiếu với test: giữ ghế đồng thời ch�
 | Tự động xếp lịch | `PreviewAutoScheduleAsync`, `ApplyAutoScheduleAsync`, `ShowtimeScheduler` | Đề xuất lịch theo độ hot |
 | Độ hot | `Heat` | 0–1, từ số vé 7 ngày và điểm đánh giá |
 | Nhân bản lịch | `CloneShowtimesAsync`, `ShiftDays` | Sao lịch sang khoảng ngày khác |
-| Hạng thành viên | `MembershipTier`, `TierId`, `DiscountPercent` | Quy định mức giảm giá |
+| Hạng thành viên | `MembershipTier`, `TierId`, `DiscountPercent` | Quy định mức giảm giá (chỉ áp dụng trên giá vé ghế, không giảm combo) |
 | Điểm tích lũy | `Points`, `PointsPerAmount`, `TotalSpent` | `floor(FinalAmount / PointsPerAmount)` |
+| Sổ cái điểm thưởng | `LoyaltyPointEntry` | Bảng ghi nhận từng lần cộng/hủy điểm gắn với `BookingId`, lưu `EarnedAt`, `PointsEarned`, `IsRevoked`, `RevokedAt` |
+| Cửa sổ điểm 12 tháng | `LoyaltyWindow`, `SumActiveAsync`, `ResolveTierAsync` | Cửa sổ trượt 12 tháng (365/366 ngày) để tính điểm tích lũy có hiệu lực và xác định hạng thành viên thời gian thực |
+| Quét hết hạn điểm | `ExpireLoyaltyPointsJob` | Job Hangfire chạy định kỳ hàng giờ (phút thứ 5) quét dọn điểm hết hạn và đồng bộ lại `CustomerProfile.Points` và `TierId` |
+| Chế độ kiểm tra ghế trống | `SeatGapRuleMode`: `Strict`, `AllowEdge`, `Off` | Chế độ kiểm soát ghế trống đơn lẻ liền kề khi khách chọn ghế |
+| Tìm kiếm khách hàng quầy | `CustomerSearch`, `GetCustomersAsync` | API dành cho nhân viên quầy tìm kiếm khách theo tên, email, SĐT (`GET /users/customers`) |
+| Thao tác hàng loạt | `BulkDelete`, `BulkUpdateStatus` | Xóa hàng loạt phim/diễn viên/đạo diễn/đánh giá; cập nhật hàng loạt trạng thái combo/người dùng |
 | Loại ghế / hệ số giá | `SeatType`, `PriceMultiplier` | Nhân với `BasePrice` |
 | Ghế đôi | `CoupleId` | Hai ghế liền phải chọn cùng nhau |
 | Lối đi | `IsAisle` | Ô trống trong lưới, không bán |
 | Loại màn hình | `ScreenType` | 2D/3D/IMAX... |
 | Độ tuổi | `AgeRating` (`P`, `K`...) | Phân loại độ tuổi phim |
 | Combo | `Combo`, `BookingCombo` | Bắp nước; giá chốt `UnitPrice` |
-| Cài đặt rạp | `CinemaSettings` | Một dòng `Id = 1` |
+| Cài đặt rạp | `CinemaSettings` | Một dòng `Id = 1`, lưu động `HoldDurationMinutes`, `CheckInOpenMinutes`, `SeatGapRuleMode`, v.v. |
 | Nhân viên | `Employee`, `Position` | Hồ sơ nhân viên và chức vụ |
 | Quyền | `Roles`, `Policies` (`AdminOnly`, `StaffOnly`, `CustomerOnly`, `EmployeeOnly`) | Phân quyền theo role |
 | Token làm mới | `RefreshToken` | Lưu hash, xoay vòng |
 | Socket token | `socket-token` | JWT ngắn hạn cho SignalR |
-| Việc nền | Hangfire job | `ReleaseExpiredSeatsJob`, `ShowtimeLifecycleJob`, `ShowtimeRefundJob`, `SendEmailJob` |
+| Việc nền | Hangfire job | `ReleaseExpiredSeatsJob`, `ShowtimeLifecycleJob`, `ShowtimeRefundJob`, `SendEmailJob`, `ExpireLoyaltyPointsJob` |
 | Cổng thanh toán | `IPaymentGateway` | `VnPayGateway`, `MomoGateway`, `StripeGateway` |
 | IPN | `ProcessVnPayIpnAsync`, `ProcessMomoIpnAsync` | Callback server-to-server của cổng |
 | Webhook | `ProcessStripeWebhookAsync` | Callback Stripe |
@@ -1883,19 +1956,19 @@ Những hành vi đã đối chiếu với test: giữ ghế đồng thời ch�
 
 # Phụ lục: thông tin tạo tài liệu
 
-**Ngày tạo:** 31/10/2026.
+**Ngày tạo:** 31/10/2026. **Cập nhật toàn diện:** 05/11/2026 (sau migration `AddLoyaltyTable` và `AddSeatGapRuleMode`).
 
 ## A.1 Thư mục/khu vực đã đọc
 
 | Khu vực | Mức độ đọc |
 |---|---|
-| `backend/Cinema.Domain` (29 entity, 9 enum) | Đọc toàn bộ |
+| `backend/Cinema.Domain` (30 entity, 10 enum) | Đọc toàn bộ |
 | `backend/Cinema.Shared` (hằng số, exception) | Đọc toàn bộ |
-| `backend/Cinema.Infrastructure/Persistence` (DbContext, Configurations, Seed, `InitialCreate.cs`) | Đọc toàn bộ cấu hình và migration; seed đọc theo cấu trúc, đếm dữ liệu mẫu |
+| `backend/Cinema.Infrastructure/Persistence` (DbContext, Configurations, Seed, 4 migration: `InitialCreate`, `PendingModelChanges`, `AddSeatGapRuleMode`, `AddLoyaltyTable`) | Đọc toàn bộ cấu hình và migration; seed đọc theo cấu trúc, đếm dữ liệu mẫu |
 | `backend/Cinema.Infrastructure` (Payments, Email, FileStorage, Realtime, Auth, DI) | Đọc toàn bộ |
 | `backend/Cinema.Application` (Services, Validators, BackgroundJobs, Options, Utils, DI) | Đọc toàn bộ service; validator trích quy tắc bằng script; `EmailTemplates` đọc hàm, tiêu đề, người nhận (không đọc từng dòng HTML) |
-| `backend/Cinema.Api` (Program.cs, Controllers, Filters, Middlewares, appsettings) | Đọc toàn bộ; ma trận endpoint sinh tự động từ attribute |
-| `backend/tests` | Đếm test, đọc tên test của các lớp chính; **chưa chạy test** |
+| `backend/Cinema.Api` (Program.cs, Controllers, Filters, Middlewares, appsettings) | Đọc toàn bộ; ma trận endpoint sinh tự động từ attribute (137 endpoint) |
+| `backend/tests` (40 file, 390 test) | Đọc tên test của toàn bộ các lớp, kiểm tra mã nguồn test mới |
 | `frontend/src` | Đọc router, guard, layout/sidebar, store, axios, query client, hook realtime, luồng đặt vé, kết quả thanh toán, quầy, soát vé, schema zod; liệt kê endpoint các file `api` |
 | `docker-compose.yml`, `render.yaml`, `.env.example`, `package.json`, `Dockerfile` | Đọc các phần liên quan cấu hình/triển khai |
 
@@ -1916,37 +1989,38 @@ Những hành vi đã đối chiếu với test: giữ ghế đồng thời ch�
 |---|---|---|
 | Xác thực, tài khoản | Cao | |
 | Phân quyền (ma trận endpoint) | Cao | Sinh từ attribute; policy `EmployeeOnly` không dùng |
-| Mô hình dữ liệu, state machine | Cao | Payment thủ công: chưa xác định cơ chế ghi nhận |
-| Phim, danh mục | Trung bình | `CatalogService` đọc lọc quy tắc, không đọc từng CRUD |
-| Phòng, sơ đồ ghế | Trung bình–cao | Giới hạn `Rows`/`Cols` chưa xác định |
+| Mô hình dữ liệu, state machine | Cao | Đã cập nhật 30 entity và 10 enum |
+| Phim, danh mục | Cao | Có các endpoint bulk delete mới |
+| Phòng, sơ đồ ghế | Cao | 3 chế độ `SeatGapRuleMode` và test bảo vệ |
 | Suất chiếu, xếp lịch | Cao | `Scheduler:*` chưa nối vào service |
-| Đặt vé, giữ ghế | Cao | |
-| Thanh toán (VNPay/MoMo/Stripe) | Trung bình–cao | Giao thức đọc ở mức tham số chính; MoMo không có test |
-| Hủy/hoàn tiền | Cao | |
-| Vé, soát vé, quầy | Cao | |
-| Combo | Trung bình–cao | Mẫu `DrinkRegex` chưa ghi |
-| Điểm, hạng thành viên | Cao | Không có đổi điểm/voucher |
-| Đánh giá | Cao | Mâu thuẫn thang điểm RV-05 |
+| Đặt vé, giữ ghế | Cao | Chiết khấu chỉ áp dụng cho vé ghế, không giảm combo |
+| Thanh toán (VNPay/MoMo/Stripe) | Cao | Đã có test unit cho cả 3 cổng (MoMo đã có 8 test) |
+| Hủy/hoàn tiền | Cao | Khấu trừ điểm sổ cái theo booking |
+| Vé, soát vé, quầy | Cao | Tìm kiếm khách hàng quầy và `CheckInOpenMinutes` động |
+| Combo | Cao | Bổ sung endpoint bulk status combo |
+| Điểm, hạng thành viên | Rất cao | Sổ cái `LoyaltyPointEntry`, cửa sổ trượt 12 tháng, 19 test |
+| Đánh giá | Cao | Bổ sung endpoint bulk delete review; mâu thuẫn RV-05 |
 | Báo cáo, dashboard | Trung bình | Dashboard dựa trên test |
-| Cài đặt rạp | Cao | |
-| Trợ lý AI | Trung bình | |
-| Người dùng, nhân viên | Cao | |
+| Cài đặt rạp | Rất cao | Quản lý động qua DB `CinemaSettings` và 11 test |
+| Trợ lý AI | Trung bình | AI tính hạng và điểm thời gian thực |
+| Người dùng, nhân viên | Cao | Bổ sung bulk status người dùng và bảo vệ admin cuối cùng |
 | Upload file | Cao | |
-| Job nền, realtime | Cao | |
+| Job nền, realtime | Cao | Thêm `ExpireLoyaltyPointsJob` (cron `5 * * * *`) |
 | Tích hợp ngoài, cấu hình | Cao | |
-| Frontend | Trung bình | Chỉ các luồng chính |
+| Frontend | Trung bình | Cập nhật các trang quản lý và luồng đặt vé |
 | Seed | Trung bình | Số lượng dữ liệu mẫu đếm từ mã khai báo |
-| Kiểm thử | Trung bình | Dựa trên tên test, chưa chạy |
+| Kiểm thử | Cao | 390 test (40 file) đối chiếu trực tiếp |
 
 ## A.4 Tổng hợp điểm lệch/rủi ro phát hiện từ code
 
 1. Thang điểm đánh giá: validator 1–10, DB và UI 1–5 (RV-05).
 2. Không có ràng buộc DB chống trùng giờ chiếu dù middleware nhắc tới (mục 3.2).
-3. `Scheduler:*` và `Scheduler:HeatLookbackDays` không có tác dụng (SHW-17); `Booking:PointsPerVnd` là cấu hình thừa.
+3. `Scheduler:*` và `Scheduler:HeatLookbackDays` không có tác dụng (SHW-17); `Booking:PointsPerVnd` và `Booking:HoldDurationMinutes` trong `appsettings.json` là cấu hình thừa/fallback cũ, vì hệ thống hiện lưu trực tiếp cấu hình giữ ghế (`HoldDurationMinutes`), check-in (`CheckInOpenMinutes`) và chế độ khoảng trống (`SeatGapRuleMode`) vào bảng `CinemaSettings` trong DB.
 4. Stripe webhook không kiểm tra chữ ký khi `Stripe:WebhookSecret` trống; log có thể in tám ký tự đầu của secret (mục 8.1).
 5. `/auth/admin-login` không kiểm tra role; `AdminOnlyRoute` không được dùng; `/bookings/*` mở cho mọi role đã đăng nhập; hub SignalR không `[Authorize]`.
 6. `CalculateRefundEligibilityAsync` public nhưng không controller nào dùng; không có endpoint xem trước hoàn tiền.
-7. Không có voucher, đổi điểm, ghi nhận hoàn tiền thủ công.
+7. Không có voucher, đổi điểm lấy quà hay trừ tiền trực tiếp; chỉ có chiết khấu theo hạng thành viên (chỉ giảm trên vé ghế, không giảm combo).
 8. Lệch giá trị giữa client và server: tên phòng ≤ 100 (client) so với ≤ 50 (server); đăng nhập client ≥ 6 ký tự so với server ≥ 8 khi đăng ký.
 9. Seeder ghi log mật khẩu tài khoản thử nghiệm ở mức Information và đặt lại mật khẩu admin về giá trị tài liệu.
 10. Chú thích cũ trong `Program.cs` và script `package.json` còn nhắc SQL Server/MediatR.
+11. Đã bổ sung kiểm thử cho MoMo (8 test trong `PaymentServiceMomoTests`), sơ đồ ghế (`SeatLayoutRulesTests` - 19 test), cài đặt động (`SettingsServiceTests` - 11 test), và sổ cái điểm thưởng (`LoyaltyWindowTests` - 19 test).
