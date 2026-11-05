@@ -659,6 +659,7 @@ namespace Cinema.Infrastructure.Migrations
                         .HasDefaultValue(10000m);
 
                     b.Property<string>("SeatGapRuleMode")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
@@ -1079,6 +1080,49 @@ namespace Cinema.Infrastructure.Migrations
                         {
                             LanguageId = 4,
                             Name = "Tiếng Nhật"
+                        });
+                });
+
+            modelBuilder.Entity("Cinema.Domain.Entities.LoyaltyPointEntry", b =>
+                {
+                    b.Property<int>("EntryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EntryId"));
+
+                    b.Property<int?>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EarnedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RevokedPoints")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EntryId");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_LoyaltyPointEntries_Booking")
+                        .HasFilter("\"BookingId\" IS NOT NULL");
+
+                    b.HasIndex("UserId", "EarnedAt")
+                        .HasDatabaseName("IX_LoyaltyPointEntries_User_EarnedAt");
+
+                    b.ToTable("LoyaltyPointEntries", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LoyaltyPointEntries_Points", "\"Points\" >= 0");
+
+                            t.HasCheckConstraint("CK_LoyaltyPointEntries_Revoked", "\"RevokedPoints\" >= 0 AND \"RevokedPoints\" <= \"Points\"");
                         });
                 });
 
@@ -4917,6 +4961,24 @@ namespace Cinema.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Position");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Cinema.Domain.Entities.LoyaltyPointEntry", b =>
+                {
+                    b.HasOne("Cinema.Domain.Entities.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cinema.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
 
                     b.Navigation("User");
                 });
