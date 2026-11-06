@@ -40,7 +40,7 @@ Sơ đồ có ba quan hệ. Quan hệ `Users` – `LoyaltyPointEntries` là mộ
 | `BookingId` | int | Có | FK | Tham chiếu `Bookings.BookingId`; NULL cho dòng điểm không gắn booking | Booking sinh ra điểm |
 | `Points` | int | Không | — | Không có giá trị mặc định; ràng buộc `Points >= 0` | Điểm tích được từ booking |
 | `RevokedPoints` | int | Không | — | 0; ràng buộc `0 <= RevokedPoints <= Points` | Điểm đã thu hồi do hoàn tiền |
-| `EarnedAt` | timestamp with time zone | Không | — | Không có giá trị mặc định; ứng dụng ghi `DateTime.UtcNow` hoặc thời điểm thanh toán (dữ liệu mẫu); kiểu cột được xác lập trong migration `InitialCreate` (`20261105145502_InitialCreate`) | Thời điểm tích điểm; mốc xét cửa sổ 12 tháng |
+| `EarnedAt` | timestamp with time zone | Không | — | Không có giá trị mặc định; ứng dụng ghi `DateTime.UtcNow` hoặc thời điểm thanh toán (dữ liệu mẫu); kiểu cột được xác lập trong migration `InitialCreate` (`20261106040650_InitialCreate`) | Thời điểm tích điểm; mốc xét cửa sổ 12 tháng |
 
 Về cách đọc bảng: `Points` và `RevokedPoints` là hai số không âm lưu riêng để sổ điểm giữ được lịch sử tích điểm; điểm hiệu lực của một dòng là hiệu của chúng. Cấu hình `LoyaltyPointEntryConfiguration.cs` chỉ khai báo giá trị mặc định 0 cho `RevokedPoints`.
 
@@ -62,7 +62,7 @@ Ngoài ra, khóa ngoại `CustomerProfiles.TierId` tới `MembershipTiers` dùng
 
 #### 4.3.11.4 Chỉ mục
 
-Chỉ mục duy nhất `UX_LoyaltyPointEntries_Booking` được khai báo trong `LoyaltyPointEntryConfiguration.cs` bằng `HasIndex(x => x.BookingId).IsUnique().HasFilter("\"BookingId\" IS NOT NULL").HasDatabaseName("UX_LoyaltyPointEntries_Booking")`. Chỉ mục này bảo đảm mỗi booking sinh tối đa một dòng điểm, nhờ đó việc cổng thanh toán gọi lại webhook không cộng điểm hai lần; điều kiện lọc cho phép nhiều dòng không gắn booking cùng tồn tại. Chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt` phục vụ truy vấn lọc theo khách hàng và theo mốc `EarnedAt` trong `LoyaltyWindow.SumActiveAsync` và `LoyaltyWindow.GetStandingsAsync`. Chỉ mục duy nhất trên `TierName` được sinh trong migration `InitialCreate` với tên `IX_MembershipTiers_TierName`. Cả hai chỉ mục của `LoyaltyPointEntries` đã được tạo hoàn chỉnh ngay trong migration duy nhất `20261105145502_InitialCreate`.
+Chỉ mục duy nhất `UX_LoyaltyPointEntries_Booking` được khai báo trong `LoyaltyPointEntryConfiguration.cs` bằng `HasIndex(x => x.BookingId).IsUnique().HasFilter("\"BookingId\" IS NOT NULL").HasDatabaseName("UX_LoyaltyPointEntries_Booking")`. Chỉ mục này bảo đảm mỗi booking sinh tối đa một dòng điểm, nhờ đó việc cổng thanh toán gọi lại webhook không cộng điểm hai lần; điều kiện lọc cho phép nhiều dòng không gắn booking cùng tồn tại. Chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt` phục vụ truy vấn lọc theo khách hàng và theo mốc `EarnedAt` trong `LoyaltyWindow.SumActiveAsync` và `LoyaltyWindow.GetStandingsAsync`. Chỉ mục duy nhất trên `TierName` được sinh trong migration `InitialCreate` với tên `IX_MembershipTiers_TierName`. Cả hai chỉ mục của `LoyaltyPointEntries` đã được tạo hoàn chỉnh ngay trong migration duy nhất `20261106040650_InitialCreate`.
 
 *Bảng 4.74. Chỉ mục module Thành viên*
 
@@ -78,7 +78,7 @@ Module Cấu hình rạp chỉ có một thực thể là `CinemaSettings` (bả
 
 #### 4.3.12.1 Sơ đồ ERD của module
 
-Hình 4.35 chỉ có một thực thể `CinemaSettings` với đủ 17 thuộc tính của Bảng 4.75 và không có quan hệ nào với thực thể khác. Khóa chính `Id` luôn bằng 1 (xem Mục 4.3.12.3).
+Hình 4.35 chỉ có một thực thể `CinemaSettings` với đủ 28 thuộc tính của Bảng 4.75 (bao gồm 16 thuộc tính cơ sở và 12 thuộc tính tham số vận hành mở rộng) và không có quan hệ nào với thực thể khác. Khóa chính `Id` luôn bằng 1 (xem Mục 4.3.12.3).
 
 ![Hình 4.35. ERD module Cấu hình rạp](hinh/4.35.png)
 
@@ -109,8 +109,20 @@ Bảng `CinemaSettings` là bảng đơn bản ghi: toàn hệ thống chỉ có
 | `HoldDurationMinutes` | int | Không | — | 15 (`CinemaSettings.DefaultHoldDurationMinutes`; chỉ ở C#; dòng dữ liệu tĩnh có giá trị 15) | Thời gian giữ ghế tính bằng phút |
 | `CheckInOpenMinutes` | int | Không | — | 30 (`CinemaSettings.DefaultCheckInOpenMinutes`; chỉ ở C#; dòng dữ liệu tĩnh có giá trị 30) | Số phút trước giờ chiếu thì bắt đầu cho soát vé |
 | `SeatGapRuleMode` | varchar(20) | Không | — | `Strict` (`SeatGapRuleMode.Strict`; mặc định ở cả cột CSDL và C#) | Chế độ luật ghế lẻ (`Strict`, `AllowEdge`, `Off`) |
+| `RoomBufferMinutes` | int | Không | — | 15 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 15) | Thời gian dọn phòng/giãn cách (phút) cộng vào `EndTime = StartTime + DurationMinutes + RoomBufferMinutes` |
+| `MaxSeatsPerBooking` | int | Không | — | 10 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 10) | Số lượng ghế tối đa cho phép đặt trong một giao dịch (áp dụng cho cả luồng Online và Quầy) |
+| `MaxComboQuantity` | int | Không | — | 10 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 10) | Số lượng tối đa cho mỗi loại combo trong một giao dịch đặt vé |
+| `LoyaltyWindowMonths` | int | Không | — | 12 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 12) | Cửa sổ trượt (tháng) dùng tính tổng điểm hiệu lực và xác định hạng thành viên của khách hàng |
+| `MovieEndGraceDays` | int | Không | — | 1 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 1) | Số ngày đệm sau suất chiếu cuối cùng trước khi `ShowtimeLifecycleJob` tự động chuyển phim sang `Ended` |
+| `ShowtimeLookaheadDays` | int | Không | — | 7 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 7) | Số ngày suất chiếu hiển thị tối đa trong tương lai cho khách hàng tra cứu và trợ lý AI trả lời |
+| `SchedulerStepMinutes` | int | Không | — | 5 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 5) | Bước nhảy thời gian (phút) khi thuật toán tự động xếp lịch tìm kiếm khung giờ bắt đầu suất chiếu |
+| `SchedulerMinSameMovieGapMinutes` | int | Không | — | 60 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 60) | Giãn cách tối thiểu (phút) giữa 2 suất chiếu của cùng một phim khi tự động xếp lịch |
+| `SchedulerHeatLookbackDays` | int | Không | — | 7 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 7) | Số ngày tra cứu lịch sử doanh số vé phục vụ đánh giá độ hot của phim |
+| `SchedulerHeatSalesWeight` | double precision | Không | — | 0.7 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 0.7) | Trọng số của thành phần vé đã bán trong công thức tính độ hot (`Heat`) |
+| `SchedulerHeatRatingWeight` | double precision | Không | — | 0.3 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 0.3) | Trọng số của điểm đánh giá người xem trong công thức tính độ hot (`Heat`) |
+| `SchedulerMaxRating` | double precision | Không | — | 5.0 (mặc định ở cả cột CSDL và C#; dòng seed có giá trị 5.0) | Mẫu số chuẩn hóa điểm đánh giá (thang điểm 5) trong công thức tính độ hot |
 
-Cách các tham số được dùng trong code: số điểm tích được là `⌊FinalAmount / PointsPerAmount⌋`; điều kiện hoàn tiền trong `BookingService.CalculateRefundEligibility` yêu cầu `CancelRefundPercent > 0` và thời điểm hủy không muộn hơn `StartTime − CancelDeadlineHours` giờ, khi đó số tiền hoàn là `Amount × CancelRefundPercent / 100` làm tròn đến đơn vị đồng; thời hạn giữ ghế là `HoldDurationMinutes` phút nhưng không vượt quá giờ bắt đầu suất chiếu; còn `SeatGapRuleMode` quyết định luật chặn ghế lẻ khi chọn ghế (xem Mục 4.6.1).
+Cách các tham số được dùng trong code: số điểm tích được là `⌊FinalAmount / PointsPerAmount⌋`; điều kiện hoàn tiền trong `BookingService.CalculateRefundEligibility` yêu cầu `CancelRefundPercent > 0` và thời điểm hủy không muộn hơn `StartTime − CancelDeadlineHours` giờ, khi đó số tiền hoàn là `Amount × CancelRefundPercent / 100` làm tròn đến đơn vị đồng; thời hạn giữ ghế là `HoldDurationMinutes` phút nhưng không vượt quá giờ bắt đầu suất chiếu; `MaxSeatsPerBooking` và `MaxComboQuantity` được kiểm tra tập trung trong `BookingService.EnsureWithinBookingLimitsAsync`; `LoyaltyWindowMonths` xác định mốc cắt sổ điểm trong `LoyaltyWindow`; `RoomBufferMinutes` cộng vào thời lượng phim để xác định `EndTime` chống xung đột phòng chiếu; `MovieEndGraceDays` điều khiển việc tự động đóng trạng thái phim trong tác vụ nền `ShowtimeLifecycleJob`; `ShowtimeLookaheadDays` giới hạn khoảng ngày tra cứu lịch chiếu công khai; nhóm tham số `Scheduler*` cấu hình các trọng số và bước nhảy cho thuật toán lập lịch tự động `ShowtimeScheduler`; còn `SeatGapRuleMode` quyết định luật chặn ghế lẻ khi chọn ghế (xem Mục 4.6.1).
 
 #### 4.3.12.3 Ràng buộc toàn vẹn
 
@@ -225,7 +237,7 @@ Chuyển `NowShowing` sang `Ended` có hai cơ chế. Thứ nhất, `ShowtimeSer
 
 Hệ thống dùng EF Core Code First; các migration nằm trong `backend/Cinema.Infrastructure/Migrations`. Hiện tại, toàn bộ lược đồ cơ sở dữ liệu đã được tái cấu trúc và khởi tạo hoàn chỉnh từ đầu trong một migration duy nhất:
 
-- `InitialCreate` (`20261105145502_InitialCreate.cs`, ngày 05/11/2026): khởi tạo toàn bộ cấu trúc cơ sở dữ liệu gồm 30 bảng thực thể (bao gồm đầy đủ bảng sổ điểm `LoyaltyPointEntries`, cột `SeatGapRuleMode` và các tham số thời gian trong `CinemaSettings`), 36 khóa ngoại bảo đảm toàn vẹn tham chiếu, 53 chỉ mục (trong đó có chỉ mục duy nhất có lọc `UX_LoyaltyPointEntries_Booking` trên `BookingId IS NOT NULL` và chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt`), 29 ràng buộc kiểm tra CHECK cho các trường dữ liệu và 8 kiểu liệt kê; đồng thời chèn dữ liệu tĩnh ban đầu (`Roles`, `Positions`, `AgeRatings`, `ScreenTypes`, `SeatTypes`, `Languages`, `Genres`, `MembershipTiers`, và bản ghi cấu hình rạp duy nhất `CinemaSettings` với `Id = 1`, `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `PointsPerAmount = 10000`, `SeatGapRuleMode = "Strict"`). Cấu hình này khớp hoàn toàn với `AppDbContextModelSnapshot.cs`.
+- `InitialCreate` (`20261106040650_InitialCreate.cs`, ngày 06/11/2026): khởi tạo toàn bộ cấu trúc cơ sở dữ liệu gồm 30 bảng thực thể (bao gồm đầy đủ bảng sổ điểm `LoyaltyPointEntries`, toàn bộ 28 cột của `CinemaSettings` với 12 tham số vận hành mở rộng, cột `SeatGapRuleMode` và các tham số thời gian), 36 khóa ngoại bảo đảm toàn vẹn tham chiếu, 48 chỉ mục (trong đó có chỉ mục duy nhất có lọc `UX_LoyaltyPointEntries_Booking` trên `BookingId IS NOT NULL` và chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt`), 31 ràng buộc kiểm tra CHECK cho các trường dữ liệu (bao gồm `CK_Reviews_Rating` giới hạn thang điểm 1–5, `CK_CinemaSettings_Id`, `CK_Combos_Price`, `CK_LoyaltyPointEntries_Points`, `CK_LoyaltyPointEntries_Revoked`, check constraint cho 8/10 enum); đồng thời chèn dữ liệu tĩnh ban đầu (`Roles`, `Positions`, `AgeRatings`, `ScreenTypes`, `SeatTypes`, `Languages`, `Genres`, `MembershipTiers`, và bản ghi cấu hình rạp duy nhất `CinemaSettings` với `Id = 1`, `PointsPerAmount = 10000`, `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `StopSellingMinutesBefore = 0`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `SeatGapRuleMode = "Strict"`, cùng các giá trị mặc định cho 12 tham số vận hành mở rộng: `RoomBufferMinutes = 15`, `MaxSeatsPerBooking = 10`, `MaxComboQuantity = 10`, `LoyaltyWindowMonths = 12`, `MovieEndGraceDays = 1`, `ShowtimeLookaheadDays = 7`, `SchedulerStepMinutes = 5`, `SchedulerMinSameMovieGapMinutes = 60`, `SchedulerHeatLookbackDays = 7`, `SchedulerHeatSalesWeight = 0.7`, `SchedulerHeatRatingWeight = 0.3`, `SchedulerMaxRating = 5.0`). Cấu hình này khớp hoàn toàn với `AppDbContextModelSnapshot.cs`.
 
 Về việc nạp dữ liệu sổ điểm (backfill) cho các đơn hàng cũ trước khi có bảng sổ điểm: Hệ thống thực hiện nạp dữ liệu khởi tạo mẫu trong `DbInitializer.SeedTestAccountsAsync` (tạo các dòng điểm khởi tạo theo từng tài khoản mẫu). Đối với dữ liệu lịch sử sản xuất, câu lệnh SQL nạp bù được thực hiện an toàn từ các booking đã xác nhận (`INSERT INTO "LoyaltyPointEntries" ("UserId", "BookingId", "Points", "RevokedPoints", "EarnedAt") SELECT "UserId", "BookingId", FLOOR("FinalAmount" / 10000), 0, "CreatedAt" FROM "Bookings" WHERE "Status" = 'Confirmed' AND "UserId" IS NOT NULL;`), hoặc tự động đồng bộ qua phương thức `LoyaltyExpiryService.RecalculateAllAsync`. Do `RecalculateAllAsync` đặt `CustomerProfile.Points` bằng tổng điểm trong sổ điểm của khách hàng trong cửa sổ 12 tháng gần nhất, việc nạp trước sổ điểm bảo đảm quyền lợi điểm tích lũy và hạng thành viên của khách hàng cũ khi tác vụ nền `ExpireLoyaltyPointsJob` vận hành định kỳ.
 
@@ -246,7 +258,7 @@ Bốn hạng thành viên được seed như sau.
 | 3 | Vàng | 2000 | 10 |
 | 4 | Kim Cương | 5000 | 15 |
 
-Dòng `CinemaSettings` duy nhất (`Id = 1`) có `Name = "Cinema"`, `Address = "Đang cập nhật"`, giờ mở cửa 08:00, giờ đóng cửa 23:59 và `PointsPerAmount = 10000`; các tham số còn lại lấy giá trị mặc định của lớp (xem Bảng 4.75), tức `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `StopSellingMinutesBefore = 0`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `SeatGapRuleMode = Strict`.
+Dòng `CinemaSettings` duy nhất (`Id = 1`) có `Name = "Cinema"`, `Address = "Đang cập nhật"`, giờ mở cửa 08:00, giờ đóng cửa 23:59 và `PointsPerAmount = 10000`; các tham số còn lại lấy giá trị mặc định được seed trực tiếp trong migration (xem Bảng 4.75), tức `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `StopSellingMinutesBefore = 0`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `SeatGapRuleMode = Strict`, `RoomBufferMinutes = 15`, `MaxSeatsPerBooking = 10`, `MaxComboQuantity = 10`, `LoyaltyWindowMonths = 12`, `MovieEndGraceDays = 1`, `ShowtimeLookaheadDays = 7`, `SchedulerStepMinutes = 5`, `SchedulerMinSameMovieGapMinutes = 60`, `SchedulerHeatLookbackDays = 7`, `SchedulerHeatSalesWeight = 0.7`, `SchedulerHeatRatingWeight = 0.3`, `SchedulerMaxRating = 5.0`.
 
 Dữ liệu về phim và phòng gồm 15 đạo diễn, 38 diễn viên, 19 phim (8 phim `NowShowing`, 10 phim `Ended`, 1 phim `ComingSoon`), 51 dòng liên kết phim – thể loại và 44 dòng diễn viên của phim. Có 4 phòng chiếu với tổng 200 ghế: `Cinema Hall 01` và `Cinema Hall 02` (màn hình 2D, 5 hàng × 10 cột, 50 ghế mỗi phòng), `3D Experience Hall 03` (màn hình 3D, 4 hàng × 10 cột, 40 ghế) và `IMAX Grand Theatre 04` (màn hình IMAX, 6 hàng × 10 cột, 60 ghế). Loại ghế được gán theo hàng, hàng cuối của mỗi phòng là ghế đôi (`Couple`); ghế đôi cùng cặp dùng chung một giá trị `CoupleId` cố định sinh theo phòng, hàng và số cặp.
 
@@ -265,8 +277,8 @@ Thứ tư, nếu `seedDemoScenarios` bật và chưa có booking nào có mã b�
 <!-- GHI CHÚ ĐỐI CHIẾU -->
 <!--
 (a) Các điểm đã hoàn thiện và đối chiếu
-1. Mục 4.3.11.2, Bảng 4.72: Kiểu cột thực tế của `LoyaltyPointEntries.EarnedAt` là `timestamp with time zone`, đã đối chiếu chính xác theo migration `20261105145502_InitialCreate.cs`.
-2. Mục 4.3.15: Migration duy nhất `InitialCreate` (mã `20261105145502`) đã được đối chiếu chi tiết trong mã nguồn.
+1. Mục 4.3.11.2, Bảng 4.72: Kiểu cột thực tế của `LoyaltyPointEntries.EarnedAt` là `timestamp with time zone`, đã đối chiếu chính xác theo migration `20261106040650_InitialCreate.cs`.
+2. Mục 4.3.15: Migration duy nhất `InitialCreate` (mã `20261106040650`) đã được đối chiếu chi tiết trong mã nguồn.
 3. Mục 4.3.15: Việc nạp sổ điểm lịch sử đã làm rõ phương án nạp qua SQL / `DbInitializer` / `RecalculateAllAsync`.
 4. Hình 4.35–4.40: Cần chèn ảnh kết xuất từ sơ đồ máy trạng thái vào thư mục `hinh/` khi hoàn thiện bản in Word.
 
@@ -281,7 +293,7 @@ Thứ tư, nếu `seedDemoScenarios` bật và chưa có booking nào có mã b�
 8. 4.3.14.2: đã xác minh Booked→Available xảy ra trong `CancelBookingAsync` qua `ReleaseConfirmedBookingSeatsAsync`; khi hủy suất, ghế Booked không đổi trạng thái (chỉ nhả ghế Held).
 9. 4.3.14.3: đã xác minh thanh toán tiền mặt tại quầy tạo payment trực tiếp ở trạng thái Success (không qua Pending). Code còn cho phép Failed→Success khi cổng báo thành công muộn (`IsAlreadyProcessed`), outline không nêu.
 10. 4.3.14.5: đã xác minh không có cơ chế tự động ComingSoon→NowShowing; code còn có NowShowing→Ended tự động và xóa mềm phim thành Ended khi phim đã có suất, outline chưa nêu cụ thể.
-11. 4.3.15: Hệ thống có 1 migration duy nhất `20261105145502_InitialCreate`. Toàn bộ 30 bảng gồm `LoyaltyPointEntries` và cột `SeatGapRuleMode` đã hoàn chỉnh trong snapshot và migration duy nhất này.
+11. 4.3.15: Hệ thống có 1 migration duy nhất `20261106040650_InitialCreate`. Toàn bộ 30 bảng gồm `LoyaltyPointEntries` và cột `SeatGapRuleMode` đã hoàn chỉnh trong snapshot và migration duy nhất này.
 12. 4.3.16: comment trong `BookingScenarioSeeder.Apply` nói giảm giá "giống CalculateDiscountAmountAsync", nhưng seeder lấy hạng từ `profile.TierId` (giá trị đồng bộ), còn `CalculateDiscountAmountAsync` tính hạng từ sổ điểm trong cửa sổ 12 tháng. Với dữ liệu mẫu hai cách có thể cho kết quả khác nhau.
 13. Hình 4.58 (trong bản vá `ma-nguon-so-do-mermaid-loyalty.md`, ngoài phạm vi phần này): nút thu hồi ghi `⌊RefundedAmount / PointsPerAmount⌋`; code tính số tiền thu hồi theo tỷ lệ `FinalAmount × RefundAmount / payment.Amount` (khi hủy suất dùng toàn bộ `FinalAmount`) rồi mới chia cho `PointsPerAmount`. Chưa sửa vì ngoài phạm vi.
 -->

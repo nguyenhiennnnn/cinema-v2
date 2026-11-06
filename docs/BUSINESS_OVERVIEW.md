@@ -68,7 +68,7 @@ Actor: khách vãng lai (chưa đăng nhập), khách hàng (`Customer`), nhân 
 | Lớp | Công nghệ (phiên bản theo `csproj`/`package.json`) | Vai trò |
 |---|---|---|
 | Backend | .NET `net10.0`, ASP.NET Core | Web API |
-| ORM / DB | EF Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3; PostgreSQL 16 (`docker-compose.yml`: `postgres:16-alpine`) | Lưu dữ liệu, migration (1 migration duy nhất: `20261105145502_InitialCreate`) |
+| ORM / DB | EF Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3; PostgreSQL 16 (`docker-compose.yml`: `postgres:16-alpine`) | Lưu dữ liệu, migration (1 migration duy nhất: `20261106040650_InitialCreate`) |
 | Validation | FluentValidation 12.1.1 | Kiểm tra request (filter `ValidationActionFilter`) |
 | Mapping | Mapster 10.0.11 | DTO mapping (`MappingConfig`) |
 | Auth | `Microsoft.AspNetCore.Authentication.JwtBearer`, `System.IdentityModel.Tokens.Jwt`, `PasswordHasher<User>` (Identity.Core), `Google.Apis.Auth` | JWT, hash mật khẩu, đăng nhập Google |
@@ -81,7 +81,7 @@ Actor: khách vãng lai (chưa đăng nhập), khách hàng (`Customer`), nhân 
 | Log | Serilog.AspNetCore | Ghi log |
 | API doc | Swashbuckle (chỉ hiển thị khi `ASPNETCORE_ENVIRONMENT=Development`, theo comment trong `Program.cs`) | Swagger 2 doc: `client`, `admin` |
 | Frontend | React 19, `react-router` 7, TanStack Query 5, TanStack Table, Zustand 5, axios, react-hook-form + zod 3, `@microsoft/signalr` 10, recharts, tailwindcss 4, vite 8, `jsqr` (đọc QR bằng camera) | SPA |
-| Test | xUnit (`Cinema.UnitTests`, `Cinema.IntegrationTests` - 390 test), Playwright (đã cấu hình nhưng chưa có spec, xem [13](#s13)) | Kiểm thử |
+| Test | xUnit (`Cinema.UnitTests`, `Cinema.IntegrationTests` - 448 test qua 43 file), Playwright (đã cấu hình nhưng chưa có spec, xem [13](#s13)) | Kiểm thử |
 | Triển khai | Docker (`backend/Dockerfile`, `frontend/Dockerfile`), `docker-compose.yml`, `render.yaml` (Render: web service Docker + static site + PostgreSQL) | Chạy dev/prod |
 
 Lưu ý: comment trong `Program.cs` còn nhắc SQL Server và MediatR, nhưng code thực tế dùng PostgreSQL (`UsePostgreSqlStorage` cho Hangfire) và không dùng MediatR; một số script trong `package.json` (`docker:logs:db`, `docker:exec:db`) vẫn trỏ về `sqlserver`. Đây là phần còn sót, không phản ánh runtime hiện tại.
@@ -193,9 +193,10 @@ Không có `FallbackPolicy`: endpoint không gắn `[Authorize]` là **công kha
 
 Quan sát khi đọc code:
 
-* `POST /auth/login` chỉ dành cho `Customer`; role khác bị `403` với thông báo "Vui lòng đăng nhập qua cổng quản trị". `POST /auth/admin-login` gọi `LoginAsync(adminOnly: true)` và **không kiểm tra role là Admin/Employee**: một `Customer` đăng nhập qua endpoint này vẫn nhận token (quyền thật vẫn bị policy chặn ở từng endpoint; web admin tự chuyển hướng về trang chủ nếu role không phải Admin/Employee, xem `AdminProtectedRoute`).
-* Đăng nhập (mọi cổng) yêu cầu `IsActive` và `EmailConfirmed`; refresh cũng kiểm tra hai điều kiện này.
-* Khóa tài khoản (`PUT /admin/users/{id}/status` với `isActive=false`) thu hồi toàn bộ refresh token của user (`EmployeeService.UpdateUserStatusAsync`; test `EmployeeServiceUserStatusTests`).
+* `POST /auth/login` chỉ dành cho `Customer`; role khác bị `403` với thông báo "Vui lòng đăng nhập qua cổng quản trị". `POST /auth/admin-login` áp dụng cơ chế allow-list nghiêm ngặt: chỉ chấp nhận tài khoản có vai trò `Admin` hoặc `Employee` (nếu là `Customer` hoặc vai trò khác sẽ bị từ chối `403` với thông báo `Forbidden_CustomerCannotUseAdminPortal`). Đồng thời, đối với vai trò `Employee`, hệ thống kiểm tra trạng thái hồ sơ nhân viên (`user.Employee is { IsActive: true }`), nếu hồ sơ nhân viên bị vô hiệu hóa sẽ lập tức chặn truy cập với `403 Forbidden_AccountLocked`.
+* Đăng nhập (mọi cổng) yêu cầu `User.IsActive` và `EmailConfirmed`; refresh token cũng kiểm tra nghiêm ngặt hai điều kiện này.
+* Quản lý trạng thái và thu hồi token tập trung: Thư viện mở rộng `RefreshTokenRevocation` (`Revoke()`, `RevokeActiveTokensAsync()`) chuẩn hóa việc thu hồi toàn bộ refresh token đang hoạt động khi khóa tài khoản đơn lẻ hoặc hàng loạt (`EmployeeService.UpdateUserStatusAsync`, `BulkUpdateUserStatusAsync`), khi cập nhật vai trò người dùng (`UpdateUserRoleAsync`), khi vô hiệu hóa hồ sơ nhân viên (`UpdateEmployeeAsync`), cũng như khi đổi hoặc đặt lại mật khẩu (`AuthService`).
+* Bảo vệ an toàn tài khoản và quản trị viên: `EmployeeService` ngăn chặn người dùng tự khóa tài khoản của chính mình (`Rule_CannotLockSelf`), tự đổi vai trò của chính mình (`Rule_CannotChangeOwnRole`), tự vô hiệu hóa hồ sơ nhân viên của chính mình (`Rule_CannotDeactivateSelfEmployee`), đồng thời bảo vệ không cho phép khóa hoặc hạ vai trò của Quản trị viên đang hoạt động cuối cùng trong hệ thống (`Rule_CannotLockLastAdmin`, `Rule_CannotDemoteLastAdmin` dựa trên `CountOtherActiveAdminsAsync`).
 * Rate limit `booking-hold` chia theo `User.Identity.Name` rồi mới tới IP; JWT không có claim `name` nên có khả năng thực tế chia theo IP. **Chưa kiểm chứng khi chạy** (suy luận từ `Program.cs` và `JwtTokenService`).
 * Hangfire Dashboard ở `/admin/hangfire` (không map khi môi trường `Testing`), dùng `HangfireAdminAuthorizationFilter`: môi trường `Development` cho **mọi người** truy cập; môi trường khác yêu cầu `User.Identity.IsAuthenticated` và role `Admin`. Việc trình duyệt gửi JWT khi điều hướng trực tiếp tới URL này **chưa xác định được từ code** (không có cookie auth trong `Program.cs`). Xem [07](#s07).
 * `POST /ai/chat` công khai nhưng đọc claim `AppClaimTypes.UserId` nếu có token để cá nhân hóa (`AiController.Chat`).
@@ -531,7 +532,7 @@ Lưu ý: `GET /admin/movies`, `GET /admin/showtimes`, `GET /admin/showtimes/cale
 
 # 3. Mô hình dữ liệu
 
-Nguồn: `backend/Cinema.Domain/Entities/*.cs`, `backend/Cinema.Domain/Enums/*.cs`, `backend/Cinema.Infrastructure/Persistence/Configurations/*.cs`, migration trong `backend/Cinema.Infrastructure/Migrations` (`20261105145502_InitialCreate.cs`). Enum trạng thái được lưu dạng **chuỗi** (`HasConversion<string>()`) kèm check constraint `IN (...)` cho 8/10 enum.
+Nguồn: `backend/Cinema.Domain/Entities/*.cs`, `backend/Cinema.Domain/Enums/*.cs`, `backend/Cinema.Infrastructure/Persistence/Configurations/*.cs`, migration trong `backend/Cinema.Infrastructure/Migrations` (`20261106040650_InitialCreate.cs`). Enum trạng thái được lưu dạng **chuỗi** (`HasConversion<string>()`) kèm check constraint `IN (...)` cho 8/10 enum.
 
 ## 3.1 Sơ đồ ERD
 
@@ -620,7 +621,7 @@ erDiagram
 ### Ghi chú về ràng buộc và migration
 
 * **Lịch sử migration**: Hiện hệ thống đã gom gọn toàn bộ lược đồ CSDL từ đầu trong 1 migration duy nhất trong `backend/Cinema.Infrastructure/Migrations`:
-  1. `20261105145502_InitialCreate`: Khởi tạo hoàn chỉnh toàn bộ 30 thực thể/bảng dữ liệu (bao gồm cả `LoyaltyPointEntries`, cột `SeatGapRuleMode` kiểu `varchar(20)` mặc định `"Strict"` và các tham số thời gian trong `CinemaSettings`), các bảng nối, 53 index/unique index (bao gồm `UX_LoyaltyPointEntries_Booking` có điều kiện lọc `BookingId IS NOT NULL`, `IX_LoyaltyPointEntries_User_EarnedAt`), 36 khóa ngoại và 29 ràng buộc check constraint (`CK_LoyaltyPointEntries_Points`, `CK_LoyaltyPointEntries_Revoked`, check constraint cho 8/10 enum); đồng thời seed dữ liệu tĩnh cho 9 danh mục.
+  1. `20261106040650_InitialCreate`: Khởi tạo hoàn chỉnh toàn bộ 30 thực thể/bảng dữ liệu (bao gồm cả `LoyaltyPointEntries`, toàn bộ 28 cột của `CinemaSettings` với 12 tham số vận hành mở rộng, cột `SeatGapRuleMode` kiểu `varchar(20)` mặc định `"Strict"`), các bảng nối, 48 index/unique index (bao gồm `UX_LoyaltyPointEntries_Booking` có điều kiện lọc `BookingId IS NOT NULL`, `IX_LoyaltyPointEntries_User_EarnedAt`), 36 khóa ngoại và 31 ràng buộc check constraint (bao gồm `CK_Reviews_Rating` giới hạn thang điểm 1–5, `CK_CinemaSettings_Id`, `CK_Combos_Price`, `CK_LoyaltyPointEntries_Points`, `CK_LoyaltyPointEntries_Revoked`, check constraint cho 8/10 enum); đồng thời seed dữ liệu tĩnh cho 9 danh mục và bản ghi cài đặt hệ thống mặc định (`Id = 1`).
 * **Ràng buộc CHECK cho Enum**: 8 trong 10 enum có check constraint trong DB; riêng `SeatGapRuleMode` và `VerificationTokenPurpose` không có check constraint ở DB, tính hợp lệ do tầng ứng dụng đảm nhiệm.
 * **Không có exclusion constraint chống trùng giờ chiếu** trong migration. `ExceptionHandlingMiddleware` có xử lý lỗi PostgreSQL `23P01` với tên `EX_Showtimes_Room_NoOverlap`, nhưng tên này chỉ xuất hiện trong middleware (tìm toàn repo). Chống trùng giờ hiện chỉ do `ShowtimeService.EnsureNoOverlapAsync` ở tầng ứng dụng, nên về lý thuyết có thể xảy ra race giữa hai yêu cầu đồng thời (chưa có test cho tình huống này).
 * **Chống giữ trùng ghế** dựa vào câu lệnh cập nhật có điều kiện (`ExecuteUpdate` chuyển `Available → Held`, kiểm tra số dòng bị ảnh hưởng) trong `BookingService.CreateHoldBookingAsync`; unique `UQ_Showtime_Seat` chỉ đảm bảo mỗi ghế có một dòng cho mỗi suất; có integration test chạy song song (`HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409`).
@@ -1676,8 +1677,8 @@ Nguồn: `Cinema.Application/Options/*.cs`, `Cinema.Api/appsettings.json`, `apps
 | `Booking:HoldDurationMinutes` | Thời gian giữ ghế mặc định nền (fallback) | 15 | BK-07, BK-13 (vận hành đọc từ `CinemaSettings`) |
 | `Booking:RoomBufferMinutes` | Buffer dọn phòng cộng vào `EndTime` | 15 | SHW-05 |
 | `Booking:CheckInOpenMinutes` | Mở check-in trước giờ chiếu mặc định (fallback) | 30 | TK-05 (vận hành đọc từ `CinemaSettings`) |
-| `Booking:MaxSeatsPerBooking` | Số ghế tối đa mỗi booking | 10 (chỉ trong class `BookingOptions`) | BK-03 |
-| `Booking:MaxComboQuantity` | Số lượng tối đa mỗi combo | 10 (chỉ trong class) | BK-09 |
+| `Booking:MaxSeatsPerBooking` | Số ghế tối đa mỗi booking (fallback mặc định nền) | 10 | BK-03 (vận hành đọc từ `CinemaSettings`) |
+| `Booking:MaxComboQuantity` | Số lượng tối đa mỗi combo (fallback mặc định nền) | 10 | BK-09 (vận hành đọc từ `CinemaSettings`) |
 | `Booking:PointsPerVnd` | **Không có trong `BookingOptions`; không dùng** | 0.0001 | Không có (điểm thật tính bằng `CinemaSettings.PointsPerAmount`) |
 | `RateLimit:GlobalPermitLimit` / `GlobalWindowSeconds` / `GlobalSegmentsPerWindow` | Giới hạn toàn cục | 100 / 60 / 4 | Chống lạm dụng |
 | `RateLimit:AuthPermitLimit` / `AuthWindowSeconds` | Giới hạn policy `auth` | 5 / 60 | Đăng nhập, đăng ký… |
@@ -1687,12 +1688,12 @@ Nguồn: `Cinema.Application/Options/*.cs`, `Cinema.Api/appsettings.json`, `apps
 | `BackgroundJobs:ExpireLoyaltyPointsCron` | Lịch quét hết hạn điểm thành viên (12 tháng) | `5 * * * *` (phút thứ 5 mỗi giờ) | LY-05 |
 | `BackgroundJobs:RetryAttempts` | Số lần retry job | 3 | Hangfire, `ShowtimeRefundJob` |
 | `BackgroundJobs:RetryDelaysSeconds` | Trì hoãn giữa các lần retry | `[30, 120, 600]` | như trên |
-| `Scheduler:StepMinutes` | Bước thử giờ | 5 | **Chưa nối** vào `ShowtimeService` (SHW-17) |
-| `Scheduler:MinSameMovieGapMinutes` | Giãn cách tối thiểu cùng phim | 60 | như trên |
+| `Scheduler:StepMinutes` | Bước thử giờ (fallback mặc định nền) | 5 | SHW-17 (vận hành đọc từ `CinemaSettings`) |
+| `Scheduler:MinSameMovieGapMinutes` | Giãn cách tối thiểu cùng phim (fallback mặc định nền) | 60 | SHW-18 (vận hành đọc từ `CinemaSettings`) |
 | `Scheduler:DefaultWindowMinutes` | Cửa sổ mặc định | 960 | như trên |
 | `Scheduler:SpreadMinutes` | Độ phân tán | 30 | như trên |
 | `Scheduler:FitWeight`, `LoadWeight` | Trọng số điểm | 4 ; 0.5 | như trên |
-| `Scheduler:HeatLookbackDays` | Số ngày tính độ hot | 7 | **Không dùng**: `ShowtimeService` cứng 7 ngày |
+| `Scheduler:HeatLookbackDays` | Số ngày tính độ hot (fallback mặc định nền) | 7 | SHW-19 (vận hành đọc từ `CinemaSettings`) |
 | `Email:*` | SMTP/Resend, hạn token | Xem 8.2; xác nhận email 24 giờ; đặt lại mật khẩu 30 phút | AUTH-07 |
 | `Brand:*` | Tên thương hiệu trong email | `Perfo`, `PERFO`, "Vé điện tử · Không cần in" | Nội dung email |
 | `Cloudinary:*` | Upload | 5 MB ảnh, 100 MB video | UP-01, UP-02 |
@@ -1701,7 +1702,7 @@ Nguồn: `Cinema.Application/Options/*.cs`, `Cinema.Api/appsettings.json`, `apps
 
 ## 9.2 Cấu hình trong DB (`CinemaSettings`, một dòng `Id = 1`)
 
-Sửa tại `PUT /admin/settings` (trang Cài đặt). Giá trị seed được khởi tạo trực tiếp trong migration `InitialCreate` (`20261105145502_InitialCreate`).
+Sửa tại `PUT /admin/settings` (trang Cài đặt phía Quản trị, giao diện chia theo các tab chức năng: Chung, Bán vé & Giữ chỗ, Thành viên, Lập lịch chiếu). Giá trị seed được khởi tạo trực tiếp trong migration `InitialCreate` (`20261106040650_InitialCreate`). Toàn bộ 12 tham số vận hành trước đây nằm ở hằng số/options nay đã được chuyển thành các cột trong CSDL, cho phép quản trị viên tùy biến linh hoạt mà không cần khởi động lại dịch vụ.
 
 | Trường | Ý nghĩa | Seed/mặc định | Ảnh hưởng nghiệp vụ |
 |---|---|---|---|
@@ -1714,6 +1715,18 @@ Sửa tại `PUT /admin/settings` (trang Cài đặt). Giá trị seed được 
 | `HoldDurationMinutes` | Thời gian giữ ghế online (phút) | 15 (khoảng 1–120) | BK-07, BK-13 |
 | `CheckInOpenMinutes` | Mở check-in trước giờ chiếu (phút) | 30 (khoảng 0–240) | TK-05 |
 | `SeatGapRuleMode` | Chế độ kiểm tra ghế lẻ (`Strict`, `AllowEdge`, `Off`) | `Strict` | BK-08, 6.4 |
+| `RoomBufferMinutes` | Thời gian giãn cách/dọn phòng sau mỗi suất (phút) | 15 (khoảng 0–60) | SHW-05, SHW-20; tính `EndTime = StartTime + DurationMinutes + RoomBufferMinutes` |
+| `MaxSeatsPerBooking` | Số ghế tối đa cho phép đặt trong một giao dịch | 10 (khoảng 1–50) | BK-03; `BookingService.EnsureWithinBookingLimitsAsync` áp dụng cả Online và Quầy |
+| `MaxComboQuantity` | Số lượng tối đa cho mỗi loại combo trong một giao dịch | 10 (khoảng 1–50) | BK-09; `BookingService.EnsureWithinBookingLimitsAsync` áp dụng cả Online và Quầy |
+| `LoyaltyWindowMonths` | Cửa sổ trượt tính điểm và xếp hạng thành viên (tháng) | 12 (khoảng 1–36) | LY-01, LY-05; thay thế giá trị cứng trong `LoyaltyWindow`, quyết định mốc cắt xét hạng |
+| `MovieEndGraceDays` | Số ngày đệm sau suất cuối trước khi tự động chuyển phim sang `Ended` | 1 (khoảng 0–30) | MOV-05, SHW-16; `ShowtimeLifecycleJob` kiểm tra `now >= lastShowtime.EndTime.AddDays(MovieEndGraceDays)` |
+| `ShowtimeLookaheadDays` | Số ngày suất chiếu hiển thị tối đa cho khách hàng và trợ lý AI | 7 (khoảng 1–30) | SHW-09, AI-02; lọc suất chiếu hiển thị công khai `StartTime <= now.AddDays(ShowtimeLookaheadDays)` |
+| `SchedulerStepMinutes` | Bước nhảy dò tìm khung giờ bắt đầu suất chiếu (phút) | 5 (khoảng 5–60) | SHW-17; thuật toán tự động xếp lịch `ShowtimeScheduler` |
+| `SchedulerMinSameMovieGapMinutes` | Khoảng cách tối thiểu giữa 2 suất chiếu cùng phim (phút) | 60 (khoảng 0–240) | SHW-18; thuật toán tự động xếp lịch `ShowtimeScheduler` |
+| `SchedulerHeatLookbackDays` | Khoảng thời gian tra cứu doanh số vé để tính độ Hot của phim (ngày) | 7 (khoảng 1–30) | SHW-19; thuật toán tự động xếp lịch `ShowtimeScheduler` |
+| `SchedulerHeatSalesWeight` | Trọng số doanh số bán vé trong công thức tính độ Hot | 0.7 (khoảng 0.0–1.0) | SHW-19; `Heat = clamp(w_sales * (sales/max_sales) + w_rating * (rating/max_rating), 0, 1)` |
+| `SchedulerHeatRatingWeight` | Trọng số điểm đánh giá trung bình trong công thức tính độ Hot | 0.3 (khoảng 0.0–1.0) | SHW-19; trọng số đánh giá người xem |
+| `SchedulerMaxRating` | Thang điểm đánh giá tối đa chuẩn hóa trong công thức độ Hot | 5.0 (khoảng 5.0–10.0) | SHW-19; chuẩn hóa `Rating / SchedulerMaxRating` (mặc định chia 5) |
 
 ## 9.3 Cấu hình frontend
 
@@ -1814,7 +1827,7 @@ Mọi thông báo là **email HTML** gửi bằng `SendEmailJob` → `FallbackEm
 
 # 12. Dữ liệu seed và kịch bản mẫu
 
-Nguồn: `Cinema.Infrastructure/Persistence/Seed/{SeedData,DbInitializer,ShowtimeSeeder,BookingScenarioSeeder}.cs`, migration `InitialCreate` (`20261105145502_InitialCreate`) (`HasData`).
+Nguồn: `Cinema.Infrastructure/Persistence/Seed/{SeedData,DbInitializer,ShowtimeSeeder,BookingScenarioSeeder}.cs`, migration `InitialCreate` (`20261106040650_InitialCreate`) (`HasData`).
 
 ## 12.1 Khi nào seed chạy
 
@@ -1853,24 +1866,24 @@ Theo `docker-compose.yml`/`.env.example`: `docker compose up` (PostgreSQL 16 + A
 
 # 13. Kiểm thử
 
-Nguồn: `backend/tests/Cinema.UnitTests` (xUnit), `backend/tests/Cinema.IntegrationTests` (xUnit, host thử nghiệm). Đếm theo thuộc tính `[Fact]`/`[Theory]` (không đếm từng dòng dữ liệu của Theory): **390 test** (40 file).
+Nguồn: `backend/tests/Cinema.UnitTests` (xUnit), `backend/tests/Cinema.IntegrationTests` (xUnit, host thử nghiệm). Đếm theo kết quả thực thi xUnit thực tế: **448 test** (399 unit test, 49 integration test) thuộc **43 file test** (tương ứng 413 phương thức test gồm 380 `[Fact]` và 33 `[Theory]`). 100% test đều vượt qua (0 failed, 0 skipped).
 
 ## 13.1 Tóm tắt theo module
 
 | Module | File test (số test) | Hành vi được bảo vệ (theo tên test/nội dung đọc) | Vùng chưa có test |
 |---|---|---|---|
-| Xác thực | `AuthServiceTests` (24), `JwtTokenServiceTests` (9), `AuthValidatorsTests` (15), `AuthEndpointsTests` (11, tích hợp) | Đăng ký/đăng nhập, xác thực email, refresh/quay vòng token, đặt lại mật khẩu, JWT claims, validator | Đăng nhập Google end-to-end; rate limit `auth` |
+| Xác thực | `AuthServiceTests` (28), `JwtTokenServiceTests` (9), `AuthValidatorsTests` (15), `AuthEndpointsTests` (11, tích hợp) | Đăng ký/đăng nhập, xác thực email, refresh/quay vòng token qua `RefreshTokenRevocation`, đặt lại mật khẩu, JWT claims, kiểm tra allow-list cổng quản trị (Admin/Employee), chặn nhân viên bị vô hiệu hóa hồ sơ (`user.Employee is { IsActive: true }`), validator | Đăng nhập Google end-to-end; rate limit `auth` |
 | Đặt vé/giữ ghế | `BookingServiceTests` (22), `BookingServiceSeatHoldTests` (6), `BookingValidatorsTests` (20), `BookingFlowEndpointsTests` (6) | Giữ ghế tạo booking `Pending`, xung đột ghế rollback toàn bộ (có test đồng thời), một khách một booking `Pending` mỗi suất, giảm giá theo hạng (chỉ trên vé ghế, không giảm combo), checkout (chủ sở hữu, hết hạn, cổng chưa cấu hình), xác nhận idempotent, ghế không còn giữ → hủy booking, hủy Pending/trong hạn/quá hạn hoàn, hoàn tiền làm tròn, `ProcessPaymentFailure` (giữ Pending nếu hold còn hạn để retry, release ghế nếu hold đã hết) | `GetBookingsAdminAsync` lọc nâng cao |
 | Quầy/soát vé | `BookingServiceCounterCheckinTests` (18), `AdminBookingsEndpointsTests` (9) | Giữ ghế quầy (khách vãng lai dùng tên/phone request; khách có `UserId` dùng thông tin tài khoản nếu role `Customer` và đang hoạt động, chặn nếu inactive hoặc sai role hoặc 404), thu tiền mặt và tính tiền thối, thiếu tiền → 422 và booking vẫn `Pending`, check-in hợp lệ trong cửa sổ động (`CheckInOpenMinutes`) / đã check-in 409 / QR lạ 404 / trước giờ mở cửa 422 / suất đã kết thúc 422 | Xung đột ghế giữa quầy và online |
 | Điểm thành viên & Cửa sổ 12 tháng | `LoyaltyWindowTests` (19), `BookingServiceLoyaltyTests` (4) | Cửa sổ trượt 12 tháng (`LoyaltyWindow`), điểm cũ > 12 tháng không tính vào hạng, điểm mới trong hạn áp dụng hạng ngay cả khi cache trống; bỏ qua cache cũ khi sổ cái trống; đảo điểm giảm hạng khi hoàn tiền; hoàn một phần chỉ chạm entry của chính booking đó; giảm giá chỉ trên vé ghế; làm tròn giá giảm; booking không có sổ cái vẫn giảm `TotalSpent`; `RecalculateAllAsync` dọn sạch điểm hết hạn và đồng bộ lại cache profile & tier idempotent | Đảo điểm khi hủy suất chiếu hàng loạt (chỉ được kiểm gián tiếp qua `ShowtimeRefundJob`) |
 | Sơ đồ ghế & Quy tắc khoảng trống | `SeatLayoutRulesTests` (19), `RoomServiceSeatLayoutTests` (8), `AdminRoomsEndpointsTests` (8) | 3 chế độ `SeatGapRuleMode` (`Strict`: bắt ghế đơn sát tường và chia hàng; `AllowEdge`: cho phép ghế đơn sát tường nhưng cấm giữa 2 khoảng trống; `Off`: cho phép mọi khoảng trống); ghế đôi bắt buộc chọn cả cặp bất kể mode; gợi ý ghế (`Suggest`) tìm ghế liền kề không để lại ghế đơn sát mép, tính tổng tiền, không tách ghế đôi, giới hạn top mỗi hàng; chặn đổi sơ đồ khi có suất sắp tới | — |
-| Cài đặt hệ thống | `SettingsServiceTests` (11) | Đọc/cập nhật `CinemaSettings` (Id=1); cập nhật `HoldDurationMinutes`, `CheckInOpenMinutes`, `SeatGapRuleMode`, giờ mở/đóng cửa; kiểm tra biên `CancelRefundPercent` (0–100), `CancelDeadlineHours` (≥0), `OperatingTime` hợp lệ; giữ nguyên giá trị khi trường tùy chọn bị bỏ qua | — |
+| Cài đặt hệ thống | `SettingsServiceTests` (11), `CinemaSettingsPolicyTests` (10) | Đọc/cập nhật `CinemaSettings` (Id=1); cập nhật 12 tham số vận hành mở rộng; kiểm tra chính sách fallback options khi DB thiếu cấu hình; kiểm tra giới hạn động đặt vé `EnsureWithinBookingLimitsAsync` (`MaxSeatsPerBooking`, `MaxComboQuantity`); kiểm tra biên `CancelRefundPercent` (0–100), `CancelDeadlineHours` (≥0), `OperatingTime` hợp lệ; giữ nguyên giá trị khi trường tùy chọn bị bỏ qua | — |
 | Thanh toán | `PaymentServiceVnPayTests` (8), `PaymentServiceStripeTests` (16), `PaymentServiceMomoTests` (8) | IPN VNPay (GET & POST), webhook Stripe (chữ ký, thành công muộn sau thất bại, tự hoàn khi ghế mất); MoMo IPN (`ProcessMomoIpnAsync`: chữ ký hợp lệ/không hợp lệ trả mã 97, không tìm thấy giao dịch trả 1, sai số tiền trả 4 giữ `Pending`, callback trùng lặp xử lý idempotent, callback thất bại đổi trạng thái `Failed`, chưa cấu hình gateway trả 99) | `PaymentAdminService` |
-| Phim & Đánh giá hàng loạt | `AdminMoviesBulkEndpointsTests` (3), `AdminReviewsBulkEndpointsTests` (3), `ReviewServiceTests` (2) | Xóa hàng loạt phim (chặn nếu vượt trần 50, kiểm tra suất chiếu, xóa thành công và xóa một phần); xóa hàng loạt review (tính lại `AverageRating` của phim, xóa một phần, chặn vượt trần 50); tạo đánh giá cập nhật `AverageRating` của phim | Mâu thuẫn thang điểm 1–5/1–10 (RV-05) không được bảo vệ; CRUD phim đơn lẻ |
+| Phim & Đánh giá hàng loạt | `AdminMoviesBulkEndpointsTests` (3), `AdminReviewsBulkEndpointsTests` (3), `ReviewServiceTests` (2), `ReviewValidatorsTests` (3) | Xóa hàng loạt phim (chặn nếu vượt trần 50, kiểm tra suất chiếu, xóa thành công và xóa một phần); xóa hàng loạt review (tính lại `AverageRating` của phim, xóa một phần, chặn vượt trần 50); tạo đánh giá cập nhật `AverageRating` của phim; kiểm tra thang điểm đánh giá chuẩn 1–5 (`InclusiveBetween(1, 5)`) đồng bộ với ràng buộc CSDL `CK_Reviews_Rating` | CRUD phim đơn lẻ |
 | Giữ ghế hết hạn | `SeatExpirationServiceTests` (7) | Hết hạn booking, trả ghế, phát `hold.expired` | — |
 | Suất chiếu | `ShowtimeServiceCreateTests` (14), `ShowtimeServiceFixesTests` (19), `ShowtimeServiceAutoScheduleTests` (4), `ShowtimeLifecycleTests` (5), `ShowtimeValidatorsTests` (15), `AdminShowtimesBulkEndpointsTests` (6) | Tạo (sinh một `ShowtimeSeat` cho mỗi ghế hoạt động không phải lối đi), giá ghế theo hệ số, trùng giờ (kể cả suất liền kề sau buffer hợp lệ, bỏ qua suất đã hủy), giờ hoạt động, sửa bị chặn khi có booking `Pending`/giữ ghế/`Confirmed` (suất hết hạn không chặn), hủy suất (đưa job hoàn tiền thay vì gọi cổng, đánh dấu payment `Pending` thất bại), `ShowtimeRefundJob` thành công idempotent và khi cổng từ chối thì giữ ở hàng đợi thủ công, hàng loạt bỏ qua mục trùng/quá khứ, xếp lịch theo khoảng ngày, nhân bản lịch (chạy lần hai bị bỏ qua) | Race trùng giờ (không có ràng buộc DB); `ShowtimeRefundJob` lần retry cuối gửi email thủ công |
-| Thuật toán & giờ hoạt động | `ShowtimeSchedulerTests` (7), `OperatingHoursTests` (6) | Xếp lịch theo độ hot, khung giờ, qua đêm | Gợi ý combo (`ComboService.GetSuggestedCombosAsync`) |
-| Nhân viên/người dùng | `EmployeeServiceUserStatusTests` (2) | Khóa tài khoản thu hồi token | Đổi role, tạo nhân viên, `UserProfileService` |
+| Thuật toán & giờ hoạt động | `ShowtimeSchedulerTests` (8), `OperatingHoursTests` (6) | Xếp lịch theo độ hot, khung giờ, qua đêm; nạp tham số tự động xếp lịch động từ `CinemaSettings` (`StepMinutes`, `MinSameMovieGapMinutes`, `HeatLookbackDays`, `HeatSalesWeight`, `HeatRatingWeight`, `MaxRating`) | Gợi ý combo (`ComboService.GetSuggestedCombosAsync`) |
+| Nhân viên/người dùng | `EmployeeServiceUserStatusTests` (2), `EmployeeServiceRoleRulesTests` (6) | Khóa tài khoản thu hồi token tập trung; chống tự đổi vai trò (`Rule_CannotChangeOwnRole`), chống hạ vai trò Admin cuối (`Rule_CannotDemoteLastAdmin`), chống tự vô hiệu hóa hồ sơ nhân viên (`Rule_CannotDeactivateSelfEmployee`), thu hồi token khi đổi vai trò hoặc hủy kích hoạt hồ sơ | Tạo nhân viên, `UserProfileService` |
 | Báo cáo/dashboard | `ReportServiceTests` (9), `DashboardServiceTests` (8) | Doanh thu ròng, top phim, hiệu suất; dashboard: % thay đổi doanh thu hôm nay so với hôm qua, booking `Pending` còn hạn giữ, tỉ lệ lấp đầy suất hôm nay, `days` của insights bị chặn trần 90, ranh giới nửa đêm giờ Việt Nam, thanh toán hoàn một phần chỉ tính phần giữ lại | — |
 | Tiện ích | `CodeGeneratorTests` (5), `DateTimeUtilsTests` (9), `EmailTemplatesTests` (7), `EnumConvertersTests` (10) | Sinh mã, thời gian, template email, enum | — |
 | Cấu hình | `ProductionOptionsValidatorTests` (5) | Kiểm tra cấu hình bắt buộc ở Production | — |
@@ -1953,7 +1966,7 @@ Những hành vi đã đối chiếu với test:
 
 # Phụ lục: thông tin tạo tài liệu
 
-**Ngày tạo:** 31/10/2026. **Cập nhật toàn diện:** 05/11/2026 (sau khi gom gọn toàn bộ lịch sử migration về duy nhất `20261105145502_InitialCreate`).
+**Ngày tạo:** 31/10/2026. **Cập nhật toàn diện:** 05/11/2026 (sau khi gom gọn toàn bộ lịch sử migration về duy nhất `20261106040650_InitialCreate`).
 
 ## A.1 Thư mục/khu vực đã đọc
 
@@ -1961,11 +1974,11 @@ Những hành vi đã đối chiếu với test:
 |---|---|
 | `backend/Cinema.Domain` (30 entity, 10 enum) | Đọc toàn bộ |
 | `backend/Cinema.Shared` (hằng số, exception) | Đọc toàn bộ |
-| `backend/Cinema.Infrastructure/Persistence` (DbContext, Configurations, Seed, migration duy nhất: `20261105145502_InitialCreate`) | Đọc toàn bộ cấu hình và migration; seed đọc theo cấu trúc, đếm dữ liệu mẫu |
+| `backend/Cinema.Infrastructure/Persistence` (DbContext, Configurations, Seed, migration duy nhất: `20261106040650_InitialCreate`) | Đọc toàn bộ cấu hình và migration; seed đọc theo cấu trúc, đếm dữ liệu mẫu |
 | `backend/Cinema.Infrastructure` (Payments, Email, FileStorage, Realtime, Auth, DI) | Đọc toàn bộ |
 | `backend/Cinema.Application` (Services, Validators, BackgroundJobs, Options, Utils, DI) | Đọc toàn bộ service; validator trích quy tắc bằng script; `EmailTemplates` đọc hàm, tiêu đề, người nhận (không đọc từng dòng HTML) |
 | `backend/Cinema.Api` (Program.cs, Controllers, Filters, Middlewares, appsettings) | Đọc toàn bộ; ma trận endpoint sinh tự động từ attribute (137 endpoint) |
-| `backend/tests` (40 file, 390 test) | Đọc tên test của toàn bộ các lớp, kiểm tra mã nguồn test mới |
+| `backend/tests` (43 file test, 448 test xUnit pass 100%) | Đọc tên test của toàn bộ các lớp, kiểm tra mã nguồn test mới |
 | `frontend/src` | Đọc router, guard, layout/sidebar, store, axios, query client, hook realtime, luồng đặt vé, kết quả thanh toán, quầy, soát vé, schema zod; liệt kê endpoint các file `api` |
 | `docker-compose.yml`, `render.yaml`, `.env.example`, `package.json`, `Dockerfile` | Đọc các phần liên quan cấu hình/triển khai |
 
@@ -2006,7 +2019,7 @@ Những hành vi đã đối chiếu với test:
 | Tích hợp ngoài, cấu hình | Cao | |
 | Frontend | Trung bình | Cập nhật các trang quản lý và luồng đặt vé |
 | Seed | Trung bình | Số lượng dữ liệu mẫu đếm từ mã khai báo |
-| Kiểm thử | Cao | 390 test (40 file) đối chiếu trực tiếp |
+| Kiểm thử | Cao | 448 test (43 file test: 399 unit test, 49 integration test) đối chiếu trực tiếp |
 
 ## A.4 Tổng hợp điểm lệch/rủi ro phát hiện từ code
 

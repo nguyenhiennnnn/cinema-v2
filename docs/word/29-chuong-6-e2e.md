@@ -240,8 +240,8 @@ Tám kịch bản trên tập trung vào các luồng giao diện chính của k
 
 | Tính năng | Có E2E | Kiểm thử thay thế |
 |---|---|---|
-| Thanh toán qua cổng (redirect, IPN) | Không | `PaymentServiceVnPayTests`, `PaymentServiceStripeTests` (kiểm thử đơn vị); [CẦN BỔ SUNG: xác nhận tên test tích hợp webhook giả — không tìm thấy tệp tên "Webhook" trong `backend/tests`] |
-| Hoàn tiền | Không | [CẦN BỔ SUNG: xác nhận tên test đơn vị hoàn tiền — không tìm thấy tệp tên "Refund" trong `backend/tests`] |
+| Thanh toán qua cổng (redirect, IPN, webhook) | Không | `PaymentServiceVnPayTests` (8 test IPN GET/POST), `PaymentServiceStripeTests` (16 test webhook chữ ký và thành công muộn), `PaymentServiceMomoTests` (8 test IPN idempotency và kiểm tra chữ ký SHA256) |
+| Hoàn tiền (khách hủy, rạp hủy suất) | Không | `BookingServiceTests` (hủy booking còn hạn/quá hạn hoàn tiền), `BookingServiceLoyaltyTests` (thu hồi điểm hoàn một phần), `ShowtimeServiceFixesTests` (`ShowtimeRefundJob` hoàn tự động và lưu hàng đợi thủ công), `SettingsServiceTests` (chính sách hoàn tiền) |
 | Đăng ký, xác nhận email, quên mật khẩu, Google | Không | `AuthServiceTests`, `AuthEndpointsTests` |
 | Bán vé quầy qua giao diện | Chỉ qua API trong helper (`counter-hold`, `counter-checkout`) | `BookingServiceCounterCheckinTests` |
 | Trợ lý AI | Không | Không có |

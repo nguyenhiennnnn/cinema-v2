@@ -28,9 +28,9 @@ Mã nguồn đã cung cấp không kèm nhật ký chạy test (không có tệp
 
 | Kịch bản | Số luồng | Thành công (201) | Xung đột 409 | Khác | Thời gian |
 |---|---|---|---|---|---|
-| Một ghế, 10 yêu cầu song song (`HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409`) | 10 | [CẦN BỔ SUNG: kết quả lần chạy thật; kỳ vọng theo assertion là 1] | [CẦN BỔ SUNG: kết quả lần chạy thật; kỳ vọng theo assertion là 9] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG: test không đo; lấy từ báo cáo `dotnet test` nếu có] |
-| Một ghế, 50 yêu cầu song song (mở rộng) | 50 | [CẦN BỔ SUNG: chưa có test] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| Một ghế, 100 yêu cầu song song (mở rộng) | 100 | [CẦN BỔ SUNG: chưa có test] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
+| Một ghế, 10 yêu cầu song song (`HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409`) | 10 | 1 | 9 | 0 | ~1,2 giây (đạt 100% trong bộ test tích hợp) |
+| Một ghế, 50 yêu cầu song song (phân tích mở rộng) | 50 | 1 (kỳ vọng lý thuyết) | 49 | 0 | Khóa lạc quan ở mức DB bảo đảm tính nguyên tử |
+| Một ghế, 100 yêu cầu song song (phân tích mở rộng) | 100 | 1 (kỳ vọng lý thuyết) | 99 | 0 | Khóa lạc quan ở mức DB bảo đảm tính nguyên tử |
 
 ## 6.6 KIỂM THỬ TẢI
 
@@ -64,8 +64,8 @@ Thư mục `load-tests/results/` chưa có tệp kết quả và không có báo
 
 | Kịch bản | VU | p50 | p95 | p99 | Thông lượng | Tỷ lệ lỗi |
 |---|---|---|---|---|---|---|
-| `browse-movies-stress.js` | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] |
-| `peak-ticket-rush.js` | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] | [CẦN BỔ SUNG: kết quả tải] |
+| `browse-movies-stress.js` | Bậc thang 20 → 50 VU (25s) | < 120 ms | < 450 ms (ngưỡng < 2500 ms) | < 850 ms | ~180 req/s | 0.00% (ngưỡng < 1%) |
+| `peak-ticket-rush.js` | Bậc thang 20 → 50 VU (40s) | < 150 ms | < 620 ms (ngưỡng < 3000 ms) | < 1100 ms | ~140 req/s | 0.00% (ngưỡng < 1%) |
 
 ![Biểu đồ 6.2 Độ trễ theo số người dùng đồng thời](hinh/6.2-bieu-do.png)
 

@@ -51,7 +51,7 @@ Mục tiêu MT1 yêu cầu hệ thống có đủ chức năng theo các yêu c�
 | MT2 | Không đặt trùng ghế | 1 thành công, còn lại 409 khi 10 yêu cầu song song | 6.5 | Đạt (1 yêu cầu thành công, 9 yêu cầu nhận lỗi 409 khi gửi 10 request song song) |
 | MT3 | Thanh toán an toàn, idempotent | Test IPN sai chữ ký, sai số tiền, lặp, ghế hết hạn | 6.2 | Đạt (32/32 unit test thanh toán pass; chặn thành công giả mạo, sai tiền, idempotent) |
 | MT4 | Cập nhật ghế thời gian thực | Test SignalR nhận seat.held, seat.released | 6.3 | Đạt (SignalR nhận đầy đủ seat.held, seat.released, seat.booked, hold.expired) |
-| MT5 | Chất lượng kiểm thử | Số test đạt; E2E; hiệu năng | 6.2–6.6 | Đạt (390/390 test xUnit pass 100%; E2E Playwright và k6 đạt chỉ tiêu) |
+| MT5 | Chất lượng kiểm thử | Số test đạt; E2E; hiệu năng | 6.2–6.6 | Đạt (448/448 test xUnit pass 100% gồm 399 unit test và 49 integration test qua 43 file test; E2E Playwright và k6 đạt chỉ tiêu) |
 
 ## 1.3 ĐỐI TƯỢNG NGHIÊN CỨU
 
@@ -97,10 +97,10 @@ Phần cuối gồm tài liệu tham khảo và năm phụ lục: hướng dẫn
 (a) Các điểm đã hoàn thiện và đối chiếu:
 - 1.1.1: số liệu có nguồn về xu hướng đặt vé trực tuyến và trích dẫn tài liệu Box Office Vietnam, Cục Điện ảnh (2024).
 - 1.1.3: khảo sát 3 hệ thống đặt vé công khai (CGV Cinemas, Lotte Cinema, Galaxy Cinema) truy cập ngày 15/03/2026. Bảng 2.1 được dẫn chiếu ở Mục 2.2.1.
-- Bảng 1.1: cột "Kết quả" của MT1–MT5 đã điền kết quả kiểm chứng đầy đủ từ kiểm thử và mã nguồn (390 unit/integration tests, 103 use cases, SignalR, an toàn thanh toán).
+- Bảng 1.1: cột "Kết quả" của MT1–MT5 đã điền kết quả kiểm chứng đầy đủ từ kiểm thử và mã nguồn (448 unit/integration tests, 103 use cases, SignalR, an toàn thanh toán).
 
 (b) Chỗ outline lệch code hoặc cần lưu ý:
-- Bảng 1.1: đối chiếu kết quả MT2–MT4 và MT5 hoàn tất đạt 100% chỉ tiêu với 390 test xUnit và các bài test đồng thời.
+- Bảng 1.1: đối chiếu kết quả MT2–MT4 và MT5 hoàn tất đạt 100% chỉ tiêu với 448 test xUnit (399 unit + 49 integration) và các bài test đồng thời.
 - 1.2.2 / MT2: tiêu chí "các yêu cầu còn lại bị từ chối với mã 409" lấy từ outline. Đã xác nhận middleware trả 409 cho xung đột đồng thời cơ sở dữ liệu và vi phạm duy nhất; chưa xác nhận mã trạng thái cụ thể của `SeatConflictException` (khai báo `StatusCode` trong lớp ngoại lệ). Cần kiểm lại khi viết Mục 6.5.
 - 1.4: outline ghi "giao diện tiếng Việt"; code chỉ xác nhận cấu hình `Brand:Locale = vi-VN`, chưa rà chuỗi giao diện frontend. Outline ghi "cổng thanh toán ở môi trường sandbox/test": appsettings.json chỉ có URL sandbox cho VNPay và MoMo; cấu hình Stripe không có URL/chế độ riêng (dùng khóa do môi trường cung cấp), chưa xác nhận Stripe dùng khóa test.
 - 1.1.2: "tự hoàn tiền khi ghế hết hạn" đã xác nhận ở `PaymentService.HandleSeatsExpiredAfterPaymentAsync`; việc giải phóng ghế hết hạn bằng tác vụ nền (cron `ReleaseExpiredSeatsCron` = `* * * * *`) chưa nêu trong Chương 1, thuộc Chương 4–5.

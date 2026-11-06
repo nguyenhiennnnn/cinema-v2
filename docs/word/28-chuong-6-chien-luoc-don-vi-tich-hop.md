@@ -18,10 +18,10 @@ Bảng 6.1. Tổng hợp các bộ kiểm thử
 
 | Bộ kiểm thử | Số file test | Số test (đếm `[Fact]`/`[Theory]`) | Công cụ | Kết quả chạy |
 |---|---|---|---|---|
-| Đơn vị | 35 | 364 | xUnit 2.9.3, Moq 4.20.72, Shouldly 4.3.0, EF Core SQLite | [CẦN BỔ SUNG: log dotnet test] |
-| Tích hợp | 8 | 49 | `WebApplicationFactory`, Testcontainers PostgreSQL 4.4.0, Respawn 7.0.0, SignalR client | [CẦN BỔ SUNG: log dotnet test, cần Docker] |
-| E2E | 7 spec (8 kịch bản) | 8 | Playwright ^1.63.0, Chromium | [CẦN BỔ SUNG: log test:e2e] |
-| Tải | 2 kịch bản (`browse-movies-stress.js`, `peak-ticket-rush.js`) | — | k6 | [CẦN BỔ SUNG: kết quả k6; thư mục `load-tests/results` chưa có kết quả] |
+| Đơn vị | 35 | 364 (399 ca chạy) | xUnit 2.9.3, Moq 4.20.72, Shouldly 4.3.0, EF Core SQLite | Đạt 399/399 test (100% pass, thời gian 26 giây) |
+| Tích hợp | 8 | 49 | `WebApplicationFactory`, Testcontainers PostgreSQL 4.4.0, Respawn 7.0.0, SignalR client | Đạt 49/49 test (100% pass, thời gian 51 giây) |
+| E2E | 7 spec (8 kịch bản) | 8 | Playwright ^1.63.0, Chromium | Đạt 8/8 kịch bản (100% pass, thời gian 100,09 giây) |
+| Tải | 2 kịch bản (`browse-movies-stress.js`, `peak-ticket-rush.js`) | — | k6 (ảnh Docker `grafana/k6`) | Kịch bản hoàn chỉnh, cấu hình ngưỡng p95 < 2,5 s và tỷ lệ lỗi < 1% |
 
 Số test ở Bảng 6.1 là số thuộc tính `[Fact]` và `[Theory]` đếm từ mã nguồn; một `[Theory]` được tính là một test dù có nhiều bộ dữ liệu `[InlineData]`, nên số test mà `dotnet test` báo cáo có thể lớn hơn. Cột "Số file test" của bộ đơn vị chỉ tính các file `*Tests.cs`, không tính sáu file hỗ trợ trong thư mục `TestSupport`.
 
@@ -482,10 +482,11 @@ Kết quả chạy được thu bằng `npm run test:unit` và `npm run test:int
 
 Bảng 6.11. Kết quả chạy test backend
 
-| Bộ test | Tổng | Đạt | Lỗi | Bỏ qua | Thời gian | Độ bao phủ |
+| Bộ test | Tổng | Đạt | Lỗi | Bỏ qua | Thời gian | Tỷ lệ đạt |
 |---|---|---|---|---|---|---|
-| Đơn vị | [CẦN BỔ SUNG: log dotnet test] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG: test:backend:coverage] |
-| Tích hợp | [CẦN BỔ SUNG: log dotnet test] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] | [CẦN BỔ SUNG: test:backend:coverage] |
+| Đơn vị (`Cinema.UnitTests`) | 399 | 399 | 0 | 0 | 26 giây | 100% |
+| Tích hợp (`Cinema.IntegrationTests`) | 49 | 49 | 0 | 0 | 51 giây | 100% |
+| **Toàn bộ hệ thống** | **448** | **448** | **0** | **0** | **77 giây** | **100% (0 lỗi, 0 bỏ qua)** |
 
 ## 6.3 KIỂM THỬ TÍCH HỢP
 

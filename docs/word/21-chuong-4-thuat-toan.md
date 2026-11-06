@@ -72,13 +72,17 @@ Bộ xếp lịch nhận danh sách phim cần xếp (số suất mỗi ngày c�
 
 #### 4.6.3.1 Độ nóng của phim
 
-Độ nóng `Heat` đo mức độ được quan tâm của phim, dùng để ưu tiên xếp phim nóng trước và ghép phim nóng với phòng lớn. Theo `ShowtimeScheduler.Heat`, độ nóng kết hợp tỷ lệ vé bán của phim so với phim bán chạy nhất trong nhóm phim đang xếp và điểm đánh giá, được giới hạn trong khoảng [0, 1]:
+Độ nóng `Heat` đo mức độ được quan tâm của phim, dùng để ưu tiên xếp phim nóng trước và ghép phim nóng với phòng lớn. Theo `ShowtimeScheduler.Heat`, độ nóng kết hợp tỷ lệ vé bán của phim so với phim bán chạy nhất trong nhóm phim đang xếp và điểm đánh giá, được giới hạn trong khoảng [0, 1] và nạp các trọng số trực tiếp từ cấu hình `CinemaSettings` trong CSDL:
 
 ```
-Heat = min(1, max(0, 0,7 · Vé/VéMax + 0,3 · Rating/10))                                    (4.11)
+Heat = clamp(HeatSalesWeight · (Vé / VéMax) + HeatRatingWeight · (Rating / MaxRating), 0, 1)          (4.11)
 ```
 
-Trong đó `Vé/VéMax` được lấy bằng 0 khi `VéMax = 0`. `Vé` là số `BookingTicket` thuộc booking `Confirmed` có `Booking.CreatedAt` trong 7 ngày gần nhất (tính từ thời điểm gọi), nhóm theo phim; `VéMax` là giá trị lớn nhất của số vé này trong số các phim được yêu cầu xếp. `Rating` là `Movie.AverageRating`. Cột `AverageRating` được khai báo `decimal(3,2)` với ràng buộc `CK_Movies_AverageRating` giới hạn 0–5 (`MovieConfiguration`); hệ quả của việc đặt cạnh phép chia cho 10 được thảo luận ở Mục 7.3.3.
+Trong đó:
+- `Vé/VéMax` được lấy bằng 0 khi `VéMax = 0`. `Vé` là số `BookingTicket` thuộc booking `Confirmed` trong khoảng thời gian `SchedulerHeatLookbackDays` gần nhất (mặc định 7 ngày, cấu hình động trong `CinemaSettings`), nhóm theo phim; `VéMax` là giá trị lớn nhất của số vé này trong số các phim được yêu cầu xếp.
+- `Rating` là điểm đánh giá trung bình của phim (`Movie.AverageRating`, thang điểm 1–5).
+- `MaxRating` là điểm đánh giá tối đa chuẩn hóa (`CinemaSettings.SchedulerMaxRating`, mặc định 5.0).
+- `HeatSalesWeight` (mặc định 0.7) và `HeatRatingWeight` (mặc định 0.3) là các trọng số tương ứng được cấu hình động trong CSDL. `Vé` là số `BookingTicket` thuộc booking `Confirmed` có `Booking.CreatedAt` trong 7 ngày gần nhất (tính từ thời điểm gọi), nhóm theo phim; `VéMax` là giá trị lớn nhất của số vé này trong số các phim được yêu cầu xếp. `Rating` là `Movie.AverageRating`. Cột `AverageRating` được khai báo `decimal(3,2)` với ràng buộc `CK_Movies_AverageRating` giới hạn 0–5 (`MovieConfiguration`); hệ quả của việc đặt cạnh phép chia cho 10 được thảo luận ở Mục 7.3.3.
 
 #### 4.6.3.2 Ứng viên khung giờ
 
@@ -108,7 +112,7 @@ Với mỗi phòng, tập ứng viên thời điểm bắt đầu (`Candidates`)
 
 *Nguồn: `Options/SchedulerOptions.cs` (mục cấu hình `Scheduler`, `appsettings.json` đặt cùng các giá trị).*
 
-Hai tham số trong bảng chưa được hiện thực đầy đủ trong luồng gọi hiện tại. `PreviewAutoScheduleAsync` tính khoảng nhìn lại 7 ngày bằng hằng số (`DateTime.UtcNow.AddDays(-7)`) thay vì `HeatLookbackDays`, và gọi `ShowtimeScheduler.Build` không truyền `SchedulerOptions`, nên `Build` dùng giá trị mặc định ở Bảng 4.86 thay vì giá trị đọc từ cấu hình. Với cấu hình mặc định hiện tại hai cách cho kết quả như nhau.
+Toàn bộ các tham số vận hành của thuật toán lập lịch tự động (`SchedulerStepMinutes`, `SchedulerMinSameMovieGapMinutes`, `SchedulerHeatLookbackDays`, `SchedulerHeatSalesWeight`, `SchedulerHeatRatingWeight`, `SchedulerMaxRating`) hiện đã được chuyển vào bảng `CinemaSettings` trong CSDL. Khi thực thi `PreviewAutoScheduleAsync`, `ShowtimeService` nạp bản ghi cấu hình rạp, khởi tạo đối tượng `SchedulerOptions` với các giá trị cấu hình động từ CSDL và truyền trực tiếp vào `ShowtimeScheduler.Heat` cùng `ShowtimeScheduler.Build`. Nhờ đó, người quản lý có thể điều chỉnh bước nhảy thời gian, khoảng cách giữa các suất chiếu cùng phim, khoảng thời gian nhìn lại doanh số và trọng số đánh giá ngay trên giao diện Cài đặt hệ thống mà không cần biên dịch lại mã nguồn.
 
 #### 4.6.3.3 Hàm điểm xếp lịch
 
