@@ -1,19 +1,19 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormTimePickerField } from "@/components/common/form/form-time-picker-field";
-import { ImageUploader } from "@/features/admin/uploads/components/image-uploader";
 
 import { SeatGapRuleMode } from "@/types/enum";
 import { useAdminSettings, useAdminUpdateSettings } from "../hooks/use-admin-settings";
+import { FormImageField } from "@/components/common/form/form-upload-field";
 
 const SEAT_GAP_RULE_OPTIONS = [
   { value: SeatGapRuleMode.Strict, label: "Chặn mọi ghế lẻ" },
@@ -50,6 +50,13 @@ const settingsFormSchema = z.object({
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+
+const SettingsSection = ({ title, children }: { title: string; children: ReactNode }) => (
+  <section className="border border-border bg-card p-5">
+    <h2 className="font-heading text-base font-semibold text-foreground">{title}</h2>
+    <FieldGroup className="mt-4 grid items-start gap-x-4 gap-y-4 sm:grid-cols-2">{children}</FieldGroup>
+  </section>
+);
 
 const AdminSettingsPage = () => {
   const settings = useAdminSettings();
@@ -152,7 +159,7 @@ const AdminSettingsPage = () => {
     return (
       <div>
         <PageHeader title="Cấu hình rạp" description="Thông tin chung, giờ hoạt động và chính sách." />
-        <Skeleton className="h-64 w-full " />
+        <Skeleton className="h-64 w-full max-w-4xl" />
       </div>
     );
   }
@@ -161,198 +168,175 @@ const AdminSettingsPage = () => {
     <div>
       <PageHeader title="Cấu hình rạp" description="Thông tin chung, giờ hoạt động và chính sách." />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-2xl space-y-4">
-        <FieldGroup>
-          <Controller
+      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl space-y-6">
+        <SettingsSection title="Thông tin rạp">
+          <FormImageField
             name="logoUrl"
             control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Logo rạp</FieldLabel>
-                <ImageUploader
-                  folder="settings"
-                  value={field.value}
-                  onChange={(result) => field.onChange(result?.url ?? "")}
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
+            label="Logo rạp"
+            folder="settings"
+            className="sm:col-span-2"
           />
-
           <FormInputField name="name" control={form.control} label="Tên rạp" />
-          <FormInputField name="address" control={form.control} label="Địa chỉ" />
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormInputField name="phone" control={form.control} label="Số điện thoại" />
-            <FormInputField name="email" control={form.control} label="Email" />
-          </div>
-
           <FormInputField name="taxCode" control={form.control} label="Mã số thuế" />
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormTimePickerField
-              name="openingTime"
-              control={form.control}
-              label="Giờ mở cửa"
-            />
-            <FormTimePickerField
-              name="closingTime"
-              control={form.control}
-              label="Giờ đóng cửa"
-            />
+          <div className="sm:col-span-2">
+            <FormInputField name="address" control={form.control} label="Địa chỉ" />
           </div>
+          <FormInputField name="phone" control={form.control} label="Số điện thoại" />
+          <FormInputField name="email" control={form.control} label="Email" />
+        </SettingsSection>
 
-          <div className="grid grid-cols-3 gap-4">
-            <FormInputField
-              name="pointsPerAmount"
-              control={form.control}
-              label="Điểm / VND"
-              type="number"
-              min={0}
-            />
-            <FormInputField
-              name="cancelRefundPercent"
-              control={form.control}
-              label="% hoàn vé"
-              type="number"
-              min={0}
-              max={100}
-            />
-            <FormInputField
-              name="cancelDeadlineHours"
-              control={form.control}
-              label="Hạn hủy (giờ)"
-              type="number"
-              min={0}
-            />
-            <FormInputField
-              name="stopSellingMinutesBefore"
-              control={form.control}
-              label="Ngừng bán online trước giờ chiếu (phút)"
-              type="number"
-              min={0}
-              max={1440}
-            />
-          </div>
-
-          <FormSelectField
-            name="seatGapRuleMode"
+        <SettingsSection title="Giờ hoạt động & chính sách bán vé">
+          <FormTimePickerField name="openingTime" control={form.control} label="Giờ mở cửa" />
+          <FormTimePickerField name="closingTime" control={form.control} label="Giờ đóng cửa" />
+          <FormInputField
+            name="pointsPerAmount"
             control={form.control}
-            label="Quy tắc ghế lẻ (bán online)"
-            options={SEAT_GAP_RULE_OPTIONS}
-            getOptionValue={(o) => o.value}
-            getOptionLabel={(o) => o.label}
+            label="Điểm / VND"
+            type="number"
+            min={0}
           />
-
-          <h3 className="pt-2 text-sm font-semibold">Lịch chiếu &amp; đặt vé</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <FormInputField
-              name="roomBufferMinutes"
+          <FormInputField
+            name="cancelRefundPercent"
+            control={form.control}
+            label="% hoàn vé"
+            type="number"
+            min={0}
+            max={100}
+          />
+          <FormInputField
+            name="cancelDeadlineHours"
+            control={form.control}
+            label="Hạn hủy (giờ)"
+            type="number"
+            min={0}
+          />
+          <FormInputField
+            name="stopSellingMinutesBefore"
+            control={form.control}
+            label="Ngừng bán online trước giờ chiếu (phút)"
+            type="number"
+            min={0}
+            max={1440}
+          />
+          <div className="sm:col-span-2">
+            <FormSelectField
+              name="seatGapRuleMode"
               control={form.control}
-              label="Khoảng nghỉ giữa các suất (phút)"
-              type="number"
-              min={0}
-              max={120}
-            />
-            <FormInputField
-              name="maxSeatsPerBooking"
-              control={form.control}
-              label="Số ghế tối đa / booking"
-              type="number"
-              min={1}
-              max={50}
-            />
-            <FormInputField
-              name="maxComboQuantity"
-              control={form.control}
-              label="Số lượng tối đa mỗi combo"
-              type="number"
-              min={1}
-              max={50}
-            />
-            <FormInputField
-              name="loyaltyWindowMonths"
-              control={form.control}
-              label="Hiệu lực điểm thưởng (tháng)"
-              type="number"
-              min={1}
-              max={120}
-            />
-            <FormInputField
-              name="movieEndGraceDays"
-              control={form.control}
-              label="Gia hạn sau suất cuối trước khi phim Ended (ngày)"
-              type="number"
-              min={0}
-              max={365}
-            />
-            <FormInputField
-              name="showtimeLookaheadDays"
-              control={form.control}
-              label="Số ngày lịch chiếu hiển thị"
-              type="number"
-              min={1}
-              max={60}
+              label="Quy tắc ghế lẻ (bán online)"
+              options={SEAT_GAP_RULE_OPTIONS}
+              getOptionValue={(o) => o.value}
+              getOptionLabel={(o) => o.label}
             />
           </div>
+        </SettingsSection>
 
-          <h3 className="pt-2 text-sm font-semibold">Xếp lịch tự động &amp; Heat</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <FormInputField
-              name="schedulerStepMinutes"
-              control={form.control}
-              label="Xếp lịch: bước dò giờ (phút)"
-              type="number"
-              min={1}
-              max={60}
-            />
-            <FormInputField
-              name="schedulerMinSameMovieGapMinutes"
-              control={form.control}
-              label="Xếp lịch: giãn cách tối thiểu cùng phim (phút)"
-              type="number"
-              min={0}
-              max={1440}
-            />
-            <FormInputField
-              name="schedulerHeatLookbackDays"
-              control={form.control}
-              label="Heat: số ngày tính doanh số vé"
-              type="number"
-              min={1}
-              max={365}
-            />
-            <FormInputField
-              name="schedulerHeatSalesWeight"
-              control={form.control}
-              label="Heat: trọng số doanh số"
-              type="number"
-              step={0.05}
-              min={0}
-              max={10}
-            />
-            <FormInputField
-              name="schedulerHeatRatingWeight"
-              control={form.control}
-              label="Heat: trọng số đánh giá"
-              type="number"
-              step={0.05}
-              min={0}
-              max={10}
-            />
-            <FormInputField
-              name="schedulerMaxRating"
-              control={form.control}
-              label="Heat: điểm đánh giá tối đa"
-              type="number"
-              step={0.5}
-              min={1}
-              max={10}
-            />
-          </div>
-        </FieldGroup>
+        <SettingsSection title="Lịch chiếu & đặt vé">
+          <FormInputField
+            name="roomBufferMinutes"
+            control={form.control}
+            label="Khoảng nghỉ giữa các suất (phút)"
+            type="number"
+            min={0}
+            max={120}
+          />
+          <FormInputField
+            name="maxSeatsPerBooking"
+            control={form.control}
+            label="Số ghế tối đa / booking"
+            type="number"
+            min={1}
+            max={50}
+          />
+          <FormInputField
+            name="maxComboQuantity"
+            control={form.control}
+            label="Số lượng tối đa mỗi combo"
+            type="number"
+            min={1}
+            max={50}
+          />
+          <FormInputField
+            name="loyaltyWindowMonths"
+            control={form.control}
+            label="Hiệu lực điểm thưởng (tháng)"
+            type="number"
+            min={1}
+            max={120}
+          />
+          <FormInputField
+            name="movieEndGraceDays"
+            control={form.control}
+            label="Gia hạn phim Ended sau suất cuối (ngày)"
+            type="number"
+            min={0}
+            max={365}
+          />
+          <FormInputField
+            name="showtimeLookaheadDays"
+            control={form.control}
+            label="Số ngày lịch chiếu hiển thị"
+            type="number"
+            min={1}
+            max={60}
+          />
+        </SettingsSection>
 
-        <div className="flex justify-end pt-2">
+        <SettingsSection title="Xếp lịch tự động & Heat">
+          <FormInputField
+            name="schedulerStepMinutes"
+            control={form.control}
+            label="Xếp lịch: bước dò giờ (phút)"
+            type="number"
+            min={1}
+            max={60}
+          />
+          <FormInputField
+            name="schedulerMinSameMovieGapMinutes"
+            control={form.control}
+            label="Xếp lịch: giãn cách cùng phim (phút)"
+            type="number"
+            min={0}
+            max={1440}
+          />
+          <FormInputField
+            name="schedulerHeatLookbackDays"
+            control={form.control}
+            label="Heat: số ngày tính doanh số vé"
+            type="number"
+            min={1}
+            max={365}
+          />
+          <FormInputField
+            name="schedulerMaxRating"
+            control={form.control}
+            label="Heat: điểm đánh giá tối đa"
+            type="number"
+            step={0.5}
+            min={1}
+            max={10}
+          />
+          <FormInputField
+            name="schedulerHeatSalesWeight"
+            control={form.control}
+            label="Heat: trọng số doanh số"
+            type="number"
+            step={0.05}
+            min={0}
+            max={10}
+          />
+          <FormInputField
+            name="schedulerHeatRatingWeight"
+            control={form.control}
+            label="Heat: trọng số đánh giá"
+            type="number"
+            step={0.05}
+            min={0}
+            max={10}
+          />
+        </SettingsSection>
+
+        <div className="flex justify-end">
           <Button type="submit" disabled={updateSettings.isPending}>
             {updateSettings.isPending ? "Đang lưu..." : "Lưu cấu hình"}
           </Button>

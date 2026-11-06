@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-interface MultiSelectFieldProps<T> {
+export interface MultiSelectFieldProps<T> {
   value: (string | number)[];
   onChange: (values: (string | number)[], options: T[]) => void;
   options: T[];

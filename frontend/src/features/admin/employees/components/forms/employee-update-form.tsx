@@ -1,10 +1,9 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Switch } from "@/components/ui/switch";
+import { FieldGroup } from "@/components/ui/field";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 
@@ -13,6 +12,7 @@ import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-posi
 import type { AdminEmployeeDto } from "../../types";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
+import { FormSwitchField } from "@/components/common/form/form-switch-field";
 
 const employeeFormSchema = z.object({
   positionId: z.coerce.number().optional(),
@@ -82,16 +82,7 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
           calendarDisabled={{ after: getBusinessTodayDate() }}
         />
 
-        <Controller
-          name="isActive"
-          control={form.control}
-          render={({ field }) => (
-            <Field className="flex flex-row items-center justify-between">
-              <FieldLabel>Đang làm việc</FieldLabel>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
-            </Field>
-          )}
-        />
+        <FormSwitchField name="isActive" control={form.control} label="Đang làm việc" />
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

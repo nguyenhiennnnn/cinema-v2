@@ -1,18 +1,15 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldError,
   FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Textarea } from "@/components/ui/textarea";
+  } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateAgeRating } from "../../../hooks/use-admin-age-rating";
+import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 
 const ageRatingFormSchema = z.object({
   code: z
@@ -67,27 +64,11 @@ export const AgeRatingCreateForm = ({ onSuccess }: AgeRatingCreateFormProps) => 
           autoFocus
         />
 
-        <Controller
+        <FormTextareaField
           name="description"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="age-rating-create-description">
-                Mô tả (không bắt buộc)
-              </FieldLabel>
-              <Textarea
-                {...field}
-                id="age-rating-create-description"
-                placeholder="Phim dành cho khán giả từ đủ 18 tuổi trở lên..."
-                rows={3}
-                className="min-h-20 resize-none"
-                aria-invalid={fieldState.invalid}
-              />
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
-              )}
-            </Field>
-          )}
+          label="Mô tả (không bắt buộc)"
+          placeholder="Phim dành cho khán giả từ đủ 18 tuổi trở lên..."
         />
       </FieldGroup>
 

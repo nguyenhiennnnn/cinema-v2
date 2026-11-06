@@ -6,10 +6,8 @@ import { Plus, Trash2 } from "lucide-react";
 
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
-import { SingleSelectField } from "@/components/common/form/single-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { TimePickerField } from "@/components/common/date-time/time-picker-field";
 
@@ -18,6 +16,8 @@ import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminBulkCreateShowtimes } from "../../hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
+import { FormSwitchField } from "@/components/common/form/form-switch-field";
+import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 
 const daysOfWeekOptions = [
   { value: "Mon", label: "Th 2" },
@@ -107,46 +107,30 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <FieldGroup>
-        <Controller
+        <FormSearchSelectField
           name="movieId"
           control={form.control}
-          render={({ field }) => (
-            <Field>
-              <FieldLabel>Phim</FieldLabel>
-              <SingleSelectField
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                options={movies.data?.items ?? []}
-                getOptionValue={(o) => o.movieId}
-                getOptionLabel={(o) => o.title}
-                searchValue={movieSearch}
-                onSearchChange={setMovieSearch}
-                isLoading={movies.isLoading}
-                placeholder="Chọn phim"
-              />
-            </Field>
-          )}
+          label="Phim"
+          options={movies.data?.items ?? []}
+          getOptionValue={(o) => o.movieId}
+          getOptionLabel={(o) => o.title}
+          searchValue={movieSearch}
+          onSearchChange={setMovieSearch}
+          isLoading={movies.isLoading}
+          placeholder="Chọn phim"
         />
 
-        <Controller
+        <FormSearchSelectField
           name="roomId"
           control={form.control}
-          render={({ field }) => (
-            <Field>
-              <FieldLabel>Phòng chiếu</FieldLabel>
-              <SingleSelectField
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                options={rooms.data?.items ?? []}
-                getOptionValue={(o) => o.roomId}
-                getOptionLabel={(o) => o.roomName}
-                searchValue={roomSearch}
-                onSearchChange={setRoomSearch}
-                isLoading={rooms.isLoading}
-                placeholder="Chọn phòng chiếu"
-              />
-            </Field>
-          )}
+          label="Phòng chiếu"
+          options={rooms.data?.items ?? []}
+          getOptionValue={(o) => o.roomId}
+          getOptionLabel={(o) => o.roomName}
+          searchValue={roomSearch}
+          onSearchChange={setRoomSearch}
+          isLoading={rooms.isLoading}
+          placeholder="Chọn phòng chiếu"
         />
 
         <div className="grid grid-cols-2 gap-3">
@@ -226,16 +210,7 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
           step={1000}
         />
 
-        <Controller
-          name="allowAfterHours"
-          control={form.control}
-          render={({ field }) => (
-            <Field className="flex flex-row items-center justify-between">
-              <FieldLabel>Cho phép suất khuya (kết thúc sau giờ đóng cửa)</FieldLabel>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
-            </Field>
-          )}
-        />
+        <FormSwitchField name="allowAfterHours" control={form.control} label="Cho phép suất khuya (kết thúc sau giờ đóng cửa)" />
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

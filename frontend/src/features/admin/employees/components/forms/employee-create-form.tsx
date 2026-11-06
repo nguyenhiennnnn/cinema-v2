@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { SingleSelectField } from "@/components/common/form/single-select-field";
+import { FieldGroup } from "@/components/ui/field";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
@@ -14,6 +13,7 @@ import { useAdminCreateEmployee } from "../../hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
 import { useAdminUsersSelect } from "@/features/admin/users/hooks/use-admin-users";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 
 const employeeFormSchema = z.object({
   userId: z.coerce
@@ -60,28 +60,19 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
   return (
     <form id="employee-create-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <FieldGroup>
-        <Controller
+        <FormSearchSelectField
           name="userId"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Người dùng</FieldLabel>
-              <SingleSelectField
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                options={adminUsers.data ?? []}
-                getOptionValue={(o) => o.userId}
-                getOptionLabel={(o) => `${o.fullName} (${o.email})`}
-                searchValue={userSearch}
-                onSearchChange={setUserSearch}
-                isLoading={adminUsers.isLoading}
-                placeholder="Chọn người dùng"
-                searchPlaceholder="Tìm theo tên hoặc email..."
-                emptyText="Không tìm thấy người dùng phù hợp."
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Người dùng"
+          options={adminUsers.data ?? []}
+          getOptionValue={(o) => o.userId}
+          getOptionLabel={(o) => `${o.fullName} (${o.email})`}
+          searchValue={userSearch}
+          onSearchChange={setUserSearch}
+          isLoading={adminUsers.isLoading}
+          placeholder="Chọn người dùng"
+          searchPlaceholder="Tìm theo tên hoặc email..."
+          emptyText="Không tìm thấy người dùng phù hợp."
         />
 
         <FormSelectField

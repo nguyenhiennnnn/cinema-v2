@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-interface SingleSelectFieldProps<T> {
+export interface SingleSelectFieldProps<T> {
   value: string | number | null | undefined;
   onChange: (value: string | number | null, option: T | null) => void;
   options: T[];

@@ -1,19 +1,16 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldError,
   FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Textarea } from "@/components/ui/textarea";
+  } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
-import { ImageUploader } from "@/features/admin/uploads/components/image-uploader";
 
 import { useAdminCreateCombo } from "../../hooks/use-admin-combo";
+import { FormImageField } from "@/components/common/form/form-upload-field";
+import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 
 const comboFormSchema = z.object({
   name: z
@@ -65,22 +62,11 @@ export const ComboCreateForm = ({ onSuccess }: ComboCreateFormProps) => {
       className="space-y-4"
     >
       <FieldGroup>
-        <Controller
+        <FormImageField
           name="imageUrl"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Hình ảnh combo (không bắt buộc)</FieldLabel>
-              <ImageUploader
-                folder="combos"
-                value={field.value}
-                onChange={(result) => field.onChange(result?.url ?? "")}
-              />
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
-              )}
-            </Field>
-          )}
+          label="Hình ảnh combo (không bắt buộc)"
+          folder="combos"
         />
 
         <FormInputField
@@ -91,27 +77,11 @@ export const ComboCreateForm = ({ onSuccess }: ComboCreateFormProps) => {
           autoComplete="off"
         />
 
-        <Controller
+        <FormTextareaField
           name="description"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="combo-create-description">
-                Mô tả (không bắt buộc)
-              </FieldLabel>
-              <Textarea
-                {...field}
-                id="combo-create-description"
-                placeholder="1 bắp lớn + 2 nước ngọt vừa..."
-                rows={3}
-                className="min-h-20 resize-none"
-                aria-invalid={fieldState.invalid}
-              />
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
-              )}
-            </Field>
-          )}
+          label="Mô tả (không bắt buộc)"
+          placeholder="1 bắp lớn + 2 nước ngọt vừa..."
         />
 
         <FormInputField

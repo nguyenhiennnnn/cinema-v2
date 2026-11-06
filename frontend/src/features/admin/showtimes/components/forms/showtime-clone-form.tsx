@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { addDays, differenceInCalendarDays, format, parseISO, startOfWeek } from "date-fns";
@@ -9,12 +9,12 @@ import { toDateInputValue } from "@/lib/formatters";
 
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 
 import { useAdminCloneShowtimes } from "../../hooks/use-admin-showtimes";
 import type { BulkCreateShowtimesResponse } from "../../types";
+import { FormSwitchField } from "@/components/common/form/form-switch-field";
 
 const MAX_SOURCE_DAYS = 31;
 
@@ -149,16 +149,7 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
           </p>
         )}
 
-        <Controller
-          name="allowAfterHours"
-          control={form.control}
-          render={({ field }) => (
-            <Field className="flex flex-row items-center justify-between">
-              <FieldLabel>Cho phép suất khuya (kết thúc sau giờ đóng cửa)</FieldLabel>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
-            </Field>
-          )}
-        />
+        <FormSwitchField name="allowAfterHours" control={form.control} label="Cho phép suất khuya (kết thúc sau giờ đóng cửa)" />
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

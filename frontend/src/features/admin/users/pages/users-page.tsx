@@ -38,6 +38,8 @@ const AdminUsersPage = () => {
   const openAlertDialog = useAlertDialogOpen();
 
   const handleChangeRole = (user: AdminUserListItemDto) => {
+    // Không cho tự đổi vai trò của chính mình (backend cũng chặn).
+    if (user.userId === currentUserId) return;
     openDialog({
       title: "Đổi vai trò người dùng",
       description: `Cập nhật vai trò cho ${user.fullName}.`,

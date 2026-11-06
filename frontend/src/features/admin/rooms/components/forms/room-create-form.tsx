@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
-import { SingleSelectField } from "@/components/common/form/single-select-field";
 
 import { useAdminScreenTypes } from "@/features/admin/catalog/hooks/use-admin-screen-type";
 import { useAdminCreateRoom } from "../../hooks/use-admin-rooms";
+import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 
 const roomFormSchema = z.object({
   roomName: z.string().min(1, "Vui lòng nhập tên phòng chiếu.").max(100),
@@ -74,26 +74,17 @@ export const RoomCreateForm = ({ onSuccess }: RoomCreateFormProps) => {
           />
         </div>
 
-        <Controller
+        <FormSearchSelectField
           name="screenTypeId"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Loại màn hình (không bắt buộc)</FieldLabel>
-              <SingleSelectField
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                options={screenTypes.data?.items ?? []}
-                getOptionValue={(o) => o.screenTypeId}
-                getOptionLabel={(o) => o.name}
-                searchValue={screenTypeSearch}
-                onSearchChange={setScreenTypeSearch}
-                isLoading={screenTypes.isLoading}
-                placeholder="Chọn loại màn hình"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Loại màn hình (không bắt buộc)"
+          options={screenTypes.data?.items ?? []}
+          getOptionValue={(o) => o.screenTypeId}
+          getOptionLabel={(o) => o.name}
+          searchValue={screenTypeSearch}
+          onSearchChange={setScreenTypeSearch}
+          isLoading={screenTypes.isLoading}
+          placeholder="Chọn loại màn hình"
         />
       </FieldGroup>
 

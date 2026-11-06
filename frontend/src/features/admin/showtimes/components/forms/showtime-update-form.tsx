@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDateTimePickerField } from "@/components/common/form/form-datetime-picker-field";
-import { SingleSelectField } from "@/components/common/form/single-select-field";
 import { toBusinessIso } from "@/lib/business-time";
 import { toDateTimeInputValue } from "@/lib/formatters";
 
@@ -16,6 +15,7 @@ import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminUpdateShowtime } from "../../hooks/use-admin-showtimes";
 import type { AdminShowtimeDto } from "../../types";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -69,50 +69,32 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <FieldGroup>
-        <Controller
+        <FormSearchSelectField
           name="movieId"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Phim</FieldLabel>
-              <SingleSelectField
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                options={movies.data?.items ?? []}
-                getOptionValue={(o) => o.movieId}
-                getOptionLabel={(o) => o.title}
-                selectedLabel={showtime.movieTitle}
-                searchValue={movieSearch}
-                onSearchChange={setMovieSearch}
-                isLoading={movies.isLoading}
-                placeholder="Chọn phim"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Phim"
+          options={movies.data?.items ?? []}
+          getOptionValue={(o) => o.movieId}
+          getOptionLabel={(o) => o.title}
+          selectedLabel={showtime.movieTitle}
+          searchValue={movieSearch}
+          onSearchChange={setMovieSearch}
+          isLoading={movies.isLoading}
+          placeholder="Chọn phim"
         />
 
-        <Controller
+        <FormSearchSelectField
           name="roomId"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Phòng chiếu</FieldLabel>
-              <SingleSelectField
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                options={rooms.data?.items ?? []}
-                getOptionValue={(o) => o.roomId}
-                getOptionLabel={(o) => o.roomName}
-                selectedLabel={showtime.roomName}
-                searchValue={roomSearch}
-                onSearchChange={setRoomSearch}
-                isLoading={rooms.isLoading}
-                placeholder="Chọn phòng chiếu"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Phòng chiếu"
+          options={rooms.data?.items ?? []}
+          getOptionValue={(o) => o.roomId}
+          getOptionLabel={(o) => o.roomName}
+          selectedLabel={showtime.roomName}
+          searchValue={roomSearch}
+          onSearchChange={setRoomSearch}
+          isLoading={rooms.isLoading}
+          placeholder="Chọn phòng chiếu"
         />
 
         <FormDateTimePickerField

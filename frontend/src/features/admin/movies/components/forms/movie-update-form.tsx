@@ -10,9 +10,6 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
-import { MultiSelectField } from "@/components/common/form/multi-select-field";
-import { ImageUploader } from "@/features/admin/uploads/components/image-uploader";
-import { VideoUploader } from "@/features/admin/uploads/components/video-uploader";
 import { movieStatusOptions } from "@/lib/enum-options";
 
 import { useAdminDirectors } from "@/features/admin/catalog/hooks/use-admin-director";
@@ -26,6 +23,8 @@ import type { AdminMovieListItemDto } from "../../types";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { showApiErrorToast } from "@/lib/error";
 import { movieUpdateFormSchema, type MovieUpdateFormValues } from "../../schemas/movie-schema";
+import { FormMultiSelectField, FormSearchSelectField } from "@/components/common/form/form-search-select-field";
+import { FormImageField, FormVideoField } from "@/components/common/form/form-upload-field";
 
 interface MovieUpdateFormProps {
   movie: AdminMovieListItemDto;
@@ -142,20 +141,11 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <FieldGroup>
-        <Controller
+        <FormImageField
           name="posterUrl"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Poster phim (2:3)</FieldLabel>
-              <ImageUploader
-                folder="movies"
-                value={field.value}
-                onChange={(result) => field.onChange(result?.url ?? "")}
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Poster phim (2:3)"
+          folder="movies"
         />
 
         <FormInputField
@@ -178,50 +168,32 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
         />
 
         <div className="grid grid-cols-2 gap-3">
-          <Controller
+          <FormSearchSelectField
             name="directorId"
             control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Đạo diễn</FieldLabel>
-                <SingleSelectField
-                  value={field.value}
-                  onChange={(v) => field.onChange(v)}
-                  options={directors.data?.items ?? []}
-                  selectedLabel={movieDetail.data?.director?.fullName}
-                  getOptionValue={(o) => o.directorId}
-                  getOptionLabel={(o) => o.fullName}
-                  searchValue={directorSearch}
-                  onSearchChange={setDirectorSearch}
-                  isLoading={directors.isLoading}
-                  placeholder="Chọn đạo diễn"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
+            label="Đạo diễn"
+            options={directors.data?.items ?? []}
+            selectedLabel={movieDetail.data?.director?.fullName}
+            getOptionValue={(o) => o.directorId}
+            getOptionLabel={(o) => o.fullName}
+            searchValue={directorSearch}
+            onSearchChange={setDirectorSearch}
+            isLoading={directors.isLoading}
+            placeholder="Chọn đạo diễn"
           />
 
-          <Controller
+          <FormSearchSelectField
             name="languageId"
             control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Ngôn ngữ</FieldLabel>
-                <SingleSelectField
-                  value={field.value}
-                  onChange={(v) => field.onChange(v)}
-                  options={languages.data?.items ?? []}
-                  selectedLabel={movieDetail.data?.language?.name}
-                  getOptionValue={(o) => o.languageId}
-                  getOptionLabel={(o) => o.name}
-                  searchValue={languageSearch}
-                  onSearchChange={setLanguageSearch}
-                  isLoading={languages.isLoading}
-                  placeholder="Chọn ngôn ngữ"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
+            label="Ngôn ngữ"
+            options={languages.data?.items ?? []}
+            selectedLabel={movieDetail.data?.language?.name}
+            getOptionValue={(o) => o.languageId}
+            getOptionLabel={(o) => o.name}
+            searchValue={languageSearch}
+            onSearchChange={setLanguageSearch}
+            isLoading={languages.isLoading}
+            placeholder="Chọn ngôn ngữ"
           />
         </div>
 
@@ -242,27 +214,18 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Controller
+          <FormSearchSelectField
             name="ageRatingId"
             control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Phân loại độ tuổi</FieldLabel>
-                <SingleSelectField
-                  value={field.value}
-                  onChange={(v) => field.onChange(v)}
-                  options={ageRatings.data?.items ?? []}
-                  selectedLabel={movieDetail.data?.ageRating?.code}
-                  getOptionValue={(o) => o.ageRatingId}
-                  getOptionLabel={(o) => o.code}
-                  searchValue={ageRatingSearch}
-                  onSearchChange={setAgeRatingSearch}
-                  isLoading={ageRatings.isLoading}
-                  placeholder="Chọn độ tuổi"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
+            label="Phân loại độ tuổi"
+            options={ageRatings.data?.items ?? []}
+            selectedLabel={movieDetail.data?.ageRating?.code}
+            getOptionValue={(o) => o.ageRatingId}
+            getOptionLabel={(o) => o.code}
+            searchValue={ageRatingSearch}
+            onSearchChange={setAgeRatingSearch}
+            isLoading={ageRatings.isLoading}
+            placeholder="Chọn độ tuổi"
           />
 
           <FormInputField
@@ -273,20 +236,11 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
           />
         </div>
 
-        <Controller
+        <FormVideoField
           name="trailerUrl"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Trailer phim</FieldLabel>
-              <VideoUploader
-                folder="movies/trailers"
-                value={field.value}
-                onChange={(result) => field.onChange(result?.url ?? "")}
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Trailer phim"
+          folder="movies/trailers"
         />
 
         <FormSelectField
@@ -299,27 +253,18 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
           getOptionLabel={(o) => o.label}
         />
 
-        <Controller
+        <FormMultiSelectField
           name="genreIds"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Thể loại</FieldLabel>
-              <MultiSelectField
-                value={field.value ?? []}
-                onChange={(values) => field.onChange(values)}
-                options={genres.data?.items ?? []}
-                selectedOptions={movieDetail.data?.genres ?? []}
-                getOptionValue={(o) => o.genreId}
-                getOptionLabel={(o) => o.name}
-                searchValue={genreSearch}
-                onSearchChange={setGenreSearch}
-                isLoading={genres.isLoading}
-                placeholder="Chọn thể loại phim"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Thể loại"
+          options={genres.data?.items ?? []}
+          selectedOptions={movieDetail.data?.genres ?? []}
+          getOptionValue={(o) => o.genreId}
+          getOptionLabel={(o) => o.name}
+          searchValue={genreSearch}
+          onSearchChange={setGenreSearch}
+          isLoading={genres.isLoading}
+          placeholder="Chọn thể loại phim"
         />
 
         <Field>

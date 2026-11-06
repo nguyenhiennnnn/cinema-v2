@@ -8,7 +8,6 @@ import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
@@ -22,6 +21,7 @@ import {
   useAdminPreviewAutoSchedule,
 } from "../../hooks/use-admin-showtimes";
 import type { AutoScheduleResponseDto } from "../../types";
+import { FormSwitchField } from "@/components/common/form/form-switch-field";
 
 const formSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày."),
@@ -287,16 +287,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
           step={1000}
         />
 
-        <Controller
-          name="allowAfterHours"
-          control={form.control}
-          render={({ field }) => (
-            <Field className="flex flex-row items-center justify-between">
-              <FieldLabel>Cho phép suất khuya (kết thúc sau giờ đóng cửa)</FieldLabel>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
-            </Field>
-          )}
-        />
+        <FormSwitchField name="allowAfterHours" control={form.control} label="Cho phép suất khuya (kết thúc sau giờ đóng cửa)" />
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

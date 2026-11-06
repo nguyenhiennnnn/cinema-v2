@@ -59,11 +59,11 @@ const ChangePasswordPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <h1 className="font-heading text-xl font-semibold text-foreground">Đổi mật khẩu</h1>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="border border-border bg-card p-5">
+      <h2 className="font-heading text-lg font-semibold text-foreground">Đổi mật khẩu</h2>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5 border border-border bg-card p-5">
-        <FieldGroup className="space-y-4">
+      <FieldGroup className="mt-5 grid items-start gap-4 sm:grid-cols-2">
+        <div className="sm:col-span-2">
           <FormInputField
             name="currentPassword"
             control={form.control}
@@ -71,35 +71,35 @@ const ChangePasswordPage = () => {
             type="password"
             autoComplete="current-password"
           />
+        </div>
 
-          <div>
-            <FormInputField
-              name="newPassword"
-              control={form.control}
-              label="Mật khẩu mới"
-              type="password"
-              autoComplete="new-password"
-            />
-            <PasswordStrengthMeter password={newPassword} />
-          </div>
-
+        <div>
           <FormInputField
-            name="confirmPassword"
+            name="newPassword"
             control={form.control}
-            label="Xác nhận mật khẩu mới"
+            label="Mật khẩu mới"
             type="password"
             autoComplete="new-password"
           />
-        </FieldGroup>
-
-        <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={changePassword.isPending}>
-            {changePassword.isPending ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
-            <span>Cập nhật mật khẩu</span>
-          </Button>
+          <PasswordStrengthMeter password={newPassword} />
         </div>
-      </form>
-    </div>
+
+        <FormInputField
+          name="confirmPassword"
+          control={form.control}
+          label="Xác nhận mật khẩu mới"
+          type="password"
+          autoComplete="new-password"
+        />
+      </FieldGroup>
+
+      <div className="mt-6 flex justify-end">
+        <Button type="submit" disabled={changePassword.isPending}>
+          {changePassword.isPending ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+          <span>Cập nhật mật khẩu</span>
+        </Button>
+      </div>
+    </form>
   );
 };
 

@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
-import { SingleSelectField } from "@/components/common/form/single-select-field";
 
 import { useAdminScreenTypes } from "@/features/admin/catalog/hooks/use-admin-screen-type";
 import { useAdminUpdateRoom } from "../../hooks/use-admin-rooms";
 import type { AdminRoomDto } from "../../types";
+import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
+import { FormSwitchField } from "@/components/common/form/form-switch-field";
 
 const roomFormSchema = z.object({
   roomName: z.string().min(1, "Vui lòng nhập tên phòng chiếu.").max(100),
@@ -65,39 +65,21 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
           placeholder="VD: Phòng 01"
         />
 
-        <Controller
+        <FormSearchSelectField
           name="screenTypeId"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Loại màn hình</FieldLabel>
-              <SingleSelectField
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                options={screenTypes.data?.items ?? []}
-                getOptionValue={(o) => o.screenTypeId}
-                getOptionLabel={(o) => o.name}
-                selectedLabel={room.screenTypeName ?? undefined}
-                searchValue={screenTypeSearch}
-                onSearchChange={setScreenTypeSearch}
-                isLoading={screenTypes.isLoading}
-                placeholder="Chọn loại màn hình"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Loại màn hình"
+          options={screenTypes.data?.items ?? []}
+          getOptionValue={(o) => o.screenTypeId}
+          getOptionLabel={(o) => o.name}
+          selectedLabel={room.screenTypeName ?? undefined}
+          searchValue={screenTypeSearch}
+          onSearchChange={setScreenTypeSearch}
+          isLoading={screenTypes.isLoading}
+          placeholder="Chọn loại màn hình"
         />
 
-        <Controller
-          name="isActive"
-          control={form.control}
-          render={({ field }) => (
-            <Field className="flex flex-row items-center justify-between">
-              <FieldLabel>Đang hoạt động</FieldLabel>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
-            </Field>
-          )}
-        />
+        <FormSwitchField name="isActive" control={form.control} label="Đang hoạt động" />
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

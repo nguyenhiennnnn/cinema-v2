@@ -71,7 +71,9 @@ export async function waitForApiReady(page: Page, timeoutMs = 60_000): Promise<v
         isApiHealthy = true;
         return;
       }
-    } catch {}
+    } catch {
+      // API might be compiling or restarting; retry until timeout
+    }
     await new Promise((r) => setTimeout(r, 2_000));
   }
   throw new Error(`API at ${API_BASE_URL}/health was not ready within ${timeoutMs}ms`);
@@ -296,7 +298,9 @@ export async function createEligibleTicketForCheckin(
 
   try {
     await runSql(
-      `UPDATE "Showtimes" SET "StartTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '15 minutes', "EndTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '135 minutes' WHERE "ShowtimeId" = 1;`,
+      `UPDATE "Bookings" SET "Status" = 'Cancelled', "ExpiresAt" = (NOW() AT TIME ZONE 'UTC') - INTERVAL '1 minute' WHERE "ShowtimeId" = 1 AND "Status" = 'Pending';
+       UPDATE "ShowtimeSeats" SET "Status" = 'Available' WHERE "ShowtimeId" = 1 AND "Status" = 'Held';
+       UPDATE "Showtimes" SET "StartTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '15 minutes', "EndTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '135 minutes' WHERE "ShowtimeId" = 1;`,
     );
 
     // 1. Admin login to obtain admin token

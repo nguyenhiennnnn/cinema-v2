@@ -124,17 +124,7 @@ public class EmployeeService : IEmployeeService
             employee.IsActive = request.IsActive;
 
         if (!request.IsActive)
-        {
-            var now = DateTime.UtcNow;
-            var activeTokens = await db
-                .RefreshTokens.Where(rt => rt.UserId == userId && !rt.IsRevoked)
-                .ToListAsync(cancellationToken);
-            foreach (var token in activeTokens)
-            {
-                token.IsRevoked = true;
-                token.RevokedAt = now;
-            }
-        }
+            await db.RevokeActiveTokensAsync(userId, cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
 
@@ -209,16 +199,7 @@ public class EmployeeService : IEmployeeService
                 employee.IsActive = request.IsActive;
 
             if (!request.IsActive)
-            {
-                var activeTokens = await db
-                    .RefreshTokens.Where(rt => changedIds.Contains(rt.UserId) && !rt.IsRevoked)
-                    .ToListAsync(cancellationToken);
-                foreach (var token in activeTokens)
-                {
-                    token.IsRevoked = true;
-                    token.RevokedAt = now;
-                }
-            }
+                await db.RevokeActiveTokensAsync(changedIds, cancellationToken, now);
 
             await db.SaveChangesAsync(cancellationToken);
         }
@@ -273,15 +254,7 @@ public class EmployeeService : IEmployeeService
         user.RoleId = request.RoleId;
         user.UpdatedAt = DateTime.UtcNow;
 
-        var now = DateTime.UtcNow;
-        var activeTokens = await db
-            .RefreshTokens.Where(rt => rt.UserId == userId && !rt.IsRevoked)
-            .ToListAsync(cancellationToken);
-        foreach (var token in activeTokens)
-        {
-            token.IsRevoked = true;
-            token.RevokedAt = now;
-        }
+        await db.RevokeActiveTokensAsync(userId, cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
 
@@ -388,17 +361,7 @@ public class EmployeeService : IEmployeeService
         employee.IsActive = request.IsActive;
 
         if (wasActive && !request.IsActive)
-        {
-            var now = DateTime.UtcNow;
-            var activeTokens = await db
-                .RefreshTokens.Where(rt => rt.UserId == employee.UserId && !rt.IsRevoked)
-                .ToListAsync(cancellationToken);
-            foreach (var token in activeTokens)
-            {
-                token.IsRevoked = true;
-                token.RevokedAt = now;
-            }
-        }
+            await db.RevokeActiveTokensAsync(employee.UserId, cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
 

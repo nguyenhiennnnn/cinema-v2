@@ -378,8 +378,7 @@ public class AuthService(
 
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         db.RefreshTokens.Add(newRefreshTokenEntity);
-        existing.IsRevoked = true;
-        existing.RevokedAt = DateTime.UtcNow;
+        existing.Revoke();
         await db.SaveChangesAsync(cancellationToken);
         existing.ReplacedByTokenId = newRefreshTokenEntity.RefreshTokenId;
         await db.SaveChangesAsync(cancellationToken);
@@ -408,11 +407,7 @@ public class AuthService(
             if (token is null)
                 break;
 
-            if (!token.IsRevoked)
-            {
-                token.IsRevoked = true;
-                token.RevokedAt = now;
-            }
+            token.Revoke(now);
 
             nextTokenId = token.ReplacedByTokenId;
         }
@@ -432,12 +427,8 @@ public class AuthService(
             cancellationToken
         );
 
-        if (existing is not null && !existing.IsRevoked)
-        {
-            existing.IsRevoked = true;
-            existing.RevokedAt = DateTime.UtcNow;
+        if (existing is not null && existing.Revoke())
             await db.SaveChangesAsync(cancellationToken);
-        }
 
         return new MessageResponse(Messages.Success_LoggedOut);
     }
@@ -485,14 +476,7 @@ public class AuthService(
         user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
         user.UpdatedAt = DateTime.UtcNow;
 
-        var activeTokens = await db
-            .RefreshTokens.Where(rt => rt.UserId == userId && !rt.IsRevoked)
-            .ToListAsync(cancellationToken);
-        foreach (var rt in activeTokens)
-        {
-            rt.IsRevoked = true;
-            rt.RevokedAt = DateTime.UtcNow;
-        }
+        await db.RevokeActiveTokensAsync(userId, cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
         logger.LogInformation(
@@ -578,20 +562,16 @@ public class AuthService(
         );
         verificationToken.User.UpdatedAt = DateTime.UtcNow;
 
-        var activeRefreshTokens = await db
-            .RefreshTokens.Where(rt => rt.UserId == verificationToken.UserId && !rt.IsRevoked)
-            .ToListAsync(cancellationToken);
-        foreach (var rt in activeRefreshTokens)
-        {
-            rt.IsRevoked = true;
-            rt.RevokedAt = DateTime.UtcNow;
-        }
+        var revokedCount = await db.RevokeActiveTokensAsync(
+            verificationToken.UserId,
+            cancellationToken
+        );
 
         await db.SaveChangesAsync(cancellationToken);
         logger.LogInformation(
             "PasswordReset UserId {UserId} — đã thu hồi {Count} refresh token cũ.",
             verificationToken.UserId,
-            activeRefreshTokens.Count
+            revokedCount
         );
 
         return new MessageResponse(Messages.Success_PasswordReset);

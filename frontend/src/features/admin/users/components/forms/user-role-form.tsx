@@ -1,14 +1,14 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { EnumSelectFilter } from "@/components/common/filter/enum-select-filter";
+import { FieldGroup } from "@/components/ui/field";
 import { roleOptions } from "@/lib/enum-options";
 
 import type { AdminUserListItemDto } from "../../types";
 import { useAdminUpdateUserRole } from "../../hooks/use-admin-users";
+import { FormEnumSelectField } from "@/components/common/form/form-enum-select-field";
 
 const roleFormSchema = z.object({
   roleId: z.string().min(1, "Vui lòng chọn vai trò."),
@@ -43,22 +43,12 @@ export const UserRoleForm = ({ user, onSuccess }: UserRoleFormProps) => {
   return (
     <form id="user-role-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <FieldGroup>
-        <Controller
+        <FormEnumSelectField
           name="roleId"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Vai trò</FieldLabel>
-              <EnumSelectFilter
-                value={field.value}
-                onChange={(v) => field.onChange(v ?? "")}
-                options={roleOptions}
-                placeholder="Chọn vai trò"
-                allLabel="Chọn vai trò"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          label="Vai trò"
+          options={roleOptions}
+          placeholder="Chọn vai trò"
         />
       </FieldGroup>
 
