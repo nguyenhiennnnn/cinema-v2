@@ -61,7 +61,7 @@ Số liệu ở Bảng 5.2 được đếm ngày 05/11/2026 trên bản mã ngu�
 | Frontend (TS/TSX) | 438 tệp; 33.278 dòng, trong đó 296 tệp `.tsx` (24.977 dòng) | `find frontend/src \( -name '*.ts' -o -name '*.tsx' \) \| xargs wc -l`; riêng `.tsx` lọc theo `-name '*.tsx'` |
 | Test (C#) | 52 tệp; 10.484 dòng | `find backend/tests -name '*.cs' -not -path '*/bin/*' -not -path '*/obj/*' \| xargs wc -l` |
 | Seed (C#) | 4 tệp; 3.831 dòng | `find backend -path '*/Seed/*' -name '*.cs' \| xargs wc -l` |
-| Thực thể / enum / migration | 30 / 10 / 3 | Đếm tệp trong `Domain/Entities`, `Domain/Enums`; đếm lớp migration (không tính tệp `.Designer.cs` và snapshot) trong `Infrastructure/Migrations` |
+| Thực thể / enum / migration | 30 / 10 / 1 | Đếm tệp trong `Domain/Entities`, `Domain/Enums`; đếm lớp migration (không tính tệp `.Designer.cs` và snapshot) trong `Infrastructure/Migrations` |
 | Controller / endpoint | 33 / 137 (Admin 93, Client 39, khác 5) | Đếm tệp trong `Cinema.Api/Controllers` (22 Admin, 9 Client, `HealthController`, `PaymentsController`, không tính `AppControllerBase`); đếm thuộc tính `[HttpGet/Post/Put/Patch/Delete]` bằng `grep` |
 
 Phạm vi loại trừ: thư mục `bin/`, `obj/`, `node_modules/`, tệp sinh tự động của migration (`Migrations/`), mã kiểm thử, dữ liệu khởi tạo (đếm riêng) và các tệp không phải mã nguồn (JSON, Markdown, cấu hình).
@@ -175,7 +175,7 @@ Cộng điểm do `BookingService.ApplyLoyaltyAsync` thực hiện trong cùng g
 
 Đồng bộ điểm hết hạn do `LoyaltyExpiryService.RecalculateAllAsync` đảm nhiệm: tính một lần tổng điểm hiệu lực của mọi người dùng trong cửa sổ hiện tại, nạp danh sách hạng, rồi với từng `CustomerProfile` có `Points > 0` hoặc `TierId != null` so sánh giá trị mong đợi với giá trị đang lưu và chỉ ghi lại khi khác nhau, trả về số hồ sơ đã đổi. Dịch vụ được gọi bởi `ExpireLoyaltyPointsJob` theo biểu thức cron `ExpireLoyaltyPointsCron` (mặc định `5 * * * *`, tức phút thứ 5 của mỗi giờ; xem Mục 5.3.13).
 
-Điểm đáng chú ý là có hai đường đọc song song. Các quyết định ảnh hưởng đến tiền (tính giảm giá khi giữ ghế) và hiển thị hồ sơ đọc thẳng từ sổ điểm nên điểm vừa hết hạn có hiệu lực ngay; cột `Points`, `TierId` trong `CustomerProfile` chỉ là bản lưu đệm phục vụ truy vấn danh sách và được làm mới khi có thay đổi hoặc bởi tác vụ hằng giờ. Cơ sở dữ liệu lưu trữ bảng `LoyaltyPointEntries` được quản lý chính thức qua migration `20261104150128_AddLoyaltyTable`, với đầy đủ khóa ngoại, chỉ mục lọc `UX_LoyaltyPointEntries_Booking` và ràng buộc CHECK (`Points >= 0`, `RevokedPoints <= Points`).
+Điểm đáng chú ý là có hai đường đọc song song. Các quyết định ảnh hưởng đến tiền (tính giảm giá khi giữ ghế) và hiển thị hồ sơ đọc thẳng từ sổ điểm nên điểm vừa hết hạn có hiệu lực ngay; cột `Points`, `TierId` trong `CustomerProfile` chỉ là bản lưu đệm phục vụ truy vấn danh sách và được làm mới khi có thay đổi hoặc bởi tác vụ hằng giờ. Cơ sở dữ liệu lưu trữ bảng `LoyaltyPointEntries` được quản lý chính thức trong migration duy nhất `20261105145502_InitialCreate`, với đầy đủ khóa ngoại, chỉ mục lọc `UX_LoyaltyPointEntries_Booking` và ràng buộc CHECK (`Points >= 0`, `RevokedPoints <= Points`).
 
 ### 5.3.10 Module đánh giá
 
@@ -243,10 +243,10 @@ Bảng 5.3 tổng hợp mức độ cài đặt và bằng chứng kiểm chứn
 3. Tham chiếu mục thiết kế Chương 4: ngoài 4.5.1.3, Hình 4.34, 4.51, 4.54, 4.58 (lấy từ outline và file mã sơ đồ), các module khác chỉ dẫn chiếu chung "Chương 4"; cần điền số mục cụ thể khi gộp báo cáo.
 4. Đoạn mã minh họa: có hai đoạn ngắn (Mục 5.3.7 và 5.3.9); cần đồng bộ với Phụ lục 5 khi gộp.
 5. Phần đếm Bảng 5.2 dùng `find` + `wc -l` vì `cloc` không có sẵn; nếu cần số dòng mã thực thi, đếm lại bằng `cloc`.
-6. Mục 5.3.9: Migration `20261104150128_AddLoyaltyTable` đã được tạo và chứa đầy đủ cấu hình bảng `LoyaltyPointEntries`.
+6. Mục 5.3.9: Migration duy nhất `20261105145502_InitialCreate` đã được tạo và chứa đầy đủ cấu hình bảng `LoyaltyPointEntries`.
 
 **(b) Chỗ outline lệch code (theo code)**
-1. Mục 5.2.2 / Bảng 5.2: Mã nguồn hiện tại có đúng 4 lớp migration (`20261030084711_InitialCreate`, `20261031095302_PendingModelChanges`, `20261101120000_AddSeatGapRuleMode`, `20261104150128_AddLoyaltyTable`). Migration thứ 4 đã tạo bảng `LoyaltyPointEntries` và chuẩn hóa cột `SeatGapRuleMode` trong `CinemaSettings`, khớp hoàn toàn với `AppDbContextModelSnapshot.cs`.
+1. Mục 5.2.2 / Bảng 5.2: Toàn bộ lịch sử migration đã được gom gọn lại thành một migration duy nhất `20261105145502_InitialCreate.cs`. Migration này khởi tạo hoàn chỉnh 30 thực thể bao gồm bảng `LoyaltyPointEntries` và chuẩn hóa cột `SeatGapRuleMode` trong `CinemaSettings`, khớp hoàn toàn với `AppDbContextModelSnapshot.cs`.
 2. Mục 5.2.2: số dòng/tệp trong outline (backend ≈ 25.862; frontend ≈ 33.234 và 298 `.tsx`; test ≈ 9.275; seed ≈ 3.830) khác số đếm thật (22.293 / 33.278 và 296 `.tsx` / 10.484 / 3.831). Số controller (33) và endpoint (137: Admin 93, Client 39, khác 5) khớp outline. Cách đếm của outline chưa rõ.
 3. Mục 5.1.1: outline nêu lệnh `sitemap:build`, `build:full`; ở `package.json` gốc tên là `sitemap:frontend`, `build:frontend:full` (`sitemap:build`, `build:full` chỉ có ở `frontend/package.json`). `scripts/setup-env.mjs`, `frontend/scripts/build-sitemap.mjs` và thư mục `load-tests/` được lệnh tham chiếu nhưng không có trong tệp nén; `frontend/Dockerfile` chỉ có stage `deps` và `dev` (không có stage production).
 4. Mục 5.3.3: outline mô tả quy tắc trùng tên cho cả chín nhóm; code không kiểm tra trùng tên diễn viên và đạo diễn (`CreateActorAsync`, `CreateDirectorAsync`); phân loại độ tuổi kiểm tra theo `Code`, hạng thành viên theo `TierName`.

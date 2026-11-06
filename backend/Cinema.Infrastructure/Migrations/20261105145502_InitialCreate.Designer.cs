@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cinema.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261104150128_AddLoyaltyTable")]
-    partial class AddLoyaltyTable
+    [Migration("20261105145502_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

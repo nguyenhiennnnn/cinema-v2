@@ -3272,7 +3272,7 @@ Module không khai báo chỉ mục riêng ngoài khóa chính.
 ### 4.3.15 Migration
 
 - **Nội dung cần viết:**
-  - 4 migration: `InitialCreate` (30/10/2026), `PendingModelChanges` (31/10/2026), `AddSeatGapRuleMode` (01/11/2026), `AddLoyaltyPointEntries` [CẦN BỔ SUNG: ngày tạo migration; migration chưa được tạo/chạy tại thời điểm viết]
+  - Migration duy nhất: `InitialCreate` (`20261105145502_InitialCreate.cs`, 05/11/2026), khởi tạo toàn bộ 30 bảng, khóa ngoại, chỉ mục và dữ liệu tĩnh danh mục.
   - Script thủ công `Migrations/_manual/backfill_loyalty_entries.sql`: dựng sổ điểm từ các booking đã xác nhận (`EarnedAt` = lúc thanh toán thành công, trừ phần đã hoàn tiền); khách hàng cũ phải chạy trước khi bật job điểm hết hạn
   - Cách chạy: `npm run db:update`; cờ `RunMigrationsOnStartup`
 - **Nguồn dữ liệu:** `backend/Cinema.Infrastructure/Migrations/*`; `package.json`
@@ -3948,7 +3948,7 @@ Module không khai báo chỉ mục riêng ngoài khóa chính.
 ### 5.2.2 Quy mô mã nguồn
 
 - **Nội dung cần viết:**
-  - Backend ≈ 25.862 dòng C# (không tính migration, test); frontend ≈ 33.234 dòng TS/TSX (298 file `.tsx`); test ≈ 9.275 dòng C#; seed ≈ 3.830 dòng; 30 entity, 10 enum, 33 controller, 137 endpoint, 4 migration (số dòng mã chưa gồm thay đổi sổ điểm 12 tháng)
+  - Backend ≈ 25.862 dòng C# (không tính migration, test); frontend ≈ 33.234 dòng TS/TSX (298 file `.tsx`); test ≈ 9.275 dòng C#; seed ≈ 3.830 dòng; 30 entity, 10 enum, 33 controller, 137 endpoint, 1 migration duy nhất (20261105145502_InitialCreate) (số dòng mã chưa gồm thay đổi sổ điểm 12 tháng)
   - Đếm lại bằng lệnh và ghi rõ lệnh, phạm vi đếm khi chốt số liệu
 - **Tài liệu/hình/bảng:**
   - `Bảng 5.2` Quy mô mã nguồn
@@ -5182,7 +5182,7 @@ Module không khai báo chỉ mục riêng ngoài khóa chính.
 ### 7.3.10 Migration thiếu Designer, bỏ qua cảnh báo thay đổi mô hình
 
 - **Nội dung cần viết:**
-  - Bằng chứng: `Migrations/20261101120000_AddSeatGapRuleMode.cs`; `Infrastructure/DependencyInjection.cs` (`PendingModelChangesWarning`)
+  - Bằng chứng: `Migrations/20261105145502_InitialCreate.cs`; `Infrastructure/DependencyInjection.cs`
   - Tác động có thể xảy ra (nêu là khả năng, không khẳng định đã xảy ra): Snapshot có thể lệch mô hình
   - Đề xuất khắc phục: Tạo lại migration, bật cảnh báo
   - Mở file nguồn để xác minh lại bằng chứng trước khi viết

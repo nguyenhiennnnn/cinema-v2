@@ -40,7 +40,7 @@ Sơ đồ có ba quan hệ. Quan hệ `Users` – `LoyaltyPointEntries` là mộ
 | `BookingId` | int | Có | FK | Tham chiếu `Bookings.BookingId`; NULL cho dòng điểm không gắn booking | Booking sinh ra điểm |
 | `Points` | int | Không | — | Không có giá trị mặc định; ràng buộc `Points >= 0` | Điểm tích được từ booking |
 | `RevokedPoints` | int | Không | — | 0; ràng buộc `0 <= RevokedPoints <= Points` | Điểm đã thu hồi do hoàn tiền |
-| `EarnedAt` | timestamp with time zone | Không | — | Không có giá trị mặc định; ứng dụng ghi `DateTime.UtcNow` hoặc thời điểm thanh toán (dữ liệu mẫu); kiểu cột được xác lập chính thức qua migration `AddLoyaltyTable` | Thời điểm tích điểm; mốc xét cửa sổ 12 tháng |
+| `EarnedAt` | timestamp with time zone | Không | — | Không có giá trị mặc định; ứng dụng ghi `DateTime.UtcNow` hoặc thời điểm thanh toán (dữ liệu mẫu); kiểu cột được xác lập trong migration `InitialCreate` (`20261105145502_InitialCreate`) | Thời điểm tích điểm; mốc xét cửa sổ 12 tháng |
 
 Về cách đọc bảng: `Points` và `RevokedPoints` là hai số không âm lưu riêng để sổ điểm giữ được lịch sử tích điểm; điểm hiệu lực của một dòng là hiệu của chúng. Cấu hình `LoyaltyPointEntryConfiguration.cs` chỉ khai báo giá trị mặc định 0 cho `RevokedPoints`.
 
@@ -62,7 +62,7 @@ Ngoài ra, khóa ngoại `CustomerProfiles.TierId` tới `MembershipTiers` dùng
 
 #### 4.3.11.4 Chỉ mục
 
-Chỉ mục duy nhất `UX_LoyaltyPointEntries_Booking` được khai báo trong `LoyaltyPointEntryConfiguration.cs` bằng `HasIndex(x => x.BookingId).IsUnique().HasFilter("\"BookingId\" IS NOT NULL").HasDatabaseName("UX_LoyaltyPointEntries_Booking")`. Chỉ mục này bảo đảm mỗi booking sinh tối đa một dòng điểm, nhờ đó việc cổng thanh toán gọi lại webhook không cộng điểm hai lần; điều kiện lọc cho phép nhiều dòng không gắn booking cùng tồn tại. Chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt` phục vụ truy vấn lọc theo khách hàng và theo mốc `EarnedAt` trong `LoyaltyWindow.SumActiveAsync` và `LoyaltyWindow.GetStandingsAsync`. Chỉ mục duy nhất trên `TierName` được sinh trong migration `InitialCreate` với tên `IX_MembershipTiers_TierName`. Cả hai chỉ mục của `LoyaltyPointEntries` đã được tạo hoàn chỉnh trong migration `20261104150128_AddLoyaltyTable`.
+Chỉ mục duy nhất `UX_LoyaltyPointEntries_Booking` được khai báo trong `LoyaltyPointEntryConfiguration.cs` bằng `HasIndex(x => x.BookingId).IsUnique().HasFilter("\"BookingId\" IS NOT NULL").HasDatabaseName("UX_LoyaltyPointEntries_Booking")`. Chỉ mục này bảo đảm mỗi booking sinh tối đa một dòng điểm, nhờ đó việc cổng thanh toán gọi lại webhook không cộng điểm hai lần; điều kiện lọc cho phép nhiều dòng không gắn booking cùng tồn tại. Chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt` phục vụ truy vấn lọc theo khách hàng và theo mốc `EarnedAt` trong `LoyaltyWindow.SumActiveAsync` và `LoyaltyWindow.GetStandingsAsync`. Chỉ mục duy nhất trên `TierName` được sinh trong migration `InitialCreate` với tên `IX_MembershipTiers_TierName`. Cả hai chỉ mục của `LoyaltyPointEntries` đã được tạo hoàn chỉnh ngay trong migration duy nhất `20261105145502_InitialCreate`.
 
 *Bảng 4.74. Chỉ mục module Thành viên*
 
@@ -223,12 +223,9 @@ Chuyển `NowShowing` sang `Ended` có hai cơ chế. Thứ nhất, `ShowtimeSer
 
 ### 4.3.15 Migration
 
-Hệ thống dùng EF Core Code First; các migration nằm trong `backend/Cinema.Infrastructure/Migrations`. Bốn migration có trong mã nguồn, theo thứ tự thời gian:
+Hệ thống dùng EF Core Code First; các migration nằm trong `backend/Cinema.Infrastructure/Migrations`. Hiện tại, toàn bộ lược đồ cơ sở dữ liệu đã được tái cấu trúc và khởi tạo hoàn chỉnh từ đầu trong một migration duy nhất:
 
-- `InitialCreate` (`20261030084711`, ngày 30/10/2026): tạo 29 bảng cùng các ràng buộc CHECK, khóa ngoại và 51 lệnh tạo chỉ mục, đồng thời chèn dữ liệu tĩnh bằng `InsertData` (xem Mục 4.3.16). Trong dữ liệu chèn lúc này, dòng `CinemaSettings` có `CancelRefundPercent` bằng 100.
-- `PendingModelChanges` (`20261031095302`, ngày 31/10/2026): thêm hai cột số nguyên `CheckInOpenMinutes` và `HoldDurationMinutes` vào `CinemaSettings` (giá trị mặc định ở cột là 0), rồi cập nhật dòng `Id = 1` thành `CancelRefundPercent = 0`, `CheckInOpenMinutes = 30`, `HoldDurationMinutes = 15`. Phương thức `Down` xóa hai cột và đặt lại `CancelRefundPercent = 100`.
-- `AddSeatGapRuleMode` (`20261101120000`, ngày 01/11/2026): thêm cột `SeatGapRuleMode` kiểu `character varying(20)`, không cho NULL, giá trị mặc định `Strict`.
-- `AddLoyaltyTable` (`20261104150128`, ngày 04/11/2026): tạo bảng `LoyaltyPointEntries` gồm các cột `EntryId` (PK), `UserId` (FK `Users`), `BookingId` (FK `Bookings`), `Points`, `RevokedPoints`, `EarnedAt` (`timestamp with time zone`), chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt`, chỉ mục duy nhất có lọc `UX_LoyaltyPointEntries_Booking`, và hai ràng buộc CHECK `CK_LoyaltyPointEntries_Points` (`"Points" >= 0`) và `CK_LoyaltyPointEntries_Revoked` (`"RevokedPoints" >= 0 AND "RevokedPoints" <= "Points"`), đồng thời chuẩn hóa kiểu cột `SeatGapRuleMode` trong `CinemaSettings`. Cả thực thể và cấu hình này đã được cập nhật đồng bộ vào `AppDbContextModelSnapshot.cs`.
+- `InitialCreate` (`20261105145502_InitialCreate.cs`, ngày 05/11/2026): khởi tạo toàn bộ cấu trúc cơ sở dữ liệu gồm 30 bảng thực thể (bao gồm đầy đủ bảng sổ điểm `LoyaltyPointEntries`, cột `SeatGapRuleMode` và các tham số thời gian trong `CinemaSettings`), 36 khóa ngoại bảo đảm toàn vẹn tham chiếu, 53 chỉ mục (trong đó có chỉ mục duy nhất có lọc `UX_LoyaltyPointEntries_Booking` trên `BookingId IS NOT NULL` và chỉ mục `IX_LoyaltyPointEntries_User_EarnedAt`), 29 ràng buộc kiểm tra CHECK cho các trường dữ liệu và 8 kiểu liệt kê; đồng thời chèn dữ liệu tĩnh ban đầu (`Roles`, `Positions`, `AgeRatings`, `ScreenTypes`, `SeatTypes`, `Languages`, `Genres`, `MembershipTiers`, và bản ghi cấu hình rạp duy nhất `CinemaSettings` với `Id = 1`, `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `PointsPerAmount = 10000`, `SeatGapRuleMode = "Strict"`). Cấu hình này khớp hoàn toàn với `AppDbContextModelSnapshot.cs`.
 
 Về việc nạp dữ liệu sổ điểm (backfill) cho các đơn hàng cũ trước khi có bảng sổ điểm: Hệ thống thực hiện nạp dữ liệu khởi tạo mẫu trong `DbInitializer.SeedTestAccountsAsync` (tạo các dòng điểm khởi tạo theo từng tài khoản mẫu). Đối với dữ liệu lịch sử sản xuất, câu lệnh SQL nạp bù được thực hiện an toàn từ các booking đã xác nhận (`INSERT INTO "LoyaltyPointEntries" ("UserId", "BookingId", "Points", "RevokedPoints", "EarnedAt") SELECT "UserId", "BookingId", FLOOR("FinalAmount" / 10000), 0, "CreatedAt" FROM "Bookings" WHERE "Status" = 'Confirmed' AND "UserId" IS NOT NULL;`), hoặc tự động đồng bộ qua phương thức `LoyaltyExpiryService.RecalculateAllAsync`. Do `RecalculateAllAsync` đặt `CustomerProfile.Points` bằng tổng điểm trong sổ điểm của khách hàng trong cửa sổ 12 tháng gần nhất, việc nạp trước sổ điểm bảo đảm quyền lợi điểm tích lũy và hạng thành viên của khách hàng cũ khi tác vụ nền `ExpireLoyaltyPointsJob` vận hành định kỳ.
 
@@ -267,16 +264,16 @@ Thứ tư, nếu `seedDemoScenarios` bật và chưa có booking nào có mã b�
 
 <!-- GHI CHÚ ĐỐI CHIẾU -->
 <!--
-(a) [CẦN BỔ SUNG] còn lại
-1. Mục 4.3.11.2, Bảng 4.72: Kiểu cột thực tế của `LoyaltyPointEntries.EarnedAt` là `timestamp with time zone`, đã đối chiếu chính xác theo migration `20261104150128_AddLoyaltyTable.cs`.
-2. Mục 4.3.15: Migration `AddLoyaltyTable` (mã `20261104150128`) đã được đối chiếu chi tiết trong mã nguồn.
+(a) Các điểm đã hoàn thiện và đối chiếu
+1. Mục 4.3.11.2, Bảng 4.72: Kiểu cột thực tế của `LoyaltyPointEntries.EarnedAt` là `timestamp with time zone`, đã đối chiếu chính xác theo migration `20261105145502_InitialCreate.cs`.
+2. Mục 4.3.15: Migration duy nhất `InitialCreate` (mã `20261105145502`) đã được đối chiếu chi tiết trong mã nguồn.
 3. Mục 4.3.15: Việc nạp sổ điểm lịch sử đã làm rõ phương án nạp qua SQL / `DbInitializer` / `RecalculateAllAsync`.
 4. Hình 4.35–4.40: Cần chèn ảnh kết xuất từ sơ đồ máy trạng thái vào thư mục `hinh/` khi hoàn thiện bản in Word.
 
 (b) Chỗ outline/tài liệu đính kèm lệch code
-1. 4.3.11.2 (Bảng 4.71, 4.72): outline ghi `DiscountPercent` là decimal; code khai báo `decimal(5,2)` (numeric(5,2) trong migration). `EarnedAt` có kiểu `timestamp with time zone` trong migration `AddLoyaltyTable`.
+1. 4.3.11.2 (Bảng 4.71, 4.72): outline ghi `DiscountPercent` là decimal; code khai báo `decimal(5,2)` (numeric(5,2) trong migration). `EarnedAt` có kiểu `timestamp with time zone` trong migration `InitialCreate`.
 2. 4.3.11.1 (Hình 4.34): bản vá vẽ quan hệ Bookings–LoyaltyPointEntries là 0..1–0..1. Cấu hình EF dùng `HasOne(x => x.Booking).WithMany()` kèm chỉ mục duy nhất có lọc; tính một-một đến từ chỉ mục, không phải từ khai báo quan hệ. Tên khóa chính `UserId`, `BookingId`, `UserId` của `Users`, `Bookings`, `CustomerProfiles` khớp code.
-3. 4.3.11.4 (Bảng 4.74): outline ghi tên chỉ mục `TierName` là "tự sinh"; migration `InitialCreate` đặt tên `IX_MembershipTiers_TierName`. Chỉ mục `UX_LoyaltyPointEntries_Booking` và `IX_LoyaltyPointEntries_User_EarnedAt` đã được tạo trong migration `AddLoyaltyTable` và có trong snapshot.
+3. 4.3.11.4 (Bảng 4.74): outline ghi tên chỉ mục `TierName` là "tự sinh"; migration `InitialCreate` đặt tên `IX_MembershipTiers_TierName`. Chỉ mục `UX_LoyaltyPointEntries_Booking` và `IX_LoyaltyPointEntries_User_EarnedAt` đã được tạo trực tiếp trong migration `InitialCreate` và có trong snapshot.
 4. 4.3.12.2 (Bảng 4.75): outline để trống mặc định của `CancelDeadlineHours`, `StopSellingMinutesBefore`, `HoldDurationMinutes`, `CheckInOpenMinutes`. Code: các cột này không có DEFAULT ở CSDL, mặc định chỉ ở C# (2, 0, 15, 30); `CinemaSettingsConfiguration.cs` chỉ đặt DEFAULT cho `PointsPerAmount`, `CancelRefundPercent`, `SeatGapRuleMode`. Kiểu `PointsPerAmount` là numeric(18,2), `CancelRefundPercent` là numeric(5,2).
 5. 4.3.12.4 (Bảng 4.77): outline nói module không có chỉ mục riêng nên bảng không có dòng; để đủ số hiệu, bảng liệt kê khóa chính `PK_CinemaSettings`.
 6. 4.3.13 (Bảng 4.78): outline nói 10 kiểu liệt kê đều "kèm ràng buộc CHECK tương ứng". Code chỉ có CHECK cho 8 kiểu; `SeatGapRuleMode` và `VerificationTokenPurpose` không có CHECK trong cấu hình, migration hay snapshot.
@@ -284,7 +281,7 @@ Thứ tư, nếu `seedDemoScenarios` bật và chưa có booking nào có mã b�
 8. 4.3.14.2: đã xác minh Booked→Available xảy ra trong `CancelBookingAsync` qua `ReleaseConfirmedBookingSeatsAsync`; khi hủy suất, ghế Booked không đổi trạng thái (chỉ nhả ghế Held).
 9. 4.3.14.3: đã xác minh thanh toán tiền mặt tại quầy tạo payment trực tiếp ở trạng thái Success (không qua Pending). Code còn cho phép Failed→Success khi cổng báo thành công muộn (`IsAlreadyProcessed`), outline không nêu.
 10. 4.3.14.5: đã xác minh không có cơ chế tự động ComingSoon→NowShowing; code còn có NowShowing→Ended tự động và xóa mềm phim thành Ended khi phim đã có suất, outline chưa nêu cụ thể.
-11. 4.3.15: Hệ thống có 4 migration (`InitialCreate`, `PendingModelChanges`, `AddSeatGapRuleMode`, `AddLoyaltyTable`). Bảng `LoyaltyPointEntries` và cột `SeatGapRuleMode` đã hoàn chỉnh trong snapshot và migration thứ 4.
+11. 4.3.15: Hệ thống có 1 migration duy nhất `20261105145502_InitialCreate`. Toàn bộ 30 bảng gồm `LoyaltyPointEntries` và cột `SeatGapRuleMode` đã hoàn chỉnh trong snapshot và migration duy nhất này.
 12. 4.3.16: comment trong `BookingScenarioSeeder.Apply` nói giảm giá "giống CalculateDiscountAmountAsync", nhưng seeder lấy hạng từ `profile.TierId` (giá trị đồng bộ), còn `CalculateDiscountAmountAsync` tính hạng từ sổ điểm trong cửa sổ 12 tháng. Với dữ liệu mẫu hai cách có thể cho kết quả khác nhau.
 13. Hình 4.58 (trong bản vá `ma-nguon-so-do-mermaid-loyalty.md`, ngoài phạm vi phần này): nút thu hồi ghi `⌊RefundedAmount / PointsPerAmount⌋`; code tính số tiền thu hồi theo tỷ lệ `FinalAmount × RefundAmount / payment.Amount` (khi hủy suất dùng toàn bộ `FinalAmount`) rồi mới chia cho `PointsPerAmount`. Chưa sửa vì ngoài phạm vi.
 -->

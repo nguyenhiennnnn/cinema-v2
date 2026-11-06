@@ -68,7 +68,7 @@ Actor: khách vãng lai (chưa đăng nhập), khách hàng (`Customer`), nhân 
 | Lớp | Công nghệ (phiên bản theo `csproj`/`package.json`) | Vai trò |
 |---|---|---|
 | Backend | .NET `net10.0`, ASP.NET Core | Web API |
-| ORM / DB | EF Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3; PostgreSQL 16 (`docker-compose.yml`: `postgres:16-alpine`) | Lưu dữ liệu, migration (4 migration) |
+| ORM / DB | EF Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3; PostgreSQL 16 (`docker-compose.yml`: `postgres:16-alpine`) | Lưu dữ liệu, migration (1 migration duy nhất: `20261105145502_InitialCreate`) |
 | Validation | FluentValidation 12.1.1 | Kiểm tra request (filter `ValidationActionFilter`) |
 | Mapping | Mapster 10.0.11 | DTO mapping (`MappingConfig`) |
 | Auth | `Microsoft.AspNetCore.Authentication.JwtBearer`, `System.IdentityModel.Tokens.Jwt`, `PasswordHasher<User>` (Identity.Core), `Google.Apis.Auth` | JWT, hash mật khẩu, đăng nhập Google |
@@ -531,7 +531,7 @@ Lưu ý: `GET /admin/movies`, `GET /admin/showtimes`, `GET /admin/showtimes/cale
 
 # 3. Mô hình dữ liệu
 
-Nguồn: `backend/Cinema.Domain/Entities/*.cs`, `backend/Cinema.Domain/Enums/*.cs`, `backend/Cinema.Infrastructure/Persistence/Configurations/*.cs`, 4 migration trong `backend/Cinema.Infrastructure/Migrations` (`20261030084711_InitialCreate.cs`, `20261031095302_PendingModelChanges.cs`, `20261101120000_AddSeatGapRuleMode.cs`, `20261104150128_AddLoyaltyTable.cs`). Enum trạng thái được lưu dạng **chuỗi** (`HasConversion<string>()`) kèm check constraint `IN (...)` cho 8/10 enum.
+Nguồn: `backend/Cinema.Domain/Entities/*.cs`, `backend/Cinema.Domain/Enums/*.cs`, `backend/Cinema.Infrastructure/Persistence/Configurations/*.cs`, migration trong `backend/Cinema.Infrastructure/Migrations` (`20261105145502_InitialCreate.cs`). Enum trạng thái được lưu dạng **chuỗi** (`HasConversion<string>()`) kèm check constraint `IN (...)` cho 8/10 enum.
 
 ## 3.1 Sơ đồ ERD
 
@@ -619,17 +619,14 @@ erDiagram
 
 ### Ghi chú về ràng buộc và migration
 
-* **Lịch sử migration**: Hiện hệ thống có 4 migration EF Core trong `backend/Cinema.Infrastructure/Migrations`:
-  1. `20261030084711_InitialCreate`: Cấu trúc ban đầu gồm 29 entity và các bảng nối, index, check constraint.
-  2. `20261031095302_PendingModelChanges`: Thêm hai cột `CheckInOpenMinutes` và `HoldDurationMinutes` vào `CinemaSettings` và cập nhật bản ghi mẫu (`CancelRefundPercent = 0`, `CheckInOpenMinutes = 30`, `HoldDurationMinutes = 15`).
-  3. `20261101120000_AddSeatGapRuleMode`: Thêm cột `SeatGapRuleMode` kiểu `varchar(20)` vào `CinemaSettings` với giá trị mặc định `"Strict"`.
-  4. `20261104150128_AddLoyaltyTable`: Tạo bảng sổ điểm `LoyaltyPointEntries` kèm khóa ngoại, unique index có lọc (`BookingId IS NOT NULL`), index `(UserId, EarnedAt)`, và ràng buộc CHECK (`Points >= 0`, `RevokedPoints >= 0 AND RevokedPoints <= Points`); đồng thời chuẩn hóa kiểu cột `SeatGapRuleMode`.
+* **Lịch sử migration**: Hiện hệ thống đã gom gọn toàn bộ lược đồ CSDL từ đầu trong 1 migration duy nhất trong `backend/Cinema.Infrastructure/Migrations`:
+  1. `20261105145502_InitialCreate`: Khởi tạo hoàn chỉnh toàn bộ 30 thực thể/bảng dữ liệu (bao gồm cả `LoyaltyPointEntries`, cột `SeatGapRuleMode` kiểu `varchar(20)` mặc định `"Strict"` và các tham số thời gian trong `CinemaSettings`), các bảng nối, 53 index/unique index (bao gồm `UX_LoyaltyPointEntries_Booking` có điều kiện lọc `BookingId IS NOT NULL`, `IX_LoyaltyPointEntries_User_EarnedAt`), 36 khóa ngoại và 29 ràng buộc check constraint (`CK_LoyaltyPointEntries_Points`, `CK_LoyaltyPointEntries_Revoked`, check constraint cho 8/10 enum); đồng thời seed dữ liệu tĩnh cho 9 danh mục.
 * **Ràng buộc CHECK cho Enum**: 8 trong 10 enum có check constraint trong DB; riêng `SeatGapRuleMode` và `VerificationTokenPurpose` không có check constraint ở DB, tính hợp lệ do tầng ứng dụng đảm nhiệm.
 * **Không có exclusion constraint chống trùng giờ chiếu** trong migration. `ExceptionHandlingMiddleware` có xử lý lỗi PostgreSQL `23P01` với tên `EX_Showtimes_Room_NoOverlap`, nhưng tên này chỉ xuất hiện trong middleware (tìm toàn repo). Chống trùng giờ hiện chỉ do `ShowtimeService.EnsureNoOverlapAsync` ở tầng ứng dụng, nên về lý thuyết có thể xảy ra race giữa hai yêu cầu đồng thời (chưa có test cho tình huống này).
 * **Chống giữ trùng ghế** dựa vào câu lệnh cập nhật có điều kiện (`ExecuteUpdate` chuyển `Available → Held`, kiểm tra số dòng bị ảnh hưởng) trong `BookingService.CreateHoldBookingAsync`; unique `UQ_Showtime_Seat` chỉ đảm bảo mỗi ghế có một dòng cho mỗi suất; có integration test chạy song song (`HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409`).
 * **Vé cũ còn trong DB sau khi hủy**: khi hủy booking đã xác nhận, ghế được trả về `Available` nhưng dòng `BookingTicket` không bị xóa. Khi ghế được xác nhận lại ở booking mới, `ConfirmBookingAndGenerateTicketsAsync` xóa các `BookingTicket` cũ của booking không phải `Confirmed` trên cùng ghế để không vi phạm unique `ShowtimeSeatId`.
 * Thời gian lưu dạng `timestamp without time zone` (UTC); riêng bảng `LoyaltyPointEntries.EarnedAt` lưu `timestamp with time zone` (UTC); nghiệp vụ "ngày kinh doanh" dùng giờ Việt Nam (`Utils/VietnamTime.cs`, `DateTimeUtils.cs`).
-* Mặc định `CinemaSettings`: dòng seed ban đầu có `CancelRefundPercent = 100`, nhưng sau migration `PendingModelChanges` giá trị được cập nhật thành `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `StopSellingMinutesBefore = 0`, `PointsPerAmount = 10000`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `SeatGapRuleMode = Strict`, mở cửa `08:00`, đóng cửa `23:59` (xem [12](#s12)).
+* Mặc định `CinemaSettings`: khởi tạo seed trực tiếp trong migration với `CancelRefundPercent = 0`, `CancelDeadlineHours = 2`, `StopSellingMinutesBefore = 0`, `PointsPerAmount = 10000`, `HoldDurationMinutes = 15`, `CheckInOpenMinutes = 30`, `SeatGapRuleMode = Strict`, mở cửa `08:00`, đóng cửa `23:59` (xem [12](#s12)).
 
 ## 3.3 Sơ đồ chuyển trạng thái
 
@@ -1704,14 +1701,14 @@ Nguồn: `Cinema.Application/Options/*.cs`, `Cinema.Api/appsettings.json`, `apps
 
 ## 9.2 Cấu hình trong DB (`CinemaSettings`, một dòng `Id = 1`)
 
-Sửa tại `PUT /admin/settings` (trang Cài đặt). Giá trị seed lấy từ migration `InitialCreate` và được cập nhật qua `PendingModelChanges`, `AddSeatGapRuleMode`.
+Sửa tại `PUT /admin/settings` (trang Cài đặt). Giá trị seed được khởi tạo trực tiếp trong migration `InitialCreate` (`20261105145502_InitialCreate`).
 
 | Trường | Ý nghĩa | Seed/mặc định | Ảnh hưởng nghiệp vụ |
 |---|---|---|---|
 | `Name`, `Address`, `Phone`, `Email`, `TaxCode`, `LogoUrl` | Thông tin rạp | Theo seed | Hiển thị; `Email` nhận cảnh báo hoàn tiền thủ công (PAY-06) |
 | `OpeningTime`, `ClosingTime` | Giờ hoạt động | 08:00 / 23:59 | SHW-06; prompt AI |
 | `PointsPerAmount` | VNĐ cho 1 điểm | 10.000 | LY-01 |
-| `CancelRefundPercent` | % hoàn khi khách hủy | 0 (seed ban đầu 100, migration `PendingModelChanges` cập nhật 0) | RF-06 |
+| `CancelRefundPercent` | % hoàn khi khách hủy | 0 (seed mặc định 0) | RF-06 |
 | `CancelDeadlineHours` | Hạn hủy hoàn tiền (giờ trước giờ chiếu) | 2 | RF-06 |
 | `StopSellingMinutesBefore` | Ngừng bán online trước giờ chiếu | 0 (không giới hạn) | BK-02 |
 | `HoldDurationMinutes` | Thời gian giữ ghế online (phút) | 15 (khoảng 1–120) | BK-07, BK-13 |
@@ -1817,7 +1814,7 @@ Mọi thông báo là **email HTML** gửi bằng `SendEmailJob` → `FallbackEm
 
 # 12. Dữ liệu seed và kịch bản mẫu
 
-Nguồn: `Cinema.Infrastructure/Persistence/Seed/{SeedData,DbInitializer,ShowtimeSeeder,BookingScenarioSeeder}.cs`, migration `InitialCreate` (`HasData`).
+Nguồn: `Cinema.Infrastructure/Persistence/Seed/{SeedData,DbInitializer,ShowtimeSeeder,BookingScenarioSeeder}.cs`, migration `InitialCreate` (`20261105145502_InitialCreate`) (`HasData`).
 
 ## 12.1 Khi nào seed chạy
 
@@ -1956,7 +1953,7 @@ Những hành vi đã đối chiếu với test:
 
 # Phụ lục: thông tin tạo tài liệu
 
-**Ngày tạo:** 31/10/2026. **Cập nhật toàn diện:** 05/11/2026 (sau migration `AddLoyaltyTable` và `AddSeatGapRuleMode`).
+**Ngày tạo:** 31/10/2026. **Cập nhật toàn diện:** 05/11/2026 (sau khi gom gọn toàn bộ lịch sử migration về duy nhất `20261105145502_InitialCreate`).
 
 ## A.1 Thư mục/khu vực đã đọc
 
@@ -1964,7 +1961,7 @@ Những hành vi đã đối chiếu với test:
 |---|---|
 | `backend/Cinema.Domain` (30 entity, 10 enum) | Đọc toàn bộ |
 | `backend/Cinema.Shared` (hằng số, exception) | Đọc toàn bộ |
-| `backend/Cinema.Infrastructure/Persistence` (DbContext, Configurations, Seed, 4 migration: `InitialCreate`, `PendingModelChanges`, `AddSeatGapRuleMode`, `AddLoyaltyTable`) | Đọc toàn bộ cấu hình và migration; seed đọc theo cấu trúc, đếm dữ liệu mẫu |
+| `backend/Cinema.Infrastructure/Persistence` (DbContext, Configurations, Seed, migration duy nhất: `20261105145502_InitialCreate`) | Đọc toàn bộ cấu hình và migration; seed đọc theo cấu trúc, đếm dữ liệu mẫu |
 | `backend/Cinema.Infrastructure` (Payments, Email, FileStorage, Realtime, Auth, DI) | Đọc toàn bộ |
 | `backend/Cinema.Application` (Services, Validators, BackgroundJobs, Options, Utils, DI) | Đọc toàn bộ service; validator trích quy tắc bằng script; `EmailTemplates` đọc hàm, tiêu đề, người nhận (không đọc từng dòng HTML) |
 | `backend/Cinema.Api` (Program.cs, Controllers, Filters, Middlewares, appsettings) | Đọc toàn bộ; ma trận endpoint sinh tự động từ attribute (137 endpoint) |

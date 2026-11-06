@@ -59,7 +59,10 @@ namespace Cinema.Infrastructure.Migrations
                     PointsPerAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false, defaultValue: 10000m),
                     CancelRefundPercent = table.Column<decimal>(type: "numeric(5,2)", nullable: false, defaultValue: 0m),
                     CancelDeadlineHours = table.Column<int>(type: "integer", nullable: false),
-                    StopSellingMinutesBefore = table.Column<int>(type: "integer", nullable: false)
+                    StopSellingMinutesBefore = table.Column<int>(type: "integer", nullable: false),
+                    HoldDurationMinutes = table.Column<int>(type: "integer", nullable: false),
+                    CheckInOpenMinutes = table.Column<int>(type: "integer", nullable: false),
+                    SeatGapRuleMode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Strict")
                 },
                 constraints: table =>
                 {
@@ -634,6 +637,37 @@ namespace Cinema.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LoyaltyPointEntries",
+                columns: table => new
+                {
+                    EntryId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    BookingId = table.Column<int>(type: "integer", nullable: true),
+                    Points = table.Column<int>(type: "integer", nullable: false),
+                    RevokedPoints = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    EarnedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LoyaltyPointEntries", x => x.EntryId);
+                    table.CheckConstraint("CK_LoyaltyPointEntries_Points", "\"Points\" >= 0");
+                    table.CheckConstraint("CK_LoyaltyPointEntries_Revoked", "\"RevokedPoints\" >= 0 AND \"RevokedPoints\" <= \"Points\"");
+                    table.ForeignKey(
+                        name: "FK_LoyaltyPointEntries_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LoyaltyPointEntries_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
@@ -804,8 +838,8 @@ namespace Cinema.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "CinemaSettings",
-                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CancelRefundPercent", "ClosingTime", "Email", "LogoUrl", "Name", "OpeningTime", "Phone", "PointsPerAmount", "StopSellingMinutesBefore", "TaxCode", "UpdatedAt" },
-                values: new object[] { 1, "Đang cập nhật", 2, 100m, new TimeOnly(23, 59, 0), null, null, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, 0, null, null });
+                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CheckInOpenMinutes", "ClosingTime", "Email", "HoldDurationMinutes", "LogoUrl", "Name", "OpeningTime", "Phone", "PointsPerAmount", "StopSellingMinutesBefore", "TaxCode", "UpdatedAt" },
+                values: new object[] { 1, "Đang cập nhật", 2, 30, new TimeOnly(23, 59, 0), null, 15, null, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, 0, null, null });
 
             migrationBuilder.InsertData(
                 table: "Combos",
@@ -1390,6 +1424,18 @@ namespace Cinema.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_LoyaltyPointEntries_User_EarnedAt",
+                table: "LoyaltyPointEntries",
+                columns: new[] { "UserId", "EarnedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "UX_LoyaltyPointEntries_Booking",
+                table: "LoyaltyPointEntries",
+                column: "BookingId",
+                unique: true,
+                filter: "\"BookingId\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MembershipTiers_TierName",
                 table: "MembershipTiers",
                 column: "TierName",
@@ -1582,6 +1628,9 @@ namespace Cinema.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "CustomerProfiles");
+
+            migrationBuilder.DropTable(
+                name: "LoyaltyPointEntries");
 
             migrationBuilder.DropTable(
                 name: "MovieCast");
