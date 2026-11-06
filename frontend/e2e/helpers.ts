@@ -59,6 +59,24 @@ async function runSql(sql: string): Promise<boolean> {
   }
 }
 
+let isApiHealthy = false;
+
+export async function waitForApiReady(page: Page, timeoutMs = 60_000): Promise<void> {
+  if (isApiHealthy) return;
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const res = await page.request.get(`${API_BASE_URL}/health`, { timeout: 3_000 });
+      if (res.ok()) {
+        isApiHealthy = true;
+        return;
+      }
+    } catch {}
+    await new Promise((r) => setTimeout(r, 2_000));
+  }
+  throw new Error(`API at ${API_BASE_URL}/health was not ready within ${timeoutMs}ms`);
+}
+
 let customerApiToken: string | null = null;
 let adminApiToken: string | null = null;
 
@@ -67,6 +85,7 @@ async function loginForToken(
   path: string,
   credentials: { email: string; password: string },
 ): Promise<string | null> {
+  await waitForApiReady(page);
   const res = await page.request.post(`${API_BASE_URL}${path}`, {
     data: { email: credentials.email, password: credentials.password },
   });
@@ -123,6 +142,7 @@ export async function ensureNoPendingBookings(page: Page) {
 }
 
 export async function loginAsCustomer(page: Page) {
+  await waitForApiReady(page);
   await ensureNoPendingBookings(page);
 
   const MAX_ATTEMPTS = 3;
@@ -158,6 +178,7 @@ export async function loginAsCustomer(page: Page) {
 }
 
 export async function loginAsAdmin(page: Page) {
+  await waitForApiReady(page);
   const MAX_ATTEMPTS = 3;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
