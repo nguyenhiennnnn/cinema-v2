@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
-import { loginAsAdmin } from "./helpers";
+import { cleanFutureTestShowtimes, loginAsAdmin } from "./helpers";
+
+test.setTimeout(120_000);
 
 test("admin showtimes management flow: switch views, filter, create new showtime, verify, and cancel", async ({
   page,
 }) => {
+  // Ensure a clean slate for future test showtimes
+  await cleanFutureTestShowtimes();
+
   // 1. Log in as Admin
   await loginAsAdmin(page);
 
@@ -43,6 +48,8 @@ test("admin showtimes management flow: switch views, filter, create new showtime
   await movieCombobox.click();
   const firstMovieOption = page.locator('[role="option"], [cmdk-item]').first();
   await expect(firstMovieOption).toBeVisible({ timeout: 5_000 });
+  const selectedMovieTitle =
+    (await firstMovieOption.textContent())?.trim() ?? "";
   await firstMovieOption.click();
 
   // 6. Select Room
@@ -67,6 +74,11 @@ test("admin showtimes management flow: switch views, filter, create new showtime
   await expect(calendarDay).toBeVisible({ timeout: 5_000 });
   await calendarDay.click();
 
+  // Ensure a valid daytime hour (10:00) within cinema operating hours (08:00 - 23:59)
+  const timeInput = page.locator('input[type="time"]');
+  await expect(timeInput).toBeEnabled({ timeout: 5_000 });
+  await timeInput.fill("10:00");
+
   // Click "Xong" in datetime popover
   const doneButton = page.getByRole("button", { name: "Xong" });
   await expect(doneButton).toBeEnabled();
@@ -88,12 +100,15 @@ test("admin showtimes management flow: switch views, filter, create new showtime
   ).toBeVisible({ timeout: 10_000 });
 
   // 10. Verify created showtime appears in DataTable
-  const showtimeRows = page.locator("tbody tr");
-  await expect(showtimeRows.first()).toBeVisible({ timeout: 10_000 });
+  const showtimeRow = page
+    .locator("tbody tr")
+    .filter({ hasText: selectedMovieTitle })
+    .filter({ has: page.getByRole("button", { name: "Mở menu" }) })
+    .first();
+  await expect(showtimeRow).toBeVisible({ timeout: 10_000 });
 
   // 11. Open row action menu to cancel/delete the showtime
-  const actionMenuButton = showtimeRows
-    .first()
+  const actionMenuButton = showtimeRow
     .getByRole("button", { name: "Mở menu" })
     .first();
   await actionMenuButton.click();
@@ -104,14 +119,17 @@ test("admin showtimes management flow: switch views, filter, create new showtime
   await cancelMenuItem.click();
 
   // Confirm cancel dialog
-  const confirmCancelButton = page.getByRole("button", {
-    name: /^Hủy suất chiếu$/i,
+  const alertDialog = page.getByRole("alertdialog");
+  await expect(alertDialog).toBeVisible({ timeout: 5_000 });
+  const confirmCancelButton = alertDialog.getByRole("button", {
+    name: /Hủy suất chiếu/i,
   });
   await expect(confirmCancelButton).toBeVisible();
   await confirmCancelButton.click();
 
-  // Verify cancel success toast
+  // Verify cancel success toast and dialog dismissed
+  await expect(alertDialog).not.toBeVisible({ timeout: 10_000 });
   await expect(
-    page.getByText(/Đã hủy suất chiếu/i),
+    page.getByText(/Đã h[uủ][yỷ] suất chiếu/i),
   ).toBeVisible({ timeout: 10_000 });
 });

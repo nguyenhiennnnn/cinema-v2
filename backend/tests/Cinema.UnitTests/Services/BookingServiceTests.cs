@@ -535,35 +535,37 @@ public class BookingServiceConfirmAndCancelTests : BookingServiceTestBase
     }
 
     [Fact]
-    public async Task CalculateRefundEligibilityAsync_ZeroRefundPercent_NotEligible()
+    public async Task CancelBookingAsync_ConfirmedBookingZeroRefundPercent_ThrowsBusinessRuleException()
     {
-        TestDataSeeder.SetCinemaSettings(Db, cancelRefundPercent: 0m);
-        var sut = CreateSut();
-
-        var result = await sut.CalculateRefundEligibilityAsync(
-            DateTime.UtcNow.AddDays(2),
-            100_000m,
+        TestDataSeeder.SetCinemaSettings(Db, cancelRefundPercent: 0m, cancelDeadlineHours: 2);
+        var (booking, customer, _) = await SeedHeldBookingAsync(
+            startTime: DateTime.UtcNow.AddDays(2)
+        );
+        var confirmSut = CreateSut();
+        await confirmSut.ConfirmBookingAndGenerateTicketsAsync(
+            booking.BookingId,
             CancellationToken.None
         );
-
-        result.Eligible.ShouldBeFalse();
-        result.RefundAmount.ShouldBe(0m);
-    }
-
-    [Fact]
-    public async Task CalculateRefundEligibilityAsync_WithinDeadlineWindow_ReturnsRoundedRefundAmount()
-    {
-        TestDataSeeder.SetCinemaSettings(Db, cancelRefundPercent: 90m, cancelDeadlineHours: 2);
+        Db.Payments.Add(
+            new Payment
+            {
+                BookingId = booking.BookingId,
+                PaymentMethod = PaymentMethod.VNPay,
+                Status = PaymentStatus.Success,
+                Amount = booking.FinalAmount,
+                TransactionId = "TXN-1",
+                PaidAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+            }
+        );
+        await Db.SaveChangesAsync();
+        AddPaymentGateway("VNPay");
         var sut = CreateSut();
 
-        var result = await sut.CalculateRefundEligibilityAsync(
-            DateTime.UtcNow.AddDays(2),
-            100_000m,
-            CancellationToken.None
+        var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
+            sut.CancelBookingAsync(customer.UserId, booking.BookingId, CancellationToken.None)
         );
-
-        result.Eligible.ShouldBeTrue();
-        result.RefundAmount.ShouldBe(90_000m);
+        ex.Message.ShouldBe("Rạp hiện không hỗ trợ hoàn tiền.");
     }
 
     [Fact]

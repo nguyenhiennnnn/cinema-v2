@@ -33,7 +33,7 @@ test("customer sees a clear failure state when a booking ends up cancelled/faile
   ).toBeVisible();
   await expect(page.getByText(hold!.bookingCode)).toBeVisible();
 
-  await expect(page.getByText(/Vé điện tử/i)).not.toBeVisible();
+  await expect(page.locator("main").getByText(/Vé điện tử/i)).not.toBeVisible();
 
   await expect(
     page.getByRole("link", { name: /Xem vé của tôi/i }),

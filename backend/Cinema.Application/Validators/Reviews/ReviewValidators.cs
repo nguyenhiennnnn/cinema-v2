@@ -11,8 +11,8 @@ public class CreateReviewRequestValidator : AbstractValidator<CreateReviewReques
     public CreateReviewRequestValidator()
     {
         RuleFor(x => x.Rating)
-            .InclusiveBetween(1, 10)
-            .WithMessage(Messages.Validation_Rating_Range1To10);
+            .InclusiveBetween(1, 5)
+            .WithMessage(Messages.Validation_Rating_Range1To5);
 
         RuleFor(x => x.Comment)
             .MaximumLength(1000)

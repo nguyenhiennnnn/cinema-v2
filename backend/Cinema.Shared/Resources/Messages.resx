@@ -948,8 +948,8 @@
   <data name="Validation_Quantity_Positive" xml:space="preserve">
     <value>quantity phải lớn hơn 0.</value>
   </data>
-  <data name="Validation_Rating_Range1To10" xml:space="preserve">
-    <value>Điểm đánh giá (rating) phải từ 1 đến 10.</value>
+  <data name="Validation_Rating_Range1To5" xml:space="preserve">
+    <value>Điểm đánh giá (rating) phải từ 1 đến 5.</value>
   </data>
   <data name="Validation_ReviewContent_MaxLength1000" xml:space="preserve">
     <value>Nội dung đánh giá không được vượt quá 1000 ký tự.</value>

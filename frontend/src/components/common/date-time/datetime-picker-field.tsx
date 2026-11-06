@@ -44,7 +44,14 @@ export const DateTimePickerField = ({
       return;
     }
     const base = selected ?? getBusinessNow();
-    onChange(toDateTimeInputValue(combineDateAndTime(date, toTimeValue(base))));
+    let timeStr = toTimeValue(base);
+    if (!selected) {
+      const nowH = base.getHours();
+      if (nowH < 8 || nowH >= 23) {
+        timeStr = "10:00";
+      }
+    }
+    onChange(toDateTimeInputValue(combineDateAndTime(date, timeStr)));
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {

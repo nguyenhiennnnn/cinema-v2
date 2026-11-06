@@ -14,7 +14,7 @@ public static class ShowtimeScheduler
 {
     public static double Heat(int tickets, int maxTickets, decimal rating) =>
         Math.Clamp(
-            (maxTickets > 0 ? 0.7 * tickets / maxTickets : 0) + 0.3 * (double)rating / 10,
+            (maxTickets > 0 ? 0.7 * tickets / maxTickets : 0) + 0.3 * (double)rating / 5,
             0,
             1
         );

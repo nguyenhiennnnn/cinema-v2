@@ -12,6 +12,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 import { formatCurrency, formatDate, formatTime } from "@/lib/formatters";
+import { ShowtimeStatus } from "@/types/enum";
 
 import type { AdminShowtimeDto } from "../types";
 
@@ -84,7 +85,11 @@ export const createShowtimeColumns = ({
         columnHelper.display({
           id: "actions",
           header: () => <div className="text-right">Hành động</div>,
-          cell: ({ row }) => (
+          cell: ({ row }) => {
+            if (row.original.status !== ShowtimeStatus.Scheduled) {
+              return null;
+            }
+            return (
             <div className="flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger>
@@ -106,7 +111,8 @@ export const createShowtimeColumns = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          ),
+            );
+          },
           enableHiding: false,
         }),
       ]

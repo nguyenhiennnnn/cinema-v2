@@ -17,11 +17,15 @@ export const ADMIN_CREDENTIALS = {
 const API_BASE_URL =
   process.env.VITE_API_BASE_URL ?? "http://localhost:8080/api/v1";
 
-const DATABASE_URL = process.env.E2E_DATABASE_URL ?? process.env.DATABASE_URL;
 const PSQL_IMAGE = process.env.E2E_PSQL_IMAGE ?? "postgres:17-alpine";
 
+function getDatabaseUrl() {
+  return process.env.E2E_DATABASE_URL ?? process.env.DATABASE_URL;
+}
+
 async function runSql(sql: string): Promise<boolean> {
-  if (!DATABASE_URL) {
+  const dbUrl = getDatabaseUrl();
+  if (!dbUrl) {
     console.warn("Could not run SQL: DATABASE_URL is not set");
     return false;
   }
@@ -42,7 +46,7 @@ async function runSql(sql: string): Promise<boolean> {
       ],
       {
         timeout: 120_000,
-        env: { ...process.env, DATABASE_URL, E2E_SQL: sql },
+        env: { ...process.env, DATABASE_URL: dbUrl, E2E_SQL: sql },
       },
     );
     return true;
@@ -289,25 +293,25 @@ export async function createEligibleTicketForCheckin(
     const seatsRes = await apiContext.get(`${API_BASE_URL}/showtimes/1/seats`, {
       headers: { Authorization: `Bearer ${custToken}` },
     });
-    if (!seatsRes.ok()) return null;
+    if (!seatsRes.ok()) { console.error("createEligibleTicket: seatsRes failed", await seatsRes.text()); return null; }
     const seatsBody = await seatsRes.json();
     const movieTitle = seatsBody.data?.movieTitle ?? "Phim";
     const availableSeat = (seatsBody.data?.seats ?? []).find(
       (s: { status: string }) => s.status === "Available",
     );
-    if (!availableSeat) return null;
+    if (!availableSeat) { console.error("createEligibleTicket: no availableSeat"); return null; }
 
-    // 4. Hold seat as customer
-    const holdRes = await apiContext.post(`${API_BASE_URL}/bookings/hold`, {
-      headers: { Authorization: `Bearer ${custToken}` },
+    // 4. Hold seat as counter booking
+    const holdRes = await apiContext.post(`${API_BASE_URL}/admin/bookings/counter-hold`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
       data: {
         showtimeId: 1,
         seatIds: [availableSeat.showtimeSeatId],
-        customerName: "E2E Test User",
+        customerName: "Khách lẻ E2E",
         customerPhone: "0912345678",
       },
     });
-    if (!holdRes.ok()) return null;
+    if (!holdRes.ok()) { console.error("createEligibleTicket: holdRes failed", await holdRes.text()); return null; }
     const holdBody = await holdRes.json();
     const bookingId = holdBody.data.bookingId;
     const bookingCode = holdBody.data.bookingCode;
@@ -320,7 +324,7 @@ export async function createEligibleTicketForCheckin(
         data: { amountReceived: 500000 },
       },
     );
-    if (!checkoutRes.ok()) return null;
+    if (!checkoutRes.ok()) { console.error("createEligibleTicket: checkoutRes failed", await checkoutRes.text()); return null; }
 
     // 6. QR code is ${bookingCode}-${seatRow}${seatNumber}
     const qrCode = `${bookingCode}-${availableSeat.seatRow}${availableSeat.seatNumber}`;
@@ -337,3 +341,10 @@ export async function createEligibleTicketForCheckin(
     return null;
   }
 }
+
+export async function cleanFutureTestShowtimes() {
+  await runSql(
+    'DELETE FROM "ShowtimeSeats" WHERE "ShowtimeId" IN (SELECT "ShowtimeId" FROM "Showtimes" WHERE "StartTime" >= \'2026-12-01\'); DELETE FROM "Showtimes" WHERE "StartTime" >= \'2026-12-01\';',
+  );
+}
+

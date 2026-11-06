@@ -197,15 +197,7 @@ public class BookingService(
         return new CheckoutResponse(gatewayResult.PaymentUrl, payment.PaymentId);
     }
 
-    public async Task<RefundEligibility> CalculateRefundEligibilityAsync(
-        DateTime showtimeStartTime,
-        decimal paidAmount,
-        CancellationToken cancellationToken
-    )
-    {
-        var settings = await GetCinemaSettingsAsync(cancellationToken);
-        return CalculateRefundEligibility(showtimeStartTime, paidAmount, settings);
-    }
+    private record RefundEligibility(bool Eligible, decimal RefundAmount, string? IneligibleReason);
 
     private static RefundEligibility CalculateRefundEligibility(
         DateTime showtimeStartTime,

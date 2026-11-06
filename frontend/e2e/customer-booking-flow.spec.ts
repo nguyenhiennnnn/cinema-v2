@@ -37,9 +37,15 @@ test("customer end-to-end booking flow: select movie, pick seats, add combos, ho
   await availableSeats.nth(0).click();
   await availableSeats.nth(1).click();
 
+  // If selecting two seats leaves a lone seat under the cinema gap rule, pick the adjacent seat
+  const loneSeatWarning = page.getByText(/Không thể để trống ghế lẻ/i);
+  if (await loneSeatWarning.isVisible()) {
+    await availableSeats.nth(2).click();
+  }
+
   // Verify seat price summary is displayed
   await expect(page.getByText(/Chi tiết đơn hàng/i)).toBeVisible();
-  await expect(page.getByText(/Ghế \(2\)/i)).toBeVisible();
+  await expect(page.getByText(/Ghế \(\d+\)/i)).toBeVisible();
 
   // 5. If combos are available, increase the first combo quantity
   const comboSection = page

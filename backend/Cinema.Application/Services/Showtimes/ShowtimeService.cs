@@ -69,7 +69,7 @@ public class ShowtimeService(
         )
             query = query.Where(s => s.Status == status);
 
-        query = query.OrderByDescending(s => s.StartTime);
+        query = query.OrderByDescending(s => s.StartTime).ThenByDescending(s => s.ShowtimeId);
 
         var total = await query.CountAsync(cancellationToken);
         var items = await query

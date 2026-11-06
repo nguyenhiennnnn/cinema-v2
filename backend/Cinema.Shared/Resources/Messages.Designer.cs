@@ -2611,11 +2611,11 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Điểm đánh giá (rating) phải từ 1 đến 10..
+        ///   Looks up a localized string similar to Điểm đánh giá (rating) phải từ 1 đến 5..
         /// </summary>
-        public static string Validation_Rating_Range1To10 {
+        public static string Validation_Rating_Range1To5 {
             get {
-                return ResourceManager.GetString("Validation_Rating_Range1To10", resourceCulture);
+                return ResourceManager.GetString("Validation_Rating_Range1To5", resourceCulture);
             }
         }
 

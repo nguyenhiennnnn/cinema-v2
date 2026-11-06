@@ -15,6 +15,7 @@ import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminCreateShowtime } from "../../hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate, toBusinessIso } from "@/lib/business-time";
+import { MovieStatus } from "@/types/enum";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -70,7 +71,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
               <SingleSelectField
                 value={field.value}
                 onChange={(v) => field.onChange(v)}
-                options={movies.data?.items ?? []}
+                options={(movies.data?.items ?? []).filter((m) => m.status !== MovieStatus.Ended)}
                 getOptionValue={(o) => o.movieId}
                 getOptionLabel={(o) => o.title}
                 searchValue={movieSearch}
@@ -92,7 +93,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
               <SingleSelectField
                 value={field.value}
                 onChange={(v) => field.onChange(v)}
-                options={rooms.data?.items ?? []}
+                options={(rooms.data?.items ?? []).filter((r) => r.isActive)}
                 getOptionValue={(o) => o.roomId}
                 getOptionLabel={(o) => o.roomName}
                 searchValue={roomSearch}

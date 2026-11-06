@@ -127,4 +127,15 @@ public class ShowtimeSchedulerTests
         slots.ShouldNotBeEmpty();
         slots.ShouldAllBe(s => s.Start.Minute % 15 == 0);
     }
+
+    [Theory]
+    [InlineData(0, 0, 5, 0.3)]
+    [InlineData(0, 0, 2.5, 0.15)]
+    [InlineData(10, 10, 5, 1.0)]
+    [InlineData(10, 10, 0, 0.7)]
+    public void Heat_CalculatesHeatCorrectlyOn1To5RatingScale(int tickets, int maxTickets, decimal rating, double expectedHeat)
+    {
+        var heat = ShowtimeScheduler.Heat(tickets, maxTickets, rating);
+        heat.ShouldBe(expectedHeat, 0.001);
+    }
 }

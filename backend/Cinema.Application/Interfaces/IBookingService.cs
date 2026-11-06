@@ -11,8 +11,6 @@ public record AdminBookingListFilter(
     string? Search
 );
 
-public record RefundEligibility(bool Eligible, decimal RefundAmount, string? IneligibleReason);
-
 public interface IBookingService
 {
     Task<HoldBookingResponse> HoldSeatsAsync(
@@ -73,12 +71,6 @@ public interface IBookingService
         int userId,
         int bookingId,
         decimal finalAmount,
-        CancellationToken cancellationToken
-    );
-
-    Task<RefundEligibility> CalculateRefundEligibilityAsync(
-        DateTime showtimeStartTime,
-        decimal paidAmount,
         CancellationToken cancellationToken
     );
 }

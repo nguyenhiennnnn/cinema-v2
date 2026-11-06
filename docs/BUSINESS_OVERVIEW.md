@@ -15,7 +15,7 @@
   * 4.4 Suất chiếu (`ShowtimeService`)
   * 4.5 Đặt vé và giữ ghế (`BookingService`, `SeatExpirationService`)
   * 4.6 Thanh toán (`BookingService.CheckoutAsync`, `PaymentService`, `PaymentAdminService`)
-  * 4.7 Hủy booking và hoàn tiền (`BookingService.CancelBookingAsync`, `CalculateRefundEligibilityAsync`)
+  * 4.7 Hủy booking và hoàn tiền (`BookingService.CancelBookingAsync`)
   * 4.8 Vé và soát vé (`BookingService.CheckinAsync`)
   * 4.9 Bán vé tại quầy (`BookingService.CounterHoldSeatsAsync`, `CounterCheckoutAsync`)
   * 4.10 Combo / đồ ăn (`ComboService`)
@@ -1043,7 +1043,7 @@ sequenceDiagram
 
 ---
 
-## 4.7 Hủy booking và hoàn tiền (`BookingService.CancelBookingAsync`, `CalculateRefundEligibilityAsync`)
+## 4.7 Hủy booking và hoàn tiền (`BookingService.CancelBookingAsync`)
 
 **Actor:** khách (chủ booking). Hoàn tiền khi rạp hủy suất xem [05 §5.4](#s05).
 
@@ -1058,7 +1058,7 @@ sequenceDiagram
 | RF-07 | Chống hủy đồng thời: chuyển `Confirmed → Cancelled` bằng cập nhật có điều kiện trước khi gọi cổng | Thua cuộc đua | 409 "Booking đang được xử lý hoặc đã được hủy." | `CancelBookingAsync` |
 | RF-08 | Hoàn tiền qua cổng; thất bại → rollback | Cổng lỗi | 422 "Hoàn tiền thất bại: …. Vui lòng thử lại sau hoặc liên hệ rạp." | `CancelBookingAsync` |
 | RF-09 | Thành công: `Payment.Refunded`, `RefundedAmount`, `RefundedAt`, `RefundTransactionId`; trả ghế về `Available` (vé cũ vẫn còn trong DB); thu hồi điểm tương ứng: `ReverseLoyaltyAsync` tìm bản ghi `LoyaltyPointEntry` của booking đó và ghi nhận `RevokedPoints += revoke`. **Nếu booking đã quá 12 tháng (trượt ra ngoài cửa sổ 12 tháng), việc thu hồi không làm giảm điểm hiệu lực trong cửa sổ hiện tại**. Đồng bộ lại `CustomerProfile.Points` và `TierId` (`LoyaltyWindow.ResyncProfileAsync`); gửi email "Xác nhận hủy vé & hoàn tiền" | — | `Cancelled` | `CancelBookingAsync`, `ReleaseConfirmedBookingSeatsAsync`, `ReverseLoyaltyAsync`, `LoyaltyWindow.cs` |
-| RF-10 | `CalculateRefundEligibilityAsync` (public, có trong `IBookingService`) **không được controller nào gọi**; không có endpoint xem trước số tiền hoàn. Frontend không có bước xem trước từ API riêng (**chưa xác định** cách UI hiển thị số tiền hoàn) | — | Có khung, chưa dùng ngoài `CancelBookingAsync` | `IBookingService`, tìm toàn backend |
+| RF-10 | Phương thức public thừa `CalculateRefundEligibilityAsync` trong `IBookingService` đã được loại bỏ; logic tính toán hoàn tiền được giữ gọn dạng private nội bộ trong `BookingService.CancelBookingAsync`. | — | Đã dọn dẹp code thừa | `BookingService.cs` |
 
 ---
 
@@ -1163,7 +1163,7 @@ Giao diện quầy tính tổng tạm tính chỉ từ ghế (không gồm combo
 | RV-02 | Phải có vé đã **check-in** của phim đó mới được đánh giá | Chưa check-in | 422 "Bạn cần check-in xem phim này trước khi đánh giá." | `CreateReviewAsync` |
 | RV-03 | Chỉ chủ đánh giá được sửa/xóa của mình | — | 403 "Bạn không phải chủ đánh giá này." | `UpdateReviewAsync`, `DeleteMyReviewAsync` |
 | RV-04 | `Comment` ≤ 1000 | — | 400 | `Validators/Reviews/ReviewValidators.cs` |
-| RV-05 | **Thang điểm không nhất quán:** validator cho `Rating` 1–10, nhưng ràng buộc DB `CK_Reviews_Rating` là 1–5 (và `CK_Movies_AverageRating` 0–5); giao diện dùng 5 sao; `ShowtimeScheduler.Heat` chia `AverageRating` cho 10. Điểm 6–10 qua validator sẽ bị DB từ chối (lỗi check constraint → 400) | Gửi `rating` > 5 | Lỗi DB 400 | `ReviewValidators.cs`, `ReviewConfiguration.cs`, `Utils/ShowtimeScheduler.cs::Heat` |
+| RV-05 | **Thang điểm chuẩn 1–5:** validator cho `Rating` là 1–5 (`CreateReviewRequestValidator`), thông điệp `Validation_Rating_Range1To5`, ràng buộc DB `CK_Reviews_Rating` 1–5 (và `CK_Movies_AverageRating` 0–5); giao diện dùng 5 sao; `ShowtimeScheduler.Heat` chuẩn hóa theo thang 5 (`0.3 * (double)rating / 5`). Hệ thống hoàn toàn đồng bộ 1–5 sao. | Gửi `rating` < 1 hoặc > 5 | 400 Validation | `ReviewValidators.cs`, `ReviewConfiguration.cs`, `Utils/ShowtimeScheduler.cs::Heat` |
 | RV-06 | Admin xóa mọi đánh giá đơn lẻ; admin xem danh sách | — | — | `ReviewService.DeleteReviewAsync`, `GetReviewsAdminAsync` |
 | RV-07 | `GET /movies/{id}/can-review` công khai: trả trạng thái đánh giá của người dùng hiện tại nếu có token (`GetUserMovieReviewStatusAsync`) | — | — | `MoviesController` |
 | RV-08 | **Xóa đánh giá hàng loạt**: Admin xóa nhiều đánh giá theo `BulkDeleteReviewsRequest`. Hệ thống xóa từng đánh giá hợp lệ và tự động tính lại `AverageRating` cho toàn bộ các phim bị ảnh hưởng | `DELETE /admin/reviews/bulk` | `BulkDeleteReviewsResponse` | `ReviewService.BulkDeleteReviewsAsync` |
@@ -1516,7 +1516,7 @@ Với `count` ghế liền nhau, mỗi hàng chọn cửa sổ tốt nhất rồ
 
 Đầu vào: ngày, giờ mở/đóng, `AllowAfterHours`, buffer, danh sách phòng (số ghế), phim (thời lượng, số suất cần, **độ hot**), các khoảng bận hiện có.
 
-**Độ hot** (`Heat`) = `clamp(0,7 × vé/vé_tối_đa + 0,3 × điểm_đánh_giá/10, 0, 1)`; số vé tính trong 7 ngày gần nhất (hằng số trong `ShowtimeService`, không dùng `Scheduler:HeatLookbackDays`), `vé_tối_đa` là cao nhất trong các phim đang xếp. Ví dụ: 50/100 vé, rating 4 → 0,35 + 0,12 = **0,47**. (Công thức chia rating cho 10, trong khi DB giới hạn rating 1–5: xem RV-05.)
+**Độ hot** (`Heat`) = `clamp(0,7 × vé/vé_tối_đa + 0,3 × điểm_đánh_giá/5, 0, 1)`; số vé tính trong 7 ngày gần nhất (hằng số trong `ShowtimeService`, không dùng `Scheduler:HeatLookbackDays`), `vé_tối_đa` là cao nhất trong các phim đang xếp. Ví dụ: 50/100 vé, rating 4 → 0,35 + 0,24 = **0,59**. (Thang điểm đồng bộ 1–5: xem RV-05.)
 
 **Quy trình**
 
@@ -2010,12 +2010,12 @@ Những hành vi đã đối chiếu với test:
 
 ## A.4 Tổng hợp điểm lệch/rủi ro phát hiện từ code
 
-1. Thang điểm đánh giá: validator 1–10, DB và UI 1–5 (RV-05).
+1. Thang điểm đánh giá: đã được đồng bộ hoàn toàn về 1–5 giữa validator, CSDL, công thức độ hot (scheduler) và giao diện.
 2. Không có ràng buộc DB chống trùng giờ chiếu dù middleware nhắc tới (mục 3.2).
 3. `Scheduler:*` và `Scheduler:HeatLookbackDays` không có tác dụng (SHW-17); `Booking:PointsPerVnd` và `Booking:HoldDurationMinutes` trong `appsettings.json` là cấu hình thừa/fallback cũ, vì hệ thống hiện lưu trực tiếp cấu hình giữ ghế (`HoldDurationMinutes`), check-in (`CheckInOpenMinutes`) và chế độ khoảng trống (`SeatGapRuleMode`) vào bảng `CinemaSettings` trong DB.
 4. Stripe webhook không kiểm tra chữ ký khi `Stripe:WebhookSecret` trống; log có thể in tám ký tự đầu của secret (mục 8.1).
 5. `/auth/admin-login` không kiểm tra role; `AdminOnlyRoute` không được dùng; `/bookings/*` mở cho mọi role đã đăng nhập; hub SignalR không `[Authorize]`.
-6. `CalculateRefundEligibilityAsync` public nhưng không controller nào dùng; không có endpoint xem trước hoàn tiền.
+6. Phương thức thừa `CalculateRefundEligibilityAsync` trong `IBookingService` đã được dọn dẹp, logic kiểm tra điều kiện hoàn tiền được gom gọn gàng nội bộ trong `BookingService.CancelBookingAsync`.
 7. Không có voucher, đổi điểm lấy quà hay trừ tiền trực tiếp; chỉ có chiết khấu theo hạng thành viên (chỉ giảm trên vé ghế, không giảm combo).
 8. Lệch giá trị giữa client và server: tên phòng ≤ 100 (client) so với ≤ 50 (server); đăng nhập client ≥ 6 ký tự so với server ≥ 8 khi đăng ký.
 9. Seeder ghi log mật khẩu tài khoản thử nghiệm ở mức Information và đặt lại mật khẩu admin về giá trị tài liệu.
