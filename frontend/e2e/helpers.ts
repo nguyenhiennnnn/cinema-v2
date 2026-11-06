@@ -262,6 +262,14 @@ export async function holdFirstAvailableSeat(
   token: string,
   showtimeId = 1,
 ): Promise<{ bookingId: number; bookingCode: string } | null> {
+  await ensureNoPendingBookings(page);
+
+  await runSql(
+    `UPDATE "Bookings" SET "Status" = 'Cancelled', "ExpiresAt" = (NOW() AT TIME ZONE 'UTC') - INTERVAL '1 minute' WHERE "ShowtimeId" = ${showtimeId} AND "Status" = 'Pending';
+     UPDATE "ShowtimeSeats" SET "Status" = 'Available' WHERE "ShowtimeId" = ${showtimeId} AND "Status" = 'Held';
+     UPDATE "Showtimes" SET "StartTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '2 hours', "EndTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '4 hours' WHERE "ShowtimeId" = ${showtimeId};`,
+  );
+
   const apiContext = page.request;
   const seatsRes = await apiContext.get(
     `${API_BASE_URL}/showtimes/${showtimeId}/seats`,
@@ -269,26 +277,44 @@ export async function holdFirstAvailableSeat(
   );
   if (!seatsRes.ok()) return null;
   const seatsBody = await seatsRes.json();
-  const availableSeat = (seatsBody.data?.seats ?? []).find(
+  const seats = (seatsBody.data?.seats ?? []).filter(
     (s: { status: string }) => s.status === "Available",
   );
-  if (!availableSeat) return null;
+  if (seats.length === 0) return null;
 
-  const holdRes = await apiContext.post(`${API_BASE_URL}/bookings/hold`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: {
-      showtimeId,
-      seatIds: [availableSeat.showtimeSeatId],
-      customerName: "E2E Test User",
-      customerPhone: "0912345678",
-    },
-  });
-  if (!holdRes.ok()) return null;
-  const holdBody = await holdRes.json();
-  return {
-    bookingId: holdBody.data.bookingId,
-    bookingCode: holdBody.data.bookingCode,
-  };
+  for (let i = 0; i < seats.length; i++) {
+    let holdRes = await apiContext.post(`${API_BASE_URL}/bookings/hold`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: {
+        showtimeId,
+        seatIds: [seats[i].showtimeSeatId],
+        customerName: "E2E Test User",
+        customerPhone: "0912345678",
+      },
+    });
+
+    if (!holdRes.ok() && i + 1 < seats.length && seats[i].seatRow === seats[i + 1].seatRow) {
+      holdRes = await apiContext.post(`${API_BASE_URL}/bookings/hold`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: {
+          showtimeId,
+          seatIds: [seats[i].showtimeSeatId, seats[i + 1].showtimeSeatId],
+          customerName: "E2E Test User",
+          customerPhone: "0912345678",
+        },
+      });
+    }
+
+    if (holdRes.ok()) {
+      const holdBody = await holdRes.json();
+      return {
+        bookingId: holdBody.data.bookingId,
+        bookingCode: holdBody.data.bookingCode,
+      };
+    }
+  }
+
+  return null;
 }
 
 export async function createEligibleTicketForCheckin(
