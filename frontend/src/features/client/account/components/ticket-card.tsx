@@ -25,7 +25,7 @@ export const TicketCard = ({ booking, onCancel }: TicketCardProps) => {
     new Date(booking.startTime).getTime() - now > cancelDeadlineHours * 60 * 60 * 1000;
 
   return (
-    <div className="flex flex-col gap-4 border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
         <div className="flex size-12 shrink-0 items-center justify-center bg-muted">
           <TicketIcon className="size-5" />

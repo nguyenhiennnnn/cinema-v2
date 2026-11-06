@@ -46,7 +46,7 @@ export const ComboPicker = ({ combos, quantities, onChange, isLoading, labels }:
         {combos.map((combo) => (
           <div
             key={combo.comboId}
-            className="flex items-center gap-3 border border-border bg-card p-3"
+            className="flex items-center gap-3 bg-card p-3"
           >
             <div className="size-14 shrink-0 overflow-hidden bg-muted">
               {combo.imageUrl ? (

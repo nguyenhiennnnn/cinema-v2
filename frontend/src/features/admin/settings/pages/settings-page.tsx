@@ -52,7 +52,7 @@ const settingsFormSchema = z.object({
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 const SettingsSection = ({ title, children }: { title: string; children: ReactNode }) => (
-  <section className="border border-border bg-card p-5">
+  <section className="bg-card p-5">
     <h2 className="font-heading text-base font-semibold text-foreground">{title}</h2>
     <FieldGroup className="mt-4 grid items-start gap-x-4 gap-y-4 sm:grid-cols-2">{children}</FieldGroup>
   </section>

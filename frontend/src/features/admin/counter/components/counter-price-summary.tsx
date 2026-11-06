@@ -24,7 +24,7 @@ export const CounterPriceSummary = ({
   const estimatedTotal = seatsTotal + combosTotal;
 
   return (
-    <div className="flex flex-col gap-2 border border-border bg-card p-4">
+    <div className="flex flex-col gap-2 bg-card p-4">
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">Ghế ({seats.length})</span>
         <span className="font-medium">{formatCurrency(seatsTotal)}</span>

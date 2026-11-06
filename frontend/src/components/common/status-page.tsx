@@ -28,7 +28,7 @@ export const StatusPage = ({ code, icon: Icon, title, description, actions = [] 
         <BrandWordmark className="h-5 w-auto" />
       </Link>
 
-      <div className="w-full max-w-md overflow-hidden border border-border bg-card">
+      <div className="w-full max-w-md overflow-hidden bg-card">
         <div className="flex flex-col items-center gap-2 bg-primary px-6 py-8 text-primary-foreground">
           <Icon className="size-8" />
           <p className="font-heading text-6xl leading-none font-bold tracking-tight tabular">{code}</p>

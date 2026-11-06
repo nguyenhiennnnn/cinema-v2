@@ -476,13 +476,13 @@ public class AuthService(
         user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
         user.UpdatedAt = DateTime.UtcNow;
 
-        await db.RevokeActiveTokensAsync(userId, cancellationToken);
+        var revokedCount = await db.RevokeActiveTokensAsync(userId, cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
         logger.LogInformation(
             "PasswordChanged UserId {UserId} — đã thu hồi {Count} refresh token cũ.",
             userId,
-            activeTokens.Count
+            revokedCount
         );
 
         return new MessageResponse(Messages.Success_PasswordChanged);

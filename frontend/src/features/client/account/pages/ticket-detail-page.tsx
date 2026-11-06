@@ -56,7 +56,7 @@ const AccountTicketDetailPage = () => {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="t-code text-lg text-foreground">{booking.bookingCode}</span>
@@ -97,7 +97,7 @@ const AccountTicketDetailPage = () => {
         </div>
       )}
 
-      <div className="flex gap-4 border border-border bg-card p-4">
+      <div className="flex gap-4 bg-card p-4">
         <div className="aspect-2/3 w-24 shrink-0 overflow-hidden bg-muted">
           {booking.movie.posterUrl ? (
             <img src={booking.movie.posterUrl} alt={booking.movie.title} className="h-full w-full object-cover" />
@@ -114,7 +114,7 @@ const AccountTicketDetailPage = () => {
         </div>
       </div>
 
-      <div className="border border-border bg-card p-4">
+      <div className="bg-card p-4">
         <h2 className="font-heading text-base font-semibold text-foreground">Ghế & Combo</h2>
         <div className="mt-3 space-y-1.5 text-sm">
           {booking.seats.map((seat, i) => (
@@ -154,7 +154,7 @@ const AccountTicketDetailPage = () => {
       </div>
 
       {booking.payments.length > 0 && (
-        <div className="border border-border bg-card p-4">
+        <div className="bg-card p-4">
           <h2 className="font-heading text-base font-semibold text-foreground">Thanh toán</h2>
           <div className="mt-3 space-y-2">
             {booking.payments.map((payment) => (

@@ -39,7 +39,7 @@ const BookingPage = () => {
       )}
 
       {flow.isResumeMode && !flow.isResumeLoading && flow.resumeInvalidReason && (
-        <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-3 border border-border bg-card p-6 text-center">
+        <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-3 bg-card p-6 text-center">
           <AlertTriangle className="size-8 text-warning" />
           <p className="text-sm text-foreground">
             {RESUME_INVALID_MESSAGE[flow.resumeInvalidReason]}

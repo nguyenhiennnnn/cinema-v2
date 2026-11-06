@@ -10,7 +10,7 @@ export const ProfileStatsCard = ({ profile }: ProfileStatsCardProps) => {
   const progress = profile.nextTier ? Math.min(100, (profile.points / (profile.points + profile.nextTier.pointsNeeded)) * 100) : 100;
 
   return (
-    <div className="border border-border bg-card p-5">
+    <div className="bg-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">Hạng thành viên</p>

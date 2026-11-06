@@ -18,7 +18,7 @@ export const ComboCarousel = () => {
               <ComboCardSkeleton key={i} />
             ))
           : combos!.map((combo) => (
-            <div key={combo.comboId} className="flex w-48 shrink-0 flex-col overflow-hidden border border-border bg-card">
+            <div key={combo.comboId} className="flex w-48 shrink-0 flex-col overflow-hidden bg-card">
               <div className="flex aspect-square items-center justify-center bg-muted">
                 {combo.imageUrl ? (
                   <img src={combo.imageUrl} alt={combo.name} className="w-full aspect-2/3 object-cover" />

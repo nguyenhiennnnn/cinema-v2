@@ -13,7 +13,7 @@ export const SeatEditorValidationPanel = ({ issues, onClose }: SeatEditorValidat
   const warnings = issues.filter((i) => i.level === "warning");
 
   return (
-    <div className="flex flex-col gap-3 border border-border bg-card p-4">
+    <div className="flex flex-col gap-3 bg-card p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold">
           {issues.length === 0 ? (

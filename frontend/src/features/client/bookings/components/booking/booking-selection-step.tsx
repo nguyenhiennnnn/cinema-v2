@@ -97,7 +97,7 @@ export const BookingSelectionStep = ({
           fitWidth
         />
 
-        <div className="border border-border bg-card p-4">
+        <div className="bg-card p-4">
           <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Chọn combo (tuỳ chọn)</h3>
           <ComboPicker
             combos={sortedCombos}

@@ -82,7 +82,7 @@ const AccountProfilePage = () => {
     <div className="space-y-6">
       <ProfileStatsCard profile={profile} />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="border border-border bg-card p-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="bg-card p-5">
         <h2 className="font-heading text-lg font-semibold text-foreground">Thông tin cá nhân</h2>
 
         <div className="mt-5 flex items-center gap-4">

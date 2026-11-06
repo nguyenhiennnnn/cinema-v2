@@ -101,7 +101,7 @@ export const SeatEditorToolbar = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 border border-border bg-card p-4">
+    <div className="flex flex-col gap-4 bg-card p-4">
       <div className="flex flex-wrap items-end gap-4">
         <SeatEditorSizeInputs
           rows={rows}

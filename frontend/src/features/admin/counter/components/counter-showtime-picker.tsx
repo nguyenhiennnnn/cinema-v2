@@ -42,7 +42,7 @@ export const CounterShowtimePicker = ({ date, onDateChange, onPickShowtime }: Co
 
       <div className="flex flex-col gap-4">
         {schedule.data?.movies.map((movie) => (
-          <div key={movie.movieId} className="border border-border bg-card p-4">
+          <div key={movie.movieId} className="bg-card p-4">
             <div className="mb-3 flex items-center gap-3">
               {movie.moviePosterUrl && (
                 <img

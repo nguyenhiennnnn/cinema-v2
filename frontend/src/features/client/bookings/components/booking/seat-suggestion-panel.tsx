@@ -38,7 +38,7 @@ export const SeatSuggestionPanel = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 border border-border bg-card p-4">
+    <div className="flex flex-col gap-3 bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-heading text-sm font-semibold text-foreground">Gợi ý ghế liền kề</h3>
         <div className="flex items-center gap-3">

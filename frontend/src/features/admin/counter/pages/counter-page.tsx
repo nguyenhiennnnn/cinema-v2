@@ -50,7 +50,7 @@ const AdminCounterPage = () => {
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="border border-border bg-card p-4">
+            <div className="bg-card p-4">
               <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Combo</h3>
               <ComboPicker
                 combos={activeCombos.data}
@@ -60,7 +60,7 @@ const AdminCounterPage = () => {
               />
             </div>
 
-            <div className="border border-border bg-card p-4">
+            <div className="bg-card p-4">
               <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Thông tin khách</h3>
               <CounterCustomerForm
                 customerName={flow.customerName}
