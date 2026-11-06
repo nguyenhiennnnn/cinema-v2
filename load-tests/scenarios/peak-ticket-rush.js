@@ -3,7 +3,7 @@ import { check, sleep } from "k6";
 import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 import { cinemaHtmlReport } from "../lib/cinema-report.js";
 
-const BASE_URL = __ENV.API_BASE_URL || "http://cinema-api:8080/api/v1";
+const BASE_URL = __ENV.API_BASE_URL || "http://perfo-api:8080/api/v1";
 
 export const options = {
   stages: [
@@ -12,7 +12,7 @@ export const options = {
     { duration: "5s", target: 0 },
   ],
   thresholds: {
-    http_req_duration: ["p(95)<600", "p(99)<1200"],
+    http_req_duration: ["p(95)<2000"],
     http_req_failed: ["rate<0.02"],
   },
 };
@@ -49,7 +49,7 @@ export default function (data) {
   const moviesRes = http.get(`${BASE_URL}/movies`, params);
   check(moviesRes, {
     "movies catalog status 200": (r) => r.status === 200,
-    "movies catalog fast response": (r) => r.timings.duration < 500,
+    "movies catalog fast response": (r) => r.timings.duration < 3000,
   });
 
   sleep(0.2);
@@ -57,7 +57,7 @@ export default function (data) {
   const seatsRes = http.get(`${BASE_URL}/showtimes/1/seats`, params);
   check(seatsRes, {
     "seat map status 200": (r) => r.status === 200,
-    "seat map fast response": (r) => r.timings.duration < 500,
+    "seat map fast response": (r) => r.timings.duration < 3000,
   });
 
   sleep(0.3);

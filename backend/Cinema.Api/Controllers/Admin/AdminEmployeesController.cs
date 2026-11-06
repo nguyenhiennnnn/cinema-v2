@@ -11,7 +11,7 @@ namespace Cinema.Api.Controllers.Admin;
 [ApiController]
 [Route("api/v1/admin/employees")]
 [Authorize]
-public class AdminEmployeesController(IEmployeeService employeeService) : ControllerBase
+public class AdminEmployeesController(IEmployeeService employeeService) : AppControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.AdminOnly)]
@@ -49,5 +49,12 @@ public class AdminEmployeesController(IEmployeeService employeeService) : Contro
         int id,
         [FromBody] UpdateEmployeeRequest request,
         CancellationToken cancellationToken
-    ) => Ok(await employeeService.UpdateEmployeeAsync(id, request, cancellationToken));
+    ) => Ok(
+            await employeeService.UpdateEmployeeAsync(
+                id,
+                request,
+                CurrentUserId,
+                cancellationToken
+            )
+        );
 }

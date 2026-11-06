@@ -34,7 +34,7 @@ public class EmployeeServiceUserStatusTests : IDisposable
         var user = await SeedUserWithTokensAsync();
         var bystander = await SeedUserWithTokensAsyncWithEmail("other@test.local");
 
-        await CreateSut().UpdateUserStatusAsync(user.UserId, new UpdateUserStatusRequest(false), CancellationToken.None);
+        await CreateSut().UpdateUserStatusAsync(user.UserId, new UpdateUserStatusRequest(false), currentUserId: 0, CancellationToken.None);
 
         (await _handle.Db.RefreshTokens.AsNoTracking().Where(rt => rt.UserId == user.UserId).ToListAsync())
             .ShouldAllBe(rt => rt.IsRevoked && rt.RevokedAt != null);
@@ -47,7 +47,7 @@ public class EmployeeServiceUserStatusTests : IDisposable
     {
         var user = await SeedUserWithTokensAsync();
 
-        await CreateSut().UpdateUserStatusAsync(user.UserId, new UpdateUserStatusRequest(true), CancellationToken.None);
+        await CreateSut().UpdateUserStatusAsync(user.UserId, new UpdateUserStatusRequest(true), currentUserId: 0, CancellationToken.None);
 
         (await _handle.Db.RefreshTokens.AsNoTracking().Where(rt => rt.UserId == user.UserId).ToListAsync())
             .ShouldAllBe(rt => !rt.IsRevoked);

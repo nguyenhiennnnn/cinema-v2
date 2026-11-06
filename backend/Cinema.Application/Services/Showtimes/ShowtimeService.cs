@@ -19,7 +19,6 @@ namespace Cinema.Application.Services.Showtimes;
 
 public class ShowtimeService(
     IAppDbContext db,
-    IOptions<BookingOptions> bookingOptions,
     IEnumerable<IPaymentGateway> paymentGateways,
     IBackgroundJobClient backgroundJobClient,
     IBookingService bookingService,
@@ -31,9 +30,28 @@ public class ShowtimeService(
     private const int MaxBatchSize = 2000;
     private const int MaxAutoScheduleDays = 31;
 
-    private readonly int _bufferMinutes = bookingOptions.Value.RoomBufferMinutes;
     private readonly BrandOptions _brand = brandOptions?.Value ?? new();
     private readonly SchedulerOptions _scheduler = schedulerOptions?.Value ?? new();
+
+    private static SchedulerOptions BuildSchedulerOptions(
+        SchedulerOptions technical,
+        CinemaSettings settings
+    ) =>
+        new()
+        {
+            // Tham số kỹ thuật vẫn lấy từ appsettings.
+            DefaultWindowMinutes = technical.DefaultWindowMinutes,
+            SpreadMinutes = technical.SpreadMinutes,
+            FitWeight = technical.FitWeight,
+            LoadWeight = technical.LoadWeight,
+            // Tham số chính sách do admin chỉnh trong Cinema Settings.
+            StepMinutes = settings.SchedulerStepMinutes,
+            MinSameMovieGapMinutes = settings.SchedulerMinSameMovieGapMinutes,
+            HeatLookbackDays = settings.SchedulerHeatLookbackDays,
+            HeatSalesWeight = settings.SchedulerHeatSalesWeight,
+            HeatRatingWeight = settings.SchedulerHeatRatingWeight,
+            MaxRating = settings.SchedulerMaxRating,
+        };
 
     private sealed record ShowtimeDraft(
         int MovieId,
@@ -117,7 +135,9 @@ public class ShowtimeService(
 
         EnsureStartsInFuture(request.StartTime);
 
-        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
+        var bufferMinutes = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
+            .RoomBufferMinutes;
+        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
 
         await ValidateOperatingHoursAsync(
             request.StartTime,
@@ -249,7 +269,9 @@ public class ShowtimeService(
 
         EnsureStartsInFuture(request.StartTime);
 
-        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
+        var bufferMinutes = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
+            .RoomBufferMinutes;
+        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
         if (
             showtime.StartTime != request.StartTime
             || showtime.MovieId != request.MovieId
@@ -627,7 +649,9 @@ public class ShowtimeService(
     )
     {
         var now = DateTime.UtcNow;
-        var cutoff = ShowtimeLifecycle.MovieEndCutoff(now);
+        var graceDays = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
+            .MovieEndGraceDays;
+        var cutoff = ShowtimeLifecycle.MovieEndCutoff(now, graceDays);
         var count = await db
             .Movies.Where(m =>
                 m.Status == MovieStatus.NowShowing
@@ -701,11 +725,11 @@ public class ShowtimeService(
                 Messages.Rule_NoSchedulableRooms
             );
 
-        var hours = await db
-            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
-            .Select(s => new { s.OpeningTime, s.ClosingTime })
-            .FirstOrDefaultAsync(cancellationToken);
-        var (open, _) = OperatingHours.Window(request.Date, hours?.OpeningTime, hours?.ClosingTime);
+        var cinemaSettings = await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken);
+        var scheduler = BuildSchedulerOptions(_scheduler, cinemaSettings);
+        var bufferMinutes = cinemaSettings.RoomBufferMinutes;
+        var hours = new { cinemaSettings.OpeningTime, cinemaSettings.ClosingTime };
+        var (open, _) = OperatingHours.Window(request.Date, hours.OpeningTime, hours.ClosingTime);
         var horizon = VietnamTime.StartOfDayUtc(toDate).AddDays(2);
         var scheduledRoomIds = rooms.Select(r => r.RoomId).ToList();
         var busy = await db
@@ -718,7 +742,7 @@ public class ShowtimeService(
             .Select(s => new SchedulerBusy(s.RoomId, s.StartTime, s.EndTime))
             .ToListAsync(cancellationToken);
 
-        var since = DateTime.UtcNow.AddDays(-7);
+        var since = DateTime.UtcNow.AddDays(-scheduler.HeatLookbackDays);
         var tickets = await db
             .BookingTickets.Where(t =>
                 t.Booking.Status == BookingStatus.Confirmed
@@ -741,7 +765,8 @@ public class ShowtimeService(
                 ShowtimeScheduler.Heat(
                     tickets.GetValueOrDefault(m.MovieId),
                     maxTickets,
-                    m.AverageRating
+                    m.AverageRating,
+                    scheduler
                 )
         );
         var schedulerRooms = rooms.Select(r => new SchedulerRoom(r.RoomId, r.Seats)).ToList();
@@ -759,13 +784,14 @@ public class ShowtimeService(
         {
             var daySlots = ShowtimeScheduler.Build(
                 day,
-                hours?.OpeningTime,
-                hours?.ClosingTime,
+                hours.OpeningTime,
+                hours.ClosingTime,
                 request.AllowAfterHours,
-                _bufferMinutes,
+                bufferMinutes,
                 schedulerRooms,
                 schedulerMovies,
-                busy
+                busy,
+                scheduler
             );
             slots.AddRange(daySlots);
             busy.AddRange(daySlots.Select(x => new SchedulerBusy(x.RoomId, x.Start, x.End)));
@@ -1206,8 +1232,14 @@ public class ShowtimeService(
         var seatTemplates = await LoadSeatTemplatesAsync(roomIds, cancellationToken);
         var hours = await db
             .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
-            .Select(s => new { s.OpeningTime, s.ClosingTime })
+            .Select(s => new
+            {
+                s.OpeningTime,
+                s.ClosingTime,
+                s.RoomBufferMinutes,
+            })
             .FirstOrDefaultAsync(cancellationToken);
+        var bufferMinutes = hours?.RoomBufferMinutes ?? CinemaSettings.DefaultRoomBufferMinutes;
         var intervals = await LoadScheduledIntervalsAsync(
             roomIds,
             drafts.Min(d => d.StartTime).AddDays(-1),
@@ -1241,7 +1273,7 @@ public class ShowtimeService(
                 reason = "Phòng chiếu chưa được thiết lập sơ đồ ghế.";
             else
             {
-                endTime = draft.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
+                endTime = draft.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
                 reason =
                     OperatingHours.Violation(
                         draft.StartTime,

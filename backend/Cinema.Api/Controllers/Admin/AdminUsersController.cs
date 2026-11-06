@@ -64,7 +64,12 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
         CancellationToken cancellationToken
     )
     {
-        var result = await employeeService.UpdateUserStatusAsync(id, request, cancellationToken);
+        var result = await employeeService.UpdateUserStatusAsync(
+            id,
+            request,
+            CurrentUserId,
+            cancellationToken
+        );
         return Ok(
             ApiResponse.SuccessResponse(
                 result,
@@ -80,7 +85,14 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
         int id,
         [FromBody] UpdateUserRoleRequest request,
         CancellationToken cancellationToken
-    ) => Ok(await employeeService.UpdateUserRoleAsync(id, request, cancellationToken));
+    ) => Ok(
+            await employeeService.UpdateUserRoleAsync(
+                id,
+                request,
+                CurrentUserId,
+                cancellationToken
+            )
+        );
 
     [HttpPut("bulk/status")]
     [Authorize(Policy = Policies.AdminOnly)]

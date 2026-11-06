@@ -846,8 +846,8 @@ internal static class BookingScenarioSeeder
                         }
                     );
 
-                // Chỉ điểm còn trong cửa sổ 12 tháng mới tính vào Points hiện tại.
-                if (paidAt > Cinema.Application.Utils.LoyaltyWindow.Cutoff(now))
+                // Chỉ điểm còn trong cửa sổ điểm thưởng (mặc định 12 tháng) mới tính vào Points hiện tại.
+                if (paidAt > Cinema.Application.Utils.LoyaltyWindow.Cutoff(now, _settings.LoyaltyWindowMonths))
                     profile.Points += earned;
                 profile.TotalSpent += final;
                 var eligible = _tiersDesc.FirstOrDefault(t => t.MinPoints <= profile.Points);

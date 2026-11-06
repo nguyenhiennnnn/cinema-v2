@@ -1090,6 +1090,15 @@
   <data name="Rule_CannotLockLastAdmin" xml:space="preserve">
     <value>Không thể khóa quản trị viên cuối cùng.</value>
   </data>
+  <data name="Rule_CannotChangeOwnRole" xml:space="preserve">
+    <value>Không thể tự thay đổi vai trò của chính mình.</value>
+  </data>
+  <data name="Rule_CannotDemoteLastAdmin" xml:space="preserve">
+    <value>Không thể hạ vai trò quản trị viên cuối cùng. Hệ thống phải luôn có ít nhất một quản trị viên đang hoạt động.</value>
+  </data>
+  <data name="Rule_CannotDeactivateSelfEmployee" xml:space="preserve">
+    <value>Không thể tự vô hiệu hóa hồ sơ nhân viên của chính mình.</value>
+  </data>
   <data name="Validation_BulkId_Positive" xml:space="preserve">
     <value>Mỗi id phải lớn hơn 0.</value>
   </data>
@@ -1099,5 +1108,12 @@
   </data>
   <data name="Validation_BulkIds_NotEmpty" xml:space="preserve">
     <value>Danh sách id không được để trống.</value>
+  </data>
+  <data name="Validation_Setting_NumberRange" xml:space="preserve">
+    <value>{0} phải từ {1} đến {2}.</value>
+    <comment>Có 3 tham số: dùng string.Format(Messages.Validation_Setting_NumberRange, tên, min, max)</comment>
+  </data>
+  <data name="Validation_SchedulerHeatWeights_SumPositive" xml:space="preserve">
+    <value>Tổng hai trọng số Heat (doanh số và đánh giá) phải lớn hơn 0.</value>
   </data>
 </root>

@@ -1,37 +1,29 @@
 using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Bookings;
-using Cinema.Application.Options;
 using Cinema.Shared.Resources;
 using FluentValidation;
-using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Validators.Bookings;
 
 public class ComboSelectionRequestValidator : AbstractValidator<ComboSelectionRequest>
 {
-    public ComboSelectionRequestValidator(IOptions<BookingOptions>? options = null)
+    // Mức tối đa của số lượng combo đọc từ CinemaSettings (BookingService), không kiểm tra ở đây.
+    public ComboSelectionRequestValidator()
     {
-        var maxQuantity = (options?.Value ?? new BookingOptions()).MaxComboQuantity;
-
         RuleFor(x => x.ComboId)
             .GreaterThan(0)
             .WithMessage(Messages.Validation_ComboId_Positive);
 
         RuleFor(x => x.Quantity)
             .GreaterThan(0)
-            .WithMessage(Messages.Validation_Quantity_Positive)
-            .LessThanOrEqualTo(maxQuantity)
-            .WithMessage(string.Format(Messages.Validation_Quantity_Max, maxQuantity));
+            .WithMessage(Messages.Validation_Quantity_Positive);
     }
 }
 
 public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequest>
 {
-    public HoldSeatsRequestValidator(IOptions<BookingOptions>? options = null)
+    public HoldSeatsRequestValidator()
     {
-        var bookingOptions = options ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
-        var maxSeats = bookingOptions.Value.MaxSeatsPerBooking;
-
         RuleFor(x => x.ShowtimeId)
             .GreaterThan(0)
             .WithMessage(Messages.Validation_ShowtimeId_Positive);
@@ -60,12 +52,8 @@ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequ
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithMessage(Messages.Validation_Seats_Duplicated);
 
-        RuleFor(x => x.SeatIds)
-            .Must(ids => ids.Count <= maxSeats)
-            .WithMessage(string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats));
-
         RuleForEach(x => x.Combos)
-            .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
+            .SetValidator(new ComboSelectionRequestValidator());
     }
 
     [GeneratedRegex(@"^(0|\+84)[0-9]{9,10}$")]
@@ -74,11 +62,8 @@ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequ
 
 public partial class CounterHoldRequestValidator : AbstractValidator<CounterHoldRequest>
 {
-    public CounterHoldRequestValidator(IOptions<BookingOptions>? options = null)
+    public CounterHoldRequestValidator()
     {
-        var bookingOptions = options ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
-        var maxSeats = bookingOptions.Value.MaxSeatsPerBooking;
-
         RuleFor(x => x.ShowtimeId)
             .GreaterThan(0)
             .WithMessage(Messages.Validation_ShowtimeId_Positive);
@@ -95,12 +80,8 @@ public partial class CounterHoldRequestValidator : AbstractValidator<CounterHold
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithMessage(Messages.Validation_Seats_Duplicated);
 
-        RuleFor(x => x.SeatIds)
-            .Must(ids => ids.Count <= maxSeats)
-            .WithMessage(string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats));
-
         RuleForEach(x => x.Combos)
-            .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
+            .SetValidator(new ComboSelectionRequestValidator());
 
         RuleFor(x => x.UserId)
             .GreaterThan(0)

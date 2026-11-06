@@ -33,11 +33,24 @@ public abstract class ShowtimeServiceTestBase : IDisposable
 
     protected ShowtimeService CreateSut()
     {
+        // Khoảng nghỉ phòng nay là chính sách trong CinemaSettings (DB), không còn nằm ở BookingOptions.
+        var settings = Db.CinemaSettings.FirstOrDefault(s => s.Id == 1);
+        if (settings is null)
+        {
+            settings = new Cinema.Domain.Entities.CinemaSettings
+            {
+                Id = 1,
+                Name = "Test Cinema",
+                Address = "N/A",
+            };
+            Db.CinemaSettings.Add(settings);
+        }
+        settings.RoomBufferMinutes = RoomBufferMinutes;
+        Db.SaveChanges();
         Db.ChangeTracker.Clear();
 
         return new(
             Db,
-            Options.Create(new BookingOptions { RoomBufferMinutes = RoomBufferMinutes }),
             PaymentGatewayMocks.Select(m => m.Object),
             BackgroundJobClientMock.Object,
             BookingServiceMock.Object,

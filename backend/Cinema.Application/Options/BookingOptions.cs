@@ -4,9 +4,7 @@ public class BookingOptions
 {
     public const string SectionName = "Booking";
 
-    public int RoomBufferMinutes { get; set; } = 15;
-    public int MaxSeatsPerBooking { get; set; } = 10;
-    public int MaxComboQuantity { get; set; } = 10;
+    // RoomBufferMinutes / MaxSeatsPerBooking / MaxComboQuantity đã chuyển sang CinemaSettings (DB).
     public int CustomerLookupLimit { get; set; } = 20;
     public int BulkDeleteLimit { get; set; } = 50;
 

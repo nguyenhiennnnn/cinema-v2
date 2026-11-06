@@ -1,0 +1,1614 @@
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/.env.example perfo-main/.env.example
+--- perfo-main/.env.example	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/.env.example	2026-11-06 03:54:45.005392336 +0000
+@@ -28,13 +28,10 @@
+ RATE_LIMIT_GLOBAL_SEGMENTS_PER_WINDOW=4
+ 
+ # ---- Showtime scheduler ----
+-SCHEDULER_STEP_MINUTES=5
+-SCHEDULER_MIN_SAME_MOVIE_GAP_MINUTES=60
+ SCHEDULER_DEFAULT_WINDOW_MINUTES=960
+ SCHEDULER_SPREAD_MINUTES=30
+ SCHEDULER_FIT_WEIGHT=4
+ SCHEDULER_LOAD_WEIGHT=0.5
+-SCHEDULER_HEAT_LOOKBACK_DAYS=7
+ 
+ # ---- Background jobs (Hangfire) ----
+ BG_RELEASE_EXPIRED_SEATS_CRON=* * * * *
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Api/appsettings.json perfo-main/backend/Cinema.Api/appsettings.json
+--- perfo-main/backend/Cinema.Api/appsettings.json	2026-11-06 04:04:39.457585151 +0000
++++ perfo-main/backend/Cinema.Api/appsettings.json	2026-11-06 03:54:31.258329760 +0000
+@@ -45,9 +45,6 @@
+   },
+ 
+   "Booking": {
+-    "RoomBufferMinutes": 15,
+-    "MaxSeatsPerBooking": 10,
+-    "MaxComboQuantity": 10,
+     "CustomerLookupLimit": 20,
+     "BulkDeleteLimit": 50,
+     "BookingCodeMaxAttempts": 5,
+@@ -133,16 +130,10 @@
+   },
+ 
+   "Scheduler": {
+-    "StepMinutes": 5,
+-    "MinSameMovieGapMinutes": 60,
+     "DefaultWindowMinutes": 960,
+     "SpreadMinutes": 30,
+     "FitWeight": 4,
+-    "LoadWeight": 0.5,
+-    "HeatLookbackDays": 7,
+-    "HeatSalesWeight": 0.7,
+-    "HeatRatingWeight": 0.3,
+-    "MaxRating": 5
++    "LoadWeight": 0.5
+   },
+ 
+   "BackgroundJobs": {
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/DTOs/Settings/SettingDtos.cs perfo-main/backend/Cinema.Application/DTOs/Settings/SettingDtos.cs
+--- perfo-main/backend/Cinema.Application/DTOs/Settings/SettingDtos.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/DTOs/Settings/SettingDtos.cs	2026-11-06 03:52:30.641599756 +0000
+@@ -15,7 +15,19 @@
+     int StopSellingMinutesBefore,
+     int HoldDurationMinutes,
+     int CheckInOpenMinutes,
+-    string SeatGapRuleMode
++    string SeatGapRuleMode,
++    int RoomBufferMinutes,
++    int MaxSeatsPerBooking,
++    int MaxComboQuantity,
++    int LoyaltyWindowMonths,
++    int MovieEndGraceDays,
++    int ShowtimeLookaheadDays,
++    int SchedulerStepMinutes,
++    int SchedulerMinSameMovieGapMinutes,
++    int SchedulerHeatLookbackDays,
++    double SchedulerHeatSalesWeight,
++    double SchedulerHeatRatingWeight,
++    double SchedulerMaxRating
+ );
+ 
+ public record UpdateSettingsRequest(
+@@ -33,5 +45,17 @@
+     int StopSellingMinutesBefore = 0,
+     int? HoldDurationMinutes = null,
+     int? CheckInOpenMinutes = null,
+-    string? SeatGapRuleMode = null
++    string? SeatGapRuleMode = null,
++    int? RoomBufferMinutes = null,
++    int? MaxSeatsPerBooking = null,
++    int? MaxComboQuantity = null,
++    int? LoyaltyWindowMonths = null,
++    int? MovieEndGraceDays = null,
++    int? ShowtimeLookaheadDays = null,
++    int? SchedulerStepMinutes = null,
++    int? SchedulerMinSameMovieGapMinutes = null,
++    int? SchedulerHeatLookbackDays = null,
++    double? SchedulerHeatSalesWeight = null,
++    double? SchedulerHeatRatingWeight = null,
++    double? SchedulerMaxRating = null
+ );
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Interfaces/IAppDbContext.cs perfo-main/backend/Cinema.Application/Interfaces/IAppDbContext.cs
+--- perfo-main/backend/Cinema.Application/Interfaces/IAppDbContext.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Interfaces/IAppDbContext.cs	2026-11-06 03:53:25.395584665 +0000
+@@ -49,4 +49,26 @@
+         this IAppDbContext db,
+         CancellationToken cancellationToken
+     ) => db.CinemaSettings.FirstAsync(s => s.Id == CinemaSettingsId, cancellationToken);
++
++    /// <summary>
++    /// Đọc cấu hình rạp (không tracking); nếu chưa có dòng settings thì trả về object mặc định
++    /// (chưa gắn vào context) để các luật nghiệp vụ vẫn chạy với giá trị mặc định.
++    /// </summary>
++    public static async Task<CinemaSettings> LoadCinemaSettingsOrDefaultAsync(
++        this IAppDbContext db,
++        CancellationToken cancellationToken
++    ) =>
++        await db
++            .CinemaSettings.AsNoTracking()
++            .FirstOrDefaultAsync(s => s.Id == CinemaSettingsId, cancellationToken)
++        ?? new CinemaSettings();
++
++    public static async Task<int> LoadShowtimeLookaheadDaysAsync(
++        this IAppDbContext db,
++        CancellationToken cancellationToken
++    ) =>
++        await db
++            .CinemaSettings.Where(s => s.Id == CinemaSettingsId)
++            .Select(s => (int?)s.ShowtimeLookaheadDays)
++            .FirstOrDefaultAsync(cancellationToken) ?? CinemaSettings.DefaultShowtimeLookaheadDays;
+ }
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Options/BookingOptions.cs perfo-main/backend/Cinema.Application/Options/BookingOptions.cs
+--- perfo-main/backend/Cinema.Application/Options/BookingOptions.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Options/BookingOptions.cs	2026-11-06 03:54:24.234315030 +0000
+@@ -4,9 +4,7 @@
+ {
+     public const string SectionName = "Booking";
+ 
+-    public int RoomBufferMinutes { get; set; } = 15;
+-    public int MaxSeatsPerBooking { get; set; } = 10;
+-    public int MaxComboQuantity { get; set; } = 10;
++    // RoomBufferMinutes / MaxSeatsPerBooking / MaxComboQuantity đã chuyển sang CinemaSettings (DB).
+     public int CustomerLookupLimit { get; set; } = 20;
+     public int BulkDeleteLimit { get; set; } = 50;
+ 
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Options/SchedulerOptions.cs perfo-main/backend/Cinema.Application/Options/SchedulerOptions.cs
+--- perfo-main/backend/Cinema.Application/Options/SchedulerOptions.cs	2026-11-06 04:04:39.457881112 +0000
++++ perfo-main/backend/Cinema.Application/Options/SchedulerOptions.cs	2026-11-06 03:54:31.258596186 +0000
+@@ -4,6 +4,9 @@
+ {
+     public const string SectionName = "Scheduler";
+ 
++    // Các thuộc tính chính sách bên dưới (StepMinutes, MinSameMovieGapMinutes, HeatLookbackDays,
++    // HeatSalesWeight, HeatRatingWeight, MaxRating) được ShowtimeService ghi đè bằng CinemaSettings;
++    // giá trị ở đây chỉ là mặc định khi dùng ShowtimeScheduler độc lập (ví dụ trong test).
+     public int StepMinutes { get; set; } = 5;
+     public int MinSameMovieGapMinutes { get; set; } = 60;
+     public int DefaultWindowMinutes { get; set; } = 16 * 60;
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs perfo-main/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs
+--- perfo-main/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs	2026-11-06 03:53:37.283231178 +0000
+@@ -51,7 +51,7 @@
+                         {
+                             ["type"] = "STRING",
+                             ["description"] =
+-                                "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong 7 ngày tới.",
++                                "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán.",
+                         },
+                     },
+                 },
+@@ -173,7 +173,7 @@
+         }
+         else
+         {
+-            var end = now.AddDays(ShowtimeLookahead.Days);
++            var end = now.AddDays(await db.LoadShowtimeLookaheadDaysAsync(ct));
+             query = query.Where(s => s.StartTime <= end);
+         }
+ 
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Services/Auth/AuthService.cs perfo-main/backend/Cinema.Application/Services/Auth/AuthService.cs
+--- perfo-main/backend/Cinema.Application/Services/Auth/AuthService.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Services/Auth/AuthService.cs	2026-11-06 03:55:45.774345577 +0000
+@@ -176,16 +176,24 @@
+                 Messages.Forbidden_EmailNotVerifiedCheckInbox
+             );
+ 
+-        var isCustomer = user.Role.RoleName == Roles.Customer;
++        // Allow-list: cổng quản trị chỉ nhận Admin/Employee. Dùng allow-list thay vì "không phải Customer"
++        // để role lạ (hoặc role thêm sau này) không tự động lọt vào cổng quản trị.
++        var roleName = user.Role.RoleName;
++        var isCustomer = roleName == Roles.Customer;
++        var isStaff = roleName is Roles.Admin or Roles.Employee;
+         if (!adminOnly && !isCustomer)
+             throw new ForbiddenAppException(
+                 Messages.Forbidden_UseAdminPortal
+             );
+-        if (adminOnly && isCustomer)
++        if (adminOnly && !isStaff)
+             throw new ForbiddenAppException(
+                 Messages.Forbidden_CustomerCannotUseAdminPortal
+             );
+ 
++        // Nhân viên bị vô hiệu hóa hồ sơ (Employee.IsActive = false) hoặc mất hồ sơ thì không được vào.
++        if (adminOnly && roleName == Roles.Employee && user.Employee is not { IsActive: true })
++            throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
++
+         if (verifyResult == PasswordVerificationResult.SuccessRehashNeeded)
+         {
+             user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Services/Bookings/BookingService.cs perfo-main/backend/Cinema.Application/Services/Bookings/BookingService.cs
+--- perfo-main/backend/Cinema.Application/Services/Bookings/BookingService.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Services/Bookings/BookingService.cs	2026-11-06 03:54:24.233007538 +0000
+@@ -36,6 +36,11 @@
+         CancellationToken cancellationToken
+     )
+     {
++        await EnsureWithinBookingLimitsAsync(
++            request.SeatIds.Count,
++            request.Combos,
++            cancellationToken
++        );
+         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
+         var gapRuleMode = await db.LoadSeatGapRuleModeAsync(cancellationToken);
+         if (
+@@ -417,6 +422,11 @@
+         CancellationToken cancellationToken
+     )
+     {
++        await EnsureWithinBookingLimitsAsync(
++            request.SeatIds.Count,
++            request.Combos,
++            cancellationToken
++        );
+         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
+         if (
+             SeatLayoutRules.ValidateSelection(slots, request.SeatIds, SeatGapRuleMode.Off)
+@@ -1140,6 +1150,43 @@
+         return booking;
+     }
+ 
++    /// <summary>
++    /// Giới hạn số ghế / số lượng combo mỗi booking do admin cấu hình trong Cinema Settings
++    /// (không còn nằm trong validator tĩnh vì validator không đọc được DB).
++    /// </summary>
++    private async Task EnsureWithinBookingLimitsAsync(
++        int seatCount,
++        List<ComboSelectionRequest>? combos,
++        CancellationToken cancellationToken
++    )
++    {
++        var limits = await db
++            .CinemaSettings.AsNoTracking()
++            .Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
++            .Select(s => new { s.MaxSeatsPerBooking, s.MaxComboQuantity })
++            .FirstOrDefaultAsync(cancellationToken);
++        var maxSeats = limits?.MaxSeatsPerBooking ?? CinemaSettings.DefaultMaxSeatsPerBooking;
++        var maxCombo = limits?.MaxComboQuantity ?? CinemaSettings.DefaultMaxComboQuantity;
++
++        if (seatCount > maxSeats)
++        {
++            var message = string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats);
++            throw new ValidationAppException(
++                message,
++                new Dictionary<string, string[]> { ["seatIds"] = [message] }
++            );
++        }
++
++        if (combos is { Count: > 0 } && combos.Any(c => c.Quantity > maxCombo))
++        {
++            var message = string.Format(Messages.Validation_Quantity_Max, maxCombo);
++            throw new ValidationAppException(
++                message,
++                new Dictionary<string, string[]> { ["combos"] = [message] }
++            );
++        }
++    }
++
+     private Task<CinemaSettings> GetCinemaSettingsAsync(CancellationToken cancellationToken) =>
+         db.GetCinemaSettingsAsync(cancellationToken);
+ 
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Services/Bookings/LoyaltyExpiryService.cs perfo-main/backend/Cinema.Application/Services/Bookings/LoyaltyExpiryService.cs
+--- perfo-main/backend/Cinema.Application/Services/Bookings/LoyaltyExpiryService.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Services/Bookings/LoyaltyExpiryService.cs	2026-11-06 03:53:19.662412130 +0000
+@@ -7,11 +7,11 @@
+ 
+ public class LoyaltyExpiryService(IAppDbContext db, ILogger<LoyaltyExpiryService> logger)
+ {
+-    /// <summary>Đồng bộ Points/TierId của mọi khách theo cửa sổ 12 tháng (điểm cũ trượt ra khỏi cửa sổ thì bị trừ).</summary>
++    /// <summary>Đồng bộ Points/TierId của mọi khách theo cửa sổ điểm thưởng trong cấu hình rạp (điểm cũ trượt ra khỏi cửa sổ thì bị trừ).</summary>
+     public async Task<int> RecalculateAllAsync(CancellationToken ct)
+     {
+         var now = DateTime.UtcNow;
+-        var cutoff = LoyaltyWindow.Cutoff(now);
++        var cutoff = LoyaltyWindow.Cutoff(now, await LoyaltyWindow.LoadMonthsAsync(db, ct));
+ 
+         var sums = await db
+             .LoyaltyPointEntries.Where(e => e.EarnedAt > cutoff)
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Services/Movies/MovieService.cs perfo-main/backend/Cinema.Application/Services/Movies/MovieService.cs
+--- perfo-main/backend/Cinema.Application/Services/Movies/MovieService.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Services/Movies/MovieService.cs	2026-11-06 03:53:25.396106422 +0000
+@@ -89,6 +89,7 @@
+         var dto = movie.Adapt<MovieDetailDto>();
+ 
+         var now = DateTime.UtcNow;
++        var lookaheadDays = await db.LoadShowtimeLookaheadDaysAsync(cancellationToken);
+         var upcomingShowtimes = await db
+             .Showtimes.Include(s => s.Room)
+                 .ThenInclude(r => r.ScreenType)
+@@ -96,7 +97,7 @@
+                 s.MovieId == movieId
+                 && s.Status == ShowtimeStatus.Scheduled
+                 && s.StartTime >= now
+-                && s.StartTime <= now.AddDays(ShowtimeLookahead.Days)
++                && s.StartTime <= now.AddDays(lookaheadDays)
+             )
+             .OrderBy(s => s.StartTime)
+             .ToListAsync(cancellationToken);
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Services/Settings/SettingsService.cs perfo-main/backend/Cinema.Application/Services/Settings/SettingsService.cs
+--- perfo-main/backend/Cinema.Application/Services/Settings/SettingsService.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Services/Settings/SettingsService.cs	2026-11-06 03:53:03.753640312 +0000
+@@ -52,6 +52,32 @@
+             settings.CheckInOpenMinutes = checkInOpenMinutes;
+         if (Enum.TryParse<SeatGapRuleMode>(request.SeatGapRuleMode, out var seatGapRuleMode))
+             settings.SeatGapRuleMode = seatGapRuleMode;
++        if (request.RoomBufferMinutes is { } roomBufferMinutes)
++            settings.RoomBufferMinutes = roomBufferMinutes;
++        if (request.MaxSeatsPerBooking is { } maxSeatsPerBooking)
++            settings.MaxSeatsPerBooking = maxSeatsPerBooking;
++        if (request.MaxComboQuantity is { } maxComboQuantity)
++            settings.MaxComboQuantity = maxComboQuantity;
++        if (request.LoyaltyWindowMonths is { } loyaltyWindowMonths)
++            settings.LoyaltyWindowMonths = loyaltyWindowMonths;
++        if (request.MovieEndGraceDays is { } movieEndGraceDays)
++            settings.MovieEndGraceDays = movieEndGraceDays;
++        if (request.ShowtimeLookaheadDays is { } showtimeLookaheadDays)
++            settings.ShowtimeLookaheadDays = showtimeLookaheadDays;
++        if (request.SchedulerStepMinutes is { } schedulerStepMinutes)
++            settings.SchedulerStepMinutes = schedulerStepMinutes;
++        if (request.SchedulerMinSameMovieGapMinutes is { } schedulerMinGap)
++            settings.SchedulerMinSameMovieGapMinutes = schedulerMinGap;
++        if (request.SchedulerHeatLookbackDays is { } schedulerLookback)
++            settings.SchedulerHeatLookbackDays = schedulerLookback;
++        if (request.SchedulerHeatSalesWeight is { } salesWeight)
++            settings.SchedulerHeatSalesWeight = salesWeight;
++        if (request.SchedulerHeatRatingWeight is { } ratingWeight)
++            settings.SchedulerHeatRatingWeight = ratingWeight;
++        if (request.SchedulerMaxRating is { } schedulerMaxRating)
++            settings.SchedulerMaxRating = schedulerMaxRating;
++        if (settings.SchedulerHeatSalesWeight + settings.SchedulerHeatRatingWeight <= 0)
++            throw new BusinessRuleException(Messages.Validation_SchedulerHeatWeights_SumPositive);
+         settings.UpdatedAt = DateTime.UtcNow;
+ 
+         await db.SaveChangesAsync(cancellationToken);
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs perfo-main/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs
+--- perfo-main/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs	2026-11-06 04:04:39.458164800 +0000
++++ perfo-main/backend/Cinema.Application/Services/Showtimes/ShowtimeService.cs	2026-11-06 03:53:56.394450141 +0000
+@@ -19,7 +19,6 @@
+ 
+ public class ShowtimeService(
+     IAppDbContext db,
+-    IOptions<BookingOptions> bookingOptions,
+     IEnumerable<IPaymentGateway> paymentGateways,
+     IBackgroundJobClient backgroundJobClient,
+     IBookingService bookingService,
+@@ -31,10 +30,29 @@
+     private const int MaxBatchSize = 2000;
+     private const int MaxAutoScheduleDays = 31;
+ 
+-    private readonly int _bufferMinutes = bookingOptions.Value.RoomBufferMinutes;
+     private readonly BrandOptions _brand = brandOptions?.Value ?? new();
+     private readonly SchedulerOptions _scheduler = schedulerOptions?.Value ?? new();
+ 
++    private static SchedulerOptions BuildSchedulerOptions(
++        SchedulerOptions technical,
++        CinemaSettings settings
++    ) =>
++        new()
++        {
++            // Tham số kỹ thuật vẫn lấy từ appsettings.
++            DefaultWindowMinutes = technical.DefaultWindowMinutes,
++            SpreadMinutes = technical.SpreadMinutes,
++            FitWeight = technical.FitWeight,
++            LoadWeight = technical.LoadWeight,
++            // Tham số chính sách do admin chỉnh trong Cinema Settings.
++            StepMinutes = settings.SchedulerStepMinutes,
++            MinSameMovieGapMinutes = settings.SchedulerMinSameMovieGapMinutes,
++            HeatLookbackDays = settings.SchedulerHeatLookbackDays,
++            HeatSalesWeight = settings.SchedulerHeatSalesWeight,
++            HeatRatingWeight = settings.SchedulerHeatRatingWeight,
++            MaxRating = settings.SchedulerMaxRating,
++        };
++
+     private sealed record ShowtimeDraft(
+         int MovieId,
+         int RoomId,
+@@ -117,7 +135,9 @@
+ 
+         EnsureStartsInFuture(request.StartTime);
+ 
+-        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
++        var bufferMinutes = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
++            .RoomBufferMinutes;
++        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
+ 
+         await ValidateOperatingHoursAsync(
+             request.StartTime,
+@@ -249,7 +269,9 @@
+ 
+         EnsureStartsInFuture(request.StartTime);
+ 
+-        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
++        var bufferMinutes = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
++            .RoomBufferMinutes;
++        var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
+         if (
+             showtime.StartTime != request.StartTime
+             || showtime.MovieId != request.MovieId
+@@ -627,7 +649,9 @@
+     )
+     {
+         var now = DateTime.UtcNow;
+-        var cutoff = ShowtimeLifecycle.MovieEndCutoff(now);
++        var graceDays = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
++            .MovieEndGraceDays;
++        var cutoff = ShowtimeLifecycle.MovieEndCutoff(now, graceDays);
+         var count = await db
+             .Movies.Where(m =>
+                 m.Status == MovieStatus.NowShowing
+@@ -701,11 +725,11 @@
+                 Messages.Rule_NoSchedulableRooms
+             );
+ 
+-        var hours = await db
+-            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
+-            .Select(s => new { s.OpeningTime, s.ClosingTime })
+-            .FirstOrDefaultAsync(cancellationToken);
+-        var (open, _) = OperatingHours.Window(request.Date, hours?.OpeningTime, hours?.ClosingTime);
++        var cinemaSettings = await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken);
++        var scheduler = BuildSchedulerOptions(_scheduler, cinemaSettings);
++        var bufferMinutes = cinemaSettings.RoomBufferMinutes;
++        var hours = new { cinemaSettings.OpeningTime, cinemaSettings.ClosingTime };
++        var (open, _) = OperatingHours.Window(request.Date, hours.OpeningTime, hours.ClosingTime);
+         var horizon = VietnamTime.StartOfDayUtc(toDate).AddDays(2);
+         var scheduledRoomIds = rooms.Select(r => r.RoomId).ToList();
+         var busy = await db
+@@ -718,7 +742,7 @@
+             .Select(s => new SchedulerBusy(s.RoomId, s.StartTime, s.EndTime))
+             .ToListAsync(cancellationToken);
+ 
+-        var since = DateTime.UtcNow.AddDays(-_scheduler.HeatLookbackDays);
++        var since = DateTime.UtcNow.AddDays(-scheduler.HeatLookbackDays);
+         var tickets = await db
+             .BookingTickets.Where(t =>
+                 t.Booking.Status == BookingStatus.Confirmed
+@@ -742,7 +766,7 @@
+                     tickets.GetValueOrDefault(m.MovieId),
+                     maxTickets,
+                     m.AverageRating,
+-                    _scheduler
++                    scheduler
+                 )
+         );
+         var schedulerRooms = rooms.Select(r => new SchedulerRoom(r.RoomId, r.Seats)).ToList();
+@@ -760,14 +784,14 @@
+         {
+             var daySlots = ShowtimeScheduler.Build(
+                 day,
+-                hours?.OpeningTime,
+-                hours?.ClosingTime,
++                hours.OpeningTime,
++                hours.ClosingTime,
+                 request.AllowAfterHours,
+-                _bufferMinutes,
++                bufferMinutes,
+                 schedulerRooms,
+                 schedulerMovies,
+                 busy,
+-                _scheduler
++                scheduler
+             );
+             slots.AddRange(daySlots);
+             busy.AddRange(daySlots.Select(x => new SchedulerBusy(x.RoomId, x.Start, x.End)));
+@@ -1208,8 +1232,14 @@
+         var seatTemplates = await LoadSeatTemplatesAsync(roomIds, cancellationToken);
+         var hours = await db
+             .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
+-            .Select(s => new { s.OpeningTime, s.ClosingTime })
++            .Select(s => new
++            {
++                s.OpeningTime,
++                s.ClosingTime,
++                s.RoomBufferMinutes,
++            })
+             .FirstOrDefaultAsync(cancellationToken);
++        var bufferMinutes = hours?.RoomBufferMinutes ?? CinemaSettings.DefaultRoomBufferMinutes;
+         var intervals = await LoadScheduledIntervalsAsync(
+             roomIds,
+             drafts.Min(d => d.StartTime).AddDays(-1),
+@@ -1243,7 +1273,7 @@
+                 reason = "Phòng chiếu chưa được thiết lập sơ đồ ghế.";
+             else
+             {
+-                endTime = draft.StartTime.AddMinutes(movie.DurationMinutes + _bufferMinutes);
++                endTime = draft.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
+                 reason =
+                     OperatingHours.Violation(
+                         draft.StartTime,
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Utils/LoyaltyWindow.cs perfo-main/backend/Cinema.Application/Utils/LoyaltyWindow.cs
+--- perfo-main/backend/Cinema.Application/Utils/LoyaltyWindow.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Utils/LoyaltyWindow.cs	2026-11-06 03:53:14.034908910 +0000
+@@ -6,9 +6,17 @@
+ 
+ public static class LoyaltyWindow
+ {
+-    public const int Months = 12;
++    public const int DefaultMonths = CinemaSettings.DefaultLoyaltyWindowMonths;
+ 
+-    public static DateTime Cutoff(DateTime utcNow) => utcNow.AddMonths(-Months);
++    public static DateTime Cutoff(DateTime utcNow, int months = DefaultMonths) =>
++        utcNow.AddMonths(-months);
++
++    /// <summary>Số tháng hiệu lực của điểm thưởng, đọc từ cấu hình rạp (mặc định 12).</summary>
++    public static async Task<int> LoadMonthsAsync(IAppDbContext db, CancellationToken ct) =>
++        await db
++            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
++            .Select(s => (int?)s.LoyaltyWindowMonths)
++            .FirstOrDefaultAsync(ct) ?? DefaultMonths;
+ 
+     public static int PointsFor(decimal finalAmount, decimal pointsPerAmount) =>
+         (int)Math.Floor(finalAmount / pointsPerAmount);
+@@ -20,7 +28,7 @@
+         CancellationToken ct
+     )
+     {
+-        var cutoff = Cutoff(utcNow);
++        var cutoff = Cutoff(utcNow, await LoadMonthsAsync(db, ct));
+         var entries = await db
+             .LoyaltyPointEntries.Where(e => e.UserId == userId && e.EarnedAt > cutoff)
+             .ToListAsync(ct);
+@@ -59,7 +67,7 @@
+         if (userIds.Count == 0)
+             return result;
+ 
+-        var cutoff = Cutoff(utcNow);
++        var cutoff = Cutoff(utcNow, await LoadMonthsAsync(db, ct));
+         var sums = await db
+             .LoyaltyPointEntries.Where(e => userIds.Contains(e.UserId) && e.EarnedAt > cutoff)
+             .GroupBy(e => e.UserId)
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Utils/ShowtimeLifecycle.cs perfo-main/backend/Cinema.Application/Utils/ShowtimeLifecycle.cs
+--- perfo-main/backend/Cinema.Application/Utils/ShowtimeLifecycle.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Utils/ShowtimeLifecycle.cs	2026-11-06 03:53:14.035078597 +0000
+@@ -2,10 +2,11 @@
+ 
+ public static class ShowtimeLifecycle
+ {
+-    public const int MovieEndGraceDays = 1;
++    public const int DefaultMovieEndGraceDays = Domain.Entities.CinemaSettings.DefaultMovieEndGraceDays;
+ 
+     public static bool IsOnlineSalesClosed(DateTime now, DateTime startTime, int stopMinutes) =>
+         stopMinutes > 0 && now >= startTime.AddMinutes(-stopMinutes);
+ 
+-    public static DateTime MovieEndCutoff(DateTime now) => now.AddDays(-MovieEndGraceDays);
++    public static DateTime MovieEndCutoff(DateTime now, int graceDays = DefaultMovieEndGraceDays) =>
++        now.AddDays(-graceDays);
+ }
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Validators/Bookings/BookingValidators.cs perfo-main/backend/Cinema.Application/Validators/Bookings/BookingValidators.cs
+--- perfo-main/backend/Cinema.Application/Validators/Bookings/BookingValidators.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Validators/Bookings/BookingValidators.cs	2026-11-06 03:54:24.233424657 +0000
+@@ -1,37 +1,29 @@
+ using System.Text.RegularExpressions;
+ using Cinema.Application.DTOs.Bookings;
+-using Cinema.Application.Options;
+ using Cinema.Shared.Resources;
+ using FluentValidation;
+-using Microsoft.Extensions.Options;
+ 
+ namespace Cinema.Application.Validators.Bookings;
+ 
+ public class ComboSelectionRequestValidator : AbstractValidator<ComboSelectionRequest>
+ {
+-    public ComboSelectionRequestValidator(IOptions<BookingOptions>? options = null)
++    // Mức tối đa của số lượng combo đọc từ CinemaSettings (BookingService), không kiểm tra ở đây.
++    public ComboSelectionRequestValidator()
+     {
+-        var maxQuantity = (options?.Value ?? new BookingOptions()).MaxComboQuantity;
+-
+         RuleFor(x => x.ComboId)
+             .GreaterThan(0)
+             .WithMessage(Messages.Validation_ComboId_Positive);
+ 
+         RuleFor(x => x.Quantity)
+             .GreaterThan(0)
+-            .WithMessage(Messages.Validation_Quantity_Positive)
+-            .LessThanOrEqualTo(maxQuantity)
+-            .WithMessage(string.Format(Messages.Validation_Quantity_Max, maxQuantity));
++            .WithMessage(Messages.Validation_Quantity_Positive);
+     }
+ }
+ 
+ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequest>
+ {
+-    public HoldSeatsRequestValidator(IOptions<BookingOptions>? options = null)
++    public HoldSeatsRequestValidator()
+     {
+-        var bookingOptions = options ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
+-        var maxSeats = bookingOptions.Value.MaxSeatsPerBooking;
+-
+         RuleFor(x => x.ShowtimeId)
+             .GreaterThan(0)
+             .WithMessage(Messages.Validation_ShowtimeId_Positive);
+@@ -60,12 +52,8 @@
+             .Must(ids => ids.Distinct().Count() == ids.Count)
+             .WithMessage(Messages.Validation_Seats_Duplicated);
+ 
+-        RuleFor(x => x.SeatIds)
+-            .Must(ids => ids.Count <= maxSeats)
+-            .WithMessage(string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats));
+-
+         RuleForEach(x => x.Combos)
+-            .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
++            .SetValidator(new ComboSelectionRequestValidator());
+     }
+ 
+     [GeneratedRegex(@"^(0|\+84)[0-9]{9,10}$")]
+@@ -74,11 +62,8 @@
+ 
+ public partial class CounterHoldRequestValidator : AbstractValidator<CounterHoldRequest>
+ {
+-    public CounterHoldRequestValidator(IOptions<BookingOptions>? options = null)
++    public CounterHoldRequestValidator()
+     {
+-        var bookingOptions = options ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
+-        var maxSeats = bookingOptions.Value.MaxSeatsPerBooking;
+-
+         RuleFor(x => x.ShowtimeId)
+             .GreaterThan(0)
+             .WithMessage(Messages.Validation_ShowtimeId_Positive);
+@@ -95,12 +80,8 @@
+             .Must(ids => ids.Distinct().Count() == ids.Count)
+             .WithMessage(Messages.Validation_Seats_Duplicated);
+ 
+-        RuleFor(x => x.SeatIds)
+-            .Must(ids => ids.Count <= maxSeats)
+-            .WithMessage(string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats));
+-
+         RuleForEach(x => x.Combos)
+-            .SetValidator(new ComboSelectionRequestValidator(bookingOptions));
++            .SetValidator(new ComboSelectionRequestValidator());
+ 
+         RuleFor(x => x.UserId)
+             .GreaterThan(0)
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Application/Validators/Settings/SettingValidators.cs perfo-main/backend/Cinema.Application/Validators/Settings/SettingValidators.cs
+--- perfo-main/backend/Cinema.Application/Validators/Settings/SettingValidators.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Application/Validators/Settings/SettingValidators.cs	2026-11-06 03:53:03.753098987 +0000
+@@ -79,6 +79,54 @@
+             .Must(v => Enum.TryParse<SeatGapRuleMode>(v, out _) && !int.TryParse(v, out _))
+             .When(x => x.SeatGapRuleMode is not null)
+             .WithMessage(Messages.Validation_SeatGapRuleMode_Invalid);
++
++        IntRange(x => x.RoomBufferMinutes, "roomBufferMinutes", 0, 120);
++        IntRange(x => x.MaxSeatsPerBooking, "maxSeatsPerBooking", 1, 50);
++        IntRange(x => x.MaxComboQuantity, "maxComboQuantity", 1, 50);
++        IntRange(x => x.LoyaltyWindowMonths, "loyaltyWindowMonths", 1, 120);
++        IntRange(x => x.MovieEndGraceDays, "movieEndGraceDays", 0, 365);
++        IntRange(x => x.ShowtimeLookaheadDays, "showtimeLookaheadDays", 1, 60);
++        IntRange(x => x.SchedulerStepMinutes, "schedulerStepMinutes", 1, 60);
++        IntRange(x => x.SchedulerMinSameMovieGapMinutes, "schedulerMinSameMovieGapMinutes", 0, 1440);
++        IntRange(x => x.SchedulerHeatLookbackDays, "schedulerHeatLookbackDays", 1, 365);
++        DoubleRange(x => x.SchedulerHeatSalesWeight, "schedulerHeatSalesWeight", 0, 10);
++        DoubleRange(x => x.SchedulerHeatRatingWeight, "schedulerHeatRatingWeight", 0, 10);
++        DoubleRange(x => x.SchedulerMaxRating, "schedulerMaxRating", 1, 10);
++
++        // Hai trọng số Heat: nếu cả hai cùng được gửi lên thì tổng phải > 0 (tránh Heat luôn bằng 0).
++        RuleFor(x => x)
++            .Must(x => x.SchedulerHeatSalesWeight!.Value + x.SchedulerHeatRatingWeight!.Value > 0)
++            .When(x => x.SchedulerHeatSalesWeight is not null && x.SchedulerHeatRatingWeight is not null)
++            .WithName("schedulerHeatSalesWeight")
++            .WithMessage(Messages.Validation_SchedulerHeatWeights_SumPositive);
++    }
++
++    private void IntRange(
++        System.Linq.Expressions.Expression<Func<UpdateSettingsRequest, int?>> selector,
++        string name,
++        int min,
++        int max
++    )
++    {
++        var get = selector.Compile();
++        RuleFor(selector)
++            .Must(v => v is not null && v >= min && v <= max)
++            .When(x => get(x) is not null)
++            .WithMessage(string.Format(Messages.Validation_Setting_NumberRange, name, min, max));
++    }
++
++    private void DoubleRange(
++        System.Linq.Expressions.Expression<Func<UpdateSettingsRequest, double?>> selector,
++        string name,
++        double min,
++        double max
++    )
++    {
++        var get = selector.Compile();
++        RuleFor(selector)
++            .Must(v => v is not null && !double.IsNaN(v.Value) && v >= min && v <= max)
++            .When(x => get(x) is not null)
++            .WithMessage(string.Format(Messages.Validation_Setting_NumberRange, name, min, max));
+     }
+ 
+     private static bool BeValidTime(string? value) =>
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Domain/Entities/CinemaSettings.cs perfo-main/backend/Cinema.Domain/Entities/CinemaSettings.cs
+--- perfo-main/backend/Cinema.Domain/Entities/CinemaSettings.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Domain/Entities/CinemaSettings.cs	2026-11-06 03:52:23.373941423 +0000
+@@ -31,4 +31,56 @@
+     public int CheckInOpenMinutes { get; set; } = DefaultCheckInOpenMinutes;
+ 
+     public SeatGapRuleMode SeatGapRuleMode { get; set; } = SeatGapRuleMode.Strict;
++
++    // ── Lịch chiếu & đặt vé ──────────────────────────────────────────────
++    public const int DefaultRoomBufferMinutes = 15;
++    public const int DefaultMaxSeatsPerBooking = 10;
++    public const int DefaultMaxComboQuantity = 10;
++    public const int DefaultLoyaltyWindowMonths = 12;
++    public const int DefaultMovieEndGraceDays = 1;
++    public const int DefaultShowtimeLookaheadDays = 7;
++
++    /// <summary>Khoảng nghỉ (dọn phòng) cộng vào sau mỗi suất chiếu, tính bằng phút.</summary>
++    public int RoomBufferMinutes { get; set; } = DefaultRoomBufferMinutes;
++
++    /// <summary>Số ghế tối đa cho một lần giữ chỗ / booking.</summary>
++    public int MaxSeatsPerBooking { get; set; } = DefaultMaxSeatsPerBooking;
++
++    /// <summary>Số lượng tối đa cho mỗi loại combo trong một booking.</summary>
++    public int MaxComboQuantity { get; set; } = DefaultMaxComboQuantity;
++
++    /// <summary>Điểm thưởng chỉ có hiệu lực trong N tháng kể từ lúc tích lũy.</summary>
++    public int LoyaltyWindowMonths { get; set; } = DefaultLoyaltyWindowMonths;
++
++    /// <summary>Số ngày gia hạn sau suất chiếu cuối cùng trước khi phim tự chuyển sang Ended.</summary>
++    public int MovieEndGraceDays { get; set; } = DefaultMovieEndGraceDays;
++
++    /// <summary>Số ngày lịch chiếu hiển thị cho khách (trang phim, trợ lý AI).</summary>
++    public int ShowtimeLookaheadDays { get; set; } = DefaultShowtimeLookaheadDays;
++
++    // ── Xếp lịch tự động (auto-schedule) ─────────────────────────────────
++    public const int DefaultSchedulerStepMinutes = 5;
++    public const int DefaultSchedulerMinSameMovieGapMinutes = 60;
++    public const int DefaultSchedulerHeatLookbackDays = 7;
++    public const double DefaultSchedulerHeatSalesWeight = 0.7;
++    public const double DefaultSchedulerHeatRatingWeight = 0.3;
++    public const double DefaultSchedulerMaxRating = 5;
++
++    /// <summary>Bước thời gian (phút) khi dò giờ bắt đầu suất.</summary>
++    public int SchedulerStepMinutes { get; set; } = DefaultSchedulerStepMinutes;
++
++    /// <summary>Khoảng cách tối thiểu (phút) giữa hai suất cùng phim.</summary>
++    public int SchedulerMinSameMovieGapMinutes { get; set; } = DefaultSchedulerMinSameMovieGapMinutes;
++
++    /// <summary>Số ngày gần nhất dùng để tính doanh số vé khi tính Heat.</summary>
++    public int SchedulerHeatLookbackDays { get; set; } = DefaultSchedulerHeatLookbackDays;
++
++    /// <summary>Trọng số doanh số vé trong công thức Heat.</summary>
++    public double SchedulerHeatSalesWeight { get; set; } = DefaultSchedulerHeatSalesWeight;
++
++    /// <summary>Trọng số điểm đánh giá trong công thức Heat.</summary>
++    public double SchedulerHeatRatingWeight { get; set; } = DefaultSchedulerHeatRatingWeight;
++
++    /// <summary>Điểm đánh giá tối đa (mẫu số khi chuẩn hóa rating trong Heat).</summary>
++    public double SchedulerMaxRating { get; set; } = DefaultSchedulerMaxRating;
+ }
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Infrastructure/Persistence/Configurations/CinemaSettingsConfiguration.cs perfo-main/backend/Cinema.Infrastructure/Persistence/Configurations/CinemaSettingsConfiguration.cs
+--- perfo-main/backend/Cinema.Infrastructure/Persistence/Configurations/CinemaSettingsConfiguration.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Infrastructure/Persistence/Configurations/CinemaSettingsConfiguration.cs	2026-11-06 03:52:23.374159204 +0000
+@@ -36,5 +36,26 @@
+             .HasConversion<string>()
+             .HasMaxLength(20)
+             .HasDefaultValue(Domain.Enums.SeatGapRuleMode.Strict);
++
++        builder.Property(x => x.RoomBufferMinutes).HasDefaultValue(CinemaSettings.DefaultRoomBufferMinutes);
++        builder.Property(x => x.MaxSeatsPerBooking).HasDefaultValue(CinemaSettings.DefaultMaxSeatsPerBooking);
++        builder.Property(x => x.MaxComboQuantity).HasDefaultValue(CinemaSettings.DefaultMaxComboQuantity);
++        builder.Property(x => x.LoyaltyWindowMonths).HasDefaultValue(CinemaSettings.DefaultLoyaltyWindowMonths);
++        builder.Property(x => x.MovieEndGraceDays).HasDefaultValue(CinemaSettings.DefaultMovieEndGraceDays);
++        builder.Property(x => x.ShowtimeLookaheadDays).HasDefaultValue(CinemaSettings.DefaultShowtimeLookaheadDays);
++        builder.Property(x => x.SchedulerStepMinutes).HasDefaultValue(CinemaSettings.DefaultSchedulerStepMinutes);
++        builder
++            .Property(x => x.SchedulerMinSameMovieGapMinutes)
++            .HasDefaultValue(CinemaSettings.DefaultSchedulerMinSameMovieGapMinutes);
++        builder
++            .Property(x => x.SchedulerHeatLookbackDays)
++            .HasDefaultValue(CinemaSettings.DefaultSchedulerHeatLookbackDays);
++        builder
++            .Property(x => x.SchedulerHeatSalesWeight)
++            .HasDefaultValue(CinemaSettings.DefaultSchedulerHeatSalesWeight);
++        builder
++            .Property(x => x.SchedulerHeatRatingWeight)
++            .HasDefaultValue(CinemaSettings.DefaultSchedulerHeatRatingWeight);
++        builder.Property(x => x.SchedulerMaxRating).HasDefaultValue(CinemaSettings.DefaultSchedulerMaxRating);
+     }
+ }
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/BookingScenarioSeeder.cs perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/BookingScenarioSeeder.cs
+--- perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/BookingScenarioSeeder.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/BookingScenarioSeeder.cs	2026-11-06 03:53:19.662875949 +0000
+@@ -846,8 +846,8 @@
+                         }
+                     );
+ 
+-                // Chỉ điểm còn trong cửa sổ 12 tháng mới tính vào Points hiện tại.
+-                if (paidAt > Cinema.Application.Utils.LoyaltyWindow.Cutoff(now))
++                // Chỉ điểm còn trong cửa sổ điểm thưởng (mặc định 12 tháng) mới tính vào Points hiện tại.
++                if (paidAt > Cinema.Application.Utils.LoyaltyWindow.Cutoff(now, _settings.LoyaltyWindowMonths))
+                     profile.Points += earned;
+                 profile.TotalSpent += final;
+                 var eligible = _tiersDesc.FirstOrDefault(t => t.MinPoints <= profile.Points);
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/ShowtimeSeeder.cs perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/ShowtimeSeeder.cs
+--- perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/ShowtimeSeeder.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Infrastructure/Persistence/Seed/ShowtimeSeeder.cs	2026-11-06 03:54:49.035129735 +0000
+@@ -20,7 +20,7 @@
+ 
+     private const int MaxShowsPerRoomDay = 4;
+     private const int MinShowsPerRoomDay = 3;
+-    private const int BufferMinutes = 15; // = BookingOptions.RoomBufferMinutes mặc định
++    private const int BufferMinutes = 15; // = CinemaSettings.DefaultRoomBufferMinutes
+     private const double SafetyBufferHours = 0.5;
+ 
+     /// <summary>0h (giờ VN) của ngày VN chứa <paramref name="now"/>, cộng <paramref name="offsetDays"/> ngày, tính bằng UTC.</summary>
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Shared/Constants/ShowtimeLookahead.cs perfo-main/backend/Cinema.Shared/Constants/ShowtimeLookahead.cs
+--- perfo-main/backend/Cinema.Shared/Constants/ShowtimeLookahead.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/Cinema.Shared/Constants/ShowtimeLookahead.cs	1970-01-01 00:00:00.000000000 +0000
+@@ -1,6 +0,0 @@
+-namespace Cinema.Shared.Constants;
+-
+-public static class ShowtimeLookahead
+-{
+-    public const int Days = 7;
+-}
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Shared/Resources/Messages.Designer.cs perfo-main/backend/Cinema.Shared/Resources/Messages.Designer.cs
+--- perfo-main/backend/Cinema.Shared/Resources/Messages.Designer.cs	2026-11-06 04:04:39.458543413 +0000
++++ perfo-main/backend/Cinema.Shared/Resources/Messages.Designer.cs	2026-11-06 03:52:44.088271981 +0000
+@@ -3068,5 +3068,24 @@
+                 return ResourceManager.GetString("Validation_BulkIds_NotEmpty", resourceCulture);
+             }
+         }
++
++        /// <summary>
++        ///   Looks up a localized string similar to Tổng hai trọng số Heat (doanh số và đánh giá) phải lớn hơn 0..
++        /// </summary>
++        public static string Validation_SchedulerHeatWeights_SumPositive {
++            get {
++                return ResourceManager.GetString("Validation_SchedulerHeatWeights_SumPositive", resourceCulture);
++            }
++        }
++
++        /// <summary>
++        ///   Looks up a localized string similar to {0} phải từ {1} đến {2}..
++        /// </summary>
++        public static string Validation_Setting_NumberRange {
++            get {
++                return ResourceManager.GetString("Validation_Setting_NumberRange", resourceCulture);
++            }
++        }
++    
+     }
+ }
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/Cinema.Shared/Resources/Messages.resx perfo-main/backend/Cinema.Shared/Resources/Messages.resx
+--- perfo-main/backend/Cinema.Shared/Resources/Messages.resx	2026-11-06 04:04:39.458707022 +0000
++++ perfo-main/backend/Cinema.Shared/Resources/Messages.resx	2026-11-06 03:52:44.086938058 +0000
+@@ -1109,4 +1109,11 @@
+   <data name="Validation_BulkIds_NotEmpty" xml:space="preserve">
+     <value>Danh sách id không được để trống.</value>
+   </data>
++  <data name="Validation_Setting_NumberRange" xml:space="preserve">
++    <value>{0} phải từ {1} đến {2}.</value>
++    <comment>Có 3 tham số: dùng string.Format(Messages.Validation_Setting_NumberRange, tên, min, max)</comment>
++  </data>
++  <data name="Validation_SchedulerHeatWeights_SumPositive" xml:space="preserve">
++    <value>Tổng hai trọng số Heat (doanh số và đánh giá) phải lớn hơn 0.</value>
++  </data>
+ </root>
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/tests/Cinema.UnitTests/Services/AuthServiceTests.cs perfo-main/backend/tests/Cinema.UnitTests/Services/AuthServiceTests.cs
+--- perfo-main/backend/tests/Cinema.UnitTests/Services/AuthServiceTests.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/tests/Cinema.UnitTests/Services/AuthServiceTests.cs	2026-11-06 03:57:56.841273081 +0000
+@@ -257,6 +257,88 @@
+         );
+     }
+ 
++    private void AllowPassword() =>
++        PasswordHasherMock
++            .Setup(h =>
++                h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
++            )
++            .Returns(PasswordVerificationResult.Success);
++
++    [Fact]
++    public async Task LoginAsync_AdminPortalWithCustomerAccount_ThrowsForbidden()
++    {
++        TestDataSeeder.AddCustomer(Db, email: "cust@test.local");
++        AllowPassword();
++
++        await Should.ThrowAsync<ForbiddenAppException>(() =>
++            CreateSut()
++                .LoginAsync(
++                    new LoginRequest("cust@test.local", "pw"),
++                    adminOnly: true,
++                    CancellationToken.None
++                )
++        );
++        (await Db.RefreshTokens.AnyAsync()).ShouldBeFalse();
++    }
++
++    [Fact]
++    public async Task LoginAsync_AdminPortalWithUnknownRole_ThrowsForbidden()
++    {
++        var user = TestDataSeeder.AddCustomer(Db, email: "odd@test.local");
++        var oddRole = new Role { RoleName = "Auditor" };
++        Db.Roles.Add(oddRole);
++        await Db.SaveChangesAsync();
++        user.RoleId = oddRole.RoleId;
++        await Db.SaveChangesAsync();
++        AllowPassword();
++
++        await Should.ThrowAsync<ForbiddenAppException>(() =>
++            CreateSut()
++                .LoginAsync(
++                    new LoginRequest("odd@test.local", "pw"),
++                    adminOnly: true,
++                    CancellationToken.None
++                )
++        );
++    }
++
++    [Fact]
++    public async Task LoginAsync_AdminPortalWithAdmin_Succeeds()
++    {
++        var (admin, _) = TestDataSeeder.AddEmployee(Db, email: "boss@test.local");
++        AllowPassword();
++
++        var response = await CreateSut()
++            .LoginAsync(
++                new LoginRequest("boss@test.local", "pw"),
++                adminOnly: true,
++                CancellationToken.None
++            );
++
++        response.User.UserId.ShouldBe(admin.UserId);
++        response.User.Role.ShouldBe(Roles.Admin);
++    }
++
++    [Fact]
++    public async Task LoginAsync_AdminPortalWithDeactivatedEmployeeProfile_ThrowsForbidden()
++    {
++        var (user, employee) = TestDataSeeder.AddEmployee(Db, email: "staff@test.local");
++        var employeeRole = await Db.Roles.SingleAsync(r => r.RoleName == Roles.Employee);
++        user.RoleId = employeeRole.RoleId;
++        employee.IsActive = false;
++        await Db.SaveChangesAsync();
++        AllowPassword();
++
++        await Should.ThrowAsync<ForbiddenAppException>(() =>
++            CreateSut()
++                .LoginAsync(
++                    new LoginRequest("staff@test.local", "pw"),
++                    adminOnly: true,
++                    CancellationToken.None
++                )
++        );
++    }
++
+     [Fact]
+     public async Task LoginAsync_RehashNeeded_TransparentlyUpgradesStoredHash()
+     {
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/tests/Cinema.UnitTests/Services/CinemaSettingsPolicyTests.cs perfo-main/backend/tests/Cinema.UnitTests/Services/CinemaSettingsPolicyTests.cs
+--- perfo-main/backend/tests/Cinema.UnitTests/Services/CinemaSettingsPolicyTests.cs	1970-01-01 00:00:00.000000000 +0000
++++ perfo-main/backend/tests/Cinema.UnitTests/Services/CinemaSettingsPolicyTests.cs	2026-11-06 03:55:28.975677291 +0000
+@@ -0,0 +1,218 @@
++using Cinema.Application.DTOs.Bookings;
++using Cinema.Application.DTOs.Settings;
++using Cinema.Application.Interfaces;
++using Cinema.Application.Services.Settings;
++using Cinema.Application.Utils;
++using Cinema.Application.Validators.Settings;
++using Cinema.Domain.Entities;
++using Cinema.Shared.Exceptions;
++using Cinema.UnitTests.TestSupport;
++using Microsoft.EntityFrameworkCore;
++using Shouldly;
++
++namespace Cinema.UnitTests.Services;
++
++/// <summary>Các tham số chính sách (giới hạn đặt vé, cửa sổ điểm, ngày gia hạn...) đọc từ CinemaSettings.</summary>
++public class BookingLimitsFromSettingsTests : BookingServiceTestBase
++{
++    private async Task SetLimitsAsync(int maxSeats, int maxCombo)
++    {
++        var settings = await Db.CinemaSettings.SingleAsync(s => s.Id == 1);
++        settings.MaxSeatsPerBooking = maxSeats;
++        settings.MaxComboQuantity = maxCombo;
++        await Db.SaveChangesAsync();
++    }
++
++    [Fact]
++    public async Task HoldSeatsAsync_SeatCountAboveSettingsLimit_ThrowsValidation()
++    {
++        await SetLimitsAsync(maxSeats: 1, maxCombo: 10);
++
++        var ex = await Should.ThrowAsync<ValidationAppException>(() =>
++            CreateSut()
++                .HoldSeatsAsync(
++                    userId: 1,
++                    new HoldSeatsRequest(1, "Nguyen Van A", null, [1, 2], null),
++                    CancellationToken.None
++                )
++        );
++
++        ex.Errors!.ShouldContainKey("seatIds");
++    }
++
++    [Fact]
++    public async Task HoldSeatsAsync_ComboQuantityAboveSettingsLimit_ThrowsValidation()
++    {
++        await SetLimitsAsync(maxSeats: 10, maxCombo: 2);
++
++        var ex = await Should.ThrowAsync<ValidationAppException>(() =>
++            CreateSut()
++                .HoldSeatsAsync(
++                    userId: 1,
++                    new HoldSeatsRequest(
++                        1,
++                        "Nguyen Van A",
++                        null,
++                        [1],
++                        [new ComboSelectionRequest(1, 3)]
++                    ),
++                    CancellationToken.None
++                )
++        );
++
++        ex.Errors!.ShouldContainKey("combos");
++    }
++}
++
++public class LoyaltyWindowSettingsTests : BookingServiceTestBase
++{
++    [Fact]
++    public async Task SumActiveAsync_UsesLoyaltyWindowMonthsFromSettings()
++    {
++        var customer = TestDataSeeder.AddCustomer(Db);
++        LoyaltyTestHelper.AddEntry(Db, customer.UserId, null, 100, DateTime.UtcNow.AddMonths(-2));
++        LoyaltyTestHelper.AddEntry(Db, customer.UserId, null, 40, DateTime.UtcNow.AddMonths(-5));
++        await Db.SaveChangesAsync();
++
++        // Mặc định 12 tháng: cả hai dòng còn hiệu lực.
++        (await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)).ShouldBe(140);
++
++        var settings = await Db.CinemaSettings.SingleAsync(s => s.Id == 1);
++        settings.LoyaltyWindowMonths = 3;
++        await Db.SaveChangesAsync();
++
++        // Cửa sổ 3 tháng: dòng 5 tháng trước đã hết hạn.
++        (await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)).ShouldBe(100);
++    }
++
++    [Fact]
++    public void Cutoff_UsesGivenMonths()
++    {
++        var now = new DateTime(2026, 11, 6, 0, 0, 0, DateTimeKind.Utc);
++
++        LoyaltyWindow.Cutoff(now, 6).ShouldBe(now.AddMonths(-6));
++        LoyaltyWindow.Cutoff(now).ShouldBe(now.AddMonths(-12));
++    }
++}
++
++public class ShowtimePolicySettingsTests : BookingServiceTestBase
++{
++    [Fact]
++    public void MovieEndCutoff_UsesGivenGraceDays()
++    {
++        var now = new DateTime(2026, 11, 6, 0, 0, 0, DateTimeKind.Utc);
++
++        ShowtimeLifecycle.MovieEndCutoff(now, 3).ShouldBe(now.AddDays(-3));
++        ShowtimeLifecycle.MovieEndCutoff(now).ShouldBe(now.AddDays(-1));
++    }
++
++    [Fact]
++    public async Task LoadShowtimeLookaheadDaysAsync_ReadsSettingsAndFallsBackToDefault()
++    {
++        (await Db.LoadShowtimeLookaheadDaysAsync(default)).ShouldBe(
++            CinemaSettings.DefaultShowtimeLookaheadDays
++        );
++
++        var settings = await Db.CinemaSettings.SingleAsync(s => s.Id == 1);
++        settings.ShowtimeLookaheadDays = 14;
++        await Db.SaveChangesAsync();
++        (await Db.LoadShowtimeLookaheadDaysAsync(default)).ShouldBe(14);
++
++        Db.CinemaSettings.RemoveRange(Db.CinemaSettings);
++        await Db.SaveChangesAsync();
++        (await Db.LoadShowtimeLookaheadDaysAsync(default)).ShouldBe(
++            CinemaSettings.DefaultShowtimeLookaheadDays
++        );
++    }
++}
++
++public class SettingsPolicyUpdateTests : IDisposable
++{
++    private readonly SqliteAppDbContextHandle _handle = new();
++
++    private static UpdateSettingsRequest Request(
++        int? roomBufferMinutes = null,
++        int? maxSeatsPerBooking = null,
++        int? schedulerStepMinutes = null,
++        double? salesWeight = null,
++        double? ratingWeight = null
++    ) =>
++        new(
++            "Perfo Cinema",
++            "1 Nguyen Hue",
++            null,
++            null,
++            null,
++            null,
++            "09:00",
++            "23:30",
++            10_000m,
++            0m,
++            2,
++            RoomBufferMinutes: roomBufferMinutes,
++            MaxSeatsPerBooking: maxSeatsPerBooking,
++            SchedulerStepMinutes: schedulerStepMinutes,
++            SchedulerHeatSalesWeight: salesWeight,
++            SchedulerHeatRatingWeight: ratingWeight
++        );
++
++    private SettingsService CreateSut()
++    {
++        _handle.Db.ChangeTracker.Clear();
++        return new SettingsService(_handle.Db);
++    }
++
++    [Fact]
++    public async Task UpdateSettingsAsync_PolicyFieldsProvided_ArePersisted()
++    {
++        var result = await CreateSut()
++            .UpdateSettingsAsync(
++                Request(roomBufferMinutes: 25, maxSeatsPerBooking: 6, schedulerStepMinutes: 10),
++                CancellationToken.None
++            );
++
++        result.RoomBufferMinutes.ShouldBe(25);
++        result.MaxSeatsPerBooking.ShouldBe(6);
++        result.SchedulerStepMinutes.ShouldBe(10);
++        var saved = await _handle.Db.CinemaSettings.AsNoTracking().SingleAsync(s => s.Id == 1);
++        saved.RoomBufferMinutes.ShouldBe(25);
++    }
++
++    [Fact]
++    public async Task UpdateSettingsAsync_PolicyFieldsOmitted_KeepExistingValues()
++    {
++        await CreateSut()
++            .UpdateSettingsAsync(Request(roomBufferMinutes: 30), CancellationToken.None);
++
++        var result = await CreateSut().UpdateSettingsAsync(Request(), CancellationToken.None);
++
++        result.RoomBufferMinutes.ShouldBe(30);
++        result.MaxComboQuantity.ShouldBe(CinemaSettings.DefaultMaxComboQuantity);
++    }
++
++    [Fact]
++    public async Task UpdateSettingsAsync_BothHeatWeightsZero_ThrowsBusinessRule()
++    {
++        await Should.ThrowAsync<BusinessRuleException>(() =>
++            CreateSut()
++                .UpdateSettingsAsync(
++                    Request(salesWeight: 0, ratingWeight: 0),
++                    CancellationToken.None
++                )
++        );
++    }
++
++    [Fact]
++    public void Validator_OutOfRangePolicyValues_AreRejected()
++    {
++        var validator = new UpdateSettingsRequestValidator();
++
++        validator.Validate(Request(maxSeatsPerBooking: 0)).IsValid.ShouldBeFalse();
++        validator.Validate(Request(roomBufferMinutes: -1)).IsValid.ShouldBeFalse();
++        validator.Validate(Request(schedulerStepMinutes: 0)).IsValid.ShouldBeFalse();
++        validator.Validate(Request(salesWeight: 0, ratingWeight: 0)).IsValid.ShouldBeFalse();
++        validator.Validate(Request(roomBufferMinutes: 20, maxSeatsPerBooking: 8)).IsValid.ShouldBeTrue();
++    }
++
++    public void Dispose() => _handle.Dispose();
++}
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/backend/tests/Cinema.UnitTests/TestSupport/ShowtimeServiceTestBase.cs perfo-main/backend/tests/Cinema.UnitTests/TestSupport/ShowtimeServiceTestBase.cs
+--- perfo-main/backend/tests/Cinema.UnitTests/TestSupport/ShowtimeServiceTestBase.cs	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/backend/tests/Cinema.UnitTests/TestSupport/ShowtimeServiceTestBase.cs	2026-11-06 03:55:01.514063890 +0000
+@@ -33,11 +33,24 @@
+ 
+     protected ShowtimeService CreateSut()
+     {
++        // Khoảng nghỉ phòng nay là chính sách trong CinemaSettings (DB), không còn nằm ở BookingOptions.
++        var settings = Db.CinemaSettings.FirstOrDefault(s => s.Id == 1);
++        if (settings is null)
++        {
++            settings = new Cinema.Domain.Entities.CinemaSettings
++            {
++                Id = 1,
++                Name = "Test Cinema",
++                Address = "N/A",
++            };
++            Db.CinemaSettings.Add(settings);
++        }
++        settings.RoomBufferMinutes = RoomBufferMinutes;
++        Db.SaveChanges();
+         Db.ChangeTracker.Clear();
+ 
+         return new(
+             Db,
+-            Options.Create(new BookingOptions { RoomBufferMinutes = RoomBufferMinutes }),
+             PaymentGatewayMocks.Select(m => m.Object),
+             BackgroundJobClientMock.Object,
+             BookingServiceMock.Object,
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/docker-compose.yml perfo-main/docker-compose.yml
+--- perfo-main/docker-compose.yml	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/docker-compose.yml	2026-11-06 03:54:45.005080352 +0000
+@@ -39,13 +39,10 @@
+       Booking__CheckInOpenMinutes: ${BOOKING_CHECK_IN_OPEN_MINUTES:-30}
+       RateLimit__GlobalSegmentsPerWindow: ${RATE_LIMIT_GLOBAL_SEGMENTS_PER_WINDOW:-4}
+ 
+-      Scheduler__StepMinutes: ${SCHEDULER_STEP_MINUTES:-5}
+-      Scheduler__MinSameMovieGapMinutes: ${SCHEDULER_MIN_SAME_MOVIE_GAP_MINUTES:-60}
+       Scheduler__DefaultWindowMinutes: ${SCHEDULER_DEFAULT_WINDOW_MINUTES:-960}
+       Scheduler__SpreadMinutes: ${SCHEDULER_SPREAD_MINUTES:-30}
+       Scheduler__FitWeight: ${SCHEDULER_FIT_WEIGHT:-4}
+       Scheduler__LoadWeight: ${SCHEDULER_LOAD_WEIGHT:-0.5}
+-      Scheduler__HeatLookbackDays: ${SCHEDULER_HEAT_LOOKBACK_DAYS:-7}
+ 
+       BackgroundJobs__ReleaseExpiredSeatsCron: "${BG_RELEASE_EXPIRED_SEATS_CRON:-* * * * *}"
+       BackgroundJobs__ShowtimeLifecycleCron: "${BG_SHOWTIME_LIFECYCLE_CRON:-* * * * *}"
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/frontend/src/features/admin/employees/components/employee-columns.tsx perfo-main/frontend/src/features/admin/employees/components/employee-columns.tsx
+--- perfo-main/frontend/src/features/admin/employees/components/employee-columns.tsx	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/frontend/src/features/admin/employees/components/employee-columns.tsx	2026-11-06 03:57:41.514740651 +0000
+@@ -18,11 +18,13 @@
+ interface EmployeeColumnsOptions {
+   onEdit: (employee: AdminEmployeeDto) => void;
+   onToggle: (employee: AdminEmployeeDto) => void;
++  /** Id user đang đăng nhập — không cho tự vô hiệu hóa hồ sơ của chính mình. */
++  currentUserId?: number;
+ }
+ 
+ const columnHelper = createColumnHelper<DataTableFeatures, AdminEmployeeDto>();
+ 
+-export const createEmployeeColumns = ({ onEdit, onToggle }: EmployeeColumnsOptions) =>
++export const createEmployeeColumns = ({ onEdit, onToggle, currentUserId }: EmployeeColumnsOptions) =>
+   columnHelper.columns([
+     columnHelper.accessor("employeeId", {
+       header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
+@@ -77,7 +79,11 @@
+                 <Pencil /> Chỉnh sửa
+               </DropdownMenuItem>
+               {row.original.isActive ? (
+-                <DropdownMenuItem variant="destructive" onClick={() => onToggle(row.original)}>
++                <DropdownMenuItem
++                  variant="destructive"
++                  disabled={row.original.userId === currentUserId}
++                  onClick={() => onToggle(row.original)}
++                >
+                   <PowerOff /> Cho nghỉ việc
+                 </DropdownMenuItem>
+               ) : (
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/frontend/src/features/admin/employees/pages/employees-page.tsx perfo-main/frontend/src/features/admin/employees/pages/employees-page.tsx
+--- perfo-main/frontend/src/features/admin/employees/pages/employees-page.tsx	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/frontend/src/features/admin/employees/pages/employees-page.tsx	2026-11-06 03:57:44.576338949 +0000
+@@ -9,6 +9,7 @@
+ import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
+ import { useAdminBulkUpdateUserStatus } from "@/features/admin/users/hooks/use-admin-users";
+ import { toastBulkResult } from "@/lib/bulk";
++import { useAuthStore } from "@/stores/auth-store";
+ import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
+ import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
+ 
+@@ -27,6 +28,7 @@
+ 
+   const employees = useAdminEmployees(stripNulls(params));
+   const updateEmployee = useAdminUpdateEmployee();
++  const currentUserId = useAuthStore((s) => s.user?.userId);
+   const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
+   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+ 
+@@ -88,6 +90,7 @@
+     ...createEmployeeColumns({
+       onEdit: handleEdit,
+       onToggle: handleToggle,
++      currentUserId,
+     }),
+   ];
+ 
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/frontend/src/features/admin/settings/pages/settings-page.tsx perfo-main/frontend/src/features/admin/settings/pages/settings-page.tsx
+--- perfo-main/frontend/src/features/admin/settings/pages/settings-page.tsx	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/frontend/src/features/admin/settings/pages/settings-page.tsx	2026-11-06 03:57:17.683757832 +0000
+@@ -35,6 +35,18 @@
+   cancelDeadlineHours: z.coerce.number().min(0, "Giá trị không được âm."),
+   stopSellingMinutesBefore: z.coerce.number().min(0, "Giá trị không được âm.").max(1440, "Tối đa 1440 phút."),
+   seatGapRuleMode: z.enum([SeatGapRuleMode.Strict, SeatGapRuleMode.AllowEdge, SeatGapRuleMode.Off]),
++  roomBufferMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(120, "Tối đa 120."),
++  maxSeatsPerBooking: z.coerce.number().min(1, "Tối thiểu 1.").max(50, "Tối đa 50."),
++  maxComboQuantity: z.coerce.number().min(1, "Tối thiểu 1.").max(50, "Tối đa 50."),
++  loyaltyWindowMonths: z.coerce.number().min(1, "Tối thiểu 1.").max(120, "Tối đa 120."),
++  movieEndGraceDays: z.coerce.number().min(0, "Tối thiểu 0.").max(365, "Tối đa 365."),
++  showtimeLookaheadDays: z.coerce.number().min(1, "Tối thiểu 1.").max(60, "Tối đa 60."),
++  schedulerStepMinutes: z.coerce.number().min(1, "Tối thiểu 1.").max(60, "Tối đa 60."),
++  schedulerMinSameMovieGapMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(1440, "Tối đa 1440."),
++  schedulerHeatLookbackDays: z.coerce.number().min(1, "Tối thiểu 1.").max(365, "Tối đa 365."),
++  schedulerHeatSalesWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(10, "Tối đa 10."),
++  schedulerHeatRatingWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(10, "Tối đa 10."),
++  schedulerMaxRating: z.coerce.number().min(1, "Tối thiểu 1.").max(10, "Tối đa 10."),
+ });
+ 
+ type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+@@ -59,6 +71,18 @@
+       cancelDeadlineHours: 0,
+       stopSellingMinutesBefore: 0,
+       seatGapRuleMode: SeatGapRuleMode.Strict,
++      roomBufferMinutes: 15,
++      maxSeatsPerBooking: 10,
++      maxComboQuantity: 10,
++      loyaltyWindowMonths: 12,
++      movieEndGraceDays: 1,
++      showtimeLookaheadDays: 7,
++      schedulerStepMinutes: 5,
++      schedulerMinSameMovieGapMinutes: 60,
++      schedulerHeatLookbackDays: 7,
++      schedulerHeatSalesWeight: 0.7,
++      schedulerHeatRatingWeight: 0.3,
++      schedulerMaxRating: 5,
+     },
+   });
+ 
+@@ -78,6 +102,18 @@
+         cancelDeadlineHours: settings.data.cancelDeadlineHours,
+         stopSellingMinutesBefore: settings.data.stopSellingMinutesBefore,
+         seatGapRuleMode: settings.data.seatGapRuleMode,
++        roomBufferMinutes: settings.data.roomBufferMinutes,
++        maxSeatsPerBooking: settings.data.maxSeatsPerBooking,
++        maxComboQuantity: settings.data.maxComboQuantity,
++        loyaltyWindowMonths: settings.data.loyaltyWindowMonths,
++        movieEndGraceDays: settings.data.movieEndGraceDays,
++        showtimeLookaheadDays: settings.data.showtimeLookaheadDays,
++        schedulerStepMinutes: settings.data.schedulerStepMinutes,
++        schedulerMinSameMovieGapMinutes: settings.data.schedulerMinSameMovieGapMinutes,
++        schedulerHeatLookbackDays: settings.data.schedulerHeatLookbackDays,
++        schedulerHeatSalesWeight: settings.data.schedulerHeatSalesWeight,
++        schedulerHeatRatingWeight: settings.data.schedulerHeatRatingWeight,
++        schedulerMaxRating: settings.data.schedulerMaxRating,
+       });
+     }
+   }, [settings.data, form]);
+@@ -97,6 +133,18 @@
+       cancelDeadlineHours: values.cancelDeadlineHours,
+       stopSellingMinutesBefore: values.stopSellingMinutesBefore,
+       seatGapRuleMode: values.seatGapRuleMode,
++      roomBufferMinutes: values.roomBufferMinutes,
++      maxSeatsPerBooking: values.maxSeatsPerBooking,
++      maxComboQuantity: values.maxComboQuantity,
++      loyaltyWindowMonths: values.loyaltyWindowMonths,
++      movieEndGraceDays: values.movieEndGraceDays,
++      showtimeLookaheadDays: values.showtimeLookaheadDays,
++      schedulerStepMinutes: values.schedulerStepMinutes,
++      schedulerMinSameMovieGapMinutes: values.schedulerMinSameMovieGapMinutes,
++      schedulerHeatLookbackDays: values.schedulerHeatLookbackDays,
++      schedulerHeatSalesWeight: values.schedulerHeatSalesWeight,
++      schedulerHeatRatingWeight: values.schedulerHeatRatingWeight,
++      schedulerMaxRating: values.schedulerMaxRating,
+     });
+   };
+ 
+@@ -195,6 +243,113 @@
+             getOptionValue={(o) => o.value}
+             getOptionLabel={(o) => o.label}
+           />
++
++          <h3 className="pt-2 text-sm font-semibold">Lịch chiếu &amp; đặt vé</h3>
++          <div className="grid grid-cols-2 gap-4">
++            <FormInputField
++              name="roomBufferMinutes"
++              control={form.control}
++              label="Khoảng nghỉ giữa các suất (phút)"
++              type="number"
++              min={0}
++              max={120}
++            />
++            <FormInputField
++              name="maxSeatsPerBooking"
++              control={form.control}
++              label="Số ghế tối đa / booking"
++              type="number"
++              min={1}
++              max={50}
++            />
++            <FormInputField
++              name="maxComboQuantity"
++              control={form.control}
++              label="Số lượng tối đa mỗi combo"
++              type="number"
++              min={1}
++              max={50}
++            />
++            <FormInputField
++              name="loyaltyWindowMonths"
++              control={form.control}
++              label="Hiệu lực điểm thưởng (tháng)"
++              type="number"
++              min={1}
++              max={120}
++            />
++            <FormInputField
++              name="movieEndGraceDays"
++              control={form.control}
++              label="Gia hạn sau suất cuối trước khi phim Ended (ngày)"
++              type="number"
++              min={0}
++              max={365}
++            />
++            <FormInputField
++              name="showtimeLookaheadDays"
++              control={form.control}
++              label="Số ngày lịch chiếu hiển thị"
++              type="number"
++              min={1}
++              max={60}
++            />
++          </div>
++
++          <h3 className="pt-2 text-sm font-semibold">Xếp lịch tự động &amp; Heat</h3>
++          <div className="grid grid-cols-2 gap-4">
++            <FormInputField
++              name="schedulerStepMinutes"
++              control={form.control}
++              label="Xếp lịch: bước dò giờ (phút)"
++              type="number"
++              min={1}
++              max={60}
++            />
++            <FormInputField
++              name="schedulerMinSameMovieGapMinutes"
++              control={form.control}
++              label="Xếp lịch: giãn cách tối thiểu cùng phim (phút)"
++              type="number"
++              min={0}
++              max={1440}
++            />
++            <FormInputField
++              name="schedulerHeatLookbackDays"
++              control={form.control}
++              label="Heat: số ngày tính doanh số vé"
++              type="number"
++              min={1}
++              max={365}
++            />
++            <FormInputField
++              name="schedulerHeatSalesWeight"
++              control={form.control}
++              label="Heat: trọng số doanh số"
++              type="number"
++              step={0.05}
++              min={0}
++              max={10}
++            />
++            <FormInputField
++              name="schedulerHeatRatingWeight"
++              control={form.control}
++              label="Heat: trọng số đánh giá"
++              type="number"
++              step={0.05}
++              min={0}
++              max={10}
++            />
++            <FormInputField
++              name="schedulerMaxRating"
++              control={form.control}
++              label="Heat: điểm đánh giá tối đa"
++              type="number"
++              step={0.5}
++              min={1}
++              max={10}
++            />
++          </div>
+         </FieldGroup>
+ 
+         <div className="flex justify-end pt-2">
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/frontend/src/features/admin/settings/types/index.ts perfo-main/frontend/src/features/admin/settings/types/index.ts
+--- perfo-main/frontend/src/features/admin/settings/types/index.ts	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/frontend/src/features/admin/settings/types/index.ts	2026-11-06 03:57:17.683461467 +0000
+@@ -17,6 +17,18 @@
+   stopSellingMinutesBefore: number;
+   holdDurationMinutes: number;
+   seatGapRuleMode: SeatGapRuleMode;
++  roomBufferMinutes: number;
++  maxSeatsPerBooking: number;
++  maxComboQuantity: number;
++  loyaltyWindowMonths: number;
++  movieEndGraceDays: number;
++  showtimeLookaheadDays: number;
++  schedulerStepMinutes: number;
++  schedulerMinSameMovieGapMinutes: number;
++  schedulerHeatLookbackDays: number;
++  schedulerHeatSalesWeight: number;
++  schedulerHeatRatingWeight: number;
++  schedulerMaxRating: number;
+ }
+ 
+ export interface UpdateSettingsRequest {
+@@ -33,6 +45,18 @@
+   cancelDeadlineHours: number;
+   stopSellingMinutesBefore: number;
+   seatGapRuleMode: SeatGapRuleMode;
++  roomBufferMinutes?: number;
++  maxSeatsPerBooking?: number;
++  maxComboQuantity?: number;
++  loyaltyWindowMonths?: number;
++  movieEndGraceDays?: number;
++  showtimeLookaheadDays?: number;
++  schedulerStepMinutes?: number;
++  schedulerMinSameMovieGapMinutes?: number;
++  schedulerHeatLookbackDays?: number;
++  schedulerHeatSalesWeight?: number;
++  schedulerHeatRatingWeight?: number;
++  schedulerMaxRating?: number;
+ }
+ 
+ // Alias for backward compat
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/frontend/src/features/admin/users/components/user-columns.tsx perfo-main/frontend/src/features/admin/users/components/user-columns.tsx
+--- perfo-main/frontend/src/features/admin/users/components/user-columns.tsx	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/frontend/src/features/admin/users/components/user-columns.tsx	2026-11-06 03:57:33.650530502 +0000
+@@ -17,11 +17,13 @@
+ interface UserColumnsOptions {
+   onChangeRole: (user: AdminUserListItemDto) => void;
+   onToggle: (user: AdminUserListItemDto) => void;
++  /** Id của user đang đăng nhập — không cho tự đổi role / tự khóa chính mình (backend cũng chặn). */
++  currentUserId?: number;
+ }
+ 
+ const columnHelper = createColumnHelper<DataTableFeatures, AdminUserListItemDto>();
+ 
+-export const createUserColumns = ({ onChangeRole, onToggle }: UserColumnsOptions) =>
++export const createUserColumns = ({ onChangeRole, onToggle, currentUserId }: UserColumnsOptions) =>
+   columnHelper.columns([
+     columnHelper.accessor("userId", {
+       header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
+@@ -64,15 +66,25 @@
+               </Button>
+             </DropdownMenuTrigger>
+             <DropdownMenuContent align="end">
+-              <DropdownMenuItem onClick={() => onChangeRole(row.original)}>
++              <DropdownMenuItem
++                disabled={row.original.userId === currentUserId}
++                onClick={() => onChangeRole(row.original)}
++              >
+                 <ShieldCheck /> Đổi vai trò
+               </DropdownMenuItem>
+               {row.original.isActive ? (
+-                <DropdownMenuItem variant="destructive" onClick={() => onToggle(row.original)}>
++                <DropdownMenuItem
++                  variant="destructive"
++                  disabled={row.original.userId === currentUserId}
++                  onClick={() => onToggle(row.original)}
++                >
+                   <PowerOff /> Khóa tài khoản
+                 </DropdownMenuItem>
+               ) : (
+-                <DropdownMenuItem onClick={() => onToggle(row.original)}>
++                <DropdownMenuItem
++                  disabled={row.original.userId === currentUserId}
++                  onClick={() => onToggle(row.original)}
++                >
+                   <Power /> Mở khóa
+                 </DropdownMenuItem>
+               )}
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/frontend/src/features/admin/users/pages/users-page.tsx perfo-main/frontend/src/features/admin/users/pages/users-page.tsx
+--- perfo-main/frontend/src/features/admin/users/pages/users-page.tsx	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/frontend/src/features/admin/users/pages/users-page.tsx	2026-11-06 03:57:33.650760382 +0000
+@@ -1,3 +1,4 @@
++import { useAuthStore } from "@/stores/auth-store";
+ import { useState } from "react";
+ import type { RowSelectionState } from "@tanstack/react-table";
+ 
+@@ -27,6 +28,7 @@
+   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
+ 
+   const users = useAdminUsers(stripNulls(params));
++  const currentUserId = useAuthStore((s) => s.user?.userId);
+   const toggleStatus = useAdminUpdateUserStatus();
+   const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
+   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+@@ -74,6 +76,7 @@
+     ...createUserColumns({
+       onChangeRole: handleChangeRole,
+       onToggle: handleToggle,
++      currentUserId,
+     }),
+   ];
+ 
+diff -ruN --strip-trailing-cr -x node_modules -x bin -x obj perfo-main/render.yaml perfo-main/render.yaml
+--- perfo-main/render.yaml	2026-11-06 03:21:04.000000000 +0000
++++ perfo-main/render.yaml	2026-11-06 03:54:45.004638192 +0000
+@@ -68,10 +68,6 @@
+         value: "4"
+ 
+       # ── Scheduler ────────────────────────────────────────────────────────
+-      - key: Scheduler__StepMinutes
+-        value: "5"
+-      - key: Scheduler__MinSameMovieGapMinutes
+-        value: "60"
+       - key: Scheduler__DefaultWindowMinutes
+         value: "960"
+       - key: Scheduler__SpreadMinutes
+@@ -80,8 +76,6 @@
+         value: "4"
+       - key: Scheduler__LoadWeight
+         value: "0.5"
+-      - key: Scheduler__HeatLookbackDays
+-        value: "7"
+ 
+       # ── Background Jobs ───────────────────────────────────────────────────
+       - key: BackgroundJobs__ReleaseExpiredSeatsCron

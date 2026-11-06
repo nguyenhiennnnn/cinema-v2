@@ -3016,6 +3016,33 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Không thể tự thay đổi vai trò của chính mình..
+        /// </summary>
+        public static string Rule_CannotChangeOwnRole {
+            get {
+                return ResourceManager.GetString("Rule_CannotChangeOwnRole", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể hạ vai trò quản trị viên cuối cùng..
+        /// </summary>
+        public static string Rule_CannotDemoteLastAdmin {
+            get {
+                return ResourceManager.GetString("Rule_CannotDemoteLastAdmin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể tự vô hiệu hóa hồ sơ nhân viên của chính mình..
+        /// </summary>
+        public static string Rule_CannotDeactivateSelfEmployee {
+            get {
+                return ResourceManager.GetString("Rule_CannotDeactivateSelfEmployee", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Mỗi id phải lớn hơn 0..
         /// </summary>
         public static string Validation_BulkId_Positive {
@@ -3041,5 +3068,24 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Validation_BulkIds_NotEmpty", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tổng hai trọng số Heat (doanh số và đánh giá) phải lớn hơn 0..
+        /// </summary>
+        public static string Validation_SchedulerHeatWeights_SumPositive {
+            get {
+                return ResourceManager.GetString("Validation_SchedulerHeatWeights_SumPositive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} phải từ {1} đến {2}..
+        /// </summary>
+        public static string Validation_Setting_NumberRange {
+            get {
+                return ResourceManager.GetString("Validation_Setting_NumberRange", resourceCulture);
+            }
+        }
+    
     }
 }

@@ -17,6 +17,18 @@ export interface CinemaSettingsDto {
   stopSellingMinutesBefore: number;
   holdDurationMinutes: number;
   seatGapRuleMode: SeatGapRuleMode;
+  roomBufferMinutes: number;
+  maxSeatsPerBooking: number;
+  maxComboQuantity: number;
+  loyaltyWindowMonths: number;
+  movieEndGraceDays: number;
+  showtimeLookaheadDays: number;
+  schedulerStepMinutes: number;
+  schedulerMinSameMovieGapMinutes: number;
+  schedulerHeatLookbackDays: number;
+  schedulerHeatSalesWeight: number;
+  schedulerHeatRatingWeight: number;
+  schedulerMaxRating: number;
 }
 
 export interface UpdateSettingsRequest {
@@ -33,6 +45,18 @@ export interface UpdateSettingsRequest {
   cancelDeadlineHours: number;
   stopSellingMinutesBefore: number;
   seatGapRuleMode: SeatGapRuleMode;
+  roomBufferMinutes?: number;
+  maxSeatsPerBooking?: number;
+  maxComboQuantity?: number;
+  loyaltyWindowMonths?: number;
+  movieEndGraceDays?: number;
+  showtimeLookaheadDays?: number;
+  schedulerStepMinutes?: number;
+  schedulerMinSameMovieGapMinutes?: number;
+  schedulerHeatLookbackDays?: number;
+  schedulerHeatSalesWeight?: number;
+  schedulerHeatRatingWeight?: number;
+  schedulerMaxRating?: number;
 }
 
 // Alias for backward compat

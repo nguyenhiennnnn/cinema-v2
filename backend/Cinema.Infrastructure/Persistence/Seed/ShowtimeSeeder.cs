@@ -20,7 +20,7 @@ internal static class ShowtimeSeeder
 
     private const int MaxShowsPerRoomDay = 4;
     private const int MinShowsPerRoomDay = 3;
-    private const int BufferMinutes = 15; // = BookingOptions.RoomBufferMinutes mặc định
+    private const int BufferMinutes = 15; // = CinemaSettings.DefaultRoomBufferMinutes
     private const double SafetyBufferHours = 0.5;
 
     /// <summary>0h (giờ VN) của ngày VN chứa <paramref name="now"/>, cộng <paramref name="offsetDays"/> ngày, tính bằng UTC.</summary>

@@ -35,6 +35,18 @@ const settingsFormSchema = z.object({
   cancelDeadlineHours: z.coerce.number().min(0, "Giá trị không được âm."),
   stopSellingMinutesBefore: z.coerce.number().min(0, "Giá trị không được âm.").max(1440, "Tối đa 1440 phút."),
   seatGapRuleMode: z.enum([SeatGapRuleMode.Strict, SeatGapRuleMode.AllowEdge, SeatGapRuleMode.Off]),
+  roomBufferMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(120, "Tối đa 120."),
+  maxSeatsPerBooking: z.coerce.number().min(1, "Tối thiểu 1.").max(50, "Tối đa 50."),
+  maxComboQuantity: z.coerce.number().min(1, "Tối thiểu 1.").max(50, "Tối đa 50."),
+  loyaltyWindowMonths: z.coerce.number().min(1, "Tối thiểu 1.").max(120, "Tối đa 120."),
+  movieEndGraceDays: z.coerce.number().min(0, "Tối thiểu 0.").max(365, "Tối đa 365."),
+  showtimeLookaheadDays: z.coerce.number().min(1, "Tối thiểu 1.").max(60, "Tối đa 60."),
+  schedulerStepMinutes: z.coerce.number().min(1, "Tối thiểu 1.").max(60, "Tối đa 60."),
+  schedulerMinSameMovieGapMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(1440, "Tối đa 1440."),
+  schedulerHeatLookbackDays: z.coerce.number().min(1, "Tối thiểu 1.").max(365, "Tối đa 365."),
+  schedulerHeatSalesWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(10, "Tối đa 10."),
+  schedulerHeatRatingWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(10, "Tối đa 10."),
+  schedulerMaxRating: z.coerce.number().min(1, "Tối thiểu 1.").max(10, "Tối đa 10."),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -59,6 +71,18 @@ const AdminSettingsPage = () => {
       cancelDeadlineHours: 0,
       stopSellingMinutesBefore: 0,
       seatGapRuleMode: SeatGapRuleMode.Strict,
+      roomBufferMinutes: 15,
+      maxSeatsPerBooking: 10,
+      maxComboQuantity: 10,
+      loyaltyWindowMonths: 12,
+      movieEndGraceDays: 1,
+      showtimeLookaheadDays: 7,
+      schedulerStepMinutes: 5,
+      schedulerMinSameMovieGapMinutes: 60,
+      schedulerHeatLookbackDays: 7,
+      schedulerHeatSalesWeight: 0.7,
+      schedulerHeatRatingWeight: 0.3,
+      schedulerMaxRating: 5,
     },
   });
 
@@ -78,6 +102,18 @@ const AdminSettingsPage = () => {
         cancelDeadlineHours: settings.data.cancelDeadlineHours,
         stopSellingMinutesBefore: settings.data.stopSellingMinutesBefore,
         seatGapRuleMode: settings.data.seatGapRuleMode,
+        roomBufferMinutes: settings.data.roomBufferMinutes,
+        maxSeatsPerBooking: settings.data.maxSeatsPerBooking,
+        maxComboQuantity: settings.data.maxComboQuantity,
+        loyaltyWindowMonths: settings.data.loyaltyWindowMonths,
+        movieEndGraceDays: settings.data.movieEndGraceDays,
+        showtimeLookaheadDays: settings.data.showtimeLookaheadDays,
+        schedulerStepMinutes: settings.data.schedulerStepMinutes,
+        schedulerMinSameMovieGapMinutes: settings.data.schedulerMinSameMovieGapMinutes,
+        schedulerHeatLookbackDays: settings.data.schedulerHeatLookbackDays,
+        schedulerHeatSalesWeight: settings.data.schedulerHeatSalesWeight,
+        schedulerHeatRatingWeight: settings.data.schedulerHeatRatingWeight,
+        schedulerMaxRating: settings.data.schedulerMaxRating,
       });
     }
   }, [settings.data, form]);
@@ -97,6 +133,18 @@ const AdminSettingsPage = () => {
       cancelDeadlineHours: values.cancelDeadlineHours,
       stopSellingMinutesBefore: values.stopSellingMinutesBefore,
       seatGapRuleMode: values.seatGapRuleMode,
+      roomBufferMinutes: values.roomBufferMinutes,
+      maxSeatsPerBooking: values.maxSeatsPerBooking,
+      maxComboQuantity: values.maxComboQuantity,
+      loyaltyWindowMonths: values.loyaltyWindowMonths,
+      movieEndGraceDays: values.movieEndGraceDays,
+      showtimeLookaheadDays: values.showtimeLookaheadDays,
+      schedulerStepMinutes: values.schedulerStepMinutes,
+      schedulerMinSameMovieGapMinutes: values.schedulerMinSameMovieGapMinutes,
+      schedulerHeatLookbackDays: values.schedulerHeatLookbackDays,
+      schedulerHeatSalesWeight: values.schedulerHeatSalesWeight,
+      schedulerHeatRatingWeight: values.schedulerHeatRatingWeight,
+      schedulerMaxRating: values.schedulerMaxRating,
     });
   };
 
@@ -195,6 +243,113 @@ const AdminSettingsPage = () => {
             getOptionValue={(o) => o.value}
             getOptionLabel={(o) => o.label}
           />
+
+          <h3 className="pt-2 text-sm font-semibold">Lịch chiếu &amp; đặt vé</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <FormInputField
+              name="roomBufferMinutes"
+              control={form.control}
+              label="Khoảng nghỉ giữa các suất (phút)"
+              type="number"
+              min={0}
+              max={120}
+            />
+            <FormInputField
+              name="maxSeatsPerBooking"
+              control={form.control}
+              label="Số ghế tối đa / booking"
+              type="number"
+              min={1}
+              max={50}
+            />
+            <FormInputField
+              name="maxComboQuantity"
+              control={form.control}
+              label="Số lượng tối đa mỗi combo"
+              type="number"
+              min={1}
+              max={50}
+            />
+            <FormInputField
+              name="loyaltyWindowMonths"
+              control={form.control}
+              label="Hiệu lực điểm thưởng (tháng)"
+              type="number"
+              min={1}
+              max={120}
+            />
+            <FormInputField
+              name="movieEndGraceDays"
+              control={form.control}
+              label="Gia hạn sau suất cuối trước khi phim Ended (ngày)"
+              type="number"
+              min={0}
+              max={365}
+            />
+            <FormInputField
+              name="showtimeLookaheadDays"
+              control={form.control}
+              label="Số ngày lịch chiếu hiển thị"
+              type="number"
+              min={1}
+              max={60}
+            />
+          </div>
+
+          <h3 className="pt-2 text-sm font-semibold">Xếp lịch tự động &amp; Heat</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <FormInputField
+              name="schedulerStepMinutes"
+              control={form.control}
+              label="Xếp lịch: bước dò giờ (phút)"
+              type="number"
+              min={1}
+              max={60}
+            />
+            <FormInputField
+              name="schedulerMinSameMovieGapMinutes"
+              control={form.control}
+              label="Xếp lịch: giãn cách tối thiểu cùng phim (phút)"
+              type="number"
+              min={0}
+              max={1440}
+            />
+            <FormInputField
+              name="schedulerHeatLookbackDays"
+              control={form.control}
+              label="Heat: số ngày tính doanh số vé"
+              type="number"
+              min={1}
+              max={365}
+            />
+            <FormInputField
+              name="schedulerHeatSalesWeight"
+              control={form.control}
+              label="Heat: trọng số doanh số"
+              type="number"
+              step={0.05}
+              min={0}
+              max={10}
+            />
+            <FormInputField
+              name="schedulerHeatRatingWeight"
+              control={form.control}
+              label="Heat: trọng số đánh giá"
+              type="number"
+              step={0.05}
+              min={0}
+              max={10}
+            />
+            <FormInputField
+              name="schedulerMaxRating"
+              control={form.control}
+              label="Heat: điểm đánh giá tối đa"
+              type="number"
+              step={0.5}
+              min={1}
+              max={10}
+            />
+          </div>
         </FieldGroup>
 
         <div className="flex justify-end pt-2">

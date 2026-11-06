@@ -9,6 +9,7 @@ import { BulkUserStatusActions } from "@/components/common/data-table/bulk-user-
 import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
 import { useAdminBulkUpdateUserStatus } from "@/features/admin/users/hooks/use-admin-users";
 import { toastBulkResult } from "@/lib/bulk";
+import { useAuthStore } from "@/stores/auth-store";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
@@ -27,6 +28,7 @@ const AdminEmployeesPage = () => {
 
   const employees = useAdminEmployees(stripNulls(params));
   const updateEmployee = useAdminUpdateEmployee();
+  const currentUserId = useAuthStore((s) => s.user?.userId);
   const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
@@ -88,6 +90,7 @@ const AdminEmployeesPage = () => {
     ...createEmployeeColumns({
       onEdit: handleEdit,
       onToggle: handleToggle,
+      currentUserId,
     }),
   ];
 

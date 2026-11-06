@@ -1,19 +1,34 @@
-param (
+﻿param (
     [string]$Scenario = "peak-ticket-rush.js",
     [string]$Network = ""
 )
 
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::InputEncoding  = [System.Text.UTF8Encoding]::new($false)
+$OutputEncoding           = [System.Text.UTF8Encoding]::new($false)
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-# Tự động chọn network của Docker Compose (mặc định là cinema_cinema-net theo docker-compose.yml)
+# Tự động chọn network của Docker Compose (mặc định là cinema_perfo-net theo docker-compose.yml)
 $networkName = $Network
 if (-not $networkName) {
-    if (docker network ls --format "{{.Name}}" | Select-String "^cinema_cinema-net$") {
+    try {
+        $detectedNet = (docker inspect perfo-api --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}' 2>$null)
+        if ($detectedNet) {
+            $networkName = $detectedNet.Trim()
+        }
+    } catch {}
+}
+if (-not $networkName) {
+    $networks = docker network ls --format "{{.Name}}"
+    if ($networks | Select-String "^cinema_perfo-net$") {
+        $networkName = "cinema_perfo-net"
+    } elseif ($networks | Select-String "^cinema_cinema-net$") {
         $networkName = "cinema_cinema-net"
+    } elseif ($networks | Select-String "perfo-net") {
+        $networkName = ($networks | Select-String "perfo-net" | Select-Object -First 1).Line.Trim()
     } else {
-        $networkName = "cinema_cinema-network"
+        $networkName = "cinema_perfo-net"
     }
 }
 
@@ -31,7 +46,7 @@ Write-Host "===> Running Load Test Scenario: $Scenario using grafana/k6 on netwo
 docker run --rm `
     --network $networkName `
     -v "${scriptDir}:/scripts" `
-    -e API_BASE_URL="http://cinema-api:8080/api/v1" `
+    -e API_BASE_URL="http://perfo-api:8080/api/v1" `
     -e RESULTS_DIR="/scripts/results" `
     grafana/k6 run --summary-export $jsonSummaryContainerPath "/scripts/scenarios/$Scenario"
 

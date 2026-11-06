@@ -49,4 +49,26 @@ public static class AppDbContextExtensions
         this IAppDbContext db,
         CancellationToken cancellationToken
     ) => db.CinemaSettings.FirstAsync(s => s.Id == CinemaSettingsId, cancellationToken);
+
+    /// <summary>
+    /// Đọc cấu hình rạp (không tracking); nếu chưa có dòng settings thì trả về object mặc định
+    /// (chưa gắn vào context) để các luật nghiệp vụ vẫn chạy với giá trị mặc định.
+    /// </summary>
+    public static async Task<CinemaSettings> LoadCinemaSettingsOrDefaultAsync(
+        this IAppDbContext db,
+        CancellationToken cancellationToken
+    ) =>
+        await db
+            .CinemaSettings.AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == CinemaSettingsId, cancellationToken)
+        ?? new CinemaSettings();
+
+    public static async Task<int> LoadShowtimeLookaheadDaysAsync(
+        this IAppDbContext db,
+        CancellationToken cancellationToken
+    ) =>
+        await db
+            .CinemaSettings.Where(s => s.Id == CinemaSettingsId)
+            .Select(s => (int?)s.ShowtimeLookaheadDays)
+            .FirstOrDefaultAsync(cancellationToken) ?? CinemaSettings.DefaultShowtimeLookaheadDays;
 }

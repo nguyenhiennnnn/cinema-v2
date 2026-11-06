@@ -52,6 +52,32 @@ public class SettingsService(IAppDbContext db) : ISettingsService
             settings.CheckInOpenMinutes = checkInOpenMinutes;
         if (Enum.TryParse<SeatGapRuleMode>(request.SeatGapRuleMode, out var seatGapRuleMode))
             settings.SeatGapRuleMode = seatGapRuleMode;
+        if (request.RoomBufferMinutes is { } roomBufferMinutes)
+            settings.RoomBufferMinutes = roomBufferMinutes;
+        if (request.MaxSeatsPerBooking is { } maxSeatsPerBooking)
+            settings.MaxSeatsPerBooking = maxSeatsPerBooking;
+        if (request.MaxComboQuantity is { } maxComboQuantity)
+            settings.MaxComboQuantity = maxComboQuantity;
+        if (request.LoyaltyWindowMonths is { } loyaltyWindowMonths)
+            settings.LoyaltyWindowMonths = loyaltyWindowMonths;
+        if (request.MovieEndGraceDays is { } movieEndGraceDays)
+            settings.MovieEndGraceDays = movieEndGraceDays;
+        if (request.ShowtimeLookaheadDays is { } showtimeLookaheadDays)
+            settings.ShowtimeLookaheadDays = showtimeLookaheadDays;
+        if (request.SchedulerStepMinutes is { } schedulerStepMinutes)
+            settings.SchedulerStepMinutes = schedulerStepMinutes;
+        if (request.SchedulerMinSameMovieGapMinutes is { } schedulerMinGap)
+            settings.SchedulerMinSameMovieGapMinutes = schedulerMinGap;
+        if (request.SchedulerHeatLookbackDays is { } schedulerLookback)
+            settings.SchedulerHeatLookbackDays = schedulerLookback;
+        if (request.SchedulerHeatSalesWeight is { } salesWeight)
+            settings.SchedulerHeatSalesWeight = salesWeight;
+        if (request.SchedulerHeatRatingWeight is { } ratingWeight)
+            settings.SchedulerHeatRatingWeight = ratingWeight;
+        if (request.SchedulerMaxRating is { } schedulerMaxRating)
+            settings.SchedulerMaxRating = schedulerMaxRating;
+        if (settings.SchedulerHeatSalesWeight + settings.SchedulerHeatRatingWeight <= 0)
+            throw new BusinessRuleException(Messages.Validation_SchedulerHeatWeights_SumPositive);
         settings.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);

@@ -257,6 +257,88 @@ public class AuthServiceLoginTests : AuthServiceTestBase
         );
     }
 
+    private void AllowPassword() =>
+        PasswordHasherMock
+            .Setup(h =>
+                h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
+            )
+            .Returns(PasswordVerificationResult.Success);
+
+    [Fact]
+    public async Task LoginAsync_AdminPortalWithCustomerAccount_ThrowsForbidden()
+    {
+        TestDataSeeder.AddCustomer(Db, email: "cust@test.local");
+        AllowPassword();
+
+        await Should.ThrowAsync<ForbiddenAppException>(() =>
+            CreateSut()
+                .LoginAsync(
+                    new LoginRequest("cust@test.local", "pw"),
+                    adminOnly: true,
+                    CancellationToken.None
+                )
+        );
+        (await Db.RefreshTokens.AnyAsync()).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task LoginAsync_AdminPortalWithUnknownRole_ThrowsForbidden()
+    {
+        var user = TestDataSeeder.AddCustomer(Db, email: "odd@test.local");
+        var oddRole = new Role { RoleName = "Auditor" };
+        Db.Roles.Add(oddRole);
+        await Db.SaveChangesAsync();
+        user.RoleId = oddRole.RoleId;
+        await Db.SaveChangesAsync();
+        AllowPassword();
+
+        await Should.ThrowAsync<ForbiddenAppException>(() =>
+            CreateSut()
+                .LoginAsync(
+                    new LoginRequest("odd@test.local", "pw"),
+                    adminOnly: true,
+                    CancellationToken.None
+                )
+        );
+    }
+
+    [Fact]
+    public async Task LoginAsync_AdminPortalWithAdmin_Succeeds()
+    {
+        var (admin, _) = TestDataSeeder.AddEmployee(Db, email: "boss@test.local");
+        AllowPassword();
+
+        var response = await CreateSut()
+            .LoginAsync(
+                new LoginRequest("boss@test.local", "pw"),
+                adminOnly: true,
+                CancellationToken.None
+            );
+
+        response.User.UserId.ShouldBe(admin.UserId);
+        response.User.Role.ShouldBe(Roles.Admin);
+    }
+
+    [Fact]
+    public async Task LoginAsync_AdminPortalWithDeactivatedEmployeeProfile_ThrowsForbidden()
+    {
+        var (user, employee) = TestDataSeeder.AddEmployee(Db, email: "staff@test.local");
+        var employeeRole = await Db.Roles.SingleAsync(r => r.RoleName == Roles.Employee);
+        user.RoleId = employeeRole.RoleId;
+        employee.IsActive = false;
+        await Db.SaveChangesAsync();
+        AllowPassword();
+
+        await Should.ThrowAsync<ForbiddenAppException>(() =>
+            CreateSut()
+                .LoginAsync(
+                    new LoginRequest("staff@test.local", "pw"),
+                    adminOnly: true,
+                    CancellationToken.None
+                )
+        );
+    }
+
     [Fact]
     public async Task LoginAsync_RehashNeeded_TransparentlyUpgradesStoredHash()
     {

@@ -17,11 +17,13 @@ import type { AdminUserListItemDto } from "../types";
 interface UserColumnsOptions {
   onChangeRole: (user: AdminUserListItemDto) => void;
   onToggle: (user: AdminUserListItemDto) => void;
+  /** Id của user đang đăng nhập — không cho tự đổi role / tự khóa chính mình (backend cũng chặn). */
+  currentUserId?: number;
 }
 
 const columnHelper = createColumnHelper<DataTableFeatures, AdminUserListItemDto>();
 
-export const createUserColumns = ({ onChangeRole, onToggle }: UserColumnsOptions) =>
+export const createUserColumns = ({ onChangeRole, onToggle, currentUserId }: UserColumnsOptions) =>
   columnHelper.columns([
     columnHelper.accessor("userId", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
@@ -64,15 +66,25 @@ export const createUserColumns = ({ onChangeRole, onToggle }: UserColumnsOptions
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onChangeRole(row.original)}>
+              <DropdownMenuItem
+                disabled={row.original.userId === currentUserId}
+                onClick={() => onChangeRole(row.original)}
+              >
                 <ShieldCheck /> Đổi vai trò
               </DropdownMenuItem>
               {row.original.isActive ? (
-                <DropdownMenuItem variant="destructive" onClick={() => onToggle(row.original)}>
+                <DropdownMenuItem
+                  variant="destructive"
+                  disabled={row.original.userId === currentUserId}
+                  onClick={() => onToggle(row.original)}
+                >
                   <PowerOff /> Khóa tài khoản
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem onClick={() => onToggle(row.original)}>
+                <DropdownMenuItem
+                  disabled={row.original.userId === currentUserId}
+                  onClick={() => onToggle(row.original)}
+                >
                   <Power /> Mở khóa
                 </DropdownMenuItem>
               )}

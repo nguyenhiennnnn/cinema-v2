@@ -18,11 +18,13 @@ import type { AdminEmployeeDto } from "../types";
 interface EmployeeColumnsOptions {
   onEdit: (employee: AdminEmployeeDto) => void;
   onToggle: (employee: AdminEmployeeDto) => void;
+  /** Id user đang đăng nhập — không cho tự vô hiệu hóa hồ sơ của chính mình. */
+  currentUserId?: number;
 }
 
 const columnHelper = createColumnHelper<DataTableFeatures, AdminEmployeeDto>();
 
-export const createEmployeeColumns = ({ onEdit, onToggle }: EmployeeColumnsOptions) =>
+export const createEmployeeColumns = ({ onEdit, onToggle, currentUserId }: EmployeeColumnsOptions) =>
   columnHelper.columns([
     columnHelper.accessor("employeeId", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
@@ -77,7 +79,11 @@ export const createEmployeeColumns = ({ onEdit, onToggle }: EmployeeColumnsOptio
                 <Pencil /> Chỉnh sửa
               </DropdownMenuItem>
               {row.original.isActive ? (
-                <DropdownMenuItem variant="destructive" onClick={() => onToggle(row.original)}>
+                <DropdownMenuItem
+                  variant="destructive"
+                  disabled={row.original.userId === currentUserId}
+                  onClick={() => onToggle(row.original)}
+                >
                   <PowerOff /> Cho nghỉ việc
                 </DropdownMenuItem>
               ) : (

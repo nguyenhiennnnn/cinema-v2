@@ -51,7 +51,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                         {
                             ["type"] = "STRING",
                             ["description"] =
-                                "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong 7 ngày tới.",
+                                "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán.",
                         },
                     },
                 },
@@ -173,7 +173,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
         }
         else
         {
-            var end = now.AddDays(ShowtimeLookahead.Days);
+            var end = now.AddDays(await db.LoadShowtimeLookaheadDaysAsync(ct));
             query = query.Where(s => s.StartTime <= end);
         }
 

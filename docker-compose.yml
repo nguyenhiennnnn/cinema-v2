@@ -39,13 +39,10 @@ services:
       Booking__CheckInOpenMinutes: ${BOOKING_CHECK_IN_OPEN_MINUTES:-30}
       RateLimit__GlobalSegmentsPerWindow: ${RATE_LIMIT_GLOBAL_SEGMENTS_PER_WINDOW:-4}
 
-      Scheduler__StepMinutes: ${SCHEDULER_STEP_MINUTES:-5}
-      Scheduler__MinSameMovieGapMinutes: ${SCHEDULER_MIN_SAME_MOVIE_GAP_MINUTES:-60}
       Scheduler__DefaultWindowMinutes: ${SCHEDULER_DEFAULT_WINDOW_MINUTES:-960}
       Scheduler__SpreadMinutes: ${SCHEDULER_SPREAD_MINUTES:-30}
       Scheduler__FitWeight: ${SCHEDULER_FIT_WEIGHT:-4}
       Scheduler__LoadWeight: ${SCHEDULER_LOAD_WEIGHT:-0.5}
-      Scheduler__HeatLookbackDays: ${SCHEDULER_HEAT_LOOKBACK_DAYS:-7}
 
       BackgroundJobs__ReleaseExpiredSeatsCron: "${BG_RELEASE_EXPIRED_SEATS_CRON:-* * * * *}"
       BackgroundJobs__ShowtimeLifecycleCron: "${BG_SHOWTIME_LIFECYCLE_CRON:-* * * * *}"

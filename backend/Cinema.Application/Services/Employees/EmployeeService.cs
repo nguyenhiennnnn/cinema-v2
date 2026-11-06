@@ -92,15 +92,36 @@ public class EmployeeService : IEmployeeService
     public async Task<UpdateUserStatusResponse> UpdateUserStatusAsync(
         int userId,
         UpdateUserStatusRequest request,
+        int currentUserId,
         CancellationToken cancellationToken
     )
     {
         var user =
-            await db.Users.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
+            await db
+                .Users.Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
             ?? throw new NotFoundException(Messages.NotFound_User);
+
+        if (!request.IsActive && user.IsActive)
+        {
+            if (userId == currentUserId)
+                throw new BusinessRuleException(Messages.Rule_CannotLockSelf);
+            if (
+                user.Role.RoleName == Roles.Admin
+                && await CountOtherActiveAdminsAsync(userId, cancellationToken) == 0
+            )
+                throw new BusinessRuleException(Messages.Rule_CannotLockLastAdmin);
+        }
 
         user.IsActive = request.IsActive;
         user.UpdatedAt = DateTime.UtcNow;
+
+        var employee = await db.Employees.FirstOrDefaultAsync(
+            e => e.UserId == userId,
+            cancellationToken
+        );
+        if (employee is not null)
+            employee.IsActive = request.IsActive;
 
         if (!request.IsActive)
         {
@@ -208,9 +229,14 @@ public class EmployeeService : IEmployeeService
     public async Task<UpdateUserRoleResponse> UpdateUserRoleAsync(
         int userId,
         UpdateUserRoleRequest request,
+        int currentUserId,
         CancellationToken cancellationToken
     )
     {
+        // Không ai (kể cả Admin) được tự đổi vai trò của chính mình.
+        if (userId == currentUserId)
+            throw new BusinessRuleException(Messages.Rule_CannotChangeOwnRole);
+
         var user =
             await db
                 .Users.Include(u => u.Role)
@@ -223,6 +249,14 @@ public class EmployeeService : IEmployeeService
                 Messages.Invalid_RoleIdNotFound,
                 new Dictionary<string, string[]> { ["roleId"] = [Messages.Invalid_RoleIdNotFound] }
             );
+
+        // Luôn phải còn ít nhất 1 Admin đang hoạt động sau khi đổi vai trò.
+        if (
+            user.Role.RoleName == Roles.Admin
+            && newRole.RoleName != Roles.Admin
+            && await CountOtherActiveAdminsAsync(userId, cancellationToken) == 0
+        )
+            throw new BusinessRuleException(Messages.Rule_CannotDemoteLastAdmin);
 
         if (newRole.RoleName == Roles.Customer)
         {
@@ -323,6 +357,7 @@ public class EmployeeService : IEmployeeService
     public async Task<AdminEmployeeDto> UpdateEmployeeAsync(
         int employeeId,
         UpdateEmployeeRequest request,
+        int currentUserId,
         CancellationToken cancellationToken
     )
     {
@@ -331,6 +366,9 @@ public class EmployeeService : IEmployeeService
                 e => e.EmployeeId == employeeId,
                 cancellationToken
             ) ?? throw new NotFoundException(Messages.NotFound_Employee);
+
+        if (employee.UserId == currentUserId && employee.IsActive && !request.IsActive)
+            throw new BusinessRuleException(Messages.Rule_CannotDeactivateSelfEmployee);
 
         if (
             request.PositionId is not null
@@ -420,6 +458,15 @@ public class EmployeeService : IEmployeeService
             })
             .ToList();
     }
+
+    private Task<int> CountOtherActiveAdminsAsync(
+        int excludeUserId,
+        CancellationToken cancellationToken
+    ) =>
+        db.Users.CountAsync(
+            u => u.UserId != excludeUserId && u.IsActive && u.Role.RoleName == Roles.Admin,
+            cancellationToken
+        );
 
     private static string MaskEmail(string email)
     {

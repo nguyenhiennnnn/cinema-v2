@@ -79,6 +79,54 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
             .Must(v => Enum.TryParse<SeatGapRuleMode>(v, out _) && !int.TryParse(v, out _))
             .When(x => x.SeatGapRuleMode is not null)
             .WithMessage(Messages.Validation_SeatGapRuleMode_Invalid);
+
+        IntRange(x => x.RoomBufferMinutes, "roomBufferMinutes", 0, 120);
+        IntRange(x => x.MaxSeatsPerBooking, "maxSeatsPerBooking", 1, 50);
+        IntRange(x => x.MaxComboQuantity, "maxComboQuantity", 1, 50);
+        IntRange(x => x.LoyaltyWindowMonths, "loyaltyWindowMonths", 1, 120);
+        IntRange(x => x.MovieEndGraceDays, "movieEndGraceDays", 0, 365);
+        IntRange(x => x.ShowtimeLookaheadDays, "showtimeLookaheadDays", 1, 60);
+        IntRange(x => x.SchedulerStepMinutes, "schedulerStepMinutes", 1, 60);
+        IntRange(x => x.SchedulerMinSameMovieGapMinutes, "schedulerMinSameMovieGapMinutes", 0, 1440);
+        IntRange(x => x.SchedulerHeatLookbackDays, "schedulerHeatLookbackDays", 1, 365);
+        DoubleRange(x => x.SchedulerHeatSalesWeight, "schedulerHeatSalesWeight", 0, 10);
+        DoubleRange(x => x.SchedulerHeatRatingWeight, "schedulerHeatRatingWeight", 0, 10);
+        DoubleRange(x => x.SchedulerMaxRating, "schedulerMaxRating", 1, 10);
+
+        // Hai trọng số Heat: nếu cả hai cùng được gửi lên thì tổng phải > 0 (tránh Heat luôn bằng 0).
+        RuleFor(x => x)
+            .Must(x => x.SchedulerHeatSalesWeight!.Value + x.SchedulerHeatRatingWeight!.Value > 0)
+            .When(x => x.SchedulerHeatSalesWeight is not null && x.SchedulerHeatRatingWeight is not null)
+            .WithName("schedulerHeatSalesWeight")
+            .WithMessage(Messages.Validation_SchedulerHeatWeights_SumPositive);
+    }
+
+    private void IntRange(
+        System.Linq.Expressions.Expression<Func<UpdateSettingsRequest, int?>> selector,
+        string name,
+        int min,
+        int max
+    )
+    {
+        var get = selector.Compile();
+        RuleFor(selector)
+            .Must(v => v is not null && v >= min && v <= max)
+            .When(x => get(x) is not null)
+            .WithMessage(string.Format(Messages.Validation_Setting_NumberRange, name, min, max));
+    }
+
+    private void DoubleRange(
+        System.Linq.Expressions.Expression<Func<UpdateSettingsRequest, double?>> selector,
+        string name,
+        double min,
+        double max
+    )
+    {
+        var get = selector.Compile();
+        RuleFor(selector)
+            .Must(v => v is not null && !double.IsNaN(v.Value) && v >= min && v <= max)
+            .When(x => get(x) is not null)
+            .WithMessage(string.Format(Messages.Validation_Setting_NumberRange, name, min, max));
     }
 
     private static bool BeValidTime(string? value) =>

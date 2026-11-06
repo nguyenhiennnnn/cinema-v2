@@ -6,9 +6,17 @@ namespace Cinema.Application.Utils;
 
 public static class LoyaltyWindow
 {
-    public const int Months = 12;
+    public const int DefaultMonths = CinemaSettings.DefaultLoyaltyWindowMonths;
 
-    public static DateTime Cutoff(DateTime utcNow) => utcNow.AddMonths(-Months);
+    public static DateTime Cutoff(DateTime utcNow, int months = DefaultMonths) =>
+        utcNow.AddMonths(-months);
+
+    /// <summary>Số tháng hiệu lực của điểm thưởng, đọc từ cấu hình rạp (mặc định 12).</summary>
+    public static async Task<int> LoadMonthsAsync(IAppDbContext db, CancellationToken ct) =>
+        await db
+            .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
+            .Select(s => (int?)s.LoyaltyWindowMonths)
+            .FirstOrDefaultAsync(ct) ?? DefaultMonths;
 
     public static int PointsFor(decimal finalAmount, decimal pointsPerAmount) =>
         (int)Math.Floor(finalAmount / pointsPerAmount);
@@ -20,7 +28,7 @@ public static class LoyaltyWindow
         CancellationToken ct
     )
     {
-        var cutoff = Cutoff(utcNow);
+        var cutoff = Cutoff(utcNow, await LoadMonthsAsync(db, ct));
         var entries = await db
             .LoyaltyPointEntries.Where(e => e.UserId == userId && e.EarnedAt > cutoff)
             .ToListAsync(ct);
@@ -59,7 +67,7 @@ public static class LoyaltyWindow
         if (userIds.Count == 0)
             return result;
 
-        var cutoff = Cutoff(utcNow);
+        var cutoff = Cutoff(utcNow, await LoadMonthsAsync(db, ct));
         var sums = await db
             .LoyaltyPointEntries.Where(e => userIds.Contains(e.UserId) && e.EarnedAt > cutoff)
             .GroupBy(e => e.UserId)

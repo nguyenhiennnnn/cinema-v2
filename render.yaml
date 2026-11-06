@@ -68,10 +68,6 @@ services:
         value: "4"
 
       # ── Scheduler ────────────────────────────────────────────────────────
-      - key: Scheduler__StepMinutes
-        value: "5"
-      - key: Scheduler__MinSameMovieGapMinutes
-        value: "60"
       - key: Scheduler__DefaultWindowMinutes
         value: "960"
       - key: Scheduler__SpreadMinutes
@@ -80,8 +76,6 @@ services:
         value: "4"
       - key: Scheduler__LoadWeight
         value: "0.5"
-      - key: Scheduler__HeatLookbackDays
-        value: "7"
 
       # ── Background Jobs ───────────────────────────────────────────────────
       - key: BackgroundJobs__ReleaseExpiredSeatsCron

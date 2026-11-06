@@ -27,6 +27,7 @@ public interface IEmployeeService
     Task<UpdateUserStatusResponse> UpdateUserStatusAsync(
         int userId,
         UpdateUserStatusRequest request,
+        int currentUserId,
         CancellationToken cancellationToken
     );
 
@@ -39,6 +40,7 @@ public interface IEmployeeService
     Task<UpdateUserRoleResponse> UpdateUserRoleAsync(
         int userId,
         UpdateUserRoleRequest request,
+        int currentUserId,
         CancellationToken cancellationToken
     );
 
@@ -55,6 +57,7 @@ public interface IEmployeeService
     Task<AdminEmployeeDto> UpdateEmployeeAsync(
         int employeeId,
         UpdateEmployeeRequest request,
+        int currentUserId,
         CancellationToken cancellationToken
     );
 }

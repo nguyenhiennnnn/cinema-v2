@@ -89,6 +89,7 @@ public class MovieService : IMovieService
         var dto = movie.Adapt<MovieDetailDto>();
 
         var now = DateTime.UtcNow;
+        var lookaheadDays = await db.LoadShowtimeLookaheadDaysAsync(cancellationToken);
         var upcomingShowtimes = await db
             .Showtimes.Include(s => s.Room)
                 .ThenInclude(r => r.ScreenType)
@@ -96,7 +97,7 @@ public class MovieService : IMovieService
                 s.MovieId == movieId
                 && s.Status == ShowtimeStatus.Scheduled
                 && s.StartTime >= now
-                && s.StartTime <= now.AddDays(ShowtimeLookahead.Days)
+                && s.StartTime <= now.AddDays(lookaheadDays)
             )
             .OrderBy(s => s.StartTime)
             .ToListAsync(cancellationToken);

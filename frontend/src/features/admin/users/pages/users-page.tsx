@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/auth-store";
 import { useState } from "react";
 import type { RowSelectionState } from "@tanstack/react-table";
 
@@ -27,6 +28,7 @@ const AdminUsersPage = () => {
   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
 
   const users = useAdminUsers(stripNulls(params));
+  const currentUserId = useAuthStore((s) => s.user?.userId);
   const toggleStatus = useAdminUpdateUserStatus();
   const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -74,6 +76,7 @@ const AdminUsersPage = () => {
     ...createUserColumns({
       onChangeRole: handleChangeRole,
       onToggle: handleToggle,
+      currentUserId,
     }),
   ];
 

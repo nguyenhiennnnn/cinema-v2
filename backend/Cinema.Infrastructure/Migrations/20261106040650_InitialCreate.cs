@@ -62,7 +62,19 @@ namespace Cinema.Infrastructure.Migrations
                     StopSellingMinutesBefore = table.Column<int>(type: "integer", nullable: false),
                     HoldDurationMinutes = table.Column<int>(type: "integer", nullable: false),
                     CheckInOpenMinutes = table.Column<int>(type: "integer", nullable: false),
-                    SeatGapRuleMode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Strict")
+                    SeatGapRuleMode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Strict"),
+                    RoomBufferMinutes = table.Column<int>(type: "integer", nullable: false, defaultValue: 15),
+                    MaxSeatsPerBooking = table.Column<int>(type: "integer", nullable: false, defaultValue: 10),
+                    MaxComboQuantity = table.Column<int>(type: "integer", nullable: false, defaultValue: 10),
+                    LoyaltyWindowMonths = table.Column<int>(type: "integer", nullable: false, defaultValue: 12),
+                    MovieEndGraceDays = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    ShowtimeLookaheadDays = table.Column<int>(type: "integer", nullable: false, defaultValue: 7),
+                    SchedulerStepMinutes = table.Column<int>(type: "integer", nullable: false, defaultValue: 5),
+                    SchedulerMinSameMovieGapMinutes = table.Column<int>(type: "integer", nullable: false, defaultValue: 60),
+                    SchedulerHeatLookbackDays = table.Column<int>(type: "integer", nullable: false, defaultValue: 7),
+                    SchedulerHeatSalesWeight = table.Column<double>(type: "double precision", nullable: false, defaultValue: 0.69999999999999996),
+                    SchedulerHeatRatingWeight = table.Column<double>(type: "double precision", nullable: false, defaultValue: 0.29999999999999999),
+                    SchedulerMaxRating = table.Column<double>(type: "double precision", nullable: false, defaultValue: 5.0)
                 },
                 constraints: table =>
                 {
@@ -838,8 +850,8 @@ namespace Cinema.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "CinemaSettings",
-                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CheckInOpenMinutes", "ClosingTime", "Email", "HoldDurationMinutes", "LogoUrl", "Name", "OpeningTime", "Phone", "PointsPerAmount", "StopSellingMinutesBefore", "TaxCode", "UpdatedAt" },
-                values: new object[] { 1, "Đang cập nhật", 2, 30, new TimeOnly(23, 59, 0), null, 15, null, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, 0, null, null });
+                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CheckInOpenMinutes", "ClosingTime", "Email", "HoldDurationMinutes", "LogoUrl", "LoyaltyWindowMonths", "MaxComboQuantity", "MaxSeatsPerBooking", "MovieEndGraceDays", "Name", "OpeningTime", "Phone", "PointsPerAmount", "RoomBufferMinutes", "SchedulerHeatLookbackDays", "SchedulerHeatRatingWeight", "SchedulerHeatSalesWeight", "SchedulerMaxRating", "SchedulerMinSameMovieGapMinutes", "SchedulerStepMinutes", "ShowtimeLookaheadDays", "StopSellingMinutesBefore", "TaxCode", "UpdatedAt" },
+                values: new object[] { 1, "Đang cập nhật", 2, 30, new TimeOnly(23, 59, 0), null, 15, null, 12, 10, 10, 1, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, 15, 7, 0.29999999999999999, 0.69999999999999996, 5.0, 60, 5, 7, 0, null, null });
 
             migrationBuilder.InsertData(
                 table: "Combos",

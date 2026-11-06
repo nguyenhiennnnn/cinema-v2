@@ -641,6 +641,26 @@ namespace Cinema.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<int>("LoyaltyWindowMonths")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(12);
+
+                    b.Property<int>("MaxComboQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(10);
+
+                    b.Property<int>("MaxSeatsPerBooking")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(10);
+
+                    b.Property<int>("MovieEndGraceDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -658,12 +678,52 @@ namespace Cinema.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(10000m);
 
+                    b.Property<int>("RoomBufferMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(15);
+
+                    b.Property<int>("SchedulerHeatLookbackDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(7);
+
+                    b.Property<double>("SchedulerHeatRatingWeight")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.29999999999999999);
+
+                    b.Property<double>("SchedulerHeatSalesWeight")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.69999999999999996);
+
+                    b.Property<double>("SchedulerMaxRating")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(5.0);
+
+                    b.Property<int>("SchedulerMinSameMovieGapMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(60);
+
+                    b.Property<int>("SchedulerStepMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(5);
+
                     b.Property<string>("SeatGapRuleMode")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasDefaultValue("Strict");
+
+                    b.Property<int>("ShowtimeLookaheadDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(7);
 
                     b.Property<int>("StopSellingMinutesBefore")
                         .HasColumnType("integer");
@@ -692,10 +752,22 @@ namespace Cinema.Infrastructure.Migrations
                             CheckInOpenMinutes = 30,
                             ClosingTime = new TimeOnly(23, 59, 0),
                             HoldDurationMinutes = 15,
+                            LoyaltyWindowMonths = 12,
+                            MaxComboQuantity = 10,
+                            MaxSeatsPerBooking = 10,
+                            MovieEndGraceDays = 1,
                             Name = "Cinema",
                             OpeningTime = new TimeOnly(8, 0, 0),
                             PointsPerAmount = 10000m,
+                            RoomBufferMinutes = 15,
+                            SchedulerHeatLookbackDays = 7,
+                            SchedulerHeatRatingWeight = 0.29999999999999999,
+                            SchedulerHeatSalesWeight = 0.69999999999999996,
+                            SchedulerMaxRating = 5.0,
+                            SchedulerMinSameMovieGapMinutes = 60,
+                            SchedulerStepMinutes = 5,
                             SeatGapRuleMode = "Strict",
+                            ShowtimeLookaheadDays = 7,
                             StopSellingMinutesBefore = 0
                         });
                 });

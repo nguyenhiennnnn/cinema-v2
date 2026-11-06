@@ -15,7 +15,19 @@ public record CinemaSettingsDto(
     int StopSellingMinutesBefore,
     int HoldDurationMinutes,
     int CheckInOpenMinutes,
-    string SeatGapRuleMode
+    string SeatGapRuleMode,
+    int RoomBufferMinutes,
+    int MaxSeatsPerBooking,
+    int MaxComboQuantity,
+    int LoyaltyWindowMonths,
+    int MovieEndGraceDays,
+    int ShowtimeLookaheadDays,
+    int SchedulerStepMinutes,
+    int SchedulerMinSameMovieGapMinutes,
+    int SchedulerHeatLookbackDays,
+    double SchedulerHeatSalesWeight,
+    double SchedulerHeatRatingWeight,
+    double SchedulerMaxRating
 );
 
 public record UpdateSettingsRequest(
@@ -33,5 +45,17 @@ public record UpdateSettingsRequest(
     int StopSellingMinutesBefore = 0,
     int? HoldDurationMinutes = null,
     int? CheckInOpenMinutes = null,
-    string? SeatGapRuleMode = null
+    string? SeatGapRuleMode = null,
+    int? RoomBufferMinutes = null,
+    int? MaxSeatsPerBooking = null,
+    int? MaxComboQuantity = null,
+    int? LoyaltyWindowMonths = null,
+    int? MovieEndGraceDays = null,
+    int? ShowtimeLookaheadDays = null,
+    int? SchedulerStepMinutes = null,
+    int? SchedulerMinSameMovieGapMinutes = null,
+    int? SchedulerHeatLookbackDays = null,
+    double? SchedulerHeatSalesWeight = null,
+    double? SchedulerHeatRatingWeight = null,
+    double? SchedulerMaxRating = null
 );

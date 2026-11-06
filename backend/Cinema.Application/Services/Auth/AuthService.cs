@@ -176,15 +176,23 @@ public class AuthService(
                 Messages.Forbidden_EmailNotVerifiedCheckInbox
             );
 
-        var isCustomer = user.Role.RoleName == Roles.Customer;
+        // Allow-list: cổng quản trị chỉ nhận Admin/Employee. Dùng allow-list thay vì "không phải Customer"
+        // để role lạ (hoặc role thêm sau này) không tự động lọt vào cổng quản trị.
+        var roleName = user.Role.RoleName;
+        var isCustomer = roleName == Roles.Customer;
+        var isStaff = roleName is Roles.Admin or Roles.Employee;
         if (!adminOnly && !isCustomer)
             throw new ForbiddenAppException(
                 Messages.Forbidden_UseAdminPortal
             );
-        if (adminOnly && isCustomer)
+        if (adminOnly && !isStaff)
             throw new ForbiddenAppException(
                 Messages.Forbidden_CustomerCannotUseAdminPortal
             );
+
+        // Nhân viên bị vô hiệu hóa hồ sơ (Employee.IsActive = false) hoặc mất hồ sơ thì không được vào.
+        if (adminOnly && roleName == Roles.Employee && user.Employee is not { IsActive: true })
+            throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
 
         if (verifyResult == PasswordVerificationResult.SuccessRehashNeeded)
         {

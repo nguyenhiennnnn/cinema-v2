@@ -36,6 +36,11 @@ public class BookingService(
         CancellationToken cancellationToken
     )
     {
+        await EnsureWithinBookingLimitsAsync(
+            request.SeatIds.Count,
+            request.Combos,
+            cancellationToken
+        );
         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
         var gapRuleMode = await db.LoadSeatGapRuleModeAsync(cancellationToken);
         if (
@@ -417,6 +422,11 @@ public class BookingService(
         CancellationToken cancellationToken
     )
     {
+        await EnsureWithinBookingLimitsAsync(
+            request.SeatIds.Count,
+            request.Combos,
+            cancellationToken
+        );
         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
         if (
             SeatLayoutRules.ValidateSelection(slots, request.SeatIds, SeatGapRuleMode.Off)
@@ -1138,6 +1148,43 @@ public class BookingService(
         );
 
         return booking;
+    }
+
+    /// <summary>
+    /// Giới hạn số ghế / số lượng combo mỗi booking do admin cấu hình trong Cinema Settings
+    /// (không còn nằm trong validator tĩnh vì validator không đọc được DB).
+    /// </summary>
+    private async Task EnsureWithinBookingLimitsAsync(
+        int seatCount,
+        List<ComboSelectionRequest>? combos,
+        CancellationToken cancellationToken
+    )
+    {
+        var limits = await db
+            .CinemaSettings.AsNoTracking()
+            .Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
+            .Select(s => new { s.MaxSeatsPerBooking, s.MaxComboQuantity })
+            .FirstOrDefaultAsync(cancellationToken);
+        var maxSeats = limits?.MaxSeatsPerBooking ?? CinemaSettings.DefaultMaxSeatsPerBooking;
+        var maxCombo = limits?.MaxComboQuantity ?? CinemaSettings.DefaultMaxComboQuantity;
+
+        if (seatCount > maxSeats)
+        {
+            var message = string.Format(Messages.Validation_Seats_MaxPerBooking, maxSeats);
+            throw new ValidationAppException(
+                message,
+                new Dictionary<string, string[]> { ["seatIds"] = [message] }
+            );
+        }
+
+        if (combos is { Count: > 0 } && combos.Any(c => c.Quantity > maxCombo))
+        {
+            var message = string.Format(Messages.Validation_Quantity_Max, maxCombo);
+            throw new ValidationAppException(
+                message,
+                new Dictionary<string, string[]> { ["combos"] = [message] }
+            );
+        }
     }
 
     private Task<CinemaSettings> GetCinemaSettingsAsync(CancellationToken cancellationToken) =>

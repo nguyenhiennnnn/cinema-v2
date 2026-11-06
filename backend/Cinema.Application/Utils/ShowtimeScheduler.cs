@@ -12,12 +12,22 @@ public record SchedulerSlot(int MovieId, int RoomId, DateTime Start, DateTime En
 
 public static class ShowtimeScheduler
 {
-    public static double Heat(int tickets, int maxTickets, decimal rating) =>
-        Math.Clamp(
-            (maxTickets > 0 ? 0.7 * tickets / maxTickets : 0) + 0.3 * (double)rating / 5,
+    public static double Heat(
+        int tickets,
+        int maxTickets,
+        decimal rating,
+        SchedulerOptions? schedulerOptions = null
+    )
+    {
+        var cfg = schedulerOptions ?? new SchedulerOptions();
+        var maxRating = cfg.MaxRating > 0 ? cfg.MaxRating : 5;
+        return Math.Clamp(
+            (maxTickets > 0 ? cfg.HeatSalesWeight * tickets / maxTickets : 0)
+                + cfg.HeatRatingWeight * (double)rating / maxRating,
             0,
             1
         );
+    }
 
     public static List<SchedulerSlot> Build(
         DateOnly day,
