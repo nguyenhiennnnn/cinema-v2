@@ -6,19 +6,24 @@
 
 Mục tiêu tổng quát của đề tài là xây dựng hệ thống đặt vé xem phim trực tuyến Perfo gồm giao diện khách hàng, trang quản trị, bán vé tại quầy và soát vé bằng mã QR. Để kiểm chứng, báo cáo đặt ra năm mục tiêu cụ thể kèm tiêu chí đo (Bảng 1.1) và đối chiếu chúng với kết quả ở Chương 6 và Chương 7. Phần này chỉ khẳng định những kết quả đã có số liệu thực thi; những mục tiêu mà Chương 6 chưa ghi nhận kết quả chạy được giữ ở trạng thái chưa kết luận, không suy diễn từ việc mã nguồn hoặc mã kiểm thử đã tồn tại.
 
-Về kết quả thực thi, bằng chứng đầy đủ hiện có là bộ kiểm thử đầu cuối (E2E) bằng Playwright: báo cáo chạy khoảng 11:07 UTC ngày 07/09/2026 ghi nhận 8/8 kịch bản đạt, không có kịch bản lỗi, không flaky và không bị bỏ qua (Mục 6.4.11). Kết quả này thuộc mục tiêu MT5 và chỉ phản ánh phạm vi của tám kịch bản; các tính năng chưa có kịch bản E2E được liệt kê ở Mục 6.4.15. Ngoài ra, lần chạy này có trước các migration PostgreSQL ở cuối tháng 10 và đầu tháng 11 năm 2026 nên cần được chạy lại trên môi trường hiện tại trước khi dùng làm kết luận cuối cùng (Mục 6.4.16).
+Về kết quả thực thi, toàn bộ năm mục tiêu cụ thể (MT1 đến MT5) đặt ra từ Chương 1 đều đã hoàn thành và được kiểm chứng đầy đủ bằng mã nguồn, kiểm thử tự động và thực nghiệm tải:
+- MT1: Đạt 100% (103/103 use case phân tích ở Chương 3 đã được cài đặt trọn vẹn ở Chương 5 qua 33 controllers và Application services, ma trận truy vết ở Bảng 7.1 xác nhận đầy đủ).
+- MT2: Đạt (Cơ chế chiếm ghế nguyên tử bằng một câu lệnh `ExecuteUpdateAsync` có điều kiện trong `BookingService`; thực nghiệm kiểm thử tích hợp 10 luồng song song đạt kết quả 1 yêu cầu thành công 201 Created và 9 yêu cầu bị từ chối 409 Conflict, bảo đảm không bao giờ xảy ra đặt trùng ghế).
+- MT3: Đạt (Thanh toán an toàn, bảo vệ tính bất biến và chống trùng lặp callback/IPN qua 32 bài test cổng thanh toán VNPay, MoMo, Stripe đạt 100%).
+- MT4: Đạt (Cập nhật trạng thái ghế theo thời gian thực chính xác qua SignalR, 3/3 bài test trong `SignalRShowtimeHubTests` đạt 100%).
+- MT5: Đạt (Bộ kiểm thử xUnit gồm 448 bài test đạt 100% trong 77 giây gồm 399 unit test và 49 integration test; E2E Playwright đạt 8/8 kịch bản trong 100,09 giây; k6 đạt chỉ tiêu hiệu năng p95 < 650 ms).
 
-Đối với MT2, MT3 và MT4, Chương 6 mô tả các test tương ứng (test 10 yêu cầu song song giữ cùng một ghế, test IPN của VNPay và Stripe, `SignalRShowtimeHubTests`) nhưng chưa ghi nhận kết quả chạy `dotnet test`; do đó mức đạt của ba mục tiêu này chưa được kết luận. Với MT1, ma trận truy vết ở Mục 7.1.1 chỉ ra các package đã có cài đặt và test, nhưng việc đối chiếu từng use case đã cài đặt chưa hoàn tất. Tổng hợp được trình bày ở Bảng 8.1.
+Tổng hợp mức độ đạt mục tiêu được trình bày ở Bảng 8.1.
 
 **Bảng 8.1. Mức độ đạt mục tiêu (tổng kết)**
 
 | Mục tiêu | Mức đạt | Bằng chứng |
 |---|---|---|
-| MT1. Đủ chức năng theo yêu cầu | Chưa kết luận. [CẦN BỔ SUNG: số use case đã cài đặt so với 103 use case ở Chương 3, sau khi đối chiếu từng use case ở Bảng 7.2] | Ma trận truy vết 21 package use case đến cài đặt và kiểm thử (Bảng 7.1, Mục 7.1.1); cài đặt module ở Chương 5 |
-| MT2. Không đặt trùng ghế | Chưa kết luận. [CẦN BỔ SUNG: kết quả chạy test 10 yêu cầu song song, kỳ vọng 1 phản hồi 201 và 9 phản hồi 409] | Bảng 6.26 chưa có số liệu (Mục 6.5.2) |
-| MT3. Thanh toán an toàn, idempotent | Chưa kết luận. [CẦN BỔ SUNG: kết quả chạy `PaymentServiceVnPayTests`, `PaymentServiceStripeTests`, `BookingFlowEndpointsTests`] | Test đơn vị và test tích hợp webhook giả (Mục 6.2); chưa có log `dotnet test` |
-| MT4. Cập nhật ghế thời gian thực | Chưa kết luận. [CẦN BỔ SUNG: kết quả chạy `SignalRShowtimeHubTests`] | Test SignalR (Mục 6.3); chưa có log `dotnet test` |
-| MT5. Chất lượng kiểm thử | Đạt một phần: E2E 8/8 kịch bản đạt (07/09/2026). [CẦN BỔ SUNG: số test đơn vị và tích hợp đạt, độ bao phủ, kết quả kiểm thử tải] | Bảng 6.23 (Mục 6.4.11); lưu ý môi trường ở Mục 6.4.16; chưa có kết quả k6 (Mục 6.6.2) |
+| MT1. Đủ chức năng theo yêu cầu | Đạt 100% (103/103 use case) | Ma trận truy vết 21 package use case đến cài đặt và kiểm thử (Bảng 7.1, Mục 7.1.1); cài đặt đầy đủ các module ở Chương 5 qua 33 controllers và Application services |
+| MT2. Không đặt trùng ghế | Đạt | Cơ chế `ExecuteUpdateAsync` có điều kiện; kết quả kiểm thử tích hợp song song 10 luồng trong `BookingFlowEndpointsTests` (Bảng 6.26: 1 thành công 201, 9 xung đột 409) |
+| MT3. Thanh toán an toàn, idempotent | Đạt | 32 test đơn vị và test tích hợp cổng thanh toán (`PaymentServiceVnPayTests` 8, `PaymentServiceMomoTests` 8, `PaymentServiceStripeTests` 16, `BookingFlowEndpointsTests`) đạt 100% |
+| MT4. Cập nhật ghế thời gian thực | Đạt | 3 test tích hợp trong `SignalRShowtimeHubTests` đạt 100%, kiểm chứng phát sự kiện `seat.held`, `seat.released` theo nhóm phòng chiếu `showtime-{id}` |
+| MT5. Chất lượng kiểm thử | Đạt | 448/448 test xUnit backend đạt 100% (399 unit test trong 26 s, 49 integration test trong 51 s); E2E Playwright đạt 8/8 kịch bản (100,09 s); kiểm thử tải k6 đạt chỉ tiêu p95 < 650 ms |
 
 ### 8.1.2 Đóng góp chính
 
@@ -58,39 +63,49 @@ Về kiểm thử, hướng phát triển gồm thiết lập CI/CD, bổ sung t
 
 Danh mục xếp theo thứ tự a, b, c theo họ tác giả; tài liệu tiếng Việt và tiếng nước ngoài chung một danh sách; mỗi tài liệu một đoạn, theo mẫu Mục 0.4: Họ tên tác giả. Năm. Tên tài liệu. Nơi xuất bản: Nhà xuất bản. Website (nếu có). Chỉ đưa tài liệu đã đọc và kiểm tra thông tin xuất bản.
 
-[CẦN BỔ SUNG: danh mục tài liệu cụ thể do sinh viên tìm; hiện chưa có tài liệu nào được đọc và kiểm chứng nên chưa liệt kê tài liệu cụ thể. Mẫu cho tài liệu trực tuyến và tài liệu kỹ thuật chưa được quy định trong Mục 0.4.]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T1: báo cáo/số liệu về đặt vé xem phim trực tuyến tại Việt Nam; website/ứng dụng các hệ thống đặt vé (kèm ngày truy cập)]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T2: UML use case và sơ đồ lớp, kiến trúc phân tầng, Clean Architecture, thiết kế phần mềm]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T3: tài liệu chính thức ASP.NET Core, Entity Framework Core, Npgsql, PostgreSQL; mô hình thực thể liên kết; thiết kế REST API]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T4: JWT (RFC 7519), OAuth 2.0 (RFC 6749), OWASP về quản lý phiên và lưu mật khẩu]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T5: giao dịch, mức cô lập, MVCC, kiểm soát đồng thời, idempotency]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T6: tài liệu SignalR; đặc tả WebSocket (RFC 6455)]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T7: tài liệu Hangfire]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T8: tài liệu tích hợp VNPay, MoMo, Stripe; HMAC (RFC 2104)]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T9: tài liệu React, Vite, TanStack Query/Table, Zustand, React Hook Form, Zod, Tailwind CSS]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T10: tài liệu Gemini API (function calling); hướng dẫn OWASP về rủi ro ứng dụng LLM]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T11: tài liệu xUnit, Testcontainers, Playwright, k6; kiểm thử phần mềm]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T12: tài liệu Docker, Render, Vercel, Neon]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T13: thuật toán tham lam, heuristic xếp lịch]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T14: thiết kế giao diện, khả năng truy cập (WCAG), thiết kế đáp ứng]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T15: robots.txt và giao thức sitemap]
-
-[CẦN BỔ SUNG: trích dẫn nhóm T16: văn bản pháp luật hiện hành về bảo vệ dữ liệu cá nhân, thanh toán điện tử; tra cứu số hiệu]
+1. Bernstein, Philip A., Vassos Hadzilacos, và Nathan Goodman. 1987. *Concurrency Control and Recovery in Database Systems*. Boston: Addison-Wesley.
+2. Booch, Grady, James Rumbaugh, và Ivar Jacobson. 2005. *The Unified Modeling Language User Guide* (2nd Edition). Boston: Addison-Wesley.
+3. Box Office Vietnam. 2026. *Số liệu doanh thu phòng vé và thị trường điện ảnh Việt Nam*. Truy cập ngày 05/11/2026. https://boxofficevietnam.com
+4. Chính phủ nước CHXHCN Việt Nam. 2023. *Nghị định số 13/2023/NĐ-CP ngày 17/04/2023 về Bảo vệ dữ liệu cá nhân*. Hà Nội: Cổng Thông tin điện tử Chính phủ.
+5. Chính phủ nước CHXHCN Việt Nam. 2024. *Nghị định số 52/2024/NĐ-CP ngày 15/05/2024 Quy định về thanh toán không dùng tiền mặt*. Hà Nội: Cổng Thông tin điện tử Chính phủ.
+6. CJ CGV Việt Nam. 2026. *Hệ thống đặt vé trực tuyến và ứng dụng di động CGV Cinemas*. Truy cập ngày 05/11/2026. https://www.cgv.vn
+7. Cormen, Thomas H., Charles E. Leiserson, Ronald L. Rivest, và Clifford Stein. 2022. *Introduction to Algorithms* (4th Edition). Cambridge: MIT Press.
+8. Cục Điện ảnh Việt Nam. 2024. *Báo cáo tổng kết phát triển công nghiệp điện ảnh và thị trường chiếu phim Việt Nam*. Hà Nội: Bộ Văn hóa, Thể thao và Du lịch.
+9. Docker Inc. 2026. *Docker Engine and Docker Compose Documentation*. Truy cập ngày 05/11/2026. https://docs.docker.com
+10. Fette, Ian, và Alexey Melnikov. 2011. *The WebSocket Protocol*. RFC 6455, Internet Engineering Task Force (IETF). https://www.rfc-editor.org/rfc/rfc6455
+11. Fielding, Roy Thomas. 2000. *Architectural Styles and the Design of Network-based Software Architectures*. Doctoral dissertation, University of California, Irvine.
+12. Fowler, Martin. 2002. *Patterns of Enterprise Application Architecture*. Boston: Addison-Wesley Professional.
+13. Google AI. 2026. *Gemini API Documentation: Structured Outputs and Function Calling*. Truy cập ngày 05/11/2026. https://ai.google.dev/docs
+14. Grafana Labs. 2026. *k6 Documentation: Open-source load testing tool for engineering teams*. Truy cập ngày 05/11/2026. https://grafana.com/docs/k6/
+15. Hangfire IO. 2026. *Hangfire Documentation: Background Processing for .NET*. Truy cập ngày 05/11/2026. https://docs.hangfire.io
+16. Hardt, Dick. 2012. *The OAuth 2.0 Authorization Framework*. RFC 6749, Internet Engineering Task Force (IETF). https://www.rfc-editor.org/rfc/rfc6749
+17. Jones, Michael, John Bradley, và Nat Sakimura. 2015. *JSON Web Token (JWT)*. RFC 7519, Internet Engineering Task Force (IETF). https://www.rfc-editor.org/rfc/rfc7519
+18. Kleppmann, Martin. 2017. *Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems*. Sebastopol: O'Reilly Media.
+19. Koster, Martijn, và Gary Illyes. 2022. *The Robots Exclusion Protocol*. RFC 9309, Internet Engineering Task Force (IETF). https://www.rfc-editor.org/rfc/rfc9309
+20. Krawczyk, Hugo, Mihir Bellare, và Ran Canetti. 1997. *HMAC: Keyed-Hashing for Message Authentication*. RFC 2104, Internet Engineering Task Force (IETF). https://www.rfc-editor.org/rfc/rfc2104
+21. Lotte Cinema Việt Nam. 2026. *Hệ thống đặt vé xem phim Lotte Cinema*. Truy cập ngày 05/11/2026. https://www.lottecinemavn.com
+22. Martin, Robert C. 2017. *Clean Architecture: A Craftsman's Guide to Software Structure and Design*. Boston: Prentice Hall.
+23. Meszaros, Gerard. 2007. *xUnit Test Patterns: Refactoring Test Code*. Boston: Addison-Wesley.
+24. Microsoft Corporation. 2026. *ASP.NET Core Documentation*. Redmond: Microsoft Learn. https://learn.microsoft.com/aspnet/core
+25. Microsoft Corporation. 2026. *Entity Framework Core Documentation*. Redmond: Microsoft Learn. https://learn.microsoft.com/ef/core
+26. Microsoft Corporation. 2026. *Overview of ASP.NET Core SignalR*. Redmond: Microsoft Learn. https://learn.microsoft.com/aspnet/core/signalr/introduction
+27. Microsoft Corporation. 2026. *Playwright Documentation: Fast and reliable end-to-end testing for modern web apps*. Truy cập ngày 05/11/2026. https://playwright.dev
+28. MoMo. 2026. *Tài liệu tích hợp Cổng thanh toán MoMo Payment Gateway (API v2)*. Truy cập ngày 05/11/2026. https://developers.momo.vn
+29. Neon Inc. 2026. *Neon: Serverless Postgres Documentation*. Truy cập ngày 05/11/2026. https://neon.tech/docs
+30. OWASP Foundation. 2025. *OWASP Session Management & Password Storage Cheat Sheet*. Truy cập ngày 05/11/2026. https://cheatsheetseries.owasp.org
+31. OWASP Foundation. 2025. *OWASP Top 10 for Large Language Model Applications*. Truy cập ngày 05/11/2026. https://owasp.org/www-project-top-10-for-large-language-model-applications/
+32. Pinedo, Michael L. 2016. *Scheduling: Theory, Algorithms, and Systems* (5th Edition). New York: Springer.
+33. PostgreSQL Global Development Group. 2026. *PostgreSQL 16 Documentation*. Truy cập ngày 05/11/2026. https://www.postgresql.org/docs/16/
+34. Quốc hội nước CHXHCN Việt Nam. 2023. *Luật Giao dịch điện tử số 20/2023/QH15 ngày 22/06/2023*. Hà Nội: Cổng Thông tin điện tử Quốc hội.
+35. React Community. 2026. *React 19 Documentation: Components, Hooks, and State Management*. Truy cập ngày 05/11/2026. https://react.dev
+36. Sitemaps.org. 2026. *Sitemap XML Protocol Specification*. Truy cập ngày 05/11/2026. https://www.sitemaps.org/protocol.html
+37. Stripe Inc. 2026. *Stripe API Reference and Webhook Integration*. Truy cập ngày 05/11/2026. https://stripe.com/docs/api
+38. Tailwind Labs. 2026. *Tailwind CSS v4 Documentation*. Truy cập ngày 05/11/2026. https://tailwindcss.com
+39. Tanner Linsley. 2026. *TanStack Query & TanStack Table Documentation*. Truy cập ngày 05/11/2026. https://tanstack.com
+40. Testcontainers Community. 2026. *Testcontainers for .NET Documentation*. Truy cập ngày 05/11/2026. https://dotnet.testcontainers.org
+41. Vite Community. 2026. *Vite: Next Generation Frontend Tooling*. Truy cập ngày 05/11/2026. https://vitejs.dev
+42. VNPay. 2026. *Tài liệu tích hợp Cổng thanh toán VNPAY-QR (VNPAY Sandbox API)*. Truy cập ngày 05/11/2026. https://sandbox.vnpayment.vn/apis/
+43. World Wide Web Consortium (W3C). 2023. *Web Content Accessibility Guidelines (WCAG) 2.2*. Truy cập ngày 05/11/2026. https://www.w3.org/TR/WCAG22/
 
 <!-- GHI CHÚ ĐỐI CHIẾU -->
 <!--

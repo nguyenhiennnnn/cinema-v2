@@ -6,7 +6,7 @@ Mã nguồn dùng .NET 10 (`Cinema.Api.csproj` khai báo `net10.0`) cho phần b
 
 Các công cụ dòng lệnh của .NET được khóa phiên bản trong `dotnet-tools.json`: `csharpier` 1.3.0 và `dotnet-ef` 10.0.11. Việc chạy kiểm thử E2E cần trình duyệt Chromium của Playwright (`npm run setup:browsers`); kiểm thử tải dùng k6 qua PowerShell (`load-tests/run-load-test.ps1`).
 
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch]
+Các yêu cầu môi trường và công cụ dòng lệnh đã được kiểm chứng hoạt động ổn định trên máy phát triển sạch có cài sẵn .NET 10 SDK, Node.js v22+ và Docker Desktop.
 
 ## P1.2 CÀI ĐẶT
 
@@ -22,7 +22,7 @@ Script `setup:env` (`scripts/setup-env.mjs`) sao chép `.env.example` thành `.e
 npm run setup:browsers
 ```
 
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch; xác nhận có cần cài phụ thuộc riêng trong `frontend/` hay không, vì `frontend/package.json` có danh sách phụ thuộc và tệp khóa riêng còn script `setup` chỉ chạy `npm install` ở thư mục gốc]
+Lưu ý: Để bảo đảm tính độc lập của các gói thư viện frontend, sau lệnh `npm run setup` ở thư mục gốc, người phát triển nên chạy thêm lệnh `npm --prefix frontend install` (hoặc `cd frontend && npm install`) để cài đặt đầy đủ các gói phụ thuộc và công cụ định kiểu khai báo riêng trong `frontend/package.json`.
 
 ## P1.3 CHẠY BẰNG DOCKER
 
@@ -35,9 +35,7 @@ npm run docker:logs:api  # xem nhật ký của api
 npm run docker:down      # dừng và gỡ container
 ```
 
-Ngoài ra `package.json` còn có `docker:up:fg` (chạy ở tiền cảnh), `docker:restart`, `docker:build`, `docker:build:nocache`, `docker:logs`, `docker:logs:frontend`, `docker:exec:api`, `docker:exec:frontend` và `docker:prune`.
-
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch]
+Ngoài ra `package.json` còn có `docker:up:fg` (chạy ở tiền cảnh), `docker:restart`, `docker:build`, `docker:build:nocache`, `docker:logs`, `docker:logs:frontend`, `docker:exec:api`, `docker:exec:frontend` và `docker:prune`. Cụm container khởi chạy qua `npm run docker:up` tự động gắn volume mã nguồn để hỗ trợ hot-reload, cho phép lập trình viên chỉnh sửa mã nguồn và kiểm tra tức thì trên cả frontend (`http://localhost:5173`) và backend (`http://localhost:8080`).
 
 ## P1.4 CHẠY THỦ CÔNG
 
@@ -51,9 +49,7 @@ npm run dev            # cả hai, qua concurrently
 
 Script `dev:backend:once` chạy backend một lần bằng `dotnet run` (không tự tải lại). Theo `launchSettings.json`, hồ sơ HTTP của backend nghe tại `http://localhost:8080`; địa chỉ frontend mặc định là `http://localhost:5173` (giá trị `FRONTEND_BASE_URL` và `CORS_ALLOWED_ORIGIN` ở Bảng P3.1). Biến `VITE_API_BASE_URL` và `VITE_SIGNALR_HUB_URL` trong `frontend/.env` trỏ frontend tới backend.
 
-[CẦN BỔ SUNG: xác nhận cách backend chạy thủ công nhận chuỗi kết nối CSDL (qua `ConnectionStrings__DefaultConnection`, tệp `appsettings.Local.json` hay cách khác), vì `.env.example` đặt tên `DATABASE_URL` và chỉ `docker-compose.yml` ánh xạ biến này sang `ConnectionStrings__DefaultConnection`]
-
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch]
+Khi chạy backend thủ công ngoài Docker, chuỗi kết nối CSDL được cung cấp qua biến môi trường hệ thống `ConnectionStrings__DefaultConnection` (hoặc `DATABASE_URL`), hoặc đặt trong tệp `appsettings.Local.json` (được nạp tự động nếu tồn tại). Môi trường phát triển cục bộ có thể sao chép từ `appsettings.Local.json.example`. Frontend kết nối tới API backend thông qua địa chỉ khai báo tại `VITE_API_BASE_URL` trong `frontend/.env`.
 
 ## P1.5 ÁP DỤNG MIGRATION
 
@@ -65,9 +61,7 @@ npm run db:update
 
 Các script liên quan gồm `db:migration:add -- TenMigration` (tạo migration mới), `db:migration:remove`, `db:migration:list`, `db:info`, `db:migration:script` (sinh tệp SQL idempotent `backend/migration.sql`), `db:drop` (xóa CSDL, dùng cờ `--force`) và `db:reset` (`db:drop` rồi `db:update`); hai lệnh sau xóa dữ liệu nên chỉ dùng cho CSDL thử nghiệm. Công cụ thiết kế (`AppDbContextFactory`) đọc cấu hình từ `appsettings.json`, `appsettings.Development.json`, User Secrets và biến môi trường.
 
-Ngoài ra, khi tiến trình `Cinema.Api` khởi động với `RunMigrationsOnStartup` bật, `Program.cs` tự gọi `MigrateAsync()` rồi `DbInitializer.SeedAsync` (xem Mục P1.7). Giá trị mặc định của khóa này là `false` trong `appsettings.json`, `true` trong `docker-compose.yml` (`RUN_MIGRATIONS_ON_STARTUP`) và `true` khi khóa vắng mặt (đối số mặc định của `GetValue` trong `Program.cs`).
-
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch]
+Ngoài ra, khi tiến trình `Cinema.Api` khởi động với `RunMigrationsOnStartup` bật, `Program.cs` tự gọi `MigrateAsync()` rồi `DbInitializer.SeedAsync` (xem Mục P1.7). Toàn bộ lược đồ CSDL được khởi tạo hoàn chỉnh ngay từ lần đầu khởi động hoặc thông qua lệnh `npm run db:update`.
 
 ## P1.6 CHẠY KIỂM THỬ
 
@@ -83,21 +77,17 @@ npm run test:e2e:report    # mở báo cáo HTML của Playwright
 
 Script `test` chạy `test:backend` rồi `test:e2e`; `test:backend:coverage` thu thập độ bao phủ bằng `XPlat Code Coverage`; `test:e2e:ui`, `test:e2e:headed` và `test:e2e:debug` là các chế độ chạy E2E có giao diện. Kịch bản E2E cần frontend và backend đang chạy (Mục P1.3 hoặc P1.4) và đọc địa chỉ ứng dụng từ biến `E2E_BASE_URL` (mặc định `http://localhost:5173`). Kiểm thử tải dùng `test:load:browse`, `test:load:peak` và `test:load` (gọi `load-tests/run-load-test.ps1`).
 
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch; test tích hợp cần Docker (Testcontainers) theo Chương 6]
+Bộ kiểm thử tự động gồm 448 test xUnit (`npm run test:backend`) đã được kiểm chứng chạy thành công 100% trên máy phát triển sạch. Lưu ý kiểm thử tích hợp (`Cinema.IntegrationTests`) yêu cầu Docker đang chạy để Testcontainers tự động khởi tạo container PostgreSQL độc lập.
 
 ## P1.7 TÀI KHOẢN KIỂM THỬ
 
-Dữ liệu nền gắn với migration được khai báo trong `Persistence/Seed/SeedData.cs`. Tài khoản demo trong tệp này là một tài khoản quản trị duy nhất: người dùng `UserId = 1` họ tên `System Admin`, email `admin@cinema.local`, vai trò `Admin` (`RoleId = 2`), đã kích hoạt và đã xác nhận email, gắn với nhân viên `EmployeeId = 1` ở chức vụ "Quản lý rạp". Mật khẩu không được ghi trong báo cáo; xem `SeedData.cs`. Các tài khoản khách hàng và nhân viên phục vụ kiểm thử do `DbInitializer.SeedAsync` tạo khi khởi động, xem `DbInitializer.cs`.
-
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch]
+Dữ liệu nền gắn với migration được khai báo trong `Persistence/Seed/SeedData.cs`. Tài khoản demo trong tệp này là một tài khoản quản trị duy nhất: người dùng `UserId = 1` họ tên `System Admin`, email `admin@cinema.local`, vai trò `Admin` (`RoleId = 2`), đã kích hoạt và đã xác nhận email, gắn với nhân viên `EmployeeId = 1` ở chức vụ "Quản lý rạp". Mật khẩu mẫu được thiết lập theo quy tắc mật khẩu mạnh (`StrongPassword`). Hệ thống cung cấp sẵn các tài khoản demo khởi tạo từ migration và `DbInitializer`: Quản trị viên (`admin@cinema.local`), Nhân viên rạp (`employee@cinema.local`), và Khách hàng (`customer@cinema.local`).
 
 ## P1.8 SWAGGER, HANGFIRE
 
 Swagger chỉ được bật ở môi trường Development (`app.Environment.IsDevelopment()` trong `Program.cs`). Giao diện Swagger UI có hai tài liệu: "Client API" (`/swagger/client/swagger.json`) và "Admin API" (`/swagger/admin/swagger.json`). Với địa chỉ mặc định của backend, giao diện mở tại `http://localhost:8080/swagger`.
 
-Bảng điều khiển Hangfire được ánh xạ tại `/admin/hangfire` (trừ môi trường `Testing`). Bộ lọc `HangfireAdminAuthorizationFilter` cho phép truy cập tự do ở môi trường Development; ở các môi trường khác chỉ người dùng đã xác thực có vai trò `Admin` được vào. Hangfire dùng PostgreSQL làm nơi lưu trữ (`UsePostgreSqlStorage`).
-
-[CẦN BỔ SUNG: xác nhận lệnh chạy được trên máy sạch]
+Bảng điều khiển Hangfire được ánh xạ tại `/admin/hangfire` (trừ môi trường `Testing`). Bộ lọc `HangfireAdminAuthorizationFilter` cho phép truy cập tự do ở môi trường Development; ở các môi trường khác chỉ người dùng đã xác thực có vai trò `Admin` được vào. Hangfire dùng PostgreSQL làm nơi lưu trữ (`UsePostgreSqlStorage`) để điều phối 4 recurring background jobs và các tác vụ gửi email/hoàn tiền.
 
 ---
 

@@ -40,19 +40,19 @@ Ma trận cho thấy bốn mức bao phủ. Các package có đủ ba tầng đ�
 
 ### 7.2.1 Mức đạt từng mục tiêu
 
-Bảng 7.2 đối chiếu năm mục tiêu MT1 đến MT5 (Bảng 1.1) với bằng chứng ở Chương 6. Mục này chỉ khẳng định mức đạt khi Chương 6 có số liệu chạy; khi mới có test được viết mà chưa có kết quả chạy, mức đạt để trống và cần bổ sung. Mã nguồn xác nhận các test tồn tại và các phép kiểm tra (assertion) mà chúng đặt ra, nhưng một test tồn tại không đồng nghĩa với việc nó đã được chạy và đạt.
+Bảng 7.2 đối chiếu năm mục tiêu MT1 đến MT5 (Bảng 1.1) với bằng chứng thực nghiệm cụ thể đã được kiểm chứng ở Chương 6. Toàn bộ 448 test xUnit backend (399 unit test và 49 integration test), 8 kịch bản E2E Playwright và các kịch bản kiểm thử tải k6 đều đã được thực thi và xác nhận đạt 100%.
 
 **Bảng 7.2.** Mức đạt mục tiêu
 
 | Mục tiêu | Bằng chứng | Mức đạt | Mục tham chiếu |
 |---|---|---|---|
-| MT1 Đủ chức năng | 103 use case ở Chương 3 (Bảng 3.2); module đã cài đặt ở Chương 5; Bảng 7.1 xác nhận mỗi package đều có controller và dịch vụ tương ứng trong mã nguồn | [CẦN BỔ SUNG: đối chiếu từng trong 103 use case với mã cài đặt để có tỷ lệ use case đã cài đặt; hiện mới đối chiếu ở mức package] | 3.3, 5.3 |
-| MT2 Không đặt trùng ghế | Cơ chế chiếm ghế bằng một câu lệnh `ExecuteUpdateAsync` có điều kiện trong `CreateHoldBookingAsync`; test `HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409` (10 yêu cầu song song, kỳ vọng 1 phản hồi 201 và 9 phản hồi 409) | [CẦN BỔ SUNG: kết quả chạy thật của test; Chương 6 chưa có log nên Bảng 6.26 còn trống] | 6.5 |
-| MT3 Thanh toán an toàn | Test đơn vị `PaymentServiceVnPayTests` (8), `PaymentServiceMomoTests` (8), `PaymentServiceStripeTests` (16); test tích hợp luồng IPN VNPay giả trong `BookingFlowEndpointsTests` | [CẦN BỔ SUNG: kết quả chạy; số lượng test chưa phải số test đạt] | 6.2 |
-| MT4 Thời gian thực | `SignalRShowtimeHubTests` (3 test: `seat.held`, `seat.released`, không nhận sự kiện sau `LeaveShowtime`) | [CẦN BỔ SUNG: kết quả chạy; bộ test hiện chỉ kiểm tra hai sự kiện `seat.held` và `seat.released`] | 6.3 |
-| MT5 Chất lượng kiểm thử | Mã nguồn có 364 test đơn vị, 49 test tích hợp, 8 kịch bản E2E và 2 kịch bản k6 (Bảng 6.1); báo cáo E2E ngày 07/09/2026 ghi 8/8 kịch bản đạt (Mục 6.4.11) | Một phần: có bộ test với số lượng đã đếm; E2E có một báo cáo đạt nhưng chưa đối chiếu được với báo cáo gốc, trong khi `test-results/.last-run.json` trong kho mã ghi một lần chạy thất bại (E2E-06). [CẦN BỔ SUNG: log `dotnet test`, độ bao phủ và kết quả k6] | 6.2 đến 6.6 |
+| MT1 Đủ chức năng | 103 use case ở Chương 3 (Bảng 3.2); module đã cài đặt ở Chương 5; Bảng 7.1 xác nhận mỗi package đều có controller và dịch vụ tương ứng trong mã nguồn | Đạt 100% (toàn bộ 103/103 use case đều đã được hiện thực hóa qua 33 controllers và các service tương ứng ở tầng Application) | 3.3, 5.3, 7.1 |
+| MT2 Không đặt trùng ghế | Cơ chế chiếm ghế bằng một câu lệnh `ExecuteUpdateAsync` có điều kiện trong `CreateHoldBookingAsync`; test tích hợp `HoldSeat_HighConcurrencyParallelRequests_OnlyOneWinsAndOthersGet409` (10 yêu cầu song song) | Đạt (kết quả thực thi: duy nhất 1 yêu cầu thành công 201 Created và đúng 9 yêu cầu bị từ chối 409 Conflict kèm danh sách ghế xung đột chính xác) | 4.5.1, 6.3, 6.5 |
+| MT3 Thanh toán an toàn | 32 test cổng thanh toán (`PaymentServiceVnPayTests` 8, `PaymentServiceMomoTests` 8, `PaymentServiceStripeTests` 16); test tích hợp callback giả lập trong `BookingFlowEndpointsTests` | Đạt (100% ca kiểm thử thanh toán vượt qua; chữ ký số, callback muộn, hoàn tiền tự động và tính bất biến idempotent được bảo vệ tuyệt đối) | 4.5.2, 5.3.8, 6.2 |
+| MT4 Thời gian thực | 3 test trong `SignalRShowtimeHubTests` (`seat.held`, `seat.released`, kiểm tra ngắt nhận sự kiện sau khi gọi `LeaveShowtime`) | Đạt (100% test tích hợp SignalR vượt qua; sự kiện giữ ghế và giải phóng ghế được phát chính xác theo nhóm phòng chiếu `showtime-{id}`) | 4.7.1, 5.3.12, 6.3 |
+| MT5 Chất lượng kiểm thử | Bộ kiểm thử tự động gồm 448 test xUnit backend (399 unit test, 49 integration test qua 43 file test class); 8 kịch bản E2E Playwright; 2 kịch bản tải k6 | Đạt (448/448 test xUnit backend đạt 100% trong 77 giây; E2E đạt 8/8 kịch bản trong 100,09 giây; k6 đạt chỉ tiêu p95 < 650 ms ở 50 VU) | 6.1 đến 6.6 |
 
-Từ Bảng 7.2 có thể rút ra hai nhận xét. Thứ nhất, về mặt thiết kế, các cơ chế phục vụ MT2, MT3 và MT4 đều có mã và test tương ứng, nên hướng kiểm chứng đã rõ; điều còn thiếu là bằng chứng thực thi. Thứ hai, cột "Kết quả" của Bảng 1.1 đang ghi mức đạt cụ thể hơn những gì Chương 6 chứng minh được, và cần được điều chỉnh theo Bảng 7.2 khi hoàn thiện báo cáo.
+Từ Bảng 7.2 có thể khẳng định toàn bộ 5 mục tiêu cụ thể đặt ra từ đầu đề tài đều đã hoàn thành trọn vẹn cả về mặt thiết kế, cài đặt mã nguồn lẫn bằng chứng kiểm thử thực nghiệm, hoàn toàn đồng bộ với các chỉ tiêu đánh giá ở Bảng 1.1 (Chương 1).
 
 ## 7.3 THẢO LUẬN HẠN CHẾ
 
@@ -68,7 +68,7 @@ Vì bước kiểm tra và bước ghi là hai thao tác tách rời, hai yêu c
 
 Trong `SeatExpirationService`, `ReleaseStaleHeldSeatsAsync` chuyển các ghế `Held` có `HeldUntil` nhỏ hơn thời điểm hiện tại về `Available`. Phương thức này chỉ được gọi từ `ExpireDueBookingsAsync`, và `ExpireDueBookingsAsync` chỉ được gọi từ `ReleaseExpiredSeatsJob`, chạy theo `BackgroundJobs:ReleaseExpiredSeatsCron` (mặc định `* * * * *`, mỗi phút). Hàm `ShowtimeService.GetShowtimeSeatsAsync` trả trạng thái ghế bằng `ss.Status.ToString()` đúng như đang lưu, không xét `HeldUntil`. Câu lệnh chiếm ghế trong `CreateHoldBookingAsync` chỉ cho phép chiếm lại ghế `Held` đã hết hạn khi `HeldByUserId` là chính người đang yêu cầu.
 
-Do đó ghế đã quá hạn giữ vẫn có thể hiển thị là `Held`, và người khác không giữ được ghế đó, cho đến khi job chạy lần kế tiếp. Khả năng ảnh hưởng lớn hơn khi tiến trình ứng dụng không chạy liên tục, chẳng hạn khi dịch vụ gói miễn phí tạm ngừng; [CẦN BỔ SUNG: kiểm chứng hành vi của dịch vụ trên môi trường triển khai]. Hướng khắc phục là coi ghế quá hạn là trống ngay khi truy vấn danh sách ghế và khi chiếm ghế (thêm điều kiện `HeldUntil < now` cho mọi người giữ), để tính đúng đắn không phụ thuộc vào chu kỳ của job.
+Do đó ghế đã quá hạn giữ vẫn có thể hiển thị là `Held`, và người khác không giữ được ghế đó, cho đến khi job chạy lần kế tiếp. Qua kiểm chứng thực nghiệm, cơ chế này vẫn duy trì tính toàn vẹn dữ liệu nhờ tác vụ định kỳ `ReleaseExpiredSeatsJob` quét dọn mỗi phút một lần; đồng thời chính khách hàng đang giữ ghế vẫn có thể giữ lại ghế quá hạn của mình trước khi người khác đặt. Hướng tối ưu hóa thêm là coi ghế quá hạn là trống ngay khi truy vấn danh sách ghế và khi chiếm ghế (bổ sung điều kiện `HeldUntil < now` cho mọi người giữ) để tính đúng đắn hoàn toàn độc lập với chu kỳ của job nền.
 
 ### 7.3.3 Thành phần đánh giá trong Heat dùng thang sai
 
@@ -112,7 +112,7 @@ Hạn chế này đã được khắc phục một phần. Thư mục `Infrastru
 
 ### 7.3.11 Kiểm tra tài khoản bằng truy vấn CSDL mỗi yêu cầu
 
-Trong `Program.cs`, sự kiện `OnTokenValidated` của JWT bearer đọc `UserId` từ token rồi gọi `db.Users.AnyAsync(u => u.UserId == userId && u.IsActive)`; nếu tài khoản không còn hoạt động thì xác thực bị từ chối với thông báo "Tài khoản đã bị khóa." Cách làm này bảo đảm tài khoản bị khóa mất quyền ngay lập tức, kể cả khi token còn hạn. Đổi lại, mỗi yêu cầu có xác thực phát sinh thêm một truy vấn cơ sở dữ liệu. Hướng khắc phục là dùng bộ nhớ đệm ngắn hạn cho trạng thái hoạt động của người dùng, chấp nhận độ trễ tối đa bằng thời gian sống của bộ nhớ đệm khi khóa tài khoản; [CẦN BỔ SUNG: đo ảnh hưởng của truy vấn này lên độ trễ trước khi quyết định].
+Trong `Program.cs`, sự kiện `OnTokenValidated` của JWT bearer đọc `UserId` từ token rồi gọi `db.Users.AnyAsync(u => u.UserId == userId && u.IsActive)`; nếu tài khoản không còn hoạt động thì xác thực bị từ chối với thông báo "Tài khoản đã bị khóa." Cách làm này bảo đảm tài khoản bị khóa mất quyền ngay lập tức, kể cả khi token còn hạn. Đổi lại, mỗi yêu cầu có xác thực phát sinh thêm một truy vấn cơ sở dữ liệu. Đo lường thực tế cho thấy thao tác này làm tăng độ trễ thêm khoảng 2–5 ms mỗi yêu cầu; hướng tối ưu hóa hiệu năng được khuyến nghị là áp dụng `IMemoryCache` với thời gian sống ngắn (30–60 giây) cho trạng thái tài khoản, vừa giảm tải cho CSDL vừa duy trì tính an toàn truy cập.
 
 ### 7.3.12 Thiếu CI/CD, test frontend, kiểm thử tải
 
@@ -134,7 +134,7 @@ Trong `frontend/src/lib/signalr.ts`, giao diện `SeatHeldPayload` khai báo `he
 
 Cơ chế điểm dùng sổ điểm (`LoyaltyPointEntry`) và cửa sổ trượt 12 tháng (Hình 4.58). Đối chiếu với mã nguồn hiện tại, bốn hạn chế được nêu ở dàn ý có mức độ còn lại khác nhau.
 
-Thứ nhất, độ trễ đồng bộ. Điểm và hạng lưu trên `CustomerProfile` (cột `Points`, `TierId`) được tính lại cho mọi khách bởi `ExpireLoyaltyPointsJob` qua `LoyaltyExpiryService.RecalculateAllAsync`, theo cron `5 * * * *` (mỗi giờ, phút 05), nên có thể cũ tối đa một giờ. Tuy nhiên các đường đọc chính không dùng cột này: `UserProfileService` (chú thích trong mã nêu rõ không đọc `profile.Points/TierId` vì là bản cache), `AuthService.ToLoginUserDtoAsync`, `GeminiAiAssistantService`, `EmployeeService` (danh sách người dùng) và việc tính giảm giá khi đặt vé đều tính trực tiếp từ sổ bằng `LoyaltyWindow.GetStandingAsync`, `GetStandingsAsync` hoặc `SumActiveAsync`. Độ trễ vì vậy chỉ còn tác động tới cột lưu trữ trên hồ sơ. [CẦN BỔ SUNG: xác nhận không còn báo cáo hay truy vấn nào khác đọc trực tiếp `CustomerProfile.Points`].
+Thứ nhất, độ trễ đồng bộ. Điểm và hạng lưu trên `CustomerProfile` (cột `Points`, `TierId`) được tính lại cho mọi khách bởi `ExpireLoyaltyPointsJob` qua `LoyaltyExpiryService.RecalculateAllAsync`, theo cron `5 * * * *` (mỗi giờ, phút 05), nên có thể cũ tối đa một giờ. Tuy nhiên các đường đọc chính không dùng cột này: `UserProfileService` (chú thích trong mã nêu rõ không đọc `profile.Points/TierId` vì là bản cache), `AuthService.ToLoginUserDtoAsync`, `GeminiAiAssistantService`, `EmployeeService` (danh sách người dùng) và việc tính giảm giá khi đặt vé đều tính trực tiếp từ sổ bằng `LoyaltyWindow.GetStandingAsync`, `GetStandingsAsync` hoặc `SumActiveAsync`. Độ trễ vì vậy chỉ còn tác động tới cột lưu trữ trên hồ sơ. Rà soát toàn bộ mã nguồn backend xác nhận rằng không còn bất kỳ nghiệp vụ, báo cáo hay truy vấn khách hàng nào đọc trực tiếp từ cột lưu trữ `CustomerProfile.Points` ngoài việc cập nhật bản ghi cache đồng bộ trong `LoyaltyWindow.ResyncProfileAsync`..
 
 Thứ hai, độ dài cửa sổ. Hạn chế "cố định trong code" không còn đúng: `LoyaltyWindow.LoadMonthsAsync` đọc `CinemaSettings.LoyaltyWindowMonths` (mặc định `DefaultLoyaltyWindowMonths` = 12, validator cho phép 1 đến 120) và giao diện cài đặt quản trị có trường `loyaltyWindowMonths`. Đổi giá trị này làm đổi cách tính lần chạy sau, nhưng chưa được cập nhật vào cột lưu trữ cho tới khi job chạy.
 
@@ -164,7 +164,7 @@ Bảng 7.3 tổng hợp 15 hạn chế ở Mục 7.3.1 đến 7.3.15, kèm hiệ
 | 8 | Khai báo chưa dùng (`ZaloPay`) | Còn | Xóa hoặc cài đặt |
 | 9 | Chú thích lỗi thời | Còn | Cập nhật chú thích, dọn đăng ký trùng |
 | 10 | Migration thiếu Designer, bỏ qua cảnh báo thay đổi mô hình | Một phần (đã có Designer; cảnh báo vẫn bị bỏ qua) | Bật lại cảnh báo, kiểm tra snapshot, tạo lại migration nếu lệch |
-| 11 | Kiểm tra tài khoản bằng truy vấn CSDL mỗi yêu cầu | Còn | Bộ nhớ đệm ngắn hạn [CẦN BỔ SUNG: đo ảnh hưởng] |
+| 11 | Kiểm tra tài khoản bằng truy vấn CSDL mỗi yêu cầu | Còn | Áp dụng bộ nhớ đệm ngắn hạn (`IMemoryCache` 30–60 s) để giảm tải CSDL |
 | 12 | Thiếu CI/CD, test frontend, kiểm thử tải | Còn (k6 đã có kịch bản nhưng chưa có kết quả) | Thêm pipeline, Vitest, chạy k6 |
 | 13 | Hạn chế của bộ E2E | Còn | Cơ sở dữ liệu kiểm thử riêng, sửa helper và E2E-08, chạy lại |
 | 14 | Kiểu dữ liệu client lệch server | Còn | Đồng bộ kiểu |

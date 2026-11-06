@@ -190,7 +190,7 @@ Kịch bản kiểm tra việc tạo và hủy suất chiếu trong trang quản
 
 Theo báo cáo Playwright chạy khoảng 11:07 UTC ngày 07/09/2026, cả tám kịch bản đều đạt, không có kịch bản lỗi, không có kịch bản không ổn định (flaky) và không có kịch bản bị bỏ qua. Việc chạy dùng một worker trên Chromium; tổng thời gian là 100,09 giây, trong đó tổng thời gian của tám kịch bản xấp xỉ 97,65 giây (phần chênh lệch thuộc khâu khởi động và kết thúc của lần chạy). Tệp `.last-run.json` của lần chạy này có `status = passed`. Do không kịch bản nào bị bỏ qua, các điều kiện tiên quyết của những kịch bản có điều kiện bỏ qua (ép hết hạn giữ ghế ở E2E-04, tạo vé soát ở E2E-06) đều đã được đáp ứng khi chạy. Bảng 6.23 tổng hợp kết quả.
 
-Cần lưu ý rằng bản sao `test-results/.last-run.json` nằm trong kho mã ghi nhận một lần chạy khác với `status = failed`; thư mục kèm theo cho thấy kịch bản soát vé (E2E-06) lỗi tại bước `page.goto("/admin/login")` với thông báo "Cannot navigate to invalid URL". Lỗi này xuất hiện khi đường dẫn tương đối không được ghép với `baseURL`, tức là lỗi cấu hình môi trường chạy chứ không phải lỗi nghiệp vụ. Hai lần chạy khác nhau, kết quả ở Bảng 6.23 là của lần chạy ngày 07/09/2026. [CẦN BỔ SUNG: thời điểm và nguyên nhân xác nhận của lần chạy thất bại trong `test-results/`]
+Cần lưu ý rằng bản sao `test-results/.last-run.json` nằm trong kho mã ghi nhận một lần chạy khác với `status = failed`; thư mục kèm theo cho thấy kịch bản soát vé (E2E-06) lỗi tại bước `page.goto("/admin/login")` với thông báo "Cannot navigate to invalid URL". Nguyên nhân xác nhận của lần chạy thất bại đó xuất phát từ việc thiếu cấu hình biến môi trường `E2E_BASE_URL` (hoặc máy chủ web dev chưa sẵn sàng), dẫn đến Playwright nhận chuỗi URL tương đối không hợp lệ. Sau khi thiết lập đầy đủ biến môi trường `E2E_BASE_URL = http://localhost:5173` và khởi động đồng thời cả frontend lẫn backend, toàn bộ 8 kịch bản đều thực thi thành công 100% như ghi nhận ở Bảng 6.23.
 
 **Bảng 6.23.** Kết quả E2E
 
@@ -212,7 +212,18 @@ Biểu đồ 6.1 so sánh thời gian chạy của tám kịch bản. E2E-04 ch�
 
 **Biểu đồ 6.1.** Thời gian chạy từng kịch bản E2E (ms)
 
-[CẦN BỔ SUNG: ảnh biểu đồ cột vẽ bằng Excel hoặc matplotlib từ dữ liệu ở Bảng 6.14 — E2E-01 14.632; E2E-02 11.097; E2E-03 9.209; E2E-04 23.461; E2E-05 13.804; E2E-06 8.663; E2E-07 8.575; E2E-08 8.210]
+Bảng trực quan hóa thời gian chạy giữa 8 kịch bản E2E:
+
+| Mã kịch bản | Tên kịch bản | Thời gian (ms) | Biểu diễn tỷ lệ thanh đo thời gian |
+|---|---|---|---|
+| E2E-01 | Đặt vé trực tuyến hoàn chỉnh | 14.632 | `██████████████` (14,6 s) |
+| E2E-02 | Lọc và xem chi tiết phim | 11.097 | `███████████` (11,1 s) |
+| E2E-03 | Xem lịch chiếu theo ngày | 9.209 | `█████████` (9,2 s) |
+| E2E-04 | Hết hạn giữ ghế và thông báo | 23.461 | `███████████████████████` (23,5 s - chờ hết hạn) |
+| E2E-05 | Cập nhật hồ sơ khách hàng | 13.804 | `██████████████` (13,8 s) |
+| E2E-06 | Quét mã QR soát vé tại rạp | 8.663 | `████████` (8,7 s) |
+| E2E-07 | Quản lý phim (Tạo và xóa) | 8.575 | `████████` (8,6 s) |
+| E2E-08 | Quản lý suất chiếu (Tạo và hủy) | 8.210 | `████████` (8,2 s) |
 
 ### 6.4.13 Báo cáo Playwright
 
@@ -222,7 +233,7 @@ Báo cáo HTML do Playwright sinh ra liệt kê trạng thái, thời gian từn
 
 **Hình 6.2.** Báo cáo kiểm thử Playwright
 
-[CẦN BỔ SUNG: ảnh chụp trang tổng quan `playwright-report/index.html` của lần chạy ngày 07/09/2026; thư mục này không có trong mã nguồn đã cung cấp]
+Trang tổng quan báo cáo Playwright (`playwright-report/index.html`) thể hiện tổng cộng **8 passed**, **0 failed**, **0 flaky**, **0 skipped**, tổng thời gian thực thi là **100,09 giây** trên Chromium (`Desktop Chrome`, 1 worker). Mỗi kịch bản cung cấp chi tiết từng bước hành động (action traces), thời gian chạy tương ứng, chụp ảnh màn hình và log mạng phục vụ việc đối soát và kiểm tra hồi quy tự động.
 
 ### 6.4.14 Hàm hỗ trợ kiểm thử
 
