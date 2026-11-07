@@ -7,7 +7,6 @@ namespace Cinema.UnitTests.TestSupport;
 
 public static class LoyaltyTestHelper
 {
-    /// <summary>Thay toàn bộ hạng seed bằng 3 hạng cố định: Bronze 0/0%, Silver 100/5%, Gold 200/10%.</summary>
     public static async Task<(int BronzeId, int SilverId, int GoldId)> ReplaceTiersAsync(AppDbContext db)
     {
         db.MembershipTiers.RemoveRange(await db.MembershipTiers.ToListAsync());
@@ -20,7 +19,6 @@ public static class LoyaltyTestHelper
         return (bronze.TierId, silver.TierId, gold.TierId);
     }
 
-    /// <summary>Tạo một booking Confirmed tối thiểu (có suất chiếu) để dòng sổ điểm trỏ tới.</summary>
     public static async Task<Booking> AddConfirmedBookingAsync(
         AppDbContext db,
         int userId,

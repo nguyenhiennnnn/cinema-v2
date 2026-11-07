@@ -364,13 +364,6 @@ internal static class BookingScenarioSeeder
 
         // ───────────────────────── Kịch bản: khách đã xem, chưa review ─────────────────────────
 
-        /// <summary>
-        /// Với mỗi khách trong pool, tạo sẵn <see cref="ReviewReadyPerUser"/> booking Confirmed đã thanh toán và
-        /// check-in ở các suất Completed của những phim khác nhau (ưu tiên phim đang chiếu). Các cặp (khách, phim)
-        /// này bị loại khỏi <see cref="SeedReviewsAsync"/> nên khách vào trang phim là thấy form đánh giá ngay,
-        /// khớp điều kiện của ReviewService (có BookingTicket.IsCheckedIn của phim và chưa review).
-        /// Mỗi khách bắt đầu ở một vị trí khác nhau trong danh sách phim để bộ phim được review không trùng hệt nhau.
-        /// </summary>
         private void BuildReviewReadyScenarios(Dictionary<int, ShowtimeCtx> contexts, HashSet<int> specialIds)
         {
             var moviesWithPastShows = contexts
@@ -677,7 +670,6 @@ internal static class BookingScenarioSeeder
         private List<ShowtimeSeat>? Pick(ShowtimeCtx st, int count, int? seatTypeId) =>
             PickAdjacent(st, count, seatTypeId) ?? PickAdjacent(st, count, null);
 
-        /// <summary>Chọn <paramref name="count"/> ghế đơn liền kề cùng hàng (không qua lối đi), còn trống.</summary>
         private List<ShowtimeSeat>? PickAdjacent(ShowtimeCtx st, int count, int? seatTypeId)
         {
             var rows = st
@@ -712,7 +704,6 @@ internal static class BookingScenarioSeeder
             return null;
         }
 
-        /// <summary>Chọn 1 cặp ghế đôi (cùng CoupleId) mà cả hai ghế còn trống.</summary>
         private List<ShowtimeSeat>? PickCouple(ShowtimeCtx st)
         {
             var pairs = st

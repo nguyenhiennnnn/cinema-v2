@@ -11,7 +11,6 @@ public static class LoyaltyWindow
     public static DateTime Cutoff(DateTime utcNow, int months = DefaultMonths) =>
         utcNow.AddMonths(-months);
 
-    /// <summary>Số tháng hiệu lực của điểm thưởng, đọc từ cấu hình rạp (mặc định 12).</summary>
     public static async Task<int> LoadMonthsAsync(IAppDbContext db, CancellationToken ct) =>
         await db
             .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)

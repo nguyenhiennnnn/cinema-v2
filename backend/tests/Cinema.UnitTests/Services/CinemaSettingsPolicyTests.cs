@@ -12,7 +12,6 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-/// <summary>Các tham số chính sách (giới hạn đặt vé, cửa sổ điểm, ngày gia hạn...) đọc từ CinemaSettings.</summary>
 public class BookingLimitsFromSettingsTests : BookingServiceTestBase
 {
     private async Task SetLimitsAsync(int maxSeats, int maxCombo)

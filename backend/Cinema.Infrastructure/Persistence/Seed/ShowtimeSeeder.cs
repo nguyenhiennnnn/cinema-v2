@@ -20,10 +20,9 @@ internal static class ShowtimeSeeder
 
     private const int MaxShowsPerRoomDay = 4;
     private const int MinShowsPerRoomDay = 3;
-    private const int BufferMinutes = 15; // = CinemaSettings.DefaultRoomBufferMinutes
+    private const int BufferMinutes = 15; 
     private const double SafetyBufferHours = 0.5;
 
-    /// <summary>0h (giờ VN) của ngày VN chứa <paramref name="now"/>, cộng <paramref name="offsetDays"/> ngày, tính bằng UTC.</summary>
     internal static DateTime LocalDayStartUtc(DateTime now, int offsetDays = 0) =>
         VietnamTime.StartOfDayUtc(VietnamTime.LocalDate(now).AddDays(offsetDays));
 
@@ -43,7 +42,6 @@ internal static class ShowtimeSeeder
 
     // ───────────────────────────── Tương lai ─────────────────────────────
 
-    /// <summary>Đảm bảo mỗi phòng active có đủ suất chiếu cho hôm nay + 7 ngày tới. Idempotent.</summary>
     public static async Task<int> TopUpFutureAsync(
         AppDbContext db,
         ILogger logger,
@@ -87,7 +85,6 @@ internal static class ShowtimeSeeder
 
     // ───────────────────────────── Quá khứ ─────────────────────────────
 
-    /// <summary>Suất chiếu của 7 ngày gần nhất (Completed) để có dữ liệu báo cáo / dashboard / review.</summary>
     public static async Task<int> SeedPastAsync(
         AppDbContext db,
         ILogger logger,
@@ -119,10 +116,6 @@ internal static class ShowtimeSeeder
 
     // ───────────────────────────── Suất đặc biệt ─────────────────────────────
 
-    /// <summary>
-    /// Tạo các suất phục vụ kịch bản cụ thể (xem <see cref="BookingScenarioSeeder"/>).
-    /// Trả về dictionary theo key <c>Special*</c>.
-    /// </summary>
     public static async Task<Dictionary<string, Showtime>> CreateSpecialsAsync(
         AppDbContext db,
         ILogger logger,
@@ -272,11 +265,6 @@ internal static class ShowtimeSeeder
         };
     }
 
-    /// <summary>
-    /// Xếp lịch cho một ngày: mỗi phòng tối đa <see cref="MaxShowsPerRoomDay"/> suất, tuần tự, làm tròn 15 phút,
-    /// không vượt giờ đóng cửa, không chồng suất đã có. Bỏ qua phòng đã đủ <see cref="MinShowsPerRoomDay"/> suất
-    /// trong ngày (idempotent giữa các lần khởi động).
-    /// </summary>
     private static List<Showtime> PlanDay(
         Context ctx,
         DateTime day,

@@ -8,13 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Cinema.Infrastructure.Persistence.Seed;
 
-/// <summary>
-/// Seed runtime (chạy sau khi migrate). Dữ liệu tĩnh (role, phòng, ghế, phim, combo...) nằm trong
-/// <see cref="SeedData"/> (HasData). File này bổ sung dữ liệu động, phụ thuộc thời gian hiện tại:
-/// tài khoản test, phòng đặc biệt, suất chiếu (quá khứ/hiện tại/tương lai) và toàn bộ kịch bản
-/// booking - payment - check-in - review (xem <see cref="BookingScenarioSeeder"/>).
-/// Mọi bước đều idempotent: chạy lại nhiều lần không tạo trùng.
-/// </summary>
 public static class DbInitializer
 {
     private const int CustomerRoleId = 1;
@@ -702,7 +695,6 @@ public static class DbInitializer
     }
 }
 
-/// <summary>Email các tài khoản seed (dùng chung giữa các seeder).</summary>
 internal static class SeedEmails
 {
     public const string Admin = "admin@cinema.local";

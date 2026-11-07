@@ -59,7 +59,6 @@ public static class TestDataSeeder
         return room;
     }
 
-    /// <summary>Adds <paramref name="count"/> active, non-aisle standard seats to a room.</summary>
     public static List<Seat> AddSeats(AppDbContext db, int roomId, int count = 5, string row = "A")
     {
         var seats = Enumerable
@@ -99,7 +98,6 @@ public static class TestDataSeeder
         return movie;
     }
 
-    /// <summary>Creates a Scheduled showtime with one ShowtimeSeat per seat in <paramref name="seats"/>.</summary>
     public static Showtime AddShowtime(
         AppDbContext db,
         Movie movie,
@@ -141,7 +139,6 @@ public static class TestDataSeeder
         return showtime;
     }
 
-    /// <summary>Adds an active Employee (with backing admin User) for counter/staff-flow tests.</summary>
     public static (User User, Employee Employee) AddEmployee(
         AppDbContext db,
         string email = "employee@test.local",

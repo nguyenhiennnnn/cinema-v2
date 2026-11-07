@@ -7,7 +7,6 @@ namespace Cinema.Application.Services.Bookings;
 
 public class LoyaltyExpiryService(IAppDbContext db, ILogger<LoyaltyExpiryService> logger)
 {
-    /// <summary>Đồng bộ Points/TierId của mọi khách theo cửa sổ điểm thưởng trong cấu hình rạp (điểm cũ trượt ra khỏi cửa sổ thì bị trừ).</summary>
     public async Task<int> RecalculateAllAsync(CancellationToken ct)
     {
         var now = DateTime.UtcNow;

@@ -50,10 +50,6 @@ public static class AppDbContextExtensions
         CancellationToken cancellationToken
     ) => db.CinemaSettings.FirstAsync(s => s.Id == CinemaSettingsId, cancellationToken);
 
-    /// <summary>
-    /// Đọc cấu hình rạp (không tracking); nếu chưa có dòng settings thì trả về object mặc định
-    /// (chưa gắn vào context) để các luật nghiệp vụ vẫn chạy với giá trị mặc định.
-    /// </summary>
     public static async Task<CinemaSettings> LoadCinemaSettingsOrDefaultAsync(
         this IAppDbContext db,
         CancellationToken cancellationToken

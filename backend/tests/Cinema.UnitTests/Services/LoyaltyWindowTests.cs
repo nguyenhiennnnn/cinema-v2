@@ -8,7 +8,6 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-/// <summary>Giảm giá lấy hạng thẳng từ sổ điểm 12 tháng và chỉ áp dụng trên tiền vé.</summary>
 public class LoyaltyDiscountTests : BookingServiceTestBase
 {
     private async Task<HoldBookingResponse> HoldAsync(
@@ -148,7 +147,6 @@ public class LoyaltyDiscountTests : BookingServiceTestBase
     }
 }
 
-/// <summary>Cộng/đảo điểm làm việc trên sổ điểm theo từng booking.</summary>
 public class LoyaltyLedgerTests : BookingServiceTestBase
 {
     [Fact]

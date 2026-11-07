@@ -1150,10 +1150,6 @@ public class BookingService(
         return booking;
     }
 
-    /// <summary>
-    /// Giới hạn số ghế / số lượng combo mỗi booking do admin cấu hình trong Cinema Settings
-    /// (không còn nằm trong validator tĩnh vì validator không đọc được DB).
-    /// </summary>
     private async Task EnsureWithinBookingLimitsAsync(
         int seatCount,
         List<ComboSelectionRequest>? combos,
