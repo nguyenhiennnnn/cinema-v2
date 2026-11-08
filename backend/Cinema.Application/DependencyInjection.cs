@@ -44,7 +44,8 @@ public static class DependencyInjection
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<AiToolExecutor>();
-        services.AddHttpClient<IAiAssistantService, GeminiAiAssistantService>();
+        services.AddScoped<AiSystemPromptBuilder>();
+        services.AddScoped<IAiAssistantService, AiAssistantService>();
         return services;
     }
 }

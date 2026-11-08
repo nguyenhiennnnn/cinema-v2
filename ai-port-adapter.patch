@@ -1,0 +1,1154 @@
+diff --git a/backend/Cinema.Api/Program.cs b/backend/Cinema.Api/Program.cs
+index 7788931..88662cf 100644
+--- a/backend/Cinema.Api/Program.cs
++++ b/backend/Cinema.Api/Program.cs
+@@ -79,9 +79,6 @@ builder.Services.Configure<StripeOptions>(
+ builder.Services.Configure<AppUrlOptions>(
+     builder.Configuration.GetSection(AppUrlOptions.SectionName)
+ );
+-builder.Services.Configure<GeminiOptions>(
+-    builder.Configuration.GetSection(GeminiOptions.SectionName)
+-);
+ builder.Services.Configure<GoogleOptions>(
+     builder.Configuration.GetSection(GoogleOptions.SectionName)
+ );
+diff --git a/backend/Cinema.Application/DependencyInjection.cs b/backend/Cinema.Application/DependencyInjection.cs
+index f29ff90..ec841e6 100644
+--- a/backend/Cinema.Application/DependencyInjection.cs
++++ b/backend/Cinema.Application/DependencyInjection.cs
+@@ -44,7 +44,8 @@ public static class DependencyInjection
+         services.AddScoped<IDashboardService, DashboardService>();
+         services.AddScoped<IEmployeeService, EmployeeService>();
+         services.AddScoped<AiToolExecutor>();
+-        services.AddHttpClient<IAiAssistantService, GeminiAiAssistantService>();
++        services.AddScoped<AiSystemPromptBuilder>();
++        services.AddScoped<IAiAssistantService, AiAssistantService>();
+         return services;
+     }
+ }
+diff --git a/backend/Cinema.Application/Interfaces/IAiModelClient.cs b/backend/Cinema.Application/Interfaces/IAiModelClient.cs
+new file mode 100644
+index 0000000..3c170ca
+--- /dev/null
++++ b/backend/Cinema.Application/Interfaces/IAiModelClient.cs
+@@ -0,0 +1,19 @@
++using Cinema.Application.Services.Ai;
++
++namespace Cinema.Application.Interfaces;
++
++/// <summary>
++/// Cổng giao tiếp với mô hình ngôn ngữ. Application chỉ biết cổng này;
++/// nhà cung cấp cụ thể chỉ là một cài đặt cắm vào ở Infrastructure.
++/// </summary>
++public interface IAiModelClient
++{
++    /// <summary>Đã có đủ cấu hình (API key, ...) để gọi mô hình hay chưa.</summary>
++    bool IsConfigured { get; }
++
++    /// <summary>
++    /// Gửi một lượt hội thoại và nhận về tin nhắn của mô hình.
++    /// Ném <see cref="AiModelException"/> khi nhà cung cấp trả lỗi.
++    /// </summary>
++    Task<AiMessage> GenerateAsync(AiModelRequest request, CancellationToken cancellationToken);
++}
+diff --git a/backend/Cinema.Application/Services/Ai/AiAssistantService.cs b/backend/Cinema.Application/Services/Ai/AiAssistantService.cs
+new file mode 100644
+index 0000000..f927d5f
+--- /dev/null
++++ b/backend/Cinema.Application/Services/Ai/AiAssistantService.cs
+@@ -0,0 +1,163 @@
++using System.Text.Json.Nodes;
++using Cinema.Application.DTOs.Ai;
++using Cinema.Application.Interfaces;
++using Microsoft.Extensions.Logging;
++
++namespace Cinema.Application.Services.Ai;
++
++/// <summary>
++/// Điều phối hội thoại với trợ lý AI: dựng ngữ cảnh, chạy vòng lặp gọi hàm,
++/// áp giới hạn, gom thẻ và xử lý lỗi. Nói chuyện với mô hình chỉ qua <see cref="IAiModelClient"/>.
++/// </summary>
++public class AiAssistantService(
++    IAiModelClient modelClient,
++    AiSystemPromptBuilder promptBuilder,
++    AiToolExecutor toolExecutor,
++    ILogger<AiAssistantService> logger
++) : IAiAssistantService
++{
++    private const int MaxToolRounds = 4;
++
++    private const int MaxTotalToolCalls = 8;
++
++    private const int MaxCards = 6;
++
++    private const double Temperature = 0.5;
++
++    private const int MaxOutputTokens = 2048;
++
++    public async Task<AiChatResponse> ChatAsync(
++        int? userId,
++        AiChatRequest request,
++        CancellationToken cancellationToken
++    )
++    {
++        if (!modelClient.IsConfigured)
++        {
++            logger.LogWarning("AI model client is not configured (missing API key).");
++            return new AiChatResponse(
++                "Xin lỗi, tính năng AI Assistant hiện chưa được cấu hình khóa API trên hệ thống. Vui lòng liên hệ Quản trị viên để thiết lập.",
++                DateTime.UtcNow
++            );
++        }
++
++        var systemPrompt = await promptBuilder.BuildSystemPromptAsync(userId, cancellationToken);
++        var tools = AiToolExecutor.GetToolDefinitions(userId.HasValue);
++
++        var messages = new List<AiMessage>();
++        if (request.History is not null)
++        {
++            foreach (var h in request.History)
++            {
++                var role = h.Role.ToLowerInvariant() == "user" ? AiMessageRole.User : AiMessageRole.Model;
++                messages.Add(AiMessage.FromText(role, h.Content));
++            }
++        }
++        messages.Add(AiMessage.FromText(AiMessageRole.User, request.Message));
++
++        var cards = new List<AiCardDto>();
++        var totalToolCalls = 0;
++
++        try
++        {
++            for (var round = 0; round <= MaxToolRounds; round++)
++            {
++                var allowTools = round < MaxToolRounds;
++
++                AiMessage modelMessage;
++                try
++                {
++                    modelMessage = await modelClient.GenerateAsync(
++                        new AiModelRequest(
++                            systemPrompt,
++                            messages,
++                            allowTools ? tools : [],
++                            Temperature,
++                            MaxOutputTokens
++                        ),
++                        cancellationToken
++                    );
++                }
++                catch (AiModelException ex)
++                {
++                    logger.LogError(ex, "AI model call failed.");
++                    return new AiChatResponse(
++                        "Rất tiếc, kết nối với trợ lý AI thất bại. Vui lòng thử lại sau.",
++                        DateTime.UtcNow,
++                        FinalizeCards(cards)
++                    );
++                }
++
++                var functionCalls = modelMessage.Parts.OfType<AiFunctionCallPart>().ToList();
++
++                if (!allowTools || functionCalls.Count == 0)
++                {
++                    var reply = string.Concat(
++                        modelMessage
++                            .Parts.OfType<AiTextPart>()
++                            .Select(p => p.Text)
++                            .Where(t => !string.IsNullOrEmpty(t))
++                    );
++
++                    if (string.IsNullOrWhiteSpace(reply))
++                        reply = "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.";
++
++                    return new AiChatResponse(reply.Trim(), DateTime.UtcNow, FinalizeCards(cards));
++                }
++
++                messages.Add(modelMessage);
++
++                var results = new List<AiMessagePart>();
++                foreach (var call in functionCalls)
++                {
++                    AiToolExecutor.ToolResult result;
++                    if (++totalToolCalls > MaxTotalToolCalls)
++                    {
++                        result = new AiToolExecutor.ToolResult(
++                            new JsonObject
++                            {
++                                ["error"] =
++                                    "Đã vượt quá số lần truy vấn cho phép, hãy trả lời với dữ liệu đã có.",
++                            },
++                            []
++                        );
++                    }
++                    else
++                    {
++                        result = await toolExecutor.ExecuteAsync(
++                            call.Name,
++                            call.Args,
++                            userId,
++                            cancellationToken
++                        );
++                        cards.AddRange(result.Cards);
++                    }
++
++                    results.Add(new AiFunctionResultPart(call.Name, result.Response));
++                }
++
++                messages.Add(new AiMessage(AiMessageRole.Tool, results));
++            }
++
++            return new AiChatResponse(
++                "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.",
++                DateTime.UtcNow
++            );
++        }
++        catch (OperationCanceledException)
++        {
++            throw;
++        }
++        catch (Exception ex)
++        {
++            logger.LogError(ex, "Lỗi khi xử lý hội thoại với Trợ lý AI.");
++            return new AiChatResponse(
++                "Đã xảy ra lỗi trong quá trình xử lý yêu cầu với Trợ lý AI. Vui lòng thử lại sau.",
++                DateTime.UtcNow
++            );
++        }
++    }
++
++    private static List<AiCardDto> FinalizeCards(List<AiCardDto> cards) =>
++        cards.DistinctBy(c => $"{c.Type}|{c.Link}").Take(MaxCards).ToList();
++}
+diff --git a/backend/Cinema.Application/Services/Ai/AiModelContracts.cs b/backend/Cinema.Application/Services/Ai/AiModelContracts.cs
+new file mode 100644
+index 0000000..74571fd
+--- /dev/null
++++ b/backend/Cinema.Application/Services/Ai/AiModelContracts.cs
+@@ -0,0 +1,70 @@
++using System.Text.Json.Nodes;
++
++namespace Cinema.Application.Services.Ai;
++
++// Kiểu dữ liệu trung lập giữa bộ điều phối hội thoại và nhà cung cấp mô hình.
++// Không chứa bất kỳ cấu trúc JSON nào đặc thù của một nhà cung cấp.
++
++public enum AiMessageRole
++{
++    User,
++    Model,
++    Tool,
++}
++
++public abstract record AiMessagePart;
++
++public sealed record AiTextPart(string Text) : AiMessagePart;
++
++/// <summary>
++/// Mô hình yêu cầu gọi một hàm.
++/// <paramref name="ProviderState"/> là dữ liệu mờ do bộ chuyển đổi tự sinh ra
++/// (vd. chữ ký suy luận); bộ điều phối chỉ giữ nguyên và gửi lại ở lượt sau.
++/// </summary>
++public sealed record AiFunctionCallPart(
++    string Name,
++    JsonObject? Args,
++    string? ProviderState = null
++) : AiMessagePart;
++
++public sealed record AiFunctionResultPart(string Name, JsonObject Response) : AiMessagePart;
++
++public sealed record AiMessage(AiMessageRole Role, IReadOnlyList<AiMessagePart> Parts)
++{
++    public static AiMessage FromText(AiMessageRole role, string text) =>
++        new(role, [new AiTextPart(text)]);
++}
++
++public enum AiToolParameterType
++{
++    String,
++    Integer,
++    Number,
++    Boolean,
++}
++
++public sealed record AiToolParameter(
++    string Name,
++    AiToolParameterType Type,
++    string Description,
++    bool Required = false,
++    IReadOnlyList<string>? AllowedValues = null
++);
++
++public sealed record AiToolDefinition(
++    string Name,
++    string Description,
++    IReadOnlyList<AiToolParameter> Parameters
++);
++
++public sealed record AiModelRequest(
++    string SystemPrompt,
++    IReadOnlyList<AiMessage> Messages,
++    IReadOnlyList<AiToolDefinition> Tools,
++    double Temperature,
++    int MaxOutputTokens
++);
++
++/// <summary>Nhà cung cấp mô hình không phản hồi được (HTTP lỗi, ...).</summary>
++public class AiModelException(string message, Exception? inner = null)
++    : Exception(message, inner);
+diff --git a/backend/Cinema.Application/Services/Ai/AiSystemPromptBuilder.cs b/backend/Cinema.Application/Services/Ai/AiSystemPromptBuilder.cs
+new file mode 100644
+index 0000000..577b1c0
+--- /dev/null
++++ b/backend/Cinema.Application/Services/Ai/AiSystemPromptBuilder.cs
+@@ -0,0 +1,106 @@
++using Cinema.Application.Interfaces;
++using Cinema.Application.Options;
++using Cinema.Application.Utils;
++using Cinema.Domain.Enums;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.Extensions.Options;
++
++namespace Cinema.Application.Services.Ai;
++
++/// <summary>Dựng system prompt (dữ liệu rạp, phim, combo, khách hàng) cho trợ lý AI.</summary>
++public class AiSystemPromptBuilder(
++    IAppDbContext db,
++    IOptions<BrandOptions>? brandOptions = null
++)
++{
++    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
++
++    public async Task<string> BuildSystemPromptAsync(
++        int? userId,
++        CancellationToken cancellationToken
++    )
++    {
++        var settings = await db.CinemaSettings.FirstOrDefaultAsync(
++            s => s.Id == AppDbContextExtensions.CinemaSettingsId,
++            cancellationToken
++        );
++        var cinemaName = settings?.Name ?? _brand.Name;
++        var address = settings?.Address ?? "Chưa cập nhật";
++        var phone = settings?.Phone ?? "Chưa cập nhật";
++        var opening = settings?.OpeningTime?.ToString("HH:mm") ?? "08:00";
++        var closing = settings?.ClosingTime?.ToString("HH:mm") ?? "23:30";
++
++        var now = DateTime.UtcNow;
++
++        var movies = await db
++            .Movies.Include(m => m.AgeRating)
++            .Include(m => m.MovieGenres)
++                .ThenInclude(mg => mg.Genre)
++            .Where(m => m.Status == MovieStatus.NowShowing || m.Status == MovieStatus.ComingSoon)
++            .ToListAsync(cancellationToken);
++
++        var combos = await db.Combos.Where(c => c.IsActive).ToListAsync(cancellationToken);
++
++        string userInfoStr = "Khách vãng lai (Chưa đăng nhập)";
++        if (userId.HasValue)
++        {
++            var user = await db
++                .Users.Include(u => u.CustomerProfile)
++                    .ThenInclude(cp => cp!.Tier)
++                .FirstOrDefaultAsync(u => u.UserId == userId.Value, cancellationToken);
++            if (user is not null)
++            {
++                var standing = await LoyaltyWindow.GetStandingAsync(
++                    db,
++                    user.UserId,
++                    DateTime.UtcNow,
++                    cancellationToken
++                );
++                var points = standing.Points;
++                var tier = standing.Tier?.TierName ?? "Thành viên";
++                userInfoStr =
++                    $"Tên: {user.FullName}, Email: {user.Email}, Điểm tích lũy: {points}, Hạng: {tier}";
++            }
++        }
++
++        var movieInfoLines = movies.Select(m =>
++            $"- [{m.MovieId}] {m.Title} ({m.Subtitle ?? "Phụ đề"}) | Thể loại: {string.Join(", ", m.MovieGenres.Select(g => g.Genre.Name))} | Thời lượng: {m.DurationMinutes}p | Độ tuổi: {m.AgeRating?.Code ?? "P"} | Trạng thái: {(m.Status == MovieStatus.NowShowing ? "Đang chiếu" : "Sắp chiếu")}"
++        );
++
++        var comboLines = combos.Select(c => $"- {c.Name}: {c.Price:N0} VNĐ ({c.Description})");
++
++        var loginRule = userId.HasValue
++            ? "Khách đã đăng nhập: khi hỏi về vé/đơn đã đặt, hãy gọi hàm get_my_bookings."
++            : "Khách CHƯA đăng nhập: bạn không có quyền xem vé đã đặt, hãy mời khách đăng nhập để xem vé.";
++
++        return $"""
++            Bạn là Trợ lý AI thông minh và thân thiện của Rạp chiếu phim {cinemaName}.
++            Nhiệm vụ của bạn là hỗ trợ khách hàng tư vấn phim, lịch chiếu, giá vé, tình trạng ghế, combo bắp nước, và thông tin rạp.
++
++            === DỮ LIỆU THỜI GIAN THỰC TỪ HỆ THỐNG DB RẠP CHÍNH THỨC ===
++            - Thời gian hiện tại: {VietnamTime.ToLocal(now):dd/MM/yyyy HH:mm:ss}
++            - Thông tin Rạp: {cinemaName} | Địa chỉ: {address} | Hotline: {phone} | Giờ mở/đóng cửa: {opening} - {closing}
++            - Thông tin khách hàng đang trò chuyện: {userInfoStr}
++
++            --- DANH SÁCH PHIM DỰ KIẾN / ĐANG CHIẾU (số trong [] là movie_id) ---
++            {string.Join("\n", movieInfoLines)}
++
++            --- DANH SÁCH COMBO BẮP NƯỚC ---
++            {string.Join("\n", comboLines)}
++            ==========================================================
++
++            QUY TẮC PHẢN HỒI:
++            1. Luôn trả lời lịch sự, thân thiện bằng tiếng Việt, xưng "Trợ lý {_brand.Name}" hoặc "Em", gọi khách là "Anh/Chị" hoặc "Bạn".
++            2. Chỉ tư vấn dựa trên thông tin chính xác từ dữ liệu hệ thống ở trên và kết quả các hàm. Nếu khách hỏi thông tin không có, hãy trả lời khéo léo, tuyệt đối không bịa.
++            3. Trình bày phản hồi đẹp mắt bằng Markdown (dùng in đậm **, danh sách đầu dòng -).
++            4. Khuyến khích khách hàng chọn suất chiếu và đặt vé trên ứng dụng.
++
++            QUY TẮC DÙNG HÀM (FUNCTION CALLING):
++            5. Lịch chiếu, giờ chiếu, giá vé: PHẢI gọi search_showtimes, không tự đoán. Khi khách nói "hôm nay/ngày mai/cuối tuần", hãy đổi sang ngày yyyy-MM-dd dựa trên thời gian hiện tại ở trên.
++            6. Tình trạng ghế/còn chỗ không: PHẢI gọi get_seat_availability với showtime_id lấy từ search_showtimes (nếu chưa có thì gọi search_showtimes trước).
++            7. {loginRule}
++            8. Các thẻ suất chiếu/vé sẽ tự hiển thị bên dưới câu trả lời, nên KHÔNG cần chép lại toàn bộ danh sách; chỉ tóm tắt ngắn gọn và nêu điểm đáng chú ý.
++            9. Nếu hàm trả về lỗi hoặc không có kết quả, hãy báo lại cho khách một cách tự nhiên và gợi ý lựa chọn khác.
++            """;
++    }
++}
+diff --git a/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs b/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs
+index c2dd990..2522b70 100644
+--- a/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs
++++ b/backend/Cinema.Application/Services/Ai/AiToolExecutor.cs
+@@ -22,98 +22,69 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
+ 
+     public record ToolResult(JsonObject Response, List<AiCardDto> Cards);
+ 
+-    public static JsonArray BuildFunctionDeclarations(bool isAuthenticated)
++    public static IReadOnlyList<AiToolDefinition> GetToolDefinitions(bool isAuthenticated)
+     {
+-        var declarations = new JsonArray
++        var tools = new List<AiToolDefinition>
+         {
+-            new JsonObject
+-            {
+-                ["name"] = SearchShowtimes,
+-                ["description"] =
+-                    "Tìm suất chiếu sắp tới (còn hiệu lực) theo phim, ngày. Dùng khi khách hỏi lịch chiếu, giờ chiếu, giá vé của một phim hoặc của một ngày.",
+-                ["parameters"] = new JsonObject
+-                {
+-                    ["type"] = "OBJECT",
+-                    ["properties"] = new JsonObject
+-                    {
+-                        ["movie_id"] = new JsonObject
+-                        {
+-                            ["type"] = "INTEGER",
+-                            ["description"] =
+-                                "ID phim (lấy từ danh sách phim trong system prompt).",
+-                        },
+-                        ["movie_title"] = new JsonObject
+-                        {
+-                            ["type"] = "STRING",
+-                            ["description"] = "Một phần tên phim, dùng khi không biết movie_id.",
+-                        },
+-                        ["date"] = new JsonObject
+-                        {
+-                            ["type"] = "STRING",
+-                            ["description"] =
+-                                "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán.",
+-                        },
+-                    },
+-                },
+-            },
+-            new JsonObject
+-            {
+-                ["name"] = GetSeatAvailability,
+-                ["description"] =
+-                    "Xem tình trạng ghế trống của một suất chiếu: số ghế còn, giá theo loại ghế, danh sách ghế trống. Dùng khi khách hỏi còn ghế không, ghế nào còn trống.",
+-                ["parameters"] = new JsonObject
+-                {
+-                    ["type"] = "OBJECT",
+-                    ["properties"] = new JsonObject
+-                    {
+-                        ["showtime_id"] = new JsonObject
+-                        {
+-                            ["type"] = "INTEGER",
+-                            ["description"] = "ID suất chiếu (lấy từ kết quả search_showtimes).",
+-                        },
+-                    },
+-                    ["required"] = new JsonArray("showtime_id"),
+-                },
+-            },
++            new(
++                SearchShowtimes,
++                "Tìm suất chiếu sắp tới (còn hiệu lực) theo phim, ngày. Dùng khi khách hỏi lịch chiếu, giờ chiếu, giá vé của một phim hoặc của một ngày.",
++                [
++                    new AiToolParameter(
++                        "movie_id",
++                        AiToolParameterType.Integer,
++                        "ID phim (lấy từ danh sách phim trong system prompt)."
++                    ),
++                    new AiToolParameter(
++                        "movie_title",
++                        AiToolParameterType.String,
++                        "Một phần tên phim, dùng khi không biết movie_id."
++                    ),
++                    new AiToolParameter(
++                        "date",
++                        AiToolParameterType.String,
++                        "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán."
++                    ),
++                ]
++            ),
++            new(
++                GetSeatAvailability,
++                "Xem tình trạng ghế trống của một suất chiếu: số ghế còn, giá theo loại ghế, danh sách ghế trống. Dùng khi khách hỏi còn ghế không, ghế nào còn trống.",
++                [
++                    new AiToolParameter(
++                        "showtime_id",
++                        AiToolParameterType.Integer,
++                        "ID suất chiếu (lấy từ kết quả search_showtimes).",
++                        Required: true
++                    ),
++                ]
++            ),
+         };
+ 
+         if (isAuthenticated)
+         {
+-            declarations.Add(
+-                new JsonObject
+-                {
+-                    ["name"] = GetMyBookings,
+-                    ["description"] =
+-                        "Lấy các vé/đơn đặt vé của chính khách đang đăng nhập. Không cần truyền thông tin người dùng.",
+-                    ["parameters"] = new JsonObject
+-                    {
+-                        ["type"] = "OBJECT",
+-                        ["properties"] = new JsonObject
+-                        {
+-                            ["upcoming_only"] = new JsonObject
+-                            {
+-                                ["type"] = "BOOLEAN",
+-                                ["description"] =
+-                                    "true: chỉ vé có suất chiếu chưa diễn ra. Mặc định false.",
+-                            },
+-                            ["status"] = new JsonObject
+-                            {
+-                                ["type"] = "STRING",
+-                                ["description"] = "Lọc theo trạng thái.",
+-                                ["enum"] = new JsonArray(
+-                                    "Pending",
+-                                    "Confirmed",
+-                                    "Cancelled",
+-                                    "Expired"
+-                                ),
+-                            },
+-                        },
+-                    },
+-                }
++            tools.Add(
++                new AiToolDefinition(
++                    GetMyBookings,
++                    "Lấy các vé/đơn đặt vé của chính khách đang đăng nhập. Không cần truyền thông tin người dùng.",
++                    [
++                        new AiToolParameter(
++                            "upcoming_only",
++                            AiToolParameterType.Boolean,
++                            "true: chỉ vé có suất chiếu chưa diễn ra. Mặc định false."
++                        ),
++                        new AiToolParameter(
++                            "status",
++                            AiToolParameterType.String,
++                            "Lọc theo trạng thái.",
++                            AllowedValues: ["Pending", "Confirmed", "Cancelled", "Expired"]
++                        ),
++                    ]
++                )
+             );
+         }
+ 
+-        return new JsonArray { new JsonObject { ["functionDeclarations"] = declarations } };
++        return tools;
+     }
+ 
+     public async Task<ToolResult> ExecuteAsync(
+diff --git a/backend/Cinema.Application/Services/Ai/GeminiAiAssistantService.cs b/backend/Cinema.Application/Services/Ai/GeminiAiAssistantService.cs
+deleted file mode 100644
+index 2ac6bfd..0000000
+--- a/backend/Cinema.Application/Services/Ai/GeminiAiAssistantService.cs
++++ /dev/null
+@@ -1,324 +0,0 @@
+-using System.Text;
+-using System.Text.Json.Nodes;
+-using Cinema.Application.DTOs.Ai;
+-using Cinema.Application.Interfaces;
+-using Cinema.Application.Options;
+-using Cinema.Application.Utils;
+-using Cinema.Domain.Enums;
+-using Microsoft.EntityFrameworkCore;
+-using Microsoft.Extensions.Logging;
+-using Microsoft.Extensions.Options;
+-
+-namespace Cinema.Application.Services.Ai;
+-
+-public class GeminiAiAssistantService(
+-    IAppDbContext db,
+-    HttpClient httpClient,
+-    AiToolExecutor toolExecutor,
+-    IOptions<GeminiOptions> options,
+-    ILogger<GeminiAiAssistantService> logger,
+-    IOptions<BrandOptions>? brandOptions = null
+-) : IAiAssistantService
+-{
+-    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
+-
+-    private const int MaxToolRounds = 4;
+-
+-    private const int MaxTotalToolCalls = 8;
+-
+-    private const int MaxCards = 6;
+-
+-    private readonly GeminiOptions _options = options.Value;
+-
+-    public async Task<AiChatResponse> ChatAsync(
+-        int? userId,
+-        AiChatRequest request,
+-        CancellationToken cancellationToken
+-    )
+-    {
+-        var apiKey = string.IsNullOrWhiteSpace(_options.ApiKey)
+-            ? Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? string.Empty
+-            : _options.ApiKey;
+-
+-        if (string.IsNullOrWhiteSpace(apiKey))
+-        {
+-            logger.LogWarning("Gemini API key is not configured.");
+-            return new AiChatResponse(
+-                "Xin lỗi, tính năng AI Assistant hiện chưa được cấu hình API Key trên hệ thống. Vui lòng liên hệ Quản trị viên để thiết lập GEMINI_API_KEY.",
+-                DateTime.UtcNow
+-            );
+-        }
+-
+-        var systemPrompt = await BuildSystemPromptAsync(userId, cancellationToken);
+-
+-        var contents = new JsonArray();
+-        if (request.History is not null)
+-        {
+-            foreach (var h in request.History)
+-            {
+-                var role = h.Role.ToLowerInvariant() == "user" ? "user" : "model";
+-                contents.Add(TextContent(role, h.Content));
+-            }
+-        }
+-        contents.Add(TextContent("user", request.Message));
+-
+-        var cards = new List<AiCardDto>();
+-        var totalToolCalls = 0;
+-
+-        try
+-        {
+-            for (var round = 0; round <= MaxToolRounds; round++)
+-            {
+-                var allowTools = round < MaxToolRounds;
+-
+-                var payload = new JsonObject
+-                {
+-                    ["system_instruction"] = new JsonObject
+-                    {
+-                        ["parts"] = new JsonArray(new JsonObject { ["text"] = systemPrompt }),
+-                    },
+-                    ["contents"] = contents.DeepClone(),
+-                    ["generationConfig"] = new JsonObject
+-                    {
+-                        ["temperature"] = 0.5,
+-                        ["maxOutputTokens"] = 2048,
+-                    },
+-                };
+-                if (allowTools)
+-                    payload["tools"] = AiToolExecutor.BuildFunctionDeclarations(userId.HasValue);
+-
+-                var modelContent = await CallGeminiAsync(payload, apiKey, cancellationToken);
+-                if (modelContent is null)
+-                {
+-                    return new AiChatResponse(
+-                        "Rất tiếc, kết nối với trợ lý AI Gemini thất bại. Vui lòng thử lại sau.",
+-                        DateTime.UtcNow,
+-                        FinalizeCards(cards)
+-                    );
+-                }
+-
+-                var parts = modelContent["parts"] as JsonArray;
+-                var functionCalls = parts
+-                    ?.OfType<JsonObject>()
+-                    .Where(p => p["functionCall"] is JsonObject)
+-                    .ToList();
+-
+-                if (!allowTools || functionCalls is null || functionCalls.Count == 0)
+-                {
+-                    var reply = string.Concat(
+-                        parts
+-                            ?.OfType<JsonObject>()
+-                            .Select(p => p["text"]?.GetValue<string>())
+-                            .Where(t => !string.IsNullOrEmpty(t))
+-                            ?? []
+-                    );
+-
+-                    if (string.IsNullOrWhiteSpace(reply))
+-                        reply = "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.";
+-
+-                    return new AiChatResponse(reply.Trim(), DateTime.UtcNow, FinalizeCards(cards));
+-                }
+-
+-                var echoed = (JsonObject)modelContent.DeepClone();
+-                echoed["role"] ??= "model";
+-                contents.Add(echoed);
+-
+-                var responseParts = new JsonArray();
+-                foreach (var part in functionCalls)
+-                {
+-                    var call = (JsonObject)part["functionCall"]!;
+-                    var name = call["name"]?.GetValue<string>() ?? string.Empty;
+-                    var args = call["args"] as JsonObject;
+-
+-                    AiToolExecutor.ToolResult result;
+-                    if (++totalToolCalls > MaxTotalToolCalls)
+-                    {
+-                        result = new AiToolExecutor.ToolResult(
+-                            new JsonObject
+-                            {
+-                                ["error"] =
+-                                    "Đã vượt quá số lần truy vấn cho phép, hãy trả lời với dữ liệu đã có.",
+-                            },
+-                            []
+-                        );
+-                    }
+-                    else
+-                    {
+-                        result = await toolExecutor.ExecuteAsync(
+-                            name,
+-                            args,
+-                            userId,
+-                            cancellationToken
+-                        );
+-                        cards.AddRange(result.Cards);
+-                    }
+-
+-                    responseParts.Add(
+-                        new JsonObject
+-                        {
+-                            ["functionResponse"] = new JsonObject
+-                            {
+-                                ["name"] = name,
+-                                ["response"] = result.Response,
+-                            },
+-                        }
+-                    );
+-                }
+-
+-                contents.Add(new JsonObject { ["role"] = "user", ["parts"] = responseParts });
+-            }
+-
+-            return new AiChatResponse(
+-                "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.",
+-                DateTime.UtcNow
+-            );
+-        }
+-        catch (OperationCanceledException)
+-        {
+-            throw;
+-        }
+-        catch (Exception ex)
+-        {
+-            logger.LogError(ex, "Lỗi khi gọi Gemini AI Assistant API.");
+-            return new AiChatResponse(
+-                "Đã xảy ra lỗi trong quá trình xử lý yêu cầu với Trợ lý AI. Vui lòng thử lại sau.",
+-                DateTime.UtcNow
+-            );
+-        }
+-    }
+-
+-    private async Task<JsonObject?> CallGeminiAsync(
+-        JsonObject payload,
+-        string apiKey,
+-        CancellationToken cancellationToken
+-    )
+-    {
+-        var url = $"{_options.BaseUrl.TrimEnd('/')}/{_options.Model}:generateContent";
+-
+-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+-        {
+-            Content = new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json"),
+-        };
+-        httpRequest.Headers.Add("x-goog-api-key", apiKey);
+-
+-        using var response = await httpClient.SendAsync(httpRequest, cancellationToken);
+-        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+-
+-        if (!response.IsSuccessStatusCode)
+-        {
+-            logger.LogError("Gemini API error ({StatusCode}): {Body}", response.StatusCode, body);
+-            return null;
+-        }
+-
+-        var root = JsonNode.Parse(body);
+-        if (root?["candidates"] is JsonArray { Count: > 0 } candidates)
+-        {
+-            if (candidates[0]?["content"] is JsonObject content)
+-                return content;
+-
+-            logger.LogWarning(
+-                "Gemini returned no content. FinishReason: {Reason}",
+-                candidates[0]?["finishReason"]?.ToString()
+-            );
+-            return new JsonObject { ["role"] = "model", ["parts"] = new JsonArray() };
+-        }
+-
+-        logger.LogWarning("Gemini returned no candidates. Body: {Body}", body);
+-        return new JsonObject { ["role"] = "model", ["parts"] = new JsonArray() };
+-    }
+-
+-    private static JsonObject TextContent(string role, string text) =>
+-        new() { ["role"] = role, ["parts"] = new JsonArray(new JsonObject { ["text"] = text }) };
+-
+-    private static List<AiCardDto> FinalizeCards(List<AiCardDto> cards) =>
+-        cards.DistinctBy(c => $"{c.Type}|{c.Link}").Take(MaxCards).ToList();
+-
+-    private async Task<string> BuildSystemPromptAsync(
+-        int? userId,
+-        CancellationToken cancellationToken
+-    )
+-    {
+-        var settings = await db.CinemaSettings.FirstOrDefaultAsync(
+-            s => s.Id == AppDbContextExtensions.CinemaSettingsId,
+-            cancellationToken
+-        );
+-        var cinemaName = settings?.Name ?? _brand.Name;
+-        var address = settings?.Address ?? "Chưa cập nhật";
+-        var phone = settings?.Phone ?? "Chưa cập nhật";
+-        var opening = settings?.OpeningTime?.ToString("HH:mm") ?? "08:00";
+-        var closing = settings?.ClosingTime?.ToString("HH:mm") ?? "23:30";
+-
+-        var now = DateTime.UtcNow;
+-
+-        var movies = await db
+-            .Movies.Include(m => m.AgeRating)
+-            .Include(m => m.MovieGenres)
+-                .ThenInclude(mg => mg.Genre)
+-            .Where(m => m.Status == MovieStatus.NowShowing || m.Status == MovieStatus.ComingSoon)
+-            .ToListAsync(cancellationToken);
+-
+-        var combos = await db.Combos.Where(c => c.IsActive).ToListAsync(cancellationToken);
+-
+-        string userInfoStr = "Khách vãng lai (Chưa đăng nhập)";
+-        if (userId.HasValue)
+-        {
+-            var user = await db
+-                .Users.Include(u => u.CustomerProfile)
+-                    .ThenInclude(cp => cp!.Tier)
+-                .FirstOrDefaultAsync(u => u.UserId == userId.Value, cancellationToken);
+-            if (user is not null)
+-            {
+-                var standing = await LoyaltyWindow.GetStandingAsync(
+-                    db,
+-                    user.UserId,
+-                    DateTime.UtcNow,
+-                    cancellationToken
+-                );
+-                var points = standing.Points;
+-                var tier = standing.Tier?.TierName ?? "Thành viên";
+-                userInfoStr =
+-                    $"Tên: {user.FullName}, Email: {user.Email}, Điểm tích lũy: {points}, Hạng: {tier}";
+-            }
+-        }
+-
+-        var movieInfoLines = movies.Select(m =>
+-            $"- [{m.MovieId}] {m.Title} ({m.Subtitle ?? "Phụ đề"}) | Thể loại: {string.Join(", ", m.MovieGenres.Select(g => g.Genre.Name))} | Thời lượng: {m.DurationMinutes}p | Độ tuổi: {m.AgeRating?.Code ?? "P"} | Trạng thái: {(m.Status == MovieStatus.NowShowing ? "Đang chiếu" : "Sắp chiếu")}"
+-        );
+-
+-        var comboLines = combos.Select(c => $"- {c.Name}: {c.Price:N0} VNĐ ({c.Description})");
+-
+-        var loginRule = userId.HasValue
+-            ? "Khách đã đăng nhập: khi hỏi về vé/đơn đã đặt, hãy gọi hàm get_my_bookings."
+-            : "Khách CHƯA đăng nhập: bạn không có quyền xem vé đã đặt, hãy mời khách đăng nhập để xem vé.";
+-
+-        return $"""
+-            Bạn là Trợ lý AI thông minh và thân thiện của Rạp chiếu phim {cinemaName}.
+-            Nhiệm vụ của bạn là hỗ trợ khách hàng tư vấn phim, lịch chiếu, giá vé, tình trạng ghế, combo bắp nước, và thông tin rạp.
+-
+-            === DỮ LIỆU THỜI GIAN THỰC TỪ HỆ THỐNG DB RẠP CHÍNH THỨC ===
+-            - Thời gian hiện tại: {VietnamTime.ToLocal(now):dd/MM/yyyy HH:mm:ss}
+-            - Thông tin Rạp: {cinemaName} | Địa chỉ: {address} | Hotline: {phone} | Giờ mở/đóng cửa: {opening} - {closing}
+-            - Thông tin khách hàng đang trò chuyện: {userInfoStr}
+-
+-            --- DANH SÁCH PHIM DỰ KIẾN / ĐANG CHIẾU (số trong [] là movie_id) ---
+-            {string.Join("\n", movieInfoLines)}
+-
+-            --- DANH SÁCH COMBO BẮP NƯỚC ---
+-            {string.Join("\n", comboLines)}
+-            ==========================================================
+-
+-            QUY TẮC PHẢN HỒI:
+-            1. Luôn trả lời lịch sự, thân thiện bằng tiếng Việt, xưng "Trợ lý {_brand.Name}" hoặc "Em", gọi khách là "Anh/Chị" hoặc "Bạn".
+-            2. Chỉ tư vấn dựa trên thông tin chính xác từ dữ liệu hệ thống ở trên và kết quả các hàm. Nếu khách hỏi thông tin không có, hãy trả lời khéo léo, tuyệt đối không bịa.
+-            3. Trình bày phản hồi đẹp mắt bằng Markdown (dùng in đậm **, danh sách đầu dòng -).
+-            4. Khuyến khích khách hàng chọn suất chiếu và đặt vé trên ứng dụng.
+-
+-            QUY TẮC DÙNG HÀM (FUNCTION CALLING):
+-            5. Lịch chiếu, giờ chiếu, giá vé: PHẢI gọi search_showtimes, không tự đoán. Khi khách nói "hôm nay/ngày mai/cuối tuần", hãy đổi sang ngày yyyy-MM-dd dựa trên thời gian hiện tại ở trên.
+-            6. Tình trạng ghế/còn chỗ không: PHẢI gọi get_seat_availability với showtime_id lấy từ search_showtimes (nếu chưa có thì gọi search_showtimes trước).
+-            7. {loginRule}
+-            8. Các thẻ suất chiếu/vé sẽ tự hiển thị bên dưới câu trả lời, nên KHÔNG cần chép lại toàn bộ danh sách; chỉ tóm tắt ngắn gọn và nêu điểm đáng chú ý.
+-            9. Nếu hàm trả về lỗi hoặc không có kết quả, hãy báo lại cho khách một cách tự nhiên và gợi ý lựa chọn khác.
+-            """;
+-    }
+-}
+diff --git a/backend/Cinema.Infrastructure/Ai/GeminiAiModelClient.cs b/backend/Cinema.Infrastructure/Ai/GeminiAiModelClient.cs
+new file mode 100644
+index 0000000..cfebd91
+--- /dev/null
++++ b/backend/Cinema.Infrastructure/Ai/GeminiAiModelClient.cs
+@@ -0,0 +1,218 @@
++using System.Text;
++using System.Text.Json.Nodes;
++using Cinema.Application.Interfaces;
++using Cinema.Application.Services.Ai;
++using Microsoft.Extensions.Logging;
++using Microsoft.Extensions.Options;
++
++namespace Cinema.Infrastructure.Ai;
++
++/// <summary>
++/// Bộ chuyển đổi Gemini cho cổng <see cref="IAiModelClient"/>. Nơi duy nhất biết URL,
++/// header, cấu trúc JSON, tên kiểu của Gemini và cách lấy API key.
++/// </summary>
++public class GeminiAiModelClient(
++    HttpClient httpClient,
++    IOptions<GeminiOptions> options,
++    ILogger<GeminiAiModelClient> logger
++) : IAiModelClient
++{
++    private readonly GeminiOptions _options = options.Value;
++
++    public bool IsConfigured => !string.IsNullOrWhiteSpace(ResolveApiKey());
++
++    public async Task<AiMessage> GenerateAsync(
++        AiModelRequest request,
++        CancellationToken cancellationToken
++    )
++    {
++        var apiKey = ResolveApiKey();
++        if (string.IsNullOrWhiteSpace(apiKey))
++            throw new AiModelException("Gemini API key is not configured.");
++
++        var payload = BuildPayload(request);
++        var url = $"{_options.BaseUrl.TrimEnd('/')}/{_options.Model}:generateContent";
++
++        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
++        {
++            Content = new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json"),
++        };
++        httpRequest.Headers.Add("x-goog-api-key", apiKey);
++
++        using var response = await httpClient.SendAsync(httpRequest, cancellationToken);
++        var body = await response.Content.ReadAsStringAsync(cancellationToken);
++
++        if (!response.IsSuccessStatusCode)
++            throw new AiModelException($"Gemini API error ({(int)response.StatusCode}): {body}");
++
++        return ParseResponse(body);
++    }
++
++    private string ResolveApiKey() =>
++        string.IsNullOrWhiteSpace(_options.ApiKey)
++            ? Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? string.Empty
++            : _options.ApiKey;
++
++    private static JsonObject BuildPayload(AiModelRequest request)
++    {
++        var payload = new JsonObject
++        {
++            ["system_instruction"] = new JsonObject
++            {
++                ["parts"] = new JsonArray(new JsonObject { ["text"] = request.SystemPrompt }),
++            },
++            ["contents"] = new JsonArray(request.Messages.Select(ToContent).ToArray<JsonNode?>()),
++            ["generationConfig"] = new JsonObject
++            {
++                ["temperature"] = request.Temperature,
++                ["maxOutputTokens"] = request.MaxOutputTokens,
++            },
++        };
++
++        if (request.Tools.Count > 0)
++        {
++            payload["tools"] = new JsonArray(
++                new JsonObject
++                {
++                    ["functionDeclarations"] = new JsonArray(
++                        request.Tools.Select(ToFunctionDeclaration).ToArray<JsonNode?>()
++                    ),
++                }
++            );
++        }
++
++        return payload;
++    }
++
++    private static JsonObject ToContent(AiMessage message) =>
++        new()
++        {
++            // Gemini chỉ có hai vai: "user" và "model"; kết quả hàm được gửi với vai "user".
++            ["role"] = message.Role == AiMessageRole.Model ? "model" : "user",
++            ["parts"] = new JsonArray(message.Parts.Select(ToPart).ToArray<JsonNode?>()),
++        };
++
++    private static JsonObject ToPart(AiMessagePart part)
++    {
++        switch (part)
++        {
++            case AiTextPart text:
++                return new JsonObject { ["text"] = text.Text };
++
++            case AiFunctionCallPart call:
++                var callPart = new JsonObject
++                {
++                    ["functionCall"] = new JsonObject
++                    {
++                        ["name"] = call.Name,
++                        ["args"] = call.Args?.DeepClone() ?? new JsonObject(),
++                    },
++                };
++                if (!string.IsNullOrEmpty(call.ProviderState))
++                    callPart["thoughtSignature"] = call.ProviderState;
++                return callPart;
++
++            case AiFunctionResultPart result:
++                return new JsonObject
++                {
++                    ["functionResponse"] = new JsonObject
++                    {
++                        ["name"] = result.Name,
++                        ["response"] = result.Response.DeepClone(),
++                    },
++                };
++
++            default:
++                throw new NotSupportedException(
++                    $"Loại phần tin nhắn không được hỗ trợ: {part.GetType().Name}."
++                );
++        }
++    }
++
++    private static JsonObject ToFunctionDeclaration(AiToolDefinition tool)
++    {
++        var declaration = new JsonObject { ["name"] = tool.Name, ["description"] = tool.Description };
++
++        // Gemini không chấp nhận "parameters" rỗng, nên chỉ khai báo khi có tham số.
++        if (tool.Parameters.Count == 0)
++            return declaration;
++
++        var properties = new JsonObject();
++        foreach (var p in tool.Parameters)
++        {
++            var property = new JsonObject
++            {
++                ["type"] = ToGeminiType(p.Type),
++                ["description"] = p.Description,
++            };
++            if (p.AllowedValues is { Count: > 0 })
++                property["enum"] = new JsonArray(p.AllowedValues.Select(v => (JsonNode?)v).ToArray());
++            properties[p.Name] = property;
++        }
++
++        var parameters = new JsonObject { ["type"] = "OBJECT", ["properties"] = properties };
++
++        var required = tool.Parameters.Where(p => p.Required).Select(p => (JsonNode?)p.Name).ToArray();
++        if (required.Length > 0)
++            parameters["required"] = new JsonArray(required);
++
++        declaration["parameters"] = parameters;
++        return declaration;
++    }
++
++    private static string ToGeminiType(AiToolParameterType type) =>
++        type switch
++        {
++            AiToolParameterType.Integer => "INTEGER",
++            AiToolParameterType.Number => "NUMBER",
++            AiToolParameterType.Boolean => "BOOLEAN",
++            AiToolParameterType.String => "STRING",
++            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
++        };
++
++    private AiMessage ParseResponse(string body)
++    {
++        var root = JsonNode.Parse(body);
++        if (root?["candidates"] is JsonArray { Count: > 0 } candidates)
++        {
++            if (candidates[0]?["content"] is JsonObject content)
++                return new AiMessage(AiMessageRole.Model, ParseParts(content["parts"] as JsonArray));
++
++            logger.LogWarning(
++                "Gemini returned no content. FinishReason: {Reason}",
++                candidates[0]?["finishReason"]?.ToString()
++            );
++            return new AiMessage(AiMessageRole.Model, []);
++        }
++
++        logger.LogWarning("Gemini returned no candidates. Body: {Body}", body);
++        return new AiMessage(AiMessageRole.Model, []);
++    }
++
++    private static List<AiMessagePart> ParseParts(JsonArray? parts)
++    {
++        var result = new List<AiMessagePart>();
++        if (parts is null)
++            return result;
++
++        foreach (var part in parts.OfType<JsonObject>())
++        {
++            if (part["functionCall"] is JsonObject call)
++            {
++                result.Add(
++                    new AiFunctionCallPart(
++                        call["name"]?.GetValue<string>() ?? string.Empty,
++                        call["args"] as JsonObject,
++                        part["thoughtSignature"]?.GetValue<string>()
++                    )
++                );
++            }
++            else if (part["text"]?.GetValue<string>() is { Length: > 0 } text)
++            {
++                result.Add(new AiTextPart(text));
++            }
++        }
++
++        return result;
++    }
++}
+diff --git a/backend/Cinema.Application/Options/GeminiOptions.cs b/backend/Cinema.Infrastructure/Ai/GeminiOptions.cs
+similarity index 88%
+rename from backend/Cinema.Application/Options/GeminiOptions.cs
+rename to backend/Cinema.Infrastructure/Ai/GeminiOptions.cs
+index 996d635..e30dca3 100644
+--- a/backend/Cinema.Application/Options/GeminiOptions.cs
++++ b/backend/Cinema.Infrastructure/Ai/GeminiOptions.cs
+@@ -1,4 +1,4 @@
+-namespace Cinema.Application.Options;
++namespace Cinema.Infrastructure.Ai;
+ 
+ public class GeminiOptions
+ {
+diff --git a/backend/Cinema.Infrastructure/DependencyInjection.cs b/backend/Cinema.Infrastructure/DependencyInjection.cs
+index 1b87936..c35b3b3 100644
+--- a/backend/Cinema.Infrastructure/DependencyInjection.cs
++++ b/backend/Cinema.Infrastructure/DependencyInjection.cs
+@@ -1,4 +1,5 @@
+ using Cinema.Application.Interfaces;
++using Cinema.Infrastructure.Ai;
+ using Cinema.Infrastructure.Auth;
+ using Cinema.Infrastructure.Email;
+ using Cinema.Infrastructure.FileStorage;
+@@ -65,6 +66,9 @@ public static class DependencyInjection
+         services.AddScoped<IRealtimeNotifier, SignalRRealtimeNotifier>();
+         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+ 
++        services.Configure<GeminiOptions>(configuration.GetSection(GeminiOptions.SectionName));
++        services.AddHttpClient<IAiModelClient, GeminiAiModelClient>();
++
+         services.AddHttpClient<IPaymentGateway, VnPayGateway>();
+         services.AddHttpClient<IPaymentGateway, MomoGateway>();
+         services.AddScoped<IPaymentGateway, StripeGateway>();

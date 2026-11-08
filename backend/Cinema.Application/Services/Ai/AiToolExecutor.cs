@@ -22,98 +22,69 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
 
     public record ToolResult(JsonObject Response, List<AiCardDto> Cards);
 
-    public static JsonArray BuildFunctionDeclarations(bool isAuthenticated)
+    public static IReadOnlyList<AiToolDefinition> GetToolDefinitions(bool isAuthenticated)
     {
-        var declarations = new JsonArray
+        var tools = new List<AiToolDefinition>
         {
-            new JsonObject
-            {
-                ["name"] = SearchShowtimes,
-                ["description"] =
-                    "Tìm suất chiếu sắp tới (còn hiệu lực) theo phim, ngày. Dùng khi khách hỏi lịch chiếu, giờ chiếu, giá vé của một phim hoặc của một ngày.",
-                ["parameters"] = new JsonObject
-                {
-                    ["type"] = "OBJECT",
-                    ["properties"] = new JsonObject
-                    {
-                        ["movie_id"] = new JsonObject
-                        {
-                            ["type"] = "INTEGER",
-                            ["description"] =
-                                "ID phim (lấy từ danh sách phim trong system prompt).",
-                        },
-                        ["movie_title"] = new JsonObject
-                        {
-                            ["type"] = "STRING",
-                            ["description"] = "Một phần tên phim, dùng khi không biết movie_id.",
-                        },
-                        ["date"] = new JsonObject
-                        {
-                            ["type"] = "STRING",
-                            ["description"] =
-                                "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán.",
-                        },
-                    },
-                },
-            },
-            new JsonObject
-            {
-                ["name"] = GetSeatAvailability,
-                ["description"] =
-                    "Xem tình trạng ghế trống của một suất chiếu: số ghế còn, giá theo loại ghế, danh sách ghế trống. Dùng khi khách hỏi còn ghế không, ghế nào còn trống.",
-                ["parameters"] = new JsonObject
-                {
-                    ["type"] = "OBJECT",
-                    ["properties"] = new JsonObject
-                    {
-                        ["showtime_id"] = new JsonObject
-                        {
-                            ["type"] = "INTEGER",
-                            ["description"] = "ID suất chiếu (lấy từ kết quả search_showtimes).",
-                        },
-                    },
-                    ["required"] = new JsonArray("showtime_id"),
-                },
-            },
+            new(
+                SearchShowtimes,
+                "Tìm suất chiếu sắp tới (còn hiệu lực) theo phim, ngày. Dùng khi khách hỏi lịch chiếu, giờ chiếu, giá vé của một phim hoặc của một ngày.",
+                [
+                    new AiToolParameter(
+                        "movie_id",
+                        AiToolParameterType.Integer,
+                        "ID phim (lấy từ danh sách phim trong system prompt)."
+                    ),
+                    new AiToolParameter(
+                        "movie_title",
+                        AiToolParameterType.String,
+                        "Một phần tên phim, dùng khi không biết movie_id."
+                    ),
+                    new AiToolParameter(
+                        "date",
+                        AiToolParameterType.String,
+                        "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán."
+                    ),
+                ]
+            ),
+            new(
+                GetSeatAvailability,
+                "Xem tình trạng ghế trống của một suất chiếu: số ghế còn, giá theo loại ghế, danh sách ghế trống. Dùng khi khách hỏi còn ghế không, ghế nào còn trống.",
+                [
+                    new AiToolParameter(
+                        "showtime_id",
+                        AiToolParameterType.Integer,
+                        "ID suất chiếu (lấy từ kết quả search_showtimes).",
+                        Required: true
+                    ),
+                ]
+            ),
         };
 
         if (isAuthenticated)
         {
-            declarations.Add(
-                new JsonObject
-                {
-                    ["name"] = GetMyBookings,
-                    ["description"] =
-                        "Lấy các vé/đơn đặt vé của chính khách đang đăng nhập. Không cần truyền thông tin người dùng.",
-                    ["parameters"] = new JsonObject
-                    {
-                        ["type"] = "OBJECT",
-                        ["properties"] = new JsonObject
-                        {
-                            ["upcoming_only"] = new JsonObject
-                            {
-                                ["type"] = "BOOLEAN",
-                                ["description"] =
-                                    "true: chỉ vé có suất chiếu chưa diễn ra. Mặc định false.",
-                            },
-                            ["status"] = new JsonObject
-                            {
-                                ["type"] = "STRING",
-                                ["description"] = "Lọc theo trạng thái.",
-                                ["enum"] = new JsonArray(
-                                    "Pending",
-                                    "Confirmed",
-                                    "Cancelled",
-                                    "Expired"
-                                ),
-                            },
-                        },
-                    },
-                }
+            tools.Add(
+                new AiToolDefinition(
+                    GetMyBookings,
+                    "Lấy các vé/đơn đặt vé của chính khách đang đăng nhập. Không cần truyền thông tin người dùng.",
+                    [
+                        new AiToolParameter(
+                            "upcoming_only",
+                            AiToolParameterType.Boolean,
+                            "true: chỉ vé có suất chiếu chưa diễn ra. Mặc định false."
+                        ),
+                        new AiToolParameter(
+                            "status",
+                            AiToolParameterType.String,
+                            "Lọc theo trạng thái.",
+                            AllowedValues: ["Pending", "Confirmed", "Cancelled", "Expired"]
+                        ),
+                    ]
+                )
             );
         }
 
-        return new JsonArray { new JsonObject { ["functionDeclarations"] = declarations } };
+        return tools;
     }
 
     public async Task<ToolResult> ExecuteAsync(

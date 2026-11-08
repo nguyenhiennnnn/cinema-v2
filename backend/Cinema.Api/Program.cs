@@ -79,9 +79,6 @@ builder.Services.Configure<StripeOptions>(
 builder.Services.Configure<AppUrlOptions>(
     builder.Configuration.GetSection(AppUrlOptions.SectionName)
 );
-builder.Services.Configure<GeminiOptions>(
-    builder.Configuration.GetSection(GeminiOptions.SectionName)
-);
 builder.Services.Configure<GoogleOptions>(
     builder.Configuration.GetSection(GoogleOptions.SectionName)
 );

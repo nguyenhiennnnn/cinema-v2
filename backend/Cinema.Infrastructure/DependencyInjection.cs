@@ -1,4 +1,5 @@
 using Cinema.Application.Interfaces;
+using Cinema.Infrastructure.Ai;
 using Cinema.Infrastructure.Auth;
 using Cinema.Infrastructure.Email;
 using Cinema.Infrastructure.FileStorage;
@@ -64,6 +65,9 @@ public static class DependencyInjection
 
         services.AddScoped<IRealtimeNotifier, SignalRRealtimeNotifier>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+
+        services.Configure<GeminiOptions>(configuration.GetSection(GeminiOptions.SectionName));
+        services.AddHttpClient<IAiModelClient, GeminiAiModelClient>();
 
         services.AddHttpClient<IPaymentGateway, VnPayGateway>();
         services.AddHttpClient<IPaymentGateway, MomoGateway>();
