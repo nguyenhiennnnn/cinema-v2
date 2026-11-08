@@ -164,7 +164,11 @@ export async function loginAsCustomer(page: Page) {
       .then(() => true)
       .catch(() => false);
 
-    if (redirected) return;
+    if (redirected) {
+      // Wait for lazy chunks + auth state to settle before the test proceeds
+      await page.waitForLoadState("networkidle").catch(() => { /* ignore timeout */ });
+      return;
+    }
 
     if (attempt < MAX_ATTEMPTS) {
       // Transient DB failure (e.g. Neon cold-start) – wait briefly then retry
@@ -198,7 +202,11 @@ export async function loginAsAdmin(page: Page) {
       .then(() => true)
       .catch(() => false);
 
-    if (redirected) return;
+    if (redirected) {
+      // Wait for lazy chunks + auth state to settle before the test proceeds
+      await page.waitForLoadState("networkidle").catch(() => { /* ignore timeout */ });
+      return;
+    }
 
     if (attempt < MAX_ATTEMPTS) {
       // Transient DB failure (e.g. Neon cold-start) – wait briefly then retry

@@ -31,7 +31,6 @@ export const HeaderUserMenu = ({ user }: HeaderUserMenuProps) => {
 
   return (
     <>
-      {/* Points chip — gọn gàng, hài hòa với header */}
       <Link
         to={ROUTES.account.profile}
         className={cn(

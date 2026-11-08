@@ -4,7 +4,6 @@ import { BRAND } from "@/config/brand";
 
 interface BrandMarkProps {
   className?: string;
-  /** Chạy hiệu ứng đèn chạy trên hàng lỗ xé của vé (dùng cho màn hình loading). */
   loading?: boolean;
 }
 

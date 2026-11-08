@@ -9,12 +9,10 @@ interface FormUploadFieldProps<TFieldValues extends FieldValues> {
   name: FieldPath<TFieldValues>;
   control: Control<TFieldValues>;
   label: string;
-  /** Thư mục lưu trên storage, ví dụ "movies", "combos". */
   folder: string;
   className?: string;
 }
 
-/** Field upload ảnh — giá trị form là url (chuỗi rỗng khi chưa có/đã xóa). */
 export const FormImageField = <TFieldValues extends FieldValues>({
   name,
   control,
@@ -39,7 +37,6 @@ export const FormImageField = <TFieldValues extends FieldValues>({
   />
 );
 
-/** Field upload video — giá trị form là url (chuỗi rỗng khi chưa có/đã xóa). */
 export const FormVideoField = <TFieldValues extends FieldValues>({
   name,
   control,

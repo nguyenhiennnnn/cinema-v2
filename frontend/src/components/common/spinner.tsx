@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 const DEFAULT_LABEL = "Đang tải";
 
 export const spinnerVariants = cva(
-  // Màu theo token (text-primary), không hard-code. Người dùng bật "giảm chuyển động" vẫn thấy tiến trình, chỉ quay chậm lại.
   "shrink-0 animate-spin text-primary motion-reduce:animate-[spin_2s_linear_infinite]",
   {
     variants: {
@@ -26,9 +25,7 @@ export const spinnerVariants = cva(
 interface SpinnerProps
   extends Omit<ComponentProps<typeof Loader2>, "size">,
   VariantProps<typeof spinnerVariants> {
-  /** Nội dung đọc cho screen reader. */
   label?: string;
-  /** Dùng khi đã có vùng role="status" bao ngoài, tránh đọc trùng. */
   decorative?: boolean;
 }
 
@@ -47,7 +44,6 @@ export const Spinner = ({
 );
 
 interface PageLoaderProps {
-  /** Dòng chữ hiển thị bên dưới. Không truyền thì chỉ có chữ ẩn cho screen reader. */
   label?: string;
   className?: string;
 }

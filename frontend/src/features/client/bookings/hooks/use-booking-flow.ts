@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "@/components/ui/toast";
 import {
@@ -201,10 +201,16 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     setComboQuantities((prev) => ({ ...prev, [comboId]: quantity }));
   };
 
+  // Use the auth user's name as a fallback when customerName is still empty
+  // (i.e. the useEffect that syncs authUser.fullName has not fired yet on the
+  // first render). This prevents canHold from flickering false briefly after
+  // the booking page mounts while the auth store finishes hydrating.
+  const effectiveCustomerName = customerName.trim() || (authUser?.fullName ?? '').trim();
+
   const canHold =
     selectedSeatIds.size > 0 &&
     loneSeats.length === 0 &&
-    (!isAuthenticated || customerName.trim().length > 0) &&
+    (!isAuthenticated || effectiveCustomerName.length > 0) &&
     (customerPhone.trim() === "" || isValidVnPhone(customerPhone.trim()));
 
   const holdAndContinue = async () => {

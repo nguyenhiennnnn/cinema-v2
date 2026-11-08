@@ -21,7 +21,6 @@ export const movieFormSchema = z.object({
   cast: z.array(castSchema),
 });
 
-/** Schema cho update form (bổ sung field status) */
 export const movieUpdateFormSchema = movieFormSchema.extend({
   status: z.string().min(1, "Vui lòng chọn trạng thái."),
 });

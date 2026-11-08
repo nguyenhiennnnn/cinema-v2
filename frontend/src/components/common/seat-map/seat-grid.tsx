@@ -34,7 +34,7 @@ export const SeatGrid = ({
         className={cn(
           "mx-auto flex w-max flex-col gap-1.5",
           fitWidth &&
-            "[--fit-gap:0.25rem] @xl:[--fit-gap:0.375rem] [&_.seat]:[--seat-size:min(2.25rem,var(--fit))] [&_.seat]:text-[length:clamp(7px,calc(var(--fit)_*_0.45),13px)]",
+            "[--fit-gap:0.25rem] @xl:[--fit-gap:0.375rem] [&_.seat]:[--seat-size:min(2.25rem,var(--fit))] [&_.seat]:text-[clamp(7px,calc(var(--fit)*0.45),13px)]",
         )}
         style={
           fitWidth
@@ -44,7 +44,6 @@ export const SeatGrid = ({
             : undefined
         }
       >
-        {/* thanh màn hình rộng đúng bằng phần ghế (trừ hai cột chữ cái hàng) */}
         <CinemaScreen className="mx-8 mb-8" />
 
         {rowLabels.map((rowLabel) => (
@@ -66,7 +65,7 @@ export const SeatGrid = ({
               <span className={ROW_LABEL}>{rowLabel}</span>
             )}
             <div
-              className={cn("grid", fitWidth ? "gap-[var(--fit-gap)]" : "gap-1.5")}
+              className={cn("grid", fitWidth ? "gap-(--fit-gap)" : "gap-1.5")}
               style={{
                 gridTemplateColumns: fitWidth
                   ? `repeat(${cols}, var(--fit))`

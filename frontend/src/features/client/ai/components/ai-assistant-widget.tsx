@@ -81,7 +81,6 @@ export const AiAssistantWidget = () => {
 
   return (
     <>
-      {/* Panel */}
       <div
         className={cn(
           "fixed bottom-24 right-4 z-50 flex w-95 max-w-[calc(100vw-2rem)] origin-bottom-right flex-col overflow-hidden border border-border bg-card transition-all duration-200 sm:right-6",
@@ -90,7 +89,6 @@ export const AiAssistantWidget = () => {
             : "pointer-events-none h-0 scale-95 opacity-0",
         )}
       >
-        {/* Header */}
         <div className="flex items-center justify-between gap-2 bg-primary px-4 py-3 text-primary-foreground">
           <div className="flex items-center gap-2.5">
             <div className="flex size-9 shrink-0 items-center justify-center border border-primary-foreground/30 bg-primary-foreground/10">
@@ -115,7 +113,6 @@ export const AiAssistantWidget = () => {
         </div>
         <div className="notch-x perf-h shrink-0" style={{ "--notch-bg": "var(--card)" } as CSSProperties} />
 
-        {/* Messages */}
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
           {messages.map((m) => (
             <div key={m.id}>
@@ -146,7 +143,6 @@ export const AiAssistantWidget = () => {
         <AiChatInput onSend={handleSend} disabled={chat.isPending} />
       </div>
 
-      {/* Trigger button */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

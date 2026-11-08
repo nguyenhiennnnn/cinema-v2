@@ -139,7 +139,6 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
   },
 ];
 
-/** Lọc nhóm menu theo role; chưa có role thì hiển thị tất cả. */
 export const filterNavGroupsByRole = (
   groups: AdminNavGroup[],
   role: string | undefined,

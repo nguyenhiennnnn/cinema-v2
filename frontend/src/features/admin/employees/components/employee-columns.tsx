@@ -18,7 +18,6 @@ import type { AdminEmployeeDto } from "../types";
 interface EmployeeColumnsOptions {
   onEdit: (employee: AdminEmployeeDto) => void;
   onToggle: (employee: AdminEmployeeDto) => void;
-  /** Id user đang đăng nhập — không cho tự vô hiệu hóa hồ sơ của chính mình. */
   currentUserId?: number;
 }
 

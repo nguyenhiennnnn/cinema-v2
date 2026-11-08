@@ -1,41 +1,43 @@
+import { lazy } from "react";
 import type { RouteObject } from "react-router";
 
 import AdminLayout from "@/layouts/admin/admin-layout";
+import AdminAuthLayout from "@/layouts/admin/admin-auth-layout";
 import {
   AdminIndexRedirect,
   AdminProtectedRoute,
 } from "./protected-route/admin-protected-route";
 import { GuestRoute } from "./protected-route/guest-route";
-
-import AdminLoginPage from "@/features/admin/login/pages/login-page";
-import AdminDashboardPage from "@/features/admin/dashboard/pages/dashboard-page";
-import AdminShowtimesPage from "@/features/admin/showtimes/pages/showtimes-page";
-import AdminCounterPage from "@/features/admin/counter/pages/counter-page";
-import AdminCheckinPage from "@/features/admin/checkin/pages/checkin-page";
-import AdminPaymentsPage from "@/features/admin/payments/pages/payments-page";
-import AdminUsersPage from "@/features/admin/users/pages/users-page";
-import AdminReportsPage from "@/features/admin/reports/pages/reports.page";
-import AdminRoomsPage from "@/features/admin/rooms/pages/rooms-page";
-import AdminEmployeesPage from "@/features/admin/employees/pages/employees-page";
-import AdminRoomSeatsPage from "@/features/admin/rooms/pages/room-seats-page";
-import AdminCombosPage from "@/features/admin/combos/pages/combos-page";
-import AdminReviewsPage from "@/features/admin/reviews/pages/reviews-page";
-import AdminSettingsPage from "@/features/admin/settings/pages/settings-page";
-import CatalogHubPage from "@/features/admin/catalog/pages/catalog-hub-page";
-import GenresPage from "@/features/admin/catalog/pages/genres-page";
-import LanguagesPage from "@/features/admin/catalog/pages/languages-page";
-import AgeRatingsPage from "@/features/admin/catalog/pages/age-ratings-page";
-import SeatTypesPage from "@/features/admin/catalog/pages/seat-types-page";
-import ScreenTypesPage from "@/features/admin/catalog/pages/screen-types-page";
-import MembershipTiersPage from "@/features/admin/catalog/pages/membership-tiers-page";
-import PositionsPage from "@/features/admin/catalog/pages/positions-page";
-import ActorsPage from "@/features/admin/catalog/pages/actors-page";
-import DirectorsPage from "@/features/admin/catalog/pages/directors-page";
-import AdminMoviesPage from "@/features/admin/movies/pages/movies-page";
-import AdminBookingsPage from "@/features/admin/bookings/pages/bookings-page";
-import AdminBookingDetailPage from "@/features/admin/bookings/pages/booking-detail-page";
-import AdminAuthLayout from "@/layouts/admin/admin-auth-layout";
 import { ROUTES } from "@/config/routes";
+import { LazyPage } from "./lazy-page";
+
+const AdminLoginPage = lazy(() => import("@/features/admin/login/pages/login-page"));
+const AdminDashboardPage = lazy(() => import("@/features/admin/dashboard/pages/dashboard-page"));
+const AdminShowtimesPage = lazy(() => import("@/features/admin/showtimes/pages/showtimes-page"));
+const AdminCounterPage = lazy(() => import("@/features/admin/counter/pages/counter-page"));
+const AdminCheckinPage = lazy(() => import("@/features/admin/checkin/pages/checkin-page"));
+const AdminPaymentsPage = lazy(() => import("@/features/admin/payments/pages/payments-page"));
+const AdminUsersPage = lazy(() => import("@/features/admin/users/pages/users-page"));
+const AdminReportsPage = lazy(() => import("@/features/admin/reports/pages/reports.page"));
+const AdminRoomsPage = lazy(() => import("@/features/admin/rooms/pages/rooms-page"));
+const AdminEmployeesPage = lazy(() => import("@/features/admin/employees/pages/employees-page"));
+const AdminRoomSeatsPage = lazy(() => import("@/features/admin/rooms/pages/room-seats-page"));
+const AdminCombosPage = lazy(() => import("@/features/admin/combos/pages/combos-page"));
+const AdminReviewsPage = lazy(() => import("@/features/admin/reviews/pages/reviews-page"));
+const AdminSettingsPage = lazy(() => import("@/features/admin/settings/pages/settings-page"));
+const CatalogHubPage = lazy(() => import("@/features/admin/catalog/pages/catalog-hub-page"));
+const GenresPage = lazy(() => import("@/features/admin/catalog/pages/genres-page"));
+const LanguagesPage = lazy(() => import("@/features/admin/catalog/pages/languages-page"));
+const AgeRatingsPage = lazy(() => import("@/features/admin/catalog/pages/age-ratings-page"));
+const SeatTypesPage = lazy(() => import("@/features/admin/catalog/pages/seat-types-page"));
+const ScreenTypesPage = lazy(() => import("@/features/admin/catalog/pages/screen-types-page"));
+const MembershipTiersPage = lazy(() => import("@/features/admin/catalog/pages/membership-tiers-page"));
+const PositionsPage = lazy(() => import("@/features/admin/catalog/pages/positions-page"));
+const ActorsPage = lazy(() => import("@/features/admin/catalog/pages/actors-page"));
+const DirectorsPage = lazy(() => import("@/features/admin/catalog/pages/directors-page"));
+const AdminMoviesPage = lazy(() => import("@/features/admin/movies/pages/movies-page"));
+const AdminBookingsPage = lazy(() => import("@/features/admin/bookings/pages/bookings-page"));
+const AdminBookingDetailPage = lazy(() => import("@/features/admin/bookings/pages/booking-detail-page"));
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -44,7 +46,7 @@ export const adminRoutes: RouteObject[] = [
     children: [
       {
         element: <AdminAuthLayout />,
-        children: [{ index: true, element: <AdminLoginPage /> }],
+        children: [{ index: true, element: <LazyPage><AdminLoginPage /></LazyPage> }],
       },
     ],
   },
@@ -56,35 +58,35 @@ export const adminRoutes: RouteObject[] = [
       {
         element: <AdminLayout />,
         children: [
-          { path: "dashboard", element: <AdminDashboardPage /> },
-          { path: "movies", element: <AdminMoviesPage /> },
-          { path: "showtimes", element: <AdminShowtimesPage /> },
-          { path: "bookings", element: <AdminBookingsPage /> },
-          { path: "bookings/:id", element: <AdminBookingDetailPage /> },
-          { path: "bookings/counter", element: <AdminCounterPage /> },
-          { path: "checkin", element: <AdminCheckinPage /> },
-          { path: "payments", element: <AdminPaymentsPage /> },
-          { path: "reports", element: <AdminReportsPage /> },
-          { path: "users", element: <AdminUsersPage /> },
-          { path: "employees", element: <AdminEmployeesPage /> },
-          { path: "rooms", element: <AdminRoomsPage /> },
-          { path: "rooms/:id/seats", element: <AdminRoomSeatsPage /> },
-          { path: "combos", element: <AdminCombosPage /> },
-          { path: "reviews", element: <AdminReviewsPage /> },
-          { path: "settings", element: <AdminSettingsPage /> },
-          { path: "catalog", element: <CatalogHubPage /> },
-          { path: "catalog/genres", element: <GenresPage /> },
-          { path: "catalog/languages", element: <LanguagesPage /> },
-          { path: "catalog/age-ratings", element: <AgeRatingsPage /> },
-          { path: "catalog/seat-types", element: <SeatTypesPage /> },
-          { path: "catalog/screen-types", element: <ScreenTypesPage /> },
+          { path: "dashboard", element: <LazyPage><AdminDashboardPage /></LazyPage> },
+          { path: "movies", element: <LazyPage><AdminMoviesPage /></LazyPage> },
+          { path: "showtimes", element: <LazyPage><AdminShowtimesPage /></LazyPage> },
+          { path: "bookings", element: <LazyPage><AdminBookingsPage /></LazyPage> },
+          { path: "bookings/:id", element: <LazyPage><AdminBookingDetailPage /></LazyPage> },
+          { path: "bookings/counter", element: <LazyPage><AdminCounterPage /></LazyPage> },
+          { path: "checkin", element: <LazyPage><AdminCheckinPage /></LazyPage> },
+          { path: "payments", element: <LazyPage><AdminPaymentsPage /></LazyPage> },
+          { path: "reports", element: <LazyPage><AdminReportsPage /></LazyPage> },
+          { path: "users", element: <LazyPage><AdminUsersPage /></LazyPage> },
+          { path: "employees", element: <LazyPage><AdminEmployeesPage /></LazyPage> },
+          { path: "rooms", element: <LazyPage><AdminRoomsPage /></LazyPage> },
+          { path: "rooms/:id/seats", element: <LazyPage><AdminRoomSeatsPage /></LazyPage> },
+          { path: "combos", element: <LazyPage><AdminCombosPage /></LazyPage> },
+          { path: "reviews", element: <LazyPage><AdminReviewsPage /></LazyPage> },
+          { path: "settings", element: <LazyPage><AdminSettingsPage /></LazyPage> },
+          { path: "catalog", element: <LazyPage><CatalogHubPage /></LazyPage> },
+          { path: "catalog/genres", element: <LazyPage><GenresPage /></LazyPage> },
+          { path: "catalog/languages", element: <LazyPage><LanguagesPage /></LazyPage> },
+          { path: "catalog/age-ratings", element: <LazyPage><AgeRatingsPage /></LazyPage> },
+          { path: "catalog/seat-types", element: <LazyPage><SeatTypesPage /></LazyPage> },
+          { path: "catalog/screen-types", element: <LazyPage><ScreenTypesPage /></LazyPage> },
           {
             path: "catalog/membership-tiers",
-            element: <MembershipTiersPage />,
+            element: <LazyPage><MembershipTiersPage /></LazyPage>,
           },
-          { path: "catalog/positions", element: <PositionsPage /> },
-          { path: "catalog/actors", element: <ActorsPage /> },
-          { path: "catalog/directors", element: <DirectorsPage /> },
+          { path: "catalog/positions", element: <LazyPage><PositionsPage /></LazyPage> },
+          { path: "catalog/actors", element: <LazyPage><ActorsPage /></LazyPage> },
+          { path: "catalog/directors", element: <LazyPage><DirectorsPage /></LazyPage> },
         ],
       },
     ],

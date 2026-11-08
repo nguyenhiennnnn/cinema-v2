@@ -3,7 +3,6 @@ import type { SeatEditorSnapshot } from "../types/seat-editor";
 
 const HISTORY_LIMIT = 40;
 
-/** Quản lý snapshot hiện tại cùng lịch sử undo/redo và cờ chưa lưu. */
 export function useSeatEditorHistory(initial: () => SeatEditorSnapshot) {
   const [present, setPresent] = useState<SeatEditorSnapshot>(initial);
   const [past, setPast] = useState<SeatEditorSnapshot[]>([]);
@@ -17,7 +16,6 @@ export function useSeatEditorHistory(initial: () => SeatEditorSnapshot) {
     setIsDirty(true);
   };
 
-  /** Trả về false khi không có gì để hoàn tác. */
   const undo = (): boolean => {
     if (past.length === 0) return false;
     const previous = past[past.length - 1];
@@ -28,7 +26,6 @@ export function useSeatEditorHistory(initial: () => SeatEditorSnapshot) {
     return true;
   };
 
-  /** Trả về false khi không có gì để làm lại. */
   const redo = (): boolean => {
     if (future.length === 0) return false;
     const next = future[0];

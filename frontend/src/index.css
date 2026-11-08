@@ -620,7 +620,6 @@
 }
 
 @layer utilities {
-  /* Hero backdrop — gradient helpers */
   .hero-backdrop-img {
     filter: blur(2px);
     transform: scale(1.04);

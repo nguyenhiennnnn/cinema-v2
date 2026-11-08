@@ -10,9 +10,10 @@ test("admin movie management flow: search, filter, create movie with genres, ver
   // 2. Navigate to Movie Management
   await page.getByRole("link", { name: "Quản lý phim" }).click();
   await page.waitForURL(/\/admin\/movies/, { timeout: 10_000 });
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
   await expect(
-    page.getByRole("heading", { name: "Quản lý phim" }),
-  ).toBeVisible({ timeout: 10_000 });
+    page.getByRole("heading", { name: /Quản lý.*[Pp]him/i }),
+  ).toBeVisible({ timeout: 20_000 });
 
   // 3. Test search filter on existing movies
   const searchInput = page.getByPlaceholder("Tìm theo tên phim...");

@@ -3,7 +3,6 @@ import type { MovieListItemDto } from "@/features/client/movies/types";
 
 export interface HeroThumbnailItem {
   movie: MovieListItemDto;
-  /** Vị trí của phim trong danh sách gốc, dùng để chuyển thẳng tới phim đó. */
   index: number;
 }
 
@@ -14,10 +13,6 @@ interface HeroThumbnailsProps {
   ref?: Ref<HTMLDivElement>;
 }
 
-/**
- * Các phim kế tiếp theo thứ tự quay vòng. Bấm một thumbnail thì poster của nó
- * nở ra thành nền (xem hero-carousel.tsx), giống thumbnail trong slider mẫu.
- */
 export const HeroThumbnails = ({ items, onSelect, registerThumb, ref }: HeroThumbnailsProps) => {
   if (items.length === 0) return null;
 

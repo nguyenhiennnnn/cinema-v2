@@ -6,7 +6,6 @@ export const BRAND = {
   tagline: "Đặt vé xem phim trực tuyến",
   defaultDescription:
     "Đặt vé xem phim nhanh chóng: chọn phim, suất chiếu, chọn ghế và thanh toán online chỉ trong vài phút.",
-  /** Ảnh chia sẻ mặc định (nên là PNG/JPG 1200x630 — Facebook/Zalo không đọc SVG). */
   defaultOgImage: "/brand/banner/perfo-og-1200x630.svg",
   locale: "vi_VN",
   supportEmail: "cskh@perfo.vn",

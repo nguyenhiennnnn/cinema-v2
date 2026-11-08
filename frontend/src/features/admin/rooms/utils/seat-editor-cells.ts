@@ -63,7 +63,6 @@ export function buildInitialCells(
   return map;
 }
 
-/** Giữ ô cũ nếu còn trong kích thước mới, ô mới dùng giá trị mặc định. */
 export function resizeCells(
   cells: EditorCellMap,
   newRows: number,
@@ -81,7 +80,6 @@ export function resizeCells(
   return next;
 }
 
-/** Áp dụng brush (trừ pairCouple) lên một ô. */
 export function applyBrushToCell(
   cell: EditorCell,
   brush: Exclude<SeatEditorBrush, { type: "pairCouple" }>,
@@ -100,7 +98,6 @@ export function applyBrushToCell(
   }
 }
 
-/** Gỡ ghép tất cả ô cùng coupleId. */
 export function unpairCouple(cells: EditorCellMap, coupleId: string): EditorCellMap {
   const next = new Map(cells);
   next.forEach((c, k) => {
@@ -150,7 +147,6 @@ export function pasteRowCells(
   return next;
 }
 
-/** Gán coupleId cho từng cặp ghế liền nhau (bỏ qua cột lối đi) trong một hàng ghế đôi. */
 function buildCoupleIdsByCol(
   rowLabel: string,
   cols: number,

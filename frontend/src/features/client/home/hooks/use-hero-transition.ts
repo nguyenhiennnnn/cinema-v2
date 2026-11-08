@@ -17,7 +17,6 @@ interface UseHeroTransitionParams {
   stripRef: RefObject<HTMLDivElement | null>;
 }
 
-/** Đo vị trí thumbnail đích và chạy animation clip-path/strip khi chuyển slide. */
 export function useHeroTransition({
   movies,
   index,

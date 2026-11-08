@@ -4441,6 +4441,16 @@ Module không khai báo chỉ mục riêng ngoài khóa chính.
 | vercel.json | Rewrite SPA, cache, header (X-Robots-Tag) |
 
 
+### 5.4.6 Tối ưu hóa bản dựng và phân tách mã (Code Splitting)
+
+- **Nội dung cần viết:**
+  - Vấn đề gói bundle nguyên khối ban đầu: dung lượng đơn lẻ đạt 2.255 kB (2,25 MB; gzip 682 kB), kích hoạt cảnh báo vượt ngưỡng 500 kB của Vite ("Some chunks are larger than 500 kB after minification") và làm tăng thời gian tải trang ban đầu (FCP).
+  - Phân tách theo tuyến (Route-level Code Splitting): chuyển toàn bộ 46 trang ở `client-routes.tsx` (19 trang) và `admin-routes.tsx` (27 trang) sang nạp lười bằng `React.lazy` kết hợp `LazyPage` bọc `Suspense`.
+  - Phân tách gói vendor: cấu hình `build.rolldownOptions.output.manualChunks` trong `vite.config.ts` chia 7 nhóm chunk chuyên biệt (`vendor-charts`, `vendor-ui`, `vendor-react`, `vendor-forms`, `vendor-query`, `vendor-utils`, `vendor-realtime`).
+  - Kết quả: Build hoàn tất trong 11,8s, triệt tiêu hoàn toàn cảnh báo, chunk lớn nhất giảm 83,5% (còn 370,8 kB), cô lập hoàn toàn mã nguồn quản trị và biểu đồ khỏi người dùng khách.
+- **Nguồn dữ liệu:** `frontend/vite.config.ts`; `frontend/src/app/routes/lazy-page.tsx`; `frontend/src/app/routes/client-routes.tsx`; `frontend/src/app/routes/admin-routes.tsx`
+
+
 ## 5.5 CẤU HÌNH HỆ THỐNG
 
 
@@ -4846,6 +4856,7 @@ Module không khai báo chỉ mục riêng ngoài khóa chính.
   - Mục đích kịch bản; điều kiện tiên quyết và điều kiện bỏ qua; các bước và điểm kiểm tra (assertion); thời gian chạy 23.461 ms
   - Các bước: Giữ ghế qua giao diện; ép booking hết hạn trong CSDL; chờ tối đa 120 giây thông báo "Thời gian giữ ghế đã hết hạn, vui lòng chọn lại." và quay về bước chọn ghế, đếm ngược biến mất
   - Điều kiện bỏ qua: Bỏ qua khi không truy cập được CSDL hoặc không xác thực/giữ ghế được
+  - Xử lý kỹ thuật & race condition: Bước kiểm tra nút Giữ ghế được bổ sung timeout 10 giây (toBeEnabled({ timeout: 10_000 })), kết hợp cơ chế fallback `effectiveCustomerName` trong `useBookingFlow` để chống race condition khi hydrate thông tin người dùng từ auth store.
 - **Tài liệu/hình/bảng:**
   - `Bảng 6.18` Các bước kịch bản E2E-04
 - **Nguồn dữ liệu:** `bo_sung/e2e/customer-seat-hold-timeout-flow.spec.ts`

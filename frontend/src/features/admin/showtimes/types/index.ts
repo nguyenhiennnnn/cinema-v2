@@ -48,7 +48,6 @@ export interface DeleteShowtimeResponse {
   showtimeId: number;
   status: string;
   manualRefundRequiredCount: number;
-  /** Số khoản hoàn tiền online đã được đưa vào hàng đợi hoàn tự động. */
   autoRefundQueuedCount?: number;
 }
 

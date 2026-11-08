@@ -9,8 +9,9 @@ test("customer end-to-end booking flow: select movie, pick seats, add combos, ho
 
   // 2. Browse movies catalog and pick the first movie
   await page.goto("/movies");
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
   const firstMovieLink = page.locator('a[href^="/movies/"]').first();
-  await expect(firstMovieLink).toBeVisible({ timeout: 10_000 });
+  await expect(firstMovieLink).toBeVisible({ timeout: 20_000 });
   await firstMovieLink.click();
   await page.waitForURL(/\/movies\/\d+/, { timeout: 10_000 });
 

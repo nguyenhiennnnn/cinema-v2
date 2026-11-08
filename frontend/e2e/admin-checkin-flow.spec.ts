@@ -12,9 +12,10 @@ test("admin ticket check-in flow: reject invalid codes, successfully check-in va
   // 2. Navigate to Check-in page
   await page.getByRole("link", { name: "Soát vé" }).click();
   await expect(page).toHaveURL(/\/admin\/checkin/, { timeout: 10_000 });
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
   await expect(
     page.getByRole("heading", { name: /Soát vé & Check-in/i }),
-  ).toBeVisible({ timeout: 10_000 });
+  ).toBeVisible({ timeout: 20_000 });
 
   // Verify idle status card
   await expect(

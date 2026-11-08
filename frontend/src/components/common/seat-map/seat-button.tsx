@@ -5,7 +5,6 @@ interface SeatButtonProps {
   label: string;
   kind?: SeatVisualKind;
   state: SeatCellState;
-  /** Dấu nhấn phụ (gợi ý, đang chọn vùng, ghế đôi chờ ghép). Vẽ bằng outline trong. */
   mark?: SeatMark;
   onClick?: () => void;
   disabled?: boolean;
@@ -31,7 +30,6 @@ export const SeatButton = ({
   onMouseEnter,
   ariaLabel,
 }: SeatButtonProps) => {
-  // Lối đi ngoài trình soạn thảo là khoảng trắng, không vẽ gì.
   if (state === "aisle" && !editable) {
     return <div className={cn("h-[min(2.25rem,var(--fit,2.25rem))] w-full", className)} aria-hidden />;
   }

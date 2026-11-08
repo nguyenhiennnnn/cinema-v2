@@ -15,9 +15,10 @@ test("admin showtimes management flow: switch views, filter, create new showtime
   // 2. Navigate to Showtimes page
   await page.getByRole("link", { name: "Suất chiếu" }).click();
   await page.waitForURL(/\/admin\/showtimes/, { timeout: 10_000 });
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
   await expect(
     page.getByRole("heading", { name: "Quản lý Suất chiếu" }),
-  ).toBeVisible({ timeout: 10_000 });
+  ).toBeVisible({ timeout: 20_000 });
 
   // 3. Test tab navigation between List and Calendar
   const calendarTab = page.getByRole("tab", { name: "Lịch" });

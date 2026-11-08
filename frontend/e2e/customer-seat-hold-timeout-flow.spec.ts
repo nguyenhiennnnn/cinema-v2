@@ -40,7 +40,10 @@ test("seat hold that expires mid-checkout notifies the customer and returns them
   const continueButton = page.getByRole("button", {
     name: /Giữ ghế & tiếp tục thanh toán/i,
   });
-  await expect(continueButton).toBeEnabled();
+  // Wait up to 10 s for the button to become enabled: the authenticated user's
+  // display name is fetched asynchronously (auth store hydration), and canHold
+  // stays false until customerName is populated from authUser.fullName.
+  await expect(continueButton).toBeEnabled({ timeout: 10_000 });
   await continueButton.click();
 
   await expect(page.getByText(/Giữ ghế còn/i)).toBeVisible({ timeout: 10_000 });

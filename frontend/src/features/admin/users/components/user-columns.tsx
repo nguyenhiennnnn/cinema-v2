@@ -17,7 +17,6 @@ import type { AdminUserListItemDto } from "../types";
 interface UserColumnsOptions {
   onChangeRole: (user: AdminUserListItemDto) => void;
   onToggle: (user: AdminUserListItemDto) => void;
-  /** Id của user đang đăng nhập — không cho tự đổi role / tự khóa chính mình (backend cũng chặn). */
   currentUserId?: number;
 }
 

@@ -22,7 +22,6 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
               {children}
             </TooltipProvider>
           </NuqsAdapter>
-          {/* {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />} */}
         </QueryClientProvider>
       </ThemeProvider>
     </HelmetProvider>

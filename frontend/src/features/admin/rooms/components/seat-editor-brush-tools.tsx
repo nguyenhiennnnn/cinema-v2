@@ -16,7 +16,6 @@ interface SeatEditorBrushToolsProps {
   onOpenAutoGenerate: () => void;
 }
 
-/** Nhóm công cụ chọn brush: loại ghế, ghép đôi, lối đi, bật/tắt, chọn nhiều, sao chép hàng, auto-generate. */
 export const SeatEditorBrushTools = ({
   seatTypes,
   brush,

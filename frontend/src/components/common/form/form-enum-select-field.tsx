@@ -14,7 +14,6 @@ interface FormEnumSelectFieldProps<TFieldValues extends FieldValues> {
   className?: string;
 }
 
-/** Select theo danh sách enum cố định; giá trị form là chuỗi ("" khi chưa chọn). */
 export const FormEnumSelectField = <TFieldValues extends FieldValues>({
   name,
   control,

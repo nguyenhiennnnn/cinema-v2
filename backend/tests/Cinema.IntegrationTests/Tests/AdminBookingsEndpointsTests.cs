@@ -282,7 +282,7 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
         var db = scope.ServiceProvider.GetRequiredService<Cinema.Infrastructure.Persistence.AppDbContext>();
         return await db
             .BookingTickets.Where(t => t.BookingId == bookingId)
-            .Select(t => t.QrCode)
+            .Select(t => t.QrCode!)
             .FirstAsync();
     }
 }

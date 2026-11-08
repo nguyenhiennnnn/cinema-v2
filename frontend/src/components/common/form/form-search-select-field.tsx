@@ -20,7 +20,6 @@ interface FormFieldBase<TFieldValues extends FieldValues> {
 type FormSearchSelectFieldProps<TFieldValues extends FieldValues, TOption> =
   FormFieldBase<TFieldValues> & Omit<SingleSelectFieldProps<TOption>, "value" | "onChange">;
 
-/** Select 1 giá trị có ô tìm kiếm (server-side search), gắn sẵn label + lỗi. */
 export const FormSearchSelectField = <TFieldValues extends FieldValues, TOption>({
   name,
   control,
@@ -47,7 +46,6 @@ export const FormSearchSelectField = <TFieldValues extends FieldValues, TOption>
 type FormMultiSelectFieldProps<TFieldValues extends FieldValues, TOption> =
   FormFieldBase<TFieldValues> & Omit<MultiSelectFieldProps<TOption>, "value" | "onChange">;
 
-/** Select nhiều giá trị có ô tìm kiếm, gắn sẵn label + lỗi. */
 export const FormMultiSelectField = <TFieldValues extends FieldValues, TOption>({
   name,
   control,

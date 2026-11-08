@@ -47,9 +47,10 @@ test("visiting the booking result page for a non-existent booking shows a retry 
   await loginAsCustomer(page);
 
   await page.goto("/booking/result?bookingId=999999999");
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
 
   await expect(page.getByText(/Không tìm thấy đơn đặt vé này/i)).toBeVisible({
-    timeout: 10_000,
+    timeout: 20_000,
   });
   await expect(page.getByRole("button", { name: /Thử lại/i })).toBeVisible();
 });

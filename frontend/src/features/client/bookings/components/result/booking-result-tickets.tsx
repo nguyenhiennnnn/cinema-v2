@@ -24,7 +24,7 @@ export const BookingResultTickets = ({ booking }: { booking: BookingDetailDto })
               isCheckedIn={ticket.isCheckedIn}
             />
           ))
-        : /* Chưa generate ticket — hiển thị tổng hợp */
+        : 
           (
             <PerfoTicket
               movieTitle={booking.movie.title}

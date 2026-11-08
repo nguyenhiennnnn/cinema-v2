@@ -18,7 +18,7 @@ namespace Cinema.IntegrationTests.Infrastructure;
 
 public class CinemaApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _pgContainer = new PostgreSqlBuilder()
+    private readonly PostgreSqlContainer _pgContainer = new PostgreSqlBuilder("postgres:16-alpine")
         .WithImage("postgres:16-alpine")
         .Build();
 

@@ -11,7 +11,6 @@ interface FormSwitchFieldProps<TFieldValues extends FieldValues> {
   disabled?: boolean;
 }
 
-/** Hàng "nhãn ... công tắc" cho các giá trị boolean. */
 export const FormSwitchField = <TFieldValues extends FieldValues>({
   name,
   control,

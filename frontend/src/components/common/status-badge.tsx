@@ -44,7 +44,6 @@ interface MappedBadgeProps {
   className?: string;
 }
 
-/** Badge tra cứu nhãn/màu/icon theo giá trị trạng thái; giá trị lạ hiển thị nguyên văn. */
 const MappedBadge = ({ value, map, fallbackClassName, className }: MappedBadgeProps) => {
   const item: BadgeItem = map[value] ?? {
     label: value,

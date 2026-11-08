@@ -50,7 +50,6 @@ export const CounterTicketResult = ({ isLoading, booking, checkout, onNewSale }:
           ))}
         </div>
       ) : booking ? (
-        /* Fallback khi chưa có ticket objects */
         <PerfoTicket
           movieTitle={booking.movie?.title ?? ""}
           showtime={showtime}

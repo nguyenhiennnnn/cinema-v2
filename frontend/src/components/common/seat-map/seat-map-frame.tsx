@@ -8,10 +8,6 @@ interface SeatMapFrameProps {
   className?: string;
 }
 
-/**
- * Khung chung của mọi sơ đồ ghế (đặt vé, quầy bán vé, trình soạn thảo phòng):
- * khối `card` vát `cut-lg`, không viền, chú giải ở trên, sơ đồ ở dưới.
- */
 export const SeatMapFrame = ({ legend, children, className }: SeatMapFrameProps) => {
   return (
     <div className={cn("@container bg-card p-4 sm:p-6 cut-lg", className)}>

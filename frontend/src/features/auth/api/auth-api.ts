@@ -30,7 +30,6 @@ export const authApi = {
   login: (body: LoginRequest) =>
     apiPost<ApiResponse<LoginResponse>>(`${BASE}/login`, body),
 
-  /** Admin-only login — gọi /auth/admin-login (chỉ cho phép Admin role) */
   adminLogin: (body: LoginRequest) =>
     apiPost<ApiResponse<LoginResponse>>(`${BASE}/admin-login`, body),
 
