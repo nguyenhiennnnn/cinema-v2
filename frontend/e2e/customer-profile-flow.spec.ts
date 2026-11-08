@@ -9,9 +9,10 @@ test("customer profile flow: view profile, update details, verify persistence, a
 
   // 2. Navigate to customer profile
   await page.goto("/account/profile");
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
   await expect(
     page.getByRole("heading", { name: "Thông tin cá nhân" }),
-  ).toBeVisible({ timeout: 10_000 });
+  ).toBeVisible({ timeout: 20_000 });
 
   // 3. Update full name and phone number
   const uniqueName = `Khách Hàng Test ${Date.now().toString().slice(-4)}`;

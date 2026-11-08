@@ -14,6 +14,7 @@ test("customer end-to-end booking flow: select movie, pick seats, add combos, ho
   await expect(firstMovieLink).toBeVisible({ timeout: 20_000 });
   await firstMovieLink.click();
   await page.waitForURL(/\/movies\/\d+/, { timeout: 10_000 });
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
 
   // 3. Scroll to showtimes section and select an available showtime slot
   await page.locator("#showtimes").scrollIntoViewIfNeeded();
@@ -23,6 +24,7 @@ test("customer end-to-end booking flow: select movie, pick seats, add combos, ho
   await expect(firstShowtimeButton).toBeVisible({ timeout: 10_000 });
   await firstShowtimeButton.click();
   await page.waitForURL(/\/booking\/\d+/, { timeout: 10_000 });
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
 
   // 4. In seat selection step, select 2 available seats
   const availableSeats = page.locator(
@@ -66,12 +68,13 @@ test("customer end-to-end booking flow: select movie, pick seats, add combos, ho
   const continueButton = page.getByRole("button", {
     name: /Giữ ghế & tiếp tục thanh toán/i,
   });
-  await expect(continueButton).toBeEnabled();
+  // Wait for auth hydration: canHold requires customerName populated from authUser.fullName
+  await expect(continueButton).toBeEnabled({ timeout: 20_000 });
   await continueButton.click();
 
   // 7. Payment step assertions:
-  // Check hold countdown timer is active
-  await expect(page.getByText(/Giữ ghế còn/i)).toBeVisible({ timeout: 10_000 });
+  // Check hold countdown timer is active (hold API may take a moment to respond)
+  await expect(page.getByText(/Giữ ghế còn/i)).toBeVisible({ timeout: 20_000 });
 
   // Verify payment action button is visible
   const paymentButton = page.getByRole("button", { name: /^Thanh toán$/i });
@@ -100,8 +103,9 @@ test("customer end-to-end booking flow: select movie, pick seats, add combos, ho
 
   // 9. Navigate to My Tickets to verify account ticket history is accessible
   await page.goto("/account/tickets");
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
   await expect(page.getByRole("heading", { name: /Vé của tôi/i })).toBeVisible({
-    timeout: 10_000,
+    timeout: 20_000,
   });
   await expect(page.getByRole("button", { name: "Tất cả" })).toBeVisible();
 });

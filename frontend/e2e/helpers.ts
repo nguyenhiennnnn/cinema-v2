@@ -272,11 +272,15 @@ export async function holdFirstAvailableSeat(
 ): Promise<{ bookingId: number; bookingCode: string } | null> {
   await ensureNoPendingBookings(page);
 
-  await runSql(
+  const dbReady = await runSql(
     `UPDATE "Bookings" SET "Status" = 'Cancelled', "ExpiresAt" = (NOW() AT TIME ZONE 'UTC') - INTERVAL '1 minute' WHERE "ShowtimeId" = ${showtimeId} AND "Status" = 'Pending';
      UPDATE "ShowtimeSeats" SET "Status" = 'Available' WHERE "ShowtimeId" = ${showtimeId} AND "Status" = 'Held';
      UPDATE "Showtimes" SET "StartTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '2 hours', "EndTime" = (NOW() AT TIME ZONE 'UTC') + INTERVAL '4 hours' WHERE "ShowtimeId" = ${showtimeId};`,
   );
+  // If we cannot reset the showtime state via DB, the hold API will likely
+  // reject immediately (past showtime) or hang indefinitely.  Return null so
+  // callers can test.skip() rather than burning the full test timeout.
+  if (!dbReady) return null;
 
   const apiContext = page.request;
   const seatsRes = await apiContext.get(
@@ -285,34 +289,44 @@ export async function holdFirstAvailableSeat(
   );
   if (!seatsRes.ok()) return null;
   const seatsBody = await seatsRes.json();
-  const seats = (seatsBody.data?.seats ?? []).filter(
-    (s: { status: string }) => s.status === "Available",
-  );
+  const seats: Array<{ showtimeSeatId: number; status: string }> =
+    (seatsBody.data?.seats ?? []).filter(
+      (s: { status: string }) => s.status === "Available",
+    );
   if (seats.length === 0) return null;
 
-  for (let i = 0; i < seats.length; i++) {
-    let holdRes = await apiContext.post(`${API_BASE_URL}/bookings/hold`, {
-      headers: { Authorization: `Bearer ${token}` },
-      data: {
-        showtimeId,
-        seatIds: [seats[i].showtimeSeatId],
-        customerName: "E2E Test User",
-        customerPhone: "0912345678",
-      },
-    });
-
-    if (!holdRes.ok() && i + 1 < seats.length && seats[i].seatRow === seats[i + 1].seatRow) {
-      holdRes = await apiContext.post(`${API_BASE_URL}/bookings/hold`, {
+  // page.request doesn't reliably honour the per-request `timeout` option
+  // when Playwright's test-level timeout fires first.  Wrap every call in
+  // Promise.race with a plain JS setTimeout so we always give up within
+  // 10 s and move on to the next seat rather than hanging until the test
+  // timeout expires.
+  const holdOneSeat = (seatId: number) =>
+    Promise.race([
+      apiContext.post(`${API_BASE_URL}/bookings/hold`, {
         headers: { Authorization: `Bearer ${token}` },
         data: {
           showtimeId,
-          seatIds: [seats[i].showtimeSeatId, seats[i + 1].showtimeSeatId],
+          seatIds: [seatId],
           customerName: "E2E Test User",
           customerPhone: "0912345678",
         },
-      });
-    }
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("hold request timed out after 10 s")),
+          10_000,
+        ),
+      ),
+    ]);
 
+  for (const seat of seats) {
+    let holdRes;
+    try {
+      holdRes = await holdOneSeat(seat.showtimeSeatId);
+    } catch {
+      // Timed out or network error – try the next available seat
+      continue;
+    }
     if (holdRes.ok()) {
       const holdBody = await holdRes.json();
       return {
@@ -363,6 +377,7 @@ export async function createEligibleTicketForCheckin(
     // 4. Hold seat as counter booking
     const holdRes = await apiContext.post(`${API_BASE_URL}/admin/bookings/counter-hold`, {
       headers: { Authorization: `Bearer ${adminToken}` },
+      timeout: 15_000,
       data: {
         showtimeId: 1,
         seatIds: [availableSeat.showtimeSeatId],

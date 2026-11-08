@@ -1,0 +1,619 @@
+diff --git a/backend/Cinema.Infrastructure/DependencyInjection.cs b/backend/Cinema.Infrastructure/DependencyInjection.cs
+index bdb0149..1b87936 100644
+--- a/backend/Cinema.Infrastructure/DependencyInjection.cs
++++ b/backend/Cinema.Infrastructure/DependencyInjection.cs
+@@ -1,5 +1,4 @@
+ using Cinema.Application.Interfaces;
+-using Cinema.Application.Services.Ai;
+ using Cinema.Infrastructure.Auth;
+ using Cinema.Infrastructure.Email;
+ using Cinema.Infrastructure.FileStorage;
+@@ -65,7 +64,6 @@ public static class DependencyInjection
+ 
+         services.AddScoped<IRealtimeNotifier, SignalRRealtimeNotifier>();
+         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+-        services.AddScoped<IAiAssistantService, GeminiAiAssistantService>();
+ 
+         services.AddHttpClient<IPaymentGateway, VnPayGateway>();
+         services.AddHttpClient<IPaymentGateway, MomoGateway>();
+diff --git a/frontend/src/components/common/form/multi-select-field.tsx b/frontend/src/components/common/form/multi-select-field.tsx
+index d3481d7..99431b9 100644
+--- a/frontend/src/components/common/form/multi-select-field.tsx
++++ b/frontend/src/components/common/form/multi-select-field.tsx
+@@ -1,8 +1,9 @@
+ ﻿"use client";
+ 
+ import { useState } from "react";
+-import { Check, ChevronsUpDown, Loader2, X } from "lucide-react";
++import { Check, ChevronsUpDown, Loader2, Plus, X } from "lucide-react";
+ import { cn } from "@/lib/utils";
++import { matchesSearch, normalizeText } from "@/lib/search";
+ import { Button } from "@/components/ui/button";
+ import { Badge } from "@/components/ui/badge";
+ import {
+@@ -35,6 +36,14 @@ export interface MultiSelectFieldProps<T> {
+   disabled?: boolean;
+   maxBadges?: number;
+   className?: string;
++  /** Lọc `options` ngay trên client theo ô tìm kiếm (dùng khi danh sách nhỏ, không search server). */
++  filterLocally?: boolean;
++  /**
++   * Cho phép tạo nhanh mục mới từ chuỗi đang gõ. Hiện dòng "Thêm “...”"
++   * khi chuỗi gõ chưa trùng tên mục nào.
++   */
++  onCreate?: (search: string) => void | Promise<void>;
++  createLabel?: (search: string) => string;
+ }
+ 
+ export const MultiSelectField = <T,>({
+@@ -53,8 +62,36 @@ export const MultiSelectField = <T,>({
+   disabled,
+   maxBadges = 3,
+   className,
++  filterLocally = false,
++  onCreate,
++  createLabel,
+ }: MultiSelectFieldProps<T>) => {
+   const [open, setOpen] = useState(false);
++  const [creating, setCreating] = useState(false);
++
++  const trimmedSearch = searchValue.trim();
++  const visibleOptions =
++    filterLocally && trimmedSearch
++      ? options.filter((o) => matchesSearch(getOptionLabel(o), trimmedSearch))
++      : options;
++  const canCreate =
++    !!onCreate &&
++    !isLoading &&
++    trimmedSearch.length > 0 &&
++    !options.some(
++      (o) => normalizeText(getOptionLabel(o)) === normalizeText(trimmedSearch),
++    );
++
++  const handleCreate = async () => {
++    if (!onCreate) return;
++    setCreating(true);
++    try {
++      await onCreate(trimmedSearch);
++      onSearchChange("");
++    } finally {
++      setCreating(false);
++    }
++  };
+ 
+   const allKnownOptions = [...selectedOptions, ...options].reduce<
+     Map<string | number, T>
+@@ -161,7 +198,7 @@ export const MultiSelectField = <T,>({
+               <>
+                 <CommandEmpty>{emptyText}</CommandEmpty>
+                 <CommandGroup>
+-                  {options.map((option) => {
++                  {visibleOptions.map((option) => {
+                     const optionValue = getOptionValue(option);
+                     const isSelected = value.includes(optionValue);
+                     return (
+@@ -183,6 +220,25 @@ export const MultiSelectField = <T,>({
+                     );
+                   })}
+                 </CommandGroup>
++                {canCreate && (
++                  <CommandGroup>
++                    <CommandItem
++                      value="__create__"
++                      disabled={creating}
++                      onSelect={handleCreate}
++                    >
++                      {creating ? (
++                        <Loader2 className="mr-2 size-4 animate-spin" />
++                      ) : (
++                        <Plus className="mr-2 size-4" />
++                      )}
++                      <span className="truncate">
++                        {createLabel?.(trimmedSearch) ??
++                          `Thêm “${trimmedSearch}”`}
++                      </span>
++                    </CommandItem>
++                  </CommandGroup>
++                )}
+               </>
+             )}
+           </CommandList>
+diff --git a/frontend/src/components/common/form/single-select-field.tsx b/frontend/src/components/common/form/single-select-field.tsx
+index 489c657..39ded10 100644
+--- a/frontend/src/components/common/form/single-select-field.tsx
++++ b/frontend/src/components/common/form/single-select-field.tsx
+@@ -1,8 +1,9 @@
+ "use client";
+ 
+ import { useState } from "react";
+-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
++import { Check, ChevronsUpDown, Loader2, Plus } from "lucide-react";
+ import { cn } from "@/lib/utils";
++import { matchesSearch, normalizeText } from "@/lib/search";
+ import { Button } from "@/components/ui/button";
+ import {
+   Command,
+@@ -34,6 +35,14 @@ export interface SingleSelectFieldProps<T> {
+   disabled?: boolean;
+   clearable?: boolean;
+   className?: string;
++  /** Lọc `options` ngay trên client theo ô tìm kiếm (dùng khi danh sách nhỏ, không search server). */
++  filterLocally?: boolean;
++  /**
++   * Cho phép tạo nhanh mục mới từ chuỗi đang gõ. Hiện dòng "Thêm “...”"
++   * khi chuỗi gõ chưa trùng tên mục nào.
++   */
++  onCreate?: (search: string) => void | Promise<void>;
++  createLabel?: (search: string) => string;
+ }
+ 
+ export const SingleSelectField = <T,>({
+@@ -52,8 +61,37 @@ export const SingleSelectField = <T,>({
+   disabled,
+   clearable = true,
+   className,
++  filterLocally = false,
++  onCreate,
++  createLabel,
+ }: SingleSelectFieldProps<T>) => {
+   const [open, setOpen] = useState(false);
++  const [creating, setCreating] = useState(false);
++
++  const trimmedSearch = searchValue.trim();
++  const visibleOptions =
++    filterLocally && trimmedSearch
++      ? options.filter((o) => matchesSearch(getOptionLabel(o), trimmedSearch))
++      : options;
++  const canCreate =
++    !!onCreate &&
++    !isLoading &&
++    trimmedSearch.length > 0 &&
++    !options.some(
++      (o) => normalizeText(getOptionLabel(o)) === normalizeText(trimmedSearch),
++    );
++
++  const handleCreate = async () => {
++    if (!onCreate) return;
++    setCreating(true);
++    try {
++      await onCreate(trimmedSearch);
++      onSearchChange("");
++      setOpen(false);
++    } finally {
++      setCreating(false);
++    }
++  };
+ 
+   const selectedOption = options.find((o) => getOptionValue(o) === value);
+   const displayLabel = selectedOption
+@@ -109,7 +147,7 @@ export const SingleSelectField = <T,>({
+               <>
+                 <CommandEmpty>{emptyText}</CommandEmpty>
+                 <CommandGroup>
+-                  {options.map((option) => {
++                  {visibleOptions.map((option) => {
+                     const optionValue = getOptionValue(option);
+                     return (
+                       <CommandItem
+@@ -130,6 +168,25 @@ export const SingleSelectField = <T,>({
+                     );
+                   })}
+                 </CommandGroup>
++                {canCreate && (
++                  <CommandGroup>
++                    <CommandItem
++                      value="__create__"
++                      disabled={creating}
++                      onSelect={handleCreate}
++                    >
++                      {creating ? (
++                        <Loader2 className="mr-2 size-4 animate-spin" />
++                      ) : (
++                        <Plus className="mr-2 size-4" />
++                      )}
++                      <span className="truncate">
++                        {createLabel?.(trimmedSearch) ??
++                          `Thêm “${trimmedSearch}”`}
++                      </span>
++                    </CommandItem>
++                  </CommandGroup>
++                )}
+               </>
+             )}
+           </CommandList>
+diff --git a/frontend/src/features/admin/catalog/components/forms/directors/director-create-form.tsx b/frontend/src/features/admin/catalog/components/forms/directors/director-create-form.tsx
+index ee9a727..cef3922 100644
+--- a/frontend/src/features/admin/catalog/components/forms/directors/director-create-form.tsx
++++ b/frontend/src/features/admin/catalog/components/forms/directors/director-create-form.tsx
+@@ -7,6 +7,7 @@ import { FieldGroup } from "@/components/ui/field";
+ import { FormInputField } from "@/components/common/form/form-input-field";
+ 
+ import { useAdminCreateDirector } from "../../../hooks/use-admin-director";
++import type { DirectorDto } from "../../../types";
+ import { URL_PLACEHOLDER } from "@/config/default-constants";
+ 
+ const directorFormSchema = z.object({
+@@ -26,25 +27,31 @@ type DirectorFormValues = z.infer<typeof directorFormSchema>;
+ 
+ interface DirectorCreateFormProps {
+   onSuccess: () => void;
++  /** Điền sẵn họ tên (VD: chuỗi người dùng đã gõ ở ô tìm kiếm). */
++  defaultFullName?: string;
++  /** Nhận đạo diễn vừa tạo, để form khác chọn luôn mục mới. */
++  onCreated?: (director: DirectorDto) => void;
+ }
+ 
+-export const DirectorCreateForm = ({ onSuccess }: DirectorCreateFormProps) => {
++export const DirectorCreateForm = ({
++  onSuccess,
++  defaultFullName = "",
++  onCreated,
++}: DirectorCreateFormProps) => {
+   const createDirector = useAdminCreateDirector();
+ 
+   const form = useForm<DirectorFormValues>({
+     resolver: zodResolver(directorFormSchema),
+-    defaultValues: { fullName: "", avatarUrl: "" },
++    defaultValues: { fullName: defaultFullName, avatarUrl: "" },
+   });
+ 
+   const onSubmit = async (values: DirectorFormValues) => {
+-    await createDirector.mutateAsync({
++    const res = await createDirector.mutateAsync({
+       fullName: values.fullName,
+       avatarUrl: values.avatarUrl || null,
+-    }, {
+-      onSuccess: () => {
+-        onSuccess();
+-      }
+     });
++    onCreated?.(res.data);
++    onSuccess();
+   };
+ 
+   return (
+diff --git a/frontend/src/features/admin/movies/components/forms/movie-create-form.tsx b/frontend/src/features/admin/movies/components/forms/movie-create-form.tsx
+index a39d17c..5bd432e 100644
+--- a/frontend/src/features/admin/movies/components/forms/movie-create-form.tsx
++++ b/frontend/src/features/admin/movies/components/forms/movie-create-form.tsx
+@@ -11,10 +11,20 @@ import { FormTextareaField } from "@/components/common/form/form-textarea-field"
+ import { SingleSelectField } from "@/components/common/form/single-select-field";
+ 
+ import { useAdminDirectors } from "@/features/admin/catalog/hooks/use-admin-director";
+-import { useAdminLanguages } from "@/features/admin/catalog/hooks/use-admin-language";
++import { useAdminCreateLanguage, useAdminLanguages } from "@/features/admin/catalog/hooks/use-admin-language";
+ import { useAdminAgeRatings } from "@/features/admin/catalog/hooks/use-admin-age-rating";
+-import { useAdminGenres } from "@/features/admin/catalog/hooks/use-admin-genre";
++import { useAdminCreateGenre, useAdminGenres } from "@/features/admin/catalog/hooks/use-admin-genre";
+ import { useAdminActors } from "@/features/admin/catalog/hooks/use-admin-actor";
++import { DirectorCreateForm } from "@/features/admin/catalog/components/forms/directors/director-create-form";
++import type {
++  DirectorDto,
++  GenreDto,
++  LanguageDto,
++  UpsertGenreRequest,
++  UpsertLanguageRequest,
++} from "@/features/admin/catalog/types";
++import { mergeOptions, useQuickCreate } from "@/hooks/use-quick-create";
++import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
+ 
+ import { useAdminCreateMovie } from "../../hooks/use-admin-movies";
+ import { showApiErrorToast } from "@/lib/error";
+@@ -57,6 +67,70 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
+     },
+   });
+ 
++  // ── Tạo nhanh danh mục ngay trong form (khỏi phải sang trang Danh mục) ──
++  const createGenre = useAdminCreateGenre();
++  const createLanguage = useAdminCreateLanguage();
++  const openDialog = useDialogOpen();
++  const closeDialog = useDialogClose();
++
++  const quickGenre = useQuickCreate<GenreDto, UpsertGenreRequest>({
++    create: createGenre.mutateAsync,
++    toBody: (name) => ({ name }),
++    onCreated: (g) =>
++      form.setValue("genreIds", [...form.getValues("genreIds"), g.genreId], {
++        shouldDirty: true,
++        shouldValidate: true,
++      }),
++  });
++  const quickLanguage = useQuickCreate<LanguageDto, UpsertLanguageRequest>({
++    create: createLanguage.mutateAsync,
++    toBody: (name) => ({ name }),
++    onCreated: (l) =>
++      form.setValue("languageId", l.languageId, {
++        shouldDirty: true,
++        shouldValidate: true,
++      }),
++  });
++  const [createdDirectors, setCreatedDirectors] = useState<DirectorDto[]>([]);
++
++  // Đạo diễn có nhiều trường (họ tên, ảnh) nên mở dialog điền sẵn tên thay vì tạo thẳng.
++  // Dialog và Sheet là hai store toàn cục riêng, nên form phim phía sau giữ nguyên dữ liệu.
++  const handleCreateDirector = (name: string) => {
++    openDialog({
++      title: "Thêm đạo diễn mới",
++      content: (
++        <DirectorCreateForm
++          defaultFullName={name}
++          onSuccess={closeDialog}
++          onCreated={(d) => {
++            setCreatedDirectors((prev) => [...prev, d]);
++            form.setValue("directorId", d.directorId, {
++              shouldDirty: true,
++              shouldValidate: true,
++            });
++            setDirectorSearch("");
++          }}
++        />
++      ),
++    });
++  };
++
++  const genreOptions = mergeOptions(
++    genres.data?.items ?? [],
++    quickGenre.created,
++    (g) => g.genreId,
++  );
++  const languageOptions = mergeOptions(
++    languages.data?.items ?? [],
++    quickLanguage.created,
++    (l) => l.languageId,
++  );
++  const directorOptions = mergeOptions(
++    directors.data?.items ?? [],
++    createdDirectors,
++    (d) => d.directorId,
++  );
++
+   const { fields, append, remove } = useFieldArray({
+     control: form.control,
+     name: "cast",
+@@ -129,7 +203,8 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
+             name="directorId"
+             control={form.control}
+             label="Đạo diễn"
+-            options={directors.data?.items ?? []}
++            options={directorOptions}
++            onCreate={handleCreateDirector}
+             getOptionValue={(o) => o.directorId}
+             getOptionLabel={(o) => o.fullName}
+             searchValue={directorSearch}
+@@ -142,7 +217,9 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
+             name="languageId"
+             control={form.control}
+             label="Ngôn ngữ"
+-            options={languages.data?.items ?? []}
++            options={languageOptions}
++            filterLocally
++            onCreate={quickLanguage.quickCreate}
+             getOptionValue={(o) => o.languageId}
+             getOptionLabel={(o) => o.name}
+             searchValue={languageSearch}
+@@ -201,7 +278,9 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
+           name="genreIds"
+           control={form.control}
+           label="Thể loại"
+-          options={genres.data?.items ?? []}
++          options={genreOptions}
++          filterLocally
++          onCreate={quickGenre.quickCreate}
+           getOptionValue={(o) => o.genreId}
+           getOptionLabel={(o) => o.name}
+           searchValue={genreSearch}
+diff --git a/frontend/src/features/admin/movies/components/forms/movie-update-form.tsx b/frontend/src/features/admin/movies/components/forms/movie-update-form.tsx
+index 716d2c4..c1795c2 100644
+--- a/frontend/src/features/admin/movies/components/forms/movie-update-form.tsx
++++ b/frontend/src/features/admin/movies/components/forms/movie-update-form.tsx
+@@ -13,10 +13,20 @@ import { SingleSelectField } from "@/components/common/form/single-select-field"
+ import { movieStatusOptions } from "@/lib/enum-options";
+ 
+ import { useAdminDirectors } from "@/features/admin/catalog/hooks/use-admin-director";
+-import { useAdminLanguages } from "@/features/admin/catalog/hooks/use-admin-language";
++import { useAdminCreateLanguage, useAdminLanguages } from "@/features/admin/catalog/hooks/use-admin-language";
+ import { useAdminAgeRatings } from "@/features/admin/catalog/hooks/use-admin-age-rating";
+-import { useAdminGenres } from "@/features/admin/catalog/hooks/use-admin-genre";
++import { useAdminCreateGenre, useAdminGenres } from "@/features/admin/catalog/hooks/use-admin-genre";
+ import { useAdminActors } from "@/features/admin/catalog/hooks/use-admin-actor";
++import { DirectorCreateForm } from "@/features/admin/catalog/components/forms/directors/director-create-form";
++import type {
++  DirectorDto,
++  GenreDto,
++  LanguageDto,
++  UpsertGenreRequest,
++  UpsertLanguageRequest,
++} from "@/features/admin/catalog/types";
++import { mergeOptions, useQuickCreate } from "@/hooks/use-quick-create";
++import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
+ 
+ import { useAdminMovieDetail, useAdminUpdateMovie } from "../../hooks/use-admin-movies";
+ import type { AdminMovieListItemDto } from "../../types";
+@@ -67,6 +77,70 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
+     },
+   });
+ 
++  // ── Tạo nhanh danh mục ngay trong form (khỏi phải sang trang Danh mục) ──
++  const createGenre = useAdminCreateGenre();
++  const createLanguage = useAdminCreateLanguage();
++  const openDialog = useDialogOpen();
++  const closeDialog = useDialogClose();
++
++  const quickGenre = useQuickCreate<GenreDto, UpsertGenreRequest>({
++    create: createGenre.mutateAsync,
++    toBody: (name) => ({ name }),
++    onCreated: (g) =>
++      form.setValue("genreIds", [...form.getValues("genreIds"), g.genreId], {
++        shouldDirty: true,
++        shouldValidate: true,
++      }),
++  });
++  const quickLanguage = useQuickCreate<LanguageDto, UpsertLanguageRequest>({
++    create: createLanguage.mutateAsync,
++    toBody: (name) => ({ name }),
++    onCreated: (l) =>
++      form.setValue("languageId", l.languageId, {
++        shouldDirty: true,
++        shouldValidate: true,
++      }),
++  });
++  const [createdDirectors, setCreatedDirectors] = useState<DirectorDto[]>([]);
++
++  // Đạo diễn có nhiều trường (họ tên, ảnh) nên mở dialog điền sẵn tên thay vì tạo thẳng.
++  // Dialog và Sheet là hai store toàn cục riêng, nên form phim phía sau giữ nguyên dữ liệu.
++  const handleCreateDirector = (name: string) => {
++    openDialog({
++      title: "Thêm đạo diễn mới",
++      content: (
++        <DirectorCreateForm
++          defaultFullName={name}
++          onSuccess={closeDialog}
++          onCreated={(d) => {
++            setCreatedDirectors((prev) => [...prev, d]);
++            form.setValue("directorId", d.directorId, {
++              shouldDirty: true,
++              shouldValidate: true,
++            });
++            setDirectorSearch("");
++          }}
++        />
++      ),
++    });
++  };
++
++  const genreOptions = mergeOptions(
++    genres.data?.items ?? [],
++    quickGenre.created,
++    (g) => g.genreId,
++  );
++  const languageOptions = mergeOptions(
++    languages.data?.items ?? [],
++    quickLanguage.created,
++    (l) => l.languageId,
++  );
++  const directorOptions = mergeOptions(
++    directors.data?.items ?? [],
++    createdDirectors,
++    (d) => d.directorId,
++  );
++
+   const { fields, append, remove } = useFieldArray({
+     control: form.control,
+     name: "cast",
+@@ -172,7 +246,8 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
+             name="directorId"
+             control={form.control}
+             label="Đạo diễn"
+-            options={directors.data?.items ?? []}
++            options={directorOptions}
++            onCreate={handleCreateDirector}
+             selectedLabel={movieDetail.data?.director?.fullName}
+             getOptionValue={(o) => o.directorId}
+             getOptionLabel={(o) => o.fullName}
+@@ -186,7 +261,9 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
+             name="languageId"
+             control={form.control}
+             label="Ngôn ngữ"
+-            options={languages.data?.items ?? []}
++            options={languageOptions}
++            filterLocally
++            onCreate={quickLanguage.quickCreate}
+             selectedLabel={movieDetail.data?.language?.name}
+             getOptionValue={(o) => o.languageId}
+             getOptionLabel={(o) => o.name}
+@@ -257,7 +334,9 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
+           name="genreIds"
+           control={form.control}
+           label="Thể loại"
+-          options={genres.data?.items ?? []}
++          options={genreOptions}
++          filterLocally
++          onCreate={quickGenre.quickCreate}
+           selectedOptions={movieDetail.data?.genres ?? []}
+           getOptionValue={(o) => o.genreId}
+           getOptionLabel={(o) => o.name}
+diff --git a/frontend/src/hooks/use-quick-create.ts b/frontend/src/hooks/use-quick-create.ts
+new file mode 100644
+index 0000000..1d60ddb
+--- /dev/null
++++ b/frontend/src/hooks/use-quick-create.ts
+@@ -0,0 +1,56 @@
++import { useState } from "react";
++
++interface UseQuickCreateParams<TOption, TBody> {
++  /** Hàm tạo (thường là `mutateAsync` của hook create). Phải trả `{ data: TOption }`. */
++  create: (body: TBody) => Promise<{ data: TOption }>;
++  /** Chuyển chuỗi người dùng gõ thành body gửi lên API. */
++  toBody: (name: string) => TBody;
++  /** Gọi sau khi tạo thành công, thường để chọn luôn mục mới vào form. */
++  onCreated: (option: TOption) => void;
++}
++
++/**
++ * Tạo nhanh một mục danh mục ngay trong form khác, không phải rời trang.
++ *
++ * - `created`: các mục vừa tạo trong phiên này. Gộp vào `options` bằng `mergeOptions`
++ *   để mục mới hiện ngay, không phải chờ refetch danh sách.
++ * - Lỗi API đã được `MutationCache` toàn cục hiển thị toast, nên ở đây chỉ nuốt lỗi
++ *   để không bị unhandled rejection.
++ */
++export function useQuickCreate<TOption, TBody>({
++  create,
++  toBody,
++  onCreated,
++}: UseQuickCreateParams<TOption, TBody>) {
++  const [created, setCreated] = useState<TOption[]>([]);
++  const [isCreating, setIsCreating] = useState(false);
++
++  const quickCreate = async (name: string) => {
++    setIsCreating(true);
++    try {
++      const res = await create(toBody(name));
++      setCreated((prev) => [...prev, res.data]);
++      onCreated(res.data);
++    } catch {
++      // toast lỗi do MutationCache toàn cục xử lý
++    } finally {
++      setIsCreating(false);
++    }
++  };
++
++  /** Dùng khi mục được tạo ở nơi khác (VD: dialog) và chỉ cần ghi nhận lại. */
++  const remember = (option: TOption) => setCreated((prev) => [...prev, option]);
++
++  return { quickCreate, remember, created, isCreating };
++}
++
++/** Gộp danh sách từ server với các mục vừa tạo, loại trùng theo khóa. */
++export function mergeOptions<T>(
++  base: T[],
++  extra: T[],
++  getKey: (option: T) => string | number,
++): T[] {
++  const map = new Map<string | number, T>();
++  for (const option of [...base, ...extra]) map.set(getKey(option), option);
++  return [...map.values()];
++}
+diff --git a/frontend/src/lib/search.ts b/frontend/src/lib/search.ts
+new file mode 100644
+index 0000000..1b155e1
+--- /dev/null
++++ b/frontend/src/lib/search.ts
+@@ -0,0 +1,17 @@
++/**
++ * Chuẩn hóa chuỗi để so khớp tìm kiếm: bỏ dấu tiếng Việt, về chữ thường, cắt khoảng trắng.
++ * VD: "Hành Động" → "hanh dong", "Đạo diễn" → "dao dien".
++ */
++export function normalizeText(value: string): string {
++  return value
++    .toLowerCase()
++    .normalize("NFD")
++    .replace(/[\u0300-\u036f]/g, "")
++    .replace(/đ/g, "d")
++    .trim();
++}
++
++/** `label` có chứa `search` không (không phân biệt hoa thường và dấu). */
++export function matchesSearch(label: string, search: string): boolean {
++  return normalizeText(label).includes(normalizeText(search));
++}

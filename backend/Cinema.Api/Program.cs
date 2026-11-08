@@ -42,7 +42,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-// Serilog â€” structured logging
+// Serilog — structured logging
 // Doc config tu appsettings.json (Serilog section),
 // ghi log ra Console va file logs/perfo-{date}.log
 builder.Host.UseSerilog(
@@ -54,7 +54,7 @@ builder.Host.UseSerilog(
             .WriteTo.File("logs/perfo-.log", rollingInterval: RollingInterval.Day)
 );
 
-// Options pattern â€” anh xa cac section trong appsettings.json
+// Options pattern — anh xa cac section trong appsettings.json
 // vao cac POCO class de inject qua IOptions<T> / IOptionsSnapshot<T>
 builder.Services.Configure<BookingOptions>(
     builder.Configuration.GetSection(BookingOptions.SectionName)
@@ -101,16 +101,16 @@ var jwtOptions =
 var brandOptions = BindSection<BrandOptions>(BrandOptions.SectionName);
 var backgroundJobOptions = BindSection<BackgroundJobOptions>(BackgroundJobOptions.SectionName);
 
-// Cáº¥u hÃ¬nh mÃºi giá» nghiá»‡p vá»¥ má»™t láº§n khi khá»Ÿi Ä‘á»™ng.
-// NÃ©m InvalidOperationException ngay táº¡i Ä‘Ã¢y náº¿u Brand:TimeZoneId khÃ´ng há»£p lá»‡.
+// Cấu hình múi giờ nghiệp vụ một lần khi khởi động.
+// Ném InvalidOperationException ngay tại đây nếu Brand:TimeZoneId không hợp lệ.
 Cinema.Application.Utils.VietnamTime.Configure(brandOptions.TimeZoneId);
 
-// Cáº¥u hÃ¬nh tiá»n tá»‘ mÃ£ booking tá»« Brand:BookingCodePrefix (máº·c Ä‘á»‹nh "BK").
+// Cấu hình tiền tố mã booking từ Brand:BookingCodePrefix (mặc định "BK").
 Cinema.Application.Utils.CodeGenerator.Configure(brandOptions.BookingCodePrefix);
 
 // MVC Controllers
-// ApiResponseFilter  â€” boc moi response thanh ApiResponse<T> chuan
-// ValidationActionFilter â€” xu ly FluentValidation truoc khi vao action
+// ApiResponseFilter  — boc moi response thanh ApiResponse<T> chuan
+// ValidationActionFilter — xu ly FluentValidation truoc khi vao action
 builder
     .Services.AddControllers(options =>
     {
@@ -127,7 +127,7 @@ builder
         );
     });
 
-// FluentValidation â€” quet toan bo assembly chua MapsterConfig de dang ky tat ca IValidator<T>
+// FluentValidation — quet toan bo assembly chua MapsterConfig de dang ky tat ca IValidator<T>
 builder.Services.AddValidatorsFromAssembly(typeof(MapsterConfig).Assembly);
 
 // Tat model-state auto-response mac dinh cua ASP.NET, thay bang ApiResponse chuan
@@ -148,16 +148,16 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
-// Mapster â€” object mapping (thay the AutoMapper)
+// Mapster — object mapping (thay the AutoMapper)
 // AddMapsterConfig() dang ky cac TypeAdapterConfig tu Cinema.Application
 builder.Services.AddMapsterConfig();
 
-// Infrastructure layer â€” EF Core (AppDbContext), repositories,
+// Infrastructure layer — EF Core (AppDbContext), repositories,
 // Cloudinary, Email (MailKit), VnPay, MoMo, va cac service khac
 // Xem: Cinema.Infrastructure/DependencyInjection.cs
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Application layer â€” MediatR (CQRS handlers), domain services,
+// Application layer — MediatR (CQRS handlers), domain services,
 // business logic use cases
 // Xem: Cinema.Application/DependencyInjection.cs
 builder.Services.AddApplication();
@@ -199,7 +199,7 @@ builder
                 var rawUserId = context.Principal?.FindFirst(AppClaimTypes.UserId)?.Value;
                 if (!int.TryParse(rawUserId, out var userId))
                 {
-                    context.Fail("Token khÃ´ng há»£p lá»‡.");
+                    context.Fail("Token không hợp lệ.");
                     return;
                 }
 
@@ -209,7 +209,7 @@ builder
                     context.HttpContext.RequestAborted
                 );
                 if (!isActive)
-                    context.Fail("TÃ i khoáº£n Ä‘Ã£ bá»‹ khÃ³a.");
+                    context.Fail("Tài khoản đã bị khóa.");
             },
             OnMessageReceived = context =>
             {
@@ -223,8 +223,8 @@ builder
     });
 
 // Authorization policies
-// CustomerOnly â€” chi cho phep role "Customer"
-// AdminOnly    â€” chi cho phep role "Admin"
+// CustomerOnly — chi cho phep role "Customer"
+// AdminOnly    — chi cho phep role "Admin"
 builder
     .Services.AddAuthorizationBuilder()
     .AddPolicy(Policies.CustomerOnly, p => p.RequireRole(Roles.Customer))
@@ -240,11 +240,11 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc(
         "client",
-        new OpenApiInfo { Title = $"{brandOptions.Name} â€” Client API", Version = "v1" }
+        new OpenApiInfo { Title = $"{brandOptions.Name} — Client API", Version = "v1" }
     );
     options.SwaggerDoc(
         "admin",
-        new OpenApiInfo { Title = $"{brandOptions.Name} â€” Admin API", Version = "v1" }
+        new OpenApiInfo { Title = $"{brandOptions.Name} — Admin API", Version = "v1" }
     );
 
     // Phan loai endpoint: admin doc bat dau bang api/v1/admin
@@ -266,7 +266,7 @@ builder.Services.AddSwaggerGen(options =>
         "Bearer",
         new OpenApiSecurityScheme
         {
-            Description = "JWT Authorization header. Nháº­p: Bearer {token}",
+            Description = "JWT Authorization header. Nhập: Bearer {token}",
             Name = "Authorization",
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.ApiKey,
@@ -281,7 +281,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var connectionString = builder.Configuration.GetPostgresConnectionString();
 
-// Hangfire â€” background job processing
+// Hangfire — background job processing
 // Server: xu ly job trong cung process (single-instance dev)
 // GlobalJobFilters: tu dong retry 3 lan (30s, 2p, 10p)
 if (!builder.Environment.IsEnvironment("Testing"))
@@ -305,7 +305,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
     );
 }
 
-// SignalR â€” realtime WebSocket / long-polling
+// SignalR — realtime WebSocket / long-polling
 // Dung cho ShowtimeHub: cap nhat trang thai ghe dat theo thoi gian thuc
 builder.Services.AddSignalR();
 
@@ -336,9 +336,9 @@ builder.Services.AddCors(options =>
 });
 
 // Rate Limiting (ASP.NET Core built-in, .NET 7+)
-// Global  : SlidingWindow â€” 100 req / 60s moi IP
-// "auth"  : FixedWindow   â€” 5 req / 60s moi IP (login, register)
-// "booking-hold": FixedWindow â€” 10 req / 60s moi user (giu ghe)
+// Global  : SlidingWindow — 100 req / 60s moi IP
+// "auth"  : FixedWindow   — 5 req / 60s moi IP (login, register)
+// "booking-hold": FixedWindow — 10 req / 60s moi user (giu ghe)
 var rateLimitOptions =
     builder.Configuration.GetSection(RateLimitOptions.SectionName).Get<RateLimitOptions>()
     ?? new RateLimitOptions();
@@ -403,7 +403,7 @@ if (builder.Environment.IsProduction())
     );
     if (productionErrors.Count > 0)
         throw new InvalidOperationException(
-            "Cáº¥u hÃ¬nh Production khÃ´ng há»£p lá»‡:" + string.Concat(productionErrors.Select(e => $"\n- {e}"))
+            "Cấu hình Production không hợp lệ:" + string.Concat(productionErrors.Select(e => $"\n- {e}"))
         );
 }
 
@@ -425,7 +425,7 @@ if (runMigrationsOnStartup)
     {
         app.Logger.LogError(
             ex,
-            "Lá»—i trong quÃ¡ trÃ¬nh Database Migration hoáº·c Seeding khi khá»Ÿi Ä‘á»™ng."
+            "Lỗi trong quá trình Database Migration hoặc Seeding khi khởi động."
         );
         throw;
     }
@@ -445,13 +445,13 @@ app.Use(
     }
 );
 
-// Serilog request logging â€” ghi method, path, status, time
+// Serilog request logging — ghi method, path, status, time
 app.UseSerilogRequestLogging();
 
-// Global exception handler â€” tra ve ApiResponse<T> khi co unhandled exception
+// Global exception handler — tra ve ApiResponse<T> khi co unhandled exception
 app.UseAppExceptionHandling();
 
-// Swagger UI â€” chi hien thi trong Development
+// Swagger UI — chi hien thi trong Development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -474,10 +474,10 @@ app.UseAuthorization(); // Kiem tra policy / role
 
 // Endpoint mapping
 
-// Controllers â€” tat ca REST API endpoints
+// Controllers — tat ca REST API endpoints
 app.MapControllers();
 
-// Hangfire Dashboard â€” /admin/hangfire (chi admin moi vao duoc)
+// Hangfire Dashboard — /admin/hangfire (chi admin moi vao duoc)
 if (!app.Environment.IsEnvironment("Testing"))
 {
     app.MapHangfireDashboard(
@@ -486,11 +486,11 @@ if (!app.Environment.IsEnvironment("Testing"))
     );
 }
 
-// SignalR Hub â€” /hubs/showtimes
+// SignalR Hub — /hubs/showtimes
 app.MapHub<ShowtimeHub>("/hubs/showtimes");
 
 // Recurring Jobs (Hangfire)
-// ReleaseExpiredSeats â€” giai phong ghe het thoi gian giu, chay moi phut
+// ReleaseExpiredSeats — giai phong ghe het thoi gian giu, chay moi phut
 if (!app.Environment.IsEnvironment("Testing"))
 {
     RecurringJob.AddOrUpdate<ReleaseExpiredSeatsJob>(

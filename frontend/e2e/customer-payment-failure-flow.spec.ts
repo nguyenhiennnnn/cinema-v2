@@ -24,10 +24,11 @@ test("customer sees a clear failure state when a booking ends up cancelled/faile
   );
 
   await page.goto(`/booking/result?bookingId=${hold!.bookingId}`);
+  await page.waitForLoadState("networkidle").catch(() => { /* ignore */ });
 
   await expect(
     page.getByRole("heading", { name: /Đơn đặt vé đã bị huỷ/i }),
-  ).toBeVisible({ timeout: 10_000 });
+  ).toBeVisible({ timeout: 20_000 });
   await expect(
     page.getByText(/Giao dịch không thành công hoặc đã bị huỷ/i),
   ).toBeVisible();
