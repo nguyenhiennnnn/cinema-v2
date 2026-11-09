@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   extractApiError,
   getDisplayMessage,
@@ -69,9 +68,6 @@ export function filterBySearch<T>(
 }
 
 export function describeCreateError(error: unknown): string {
-  if (axios.isAxiosError(error) && !error.response) {
-    return "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.";
-  }
   const { statusCode } = extractApiError(error);
   const firstFieldError = Object.values(getFieldErrors(error))[0];
   if (statusCode === 400 && firstFieldError) return firstFieldError;

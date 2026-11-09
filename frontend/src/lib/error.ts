@@ -1,6 +1,13 @@
 import axios from "axios";
 import { toast } from "@/components/ui/toast";
 import { ENV } from "@/config/env";
+import {
+  ERROR_MESSAGES,
+  ERROR_TOAST_DEDUPE_MS,
+  SERVER_ERROR_RULE,
+  SILENT_TOAST_STATUSES,
+  STATUS_ERROR_RULES,
+} from "@/config/error-messages";
 
 export interface ApiErrorShape {
   message: string;
@@ -20,7 +27,7 @@ export function extractApiError(error: unknown): ApiErrorShape {
   if (error instanceof Error) {
     return { message: error.message };
   }
-  return { message: "Đã có lỗi xảy ra không xác định" };
+  return { message: ERROR_MESSAGES.unknown };
 }
 
 export function logDevError(error: unknown, context?: string): void {
@@ -57,35 +64,74 @@ export function logDevError(error: unknown, context?: string): void {
   }
 }
 
+export function isCancelledError(error: unknown): boolean {
+  return axios.isCancel(error);
+}
+
+export function isNetworkError(error: unknown): boolean {
+  return axios.isAxiosError(error) && !error.response && !axios.isCancel(error);
+}
+
 export function getDisplayMessage(error: unknown): string {
   const { message, statusCode } = extractApiError(error);
 
-  if (statusCode === 401)
-    return "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.";
-  if (statusCode === 403) return "Bạn không có quyền thực hiện thao tác này.";
-  if (statusCode === 404) return "Không tìm thấy dữ liệu yêu cầu.";
-  if (statusCode === 409)
-    return message || "Dữ liệu bị xung đột. Vui lòng thử lại.";
-  if (statusCode === 422 || statusCode === 400)
-    return message || "Dữ liệu không hợp lệ.";
-  if (statusCode && statusCode >= 500)
-    return "Máy chủ đang gặp sự cố. Vui lòng thử lại sau.";
-  if (!navigator.onLine) return "Không có kết nối mạng. Vui lòng kiểm tra lại.";
+  if (isNetworkError(error)) {
+    const code = (error as { code?: string }).code;
+    if (code === "ECONNABORTED" || code === "ETIMEDOUT") {
+      return ERROR_MESSAGES.timeout;
+    }
+    return navigator.onLine ? ERROR_MESSAGES.network : ERROR_MESSAGES.offline;
+  }
 
-  return message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
+  if (statusCode) {
+    const rule =
+      statusCode >= 500 ? SERVER_ERROR_RULE : STATUS_ERROR_RULES[statusCode];
+    if (rule) {
+      return rule.preferServerMessage ? message || rule.message : rule.message;
+    }
+  }
+
+  if (!navigator.onLine) return ERROR_MESSAGES.offline;
+
+  return message || ERROR_MESSAGES.fallback;
 }
 
-export function showApiErrorToast(error: unknown, opts?: { title?: string }): void {
-  const message = getDisplayMessage(error);
+let lastToast = { key: "", at: 0 };
+
+export function showApiErrorToast(
+  error: unknown,
+  opts?: { title?: string },
+): void {
+  if (isCancelledError(error)) return;
+
   const { statusCode } = extractApiError(error);
+  if (statusCode && SILENT_TOAST_STATUSES.includes(statusCode)) return;
 
-  if (statusCode === 401) return;
+  const title = opts?.title ?? ERROR_MESSAGES.toastTitle;
+  const description = getDisplayMessage(error);
 
-  toast.add({
-    title: opts?.title ?? "Đã có lỗi xảy ra",
-    description: message,
-    type: "error",
-  });
+  const key = `${title}|${description}`;
+  const now = Date.now();
+  if (key === lastToast.key && now - lastToast.at < ERROR_TOAST_DEDUPE_MS)
+    return;
+  lastToast = { key, at: now };
+
+  toast.add({ title, description, type: "error" });
+}
+
+export interface HandleApiErrorOptions {
+  context?: string;
+  title?: string;
+  silent?: boolean;
+}
+
+export function handleApiError(
+  error: unknown,
+  opts: HandleApiErrorOptions = {},
+): void {
+  logDevError(error, opts.context);
+  if (opts.silent) return;
+  showApiErrorToast(error, { title: opts.title });
 }
 
 export function getFieldErrors(error: unknown): Record<string, string> {

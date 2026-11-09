@@ -76,6 +76,7 @@ export function useAdminLogin() {
 
 export function useGoogleLogin() {
   return useMutation({
+    meta: { skipErrorToast: true },
     mutationFn: (body: GoogleLoginRequest) => authApi.googleLogin(body),
     onSuccess: async (res) => {
       const { accessToken, refreshToken, user } = res.data;

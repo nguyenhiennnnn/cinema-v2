@@ -448,6 +448,9 @@ app.UseSerilogRequestLogging();
 // Global exception handler — tra ve ApiResponse<T> khi co unhandled exception
 app.UseAppExceptionHandling();
 
+// Response lỗi không có body (401/403/404/429...) -> ApiResponse chuẩn
+app.UseApiStatusCodePages();
+
 // Swagger UI — chi hien thi trong Development
 if (app.Environment.IsDevelopment())
 {

@@ -124,6 +124,7 @@ export const invalidations = {
 export type InvalidationName = keyof typeof invalidations;
 
 export type AppMutationMeta = {
+  errorTitle?: string;
   skipErrorToast?: boolean;
   skipSuccessToast?: boolean;
   invalidates?: InvalidationName;

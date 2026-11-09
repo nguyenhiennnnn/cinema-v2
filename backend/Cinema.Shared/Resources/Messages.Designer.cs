@@ -46,6 +46,60 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Bạn không có quyền thực hiện thao tác này..
+        /// </summary>
+        public static string Forbidden_AccessDenied {
+            get {
+                return ResourceManager.GetString("Forbidden_AccessDenied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không tìm thấy tài nguyên yêu cầu..
+        /// </summary>
+        public static string NotFound_Resource {
+            get {
+                return ResourceManager.GetString("NotFound_Resource", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Yêu cầu không hợp lệ..
+        /// </summary>
+        public static string System_BadRequest {
+            get {
+                return ResourceManager.GetString("System_BadRequest", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Phương thức không được hỗ trợ..
+        /// </summary>
+        public static string System_MethodNotAllowed {
+            get {
+                return ResourceManager.GetString("System_MethodNotAllowed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bạn thao tác quá nhanh. Vui lòng thử lại sau..
+        /// </summary>
+        public static string System_TooManyRequests {
+            get {
+                return ResourceManager.GetString("System_TooManyRequests", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bạn cần đăng nhập để thực hiện thao tác này..
+        /// </summary>
+        public static string Unauthorized_Required {
+            get {
+                return ResourceManager.GetString("Unauthorized_Required", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Dữ liệu không hợp lệ..
         /// </summary>
         public static string Common_InvalidData {

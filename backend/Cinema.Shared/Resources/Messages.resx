@@ -723,6 +723,31 @@
     <value>Đã mở khóa tài khoản.</value>
   </data>
 
+  <!-- ===== Http (status code chung, dùng cho UseApiStatusCodePages) ===== -->
+  <data name="Forbidden_AccessDenied" xml:space="preserve">
+    <value>Bạn không có quyền thực hiện thao tác này.</value>
+  </data>
+
+  <data name="NotFound_Resource" xml:space="preserve">
+    <value>Không tìm thấy tài nguyên yêu cầu.</value>
+  </data>
+
+  <data name="System_BadRequest" xml:space="preserve">
+    <value>Yêu cầu không hợp lệ.</value>
+  </data>
+
+  <data name="System_MethodNotAllowed" xml:space="preserve">
+    <value>Phương thức không được hỗ trợ.</value>
+  </data>
+
+  <data name="System_TooManyRequests" xml:space="preserve">
+    <value>Bạn thao tác quá nhanh. Vui lòng thử lại sau.</value>
+  </data>
+
+  <data name="Unauthorized_Required" xml:space="preserve">
+    <value>Bạn cần đăng nhập để thực hiện thao tác này.</value>
+  </data>
+
   <!-- ===== System ===== -->
   <data name="System_UnexpectedError" xml:space="preserve">
     <value>Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.</value>

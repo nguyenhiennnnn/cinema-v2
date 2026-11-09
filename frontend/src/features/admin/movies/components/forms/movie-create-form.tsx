@@ -26,7 +26,6 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 import { useAdminCreateMovie } from "../../hooks/use-admin-movies";
-import { showApiErrorToast } from "@/lib/error";
 import { movieFormSchema, type MovieCreateFormValues } from "../../schemas/movie-schema";
 import { FormMultiSelectField, FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormImageField, FormVideoField } from "@/components/common/form/form-upload-field";
@@ -77,37 +76,33 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
     name: "cast",
   });
 
-  const onSubmit = async (values: MovieCreateFormValues) => {
-    try {
-      await createMovie.mutateAsync(
-        {
-          title: values.title,
-          originalTitle: values.originalTitle || null,
-          description: values.description || null,
-          directorId: values.directorId ?? null,
-          durationMinutes: values.durationMinutes,
-          releaseDate: values.releaseDate || null,
-          languageId: values.languageId ?? null,
-          subtitle: values.subtitle || null,
-          ageRatingId: values.ageRatingId ?? null,
-          posterUrl: values.posterUrl || null,
-          trailerUrl: values.trailerUrl || null,
-          status: "ComingSoon",
-          genreIds: values.genreIds,
-          cast: values.cast.map((c) => ({
-            actorId: c.actorId,
-            characterName: c.characterName || null,
-          })),
+  const onSubmit = (values: MovieCreateFormValues) => {
+    createMovie.mutate(
+      {
+        title: values.title,
+        originalTitle: values.originalTitle || null,
+        description: values.description || null,
+        directorId: values.directorId ?? null,
+        durationMinutes: values.durationMinutes,
+        releaseDate: values.releaseDate || null,
+        languageId: values.languageId ?? null,
+        subtitle: values.subtitle || null,
+        ageRatingId: values.ageRatingId ?? null,
+        posterUrl: values.posterUrl || null,
+        trailerUrl: values.trailerUrl || null,
+        status: "ComingSoon",
+        genreIds: values.genreIds,
+        cast: values.cast.map((c) => ({
+          actorId: c.actorId,
+          characterName: c.characterName || null,
+        })),
+      },
+      {
+        onSuccess: () => {
+          onSuccess();
         },
-        {
-          onSuccess: () => {
-            onSuccess();
-          },
-        }
-      );
-    } catch (error) {
-      showApiErrorToast(error, { title: "Không thể thêm phim" });
-    }
+      }
+    );
   };
 
   return (

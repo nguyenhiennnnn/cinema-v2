@@ -30,7 +30,6 @@ import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { useAdminMovieDetail, useAdminUpdateMovie } from "../../hooks/use-admin-movies";
 import type { AdminMovieListItemDto } from "../../types";
 import { FormSelectField } from "@/components/common/form/form-select-field";
-import { showApiErrorToast } from "@/lib/error";
 import { movieUpdateFormSchema, type MovieUpdateFormValues } from "../../schemas/movie-schema";
 import { FormMultiSelectField, FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormImageField, FormVideoField } from "@/components/common/form/form-upload-field";
@@ -113,40 +112,36 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
     }
   }, [movieDetail.data, form, movie.status]);
 
-  const onSubmit = async (values: MovieUpdateFormValues) => {
-    try {
-      await updateMovie.mutateAsync(
-        {
-          id: movie.movieId,
-          body: {
-            title: values.title,
-            originalTitle: values.originalTitle || null,
-            description: values.description || null,
-            directorId: values.directorId ?? null,
-            durationMinutes: values.durationMinutes,
-            releaseDate: values.releaseDate || null,
-            languageId: values.languageId ?? null,
-            subtitle: values.subtitle || null,
-            ageRatingId: values.ageRatingId ?? null,
-            posterUrl: values.posterUrl || null,
-            trailerUrl: values.trailerUrl || null,
-            status: values.status,
-            genreIds: values.genreIds,
-            cast: values.cast.map((c) => ({
-              actorId: c.actorId,
-              characterName: c.characterName || null,
-            })),
-          },
+  const onSubmit = (values: MovieUpdateFormValues) => {
+    updateMovie.mutate(
+      {
+        id: movie.movieId,
+        body: {
+          title: values.title,
+          originalTitle: values.originalTitle || null,
+          description: values.description || null,
+          directorId: values.directorId ?? null,
+          durationMinutes: values.durationMinutes,
+          releaseDate: values.releaseDate || null,
+          languageId: values.languageId ?? null,
+          subtitle: values.subtitle || null,
+          ageRatingId: values.ageRatingId ?? null,
+          posterUrl: values.posterUrl || null,
+          trailerUrl: values.trailerUrl || null,
+          status: values.status,
+          genreIds: values.genreIds,
+          cast: values.cast.map((c) => ({
+            actorId: c.actorId,
+            characterName: c.characterName || null,
+          })),
         },
-        {
-          onSuccess: () => {
-            onSuccess();
-          },
-        }
-      );
-    } catch (error) {
-      showApiErrorToast(error, { title: "Không thể cập nhật phim" });
-    }
+      },
+      {
+        onSuccess: () => {
+          onSuccess();
+        },
+      }
+    );
   };
 
   if (movieDetail.isLoading) {

@@ -26,14 +26,14 @@ export function useAdminMovieDetail(movieId?: number) {
 
 export function useAdminCreateMovie() {
   return useMutation({
-    meta: { invalidates: "movieChanged" },
+    meta: { invalidates: "movieChanged", errorTitle: "Không thể thêm phim" },
     mutationFn: (body: UpsertMovieRequest) => moviesAdminApi.createMovie(body),
   });
 }
 
 export function useAdminUpdateMovie() {
   return useMutation({
-    meta: { invalidates: "movieChanged" },
+    meta: { invalidates: "movieChanged", errorTitle: "Không thể cập nhật phim" },
     mutationFn: ({ id, body }: { id: number; body: UpsertMovieRequest }) =>
       moviesAdminApi.updateMovie(id, body),
   });

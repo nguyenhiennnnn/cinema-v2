@@ -1,5 +1,5 @@
 import { QueryCache, QueryClient, MutationCache } from "@tanstack/react-query";
-import { extractApiError, logDevError, showApiErrorToast } from "@/lib/error";
+import { extractApiError, handleApiError } from "@/lib/error";
 import { getApiSuccessMessage } from "@/lib/api-response";
 import { invalidateRelated } from "@/api/query-invalidation";
 import { toast } from "@/components/ui/toast";
@@ -7,9 +7,12 @@ import { QUERY_GC_TIME_MS, QUERY_STALE_TIME_MS } from "@/config/default-constant
 
 function handleGlobalError(context: "Query" | "Mutation") {
   return (error: unknown, query: { meta?: Record<string, unknown> }) => {
-    logDevError(error, context);
-    if (query?.meta?.skipErrorToast) return;
-    showApiErrorToast(error);
+    const title = query?.meta?.errorTitle;
+    handleApiError(error, {
+      context,
+      silent: Boolean(query?.meta?.skipErrorToast),
+      title: typeof title === "string" ? title : undefined,
+    });
   };
 }
 
