@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDateTimePickerField } from "@/components/common/form/form-datetime-picker-field";
@@ -16,6 +15,8 @@ import { getBusinessTodayDate, toBusinessIso } from "@/lib/business-time";
 import { MovieStatus } from "@/types/enum";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -45,17 +46,18 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
     defaultValues: { startTime: "", basePrice: 75000, allowAfterHours: false },
   });
 
-  const onSubmit = async (values: ShowtimeFormValues) => {
-    await createShowtime.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: ShowtimeFormValues) => {
+    createShowtime.mutate({
       movieId: values.movieId,
       roomId: values.roomId,
       startTime: toBusinessIso(values.startTime),
       basePrice: values.basePrice,
       allowAfterHours: values.allowAfterHours,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -109,14 +111,11 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
         <FormSwitchField name="allowAfterHours" control={form.control} label="Cho phép suất khuya (kết thúc sau giờ đóng cửa)" />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={createShowtime.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createShowtime.isPending}>
-          {createShowtime.isPending ? "Đang lưu..." : "Tạo suất chiếu"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createShowtime.isPending}
+        submitLabel="Tạo suất chiếu"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

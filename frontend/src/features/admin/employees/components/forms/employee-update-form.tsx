@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
@@ -15,6 +14,8 @@ import type { AdminEmployeeDto } from "../../types";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const employeeFormSchema = z.object({
   positionId: z.coerce.number().optional(),
@@ -44,8 +45,10 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
     },
   });
 
-  const onSubmit = async (values: EmployeeFormValues) => {
-    await updateEmployee.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: EmployeeFormValues) => {
+    updateEmployee.mutate({
       id: employee.employeeId,
       body: {
         positionId: values.positionId ? Number(values.positionId) : null,
@@ -53,9 +56,8 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
         isActive: values.isActive,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -93,14 +95,11 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
         <FormSwitchField name="isActive" control={form.control} label="Đang làm việc" />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={updateEmployee.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateEmployee.isPending}>
-          {updateEmployee.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateEmployee.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

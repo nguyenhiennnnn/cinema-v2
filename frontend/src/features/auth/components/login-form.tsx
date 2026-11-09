@@ -1,15 +1,15 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Loader2 } from "lucide-react";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/input";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { SubmitButton } from "@/components/common/form/submit-button";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useLogin } from "../hooks/use-auth";
-import { extractApiError } from "@/lib/error";
+import { extractApiError, hasFieldErrors } from "@/lib/error";
 import { GoogleSignInButton } from "./google-sign-in-button";
 import { ROUTES } from "@/config/routes";
 
@@ -30,12 +30,15 @@ export const LoginForm = () => {
     defaultValues: { email: "", password: "" },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   const onSubmit = (data: LoginFormValues) => {
     login(data, {
       onSuccess: () => {
         const redirect = searchParams.get("redirect") || "/";
         navigate(redirect, { replace: true });
       },
+      onError: applyServerErrors,
     });
   };
 
@@ -79,16 +82,13 @@ export const LoginForm = () => {
         )}
       />
 
-      {error && (
+      {error && !hasFieldErrors(error) && (
         <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {extractApiError(error).message}
         </p>
       )}
 
-      <Button type="submit" disabled={isPending} className="w-full">
-        {isPending && <Loader2 className="size-4 animate-spin" />}
-        Đăng nhập
-      </Button>
+      <SubmitButton isPending={isPending} label="Đăng nhập" className="w-full" />
 
       <div className="relative flex items-center py-1">
         <div className="grow border-t border-border" />

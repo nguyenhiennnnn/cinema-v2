@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   FieldGroup,
   } from "@/components/ui/field";
@@ -11,6 +10,8 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { useAdminCreateCombo } from "../../hooks/use-admin-combo";
 import { FormImageField } from "@/components/common/form/form-upload-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const comboFormSchema = z.object({
   name: z
@@ -42,16 +43,17 @@ export const ComboCreateForm = ({ onSuccess }: ComboCreateFormProps) => {
     defaultValues: { name: "", description: "", price: 0, imageUrl: "" },
   });
 
-  const onSubmit = async (values: ComboFormValues) => {
-    await createCombo.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: ComboFormValues) => {
+    createCombo.mutate({
       name: values.name,
       description: values.description || null,
       price: values.price,
       imageUrl: values.imageUrl || null,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -95,19 +97,11 @@ export const ComboCreateForm = ({ onSuccess }: ComboCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createCombo.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createCombo.isPending}>
-          {createCombo.isPending ? "Đang lưu..." : "Thêm combo"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createCombo.isPending}
+        submitLabel="Thêm combo"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

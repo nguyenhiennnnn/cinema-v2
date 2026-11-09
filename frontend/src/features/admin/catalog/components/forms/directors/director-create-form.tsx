@@ -2,12 +2,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateDirector } from "../../../hooks/use-admin-director";
 import { URL_PLACEHOLDER } from "@/config/default-constants";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const directorFormSchema = z.object({
   fullName: z
@@ -36,14 +37,15 @@ export const DirectorCreateForm = ({ onSuccess }: DirectorCreateFormProps) => {
     defaultValues: { fullName: "", avatarUrl: "" },
   });
 
-  const onSubmit = async (values: DirectorFormValues) => {
-    await createDirector.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: DirectorFormValues) => {
+    createDirector.mutate({
       fullName: values.fullName,
       avatarUrl: values.avatarUrl || null,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -72,19 +74,11 @@ export const DirectorCreateForm = ({ onSuccess }: DirectorCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createDirector.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createDirector.isPending}>
-          {createDirector.isPending ? "Đang lưu..." : "Thêm đạo diễn"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createDirector.isPending}
+        submitLabel="Thêm đạo diễn"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

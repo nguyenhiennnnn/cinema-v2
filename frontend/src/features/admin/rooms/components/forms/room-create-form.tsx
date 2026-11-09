@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
@@ -12,6 +11,8 @@ import { useScreenTypeQuickCreate } from "@/features/admin/catalog/hooks/use-qui
 import { useAdminCreateRoom } from "../../hooks/use-admin-rooms";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const roomFormSchema = z.object({
   roomName: z.string().min(1, "Vui lòng nhập tên phòng chiếu.").max(100),
@@ -37,16 +38,17 @@ export const RoomCreateForm = ({ onSuccess }: RoomCreateFormProps) => {
     defaultValues: { roomName: "", rows: 10, cols: 10 },
   });
 
-  const onSubmit = async (values: RoomFormValues) => {
-    await createRoom.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: RoomFormValues) => {
+    createRoom.mutate({
       roomName: values.roomName,
       screenTypeId: values.screenTypeId ?? null,
       rows: values.rows,
       cols: values.cols,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -92,14 +94,11 @@ export const RoomCreateForm = ({ onSuccess }: RoomCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={createRoom.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createRoom.isPending}>
-          {createRoom.isPending ? "Đang lưu..." : "Thêm phòng chiếu"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createRoom.isPending}
+        submitLabel="Thêm phòng chiếu"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

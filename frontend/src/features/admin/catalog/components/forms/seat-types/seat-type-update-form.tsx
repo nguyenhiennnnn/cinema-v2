@@ -2,12 +2,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateSeatType } from "../../../hooks/use-admin-seat-type";
 import type { SeatTypeDto } from "../../../types";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const seatTypeFormSchema = z.object({
   name: z
@@ -40,17 +41,18 @@ export const SeatTypeUpdateForm = ({
     },
   });
 
-  const onSubmit = async (values: SeatTypeFormValues) => {
-    await updateSeatType.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: SeatTypeFormValues) => {
+    updateSeatType.mutate({
       id: seatType.seatTypeId,
       body: {
         name: values.name,
         priceMultiplier: values.priceMultiplier,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -80,19 +82,11 @@ export const SeatTypeUpdateForm = ({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={updateSeatType.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateSeatType.isPending}>
-          {updateSeatType.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateSeatType.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

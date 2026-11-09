@@ -36,7 +36,7 @@ export function useAdminToggleCombo() {
 
 export function useAdminBulkSetComboActive() {
   return useMutation({
-    meta: { invalidates: "comboChanged", skipSuccessToast: true },
+    meta: { invalidates: "comboChanged" },
     mutationFn: (body: BulkStatusRequest) => combosAdminApi.bulkSetActive(body),
   });
 }

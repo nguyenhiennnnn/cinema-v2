@@ -1,19 +1,20 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Save, BadgeCheck } from "lucide-react";
+import { Save, BadgeCheck } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { SubmitButton } from "@/components/common/form/submit-button";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { AvatarUpload } from "@/features/client/account/components/avatar-upload";
 import { ProfileStatsCard } from "@/features/client/account/components/profile-stats-card";
 import { useMyProfile, useUpdateMyProfile } from "@/features/client/account/hooks/use-account";
 import { toDateInputValue } from "@/lib/formatters";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useEffect } from "react";
 
 const GENDER_OPTIONS = [
@@ -47,6 +48,8 @@ const AccountProfilePage = () => {
     },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   useEffect(() => {
     if (!profile) return;
     form.reset({
@@ -66,7 +69,7 @@ const AccountProfilePage = () => {
       avatar: values.avatar ?? null,
       dateOfBirth: values.dateOfBirth || null,
       gender: values.gender || null,
-    });
+    }, { onError: applyServerErrors });
   };
 
   if (isLoading || !profile) {
@@ -139,10 +142,11 @@ const AccountProfilePage = () => {
         </FieldGroup>
 
         <div className="mt-6 flex justify-end">
-          <Button type="submit" disabled={updateProfile.isPending}>
-            {updateProfile.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-            <span>Lưu thay đổi</span>
-          </Button>
+          <SubmitButton
+            isPending={updateProfile.isPending}
+            label="Lưu thay đổi"
+            icon={<Save className="size-4" />}
+          />
         </div>
       </form>
     </div>

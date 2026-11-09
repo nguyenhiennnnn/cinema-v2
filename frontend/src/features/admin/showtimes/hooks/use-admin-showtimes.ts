@@ -62,7 +62,7 @@ export function useAdminBulkCreateShowtimes() {
 
 export function useAdminBulkDeleteShowtimes() {
   return useMutation({
-    meta: { invalidates: "showtimeCancelled", skipSuccessToast: true },
+    meta: { invalidates: "showtimeCancelled" },
     mutationFn: (body: BulkDeleteShowtimesRequest) =>
       showtimesAdminApi.bulkDelete(body),
   });

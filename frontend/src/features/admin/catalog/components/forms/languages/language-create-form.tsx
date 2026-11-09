@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateLanguage } from "../../../hooks/use-admin-language";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const languageFormSchema = z.object({
   name: z
@@ -29,11 +30,12 @@ export const LanguageCreateForm = ({ onSuccess }: LanguageCreateFormProps) => {
     defaultValues: { name: "" },
   });
 
-  const onSubmit = async (values: LanguageFormValues) => {
-    await createLanguage.mutateAsync(values, {
-      onSuccess: () => {
-        onSuccess();
-      }
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: LanguageFormValues) => {
+    createLanguage.mutate(values, {
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -54,19 +56,11 @@ export const LanguageCreateForm = ({ onSuccess }: LanguageCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createLanguage.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createLanguage.isPending}>
-          {createLanguage.isPending ? "Đang lưu..." : "Thêm ngôn ngữ"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createLanguage.isPending}
+        submitLabel="Thêm ngôn ngữ"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

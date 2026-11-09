@@ -20,7 +20,7 @@ export function useAdminDeleteReview() {
 
 export function useAdminBulkDeleteReviews() {
   return useMutation({
-    meta: { invalidates: "reviewChanged", skipSuccessToast: true },
+    meta: { invalidates: "reviewChanged" },
     mutationFn: (body: BulkDeleteReviewsRequest) =>
       reviewsAdminApi.bulkDeleteReviews(body),
   });

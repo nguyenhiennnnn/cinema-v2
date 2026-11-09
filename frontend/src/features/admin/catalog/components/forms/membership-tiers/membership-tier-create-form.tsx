@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateMembershipTier } from "../../../hooks/use-admin-membership-tier";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const membershipTierFormSchema = z.object({
   tierName: z
@@ -39,15 +40,16 @@ export const MembershipTierCreateForm = ({
     defaultValues: { tierName: "", minPoints: 0, discountPercent: 0 },
   });
 
-  const onSubmit = async (values: MembershipTierFormValues) => {
-    await createMembershipTier.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: MembershipTierFormValues) => {
+    createMembershipTier.mutate({
       tierName: values.tierName,
       minPoints: values.minPoints,
       discountPercent: values.discountPercent,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -89,19 +91,11 @@ export const MembershipTierCreateForm = ({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createMembershipTier.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createMembershipTier.isPending}>
-          {createMembershipTier.isPending ? "Đang lưu..." : "Thêm hạng"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createMembershipTier.isPending}
+        submitLabel="Thêm hạng"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

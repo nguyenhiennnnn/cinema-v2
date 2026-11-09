@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   FieldGroup,
   } from "@/components/ui/field";
@@ -10,6 +9,8 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateAgeRating } from "../../../hooks/use-admin-age-rating";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const ageRatingFormSchema = z.object({
   code: z
@@ -37,14 +38,15 @@ export const AgeRatingCreateForm = ({ onSuccess }: AgeRatingCreateFormProps) => 
     defaultValues: { code: "", description: "" },
   });
 
-  const onSubmit = async (values: AgeRatingFormValues) => {
-    await createAgeRating.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: AgeRatingFormValues) => {
+    createAgeRating.mutate({
       code: values.code,
       description: values.description || null,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -72,19 +74,11 @@ export const AgeRatingCreateForm = ({ onSuccess }: AgeRatingCreateFormProps) => 
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createAgeRating.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createAgeRating.isPending}>
-          {createAgeRating.isPending ? "Đang lưu..." : "Thêm phân loại"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createAgeRating.isPending}
+        submitLabel="Thêm phân loại"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

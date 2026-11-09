@@ -2,13 +2,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { SubmitButton } from "@/components/common/form/submit-button";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useRegister } from "../hooks/use-auth";
-import { getDisplayMessage, getFieldErrors } from "@/lib/error";
+import { getDisplayMessage, hasFieldErrors } from "@/lib/error";
 import { passwordSchema } from "@/lib/validators";
 import type { RegisterRequest } from "../types";
 import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
@@ -53,6 +55,8 @@ export const RegisterForm = () => {
     },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   const onSubmit = (data: RegisterFormValues) => {
     const payload: RegisterRequest = {
       fullName: data.fullName,
@@ -62,12 +66,7 @@ export const RegisterForm = () => {
     };
     registerUser(payload, {
       onSuccess: () => setSubmittedEmail(data.email),
-      onError: (err) => {
-        const fieldErrors = getFieldErrors(err);
-        Object.entries(fieldErrors).forEach(([field, message]) => {
-          form.setError(field as keyof RegisterFormValues, { message });
-        });
-      },
+      onError: applyServerErrors,
     });
   };
 
@@ -145,16 +144,13 @@ export const RegisterForm = () => {
         placeholder="••••••••"
       />
 
-      {error && Object.keys(getFieldErrors(error)).length === 0 && (
+      {error && !hasFieldErrors(error) && (
         <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {getDisplayMessage(error)}
         </p>
       )}
 
-      <Button type="submit" disabled={isPending} className="w-full">
-        {isPending && <Loader2 className="size-4 animate-spin" />}
-        Đăng ký
-      </Button>
+      <SubmitButton isPending={isPending} label="Đăng ký" className="w-full" />
 
       <p className="text-center text-sm text-muted-foreground">
         Đã có tài khoản?{" "}

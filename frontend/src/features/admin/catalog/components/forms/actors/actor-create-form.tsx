@@ -2,12 +2,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateActor } from "../../../hooks/use-admin-actor";
 import { URL_PLACEHOLDER } from "@/config/default-constants";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const actorFormSchema = z.object({
   fullName: z
@@ -36,14 +37,15 @@ export const ActorCreateForm = ({ onSuccess }: ActorCreateFormProps) => {
     defaultValues: { fullName: "", avatarUrl: "" },
   });
 
-  const onSubmit = async (values: ActorFormValues) => {
-    await createActor.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: ActorFormValues) => {
+    createActor.mutate({
       fullName: values.fullName,
       avatarUrl: values.avatarUrl || null,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -72,19 +74,11 @@ export const ActorCreateForm = ({ onSuccess }: ActorCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createActor.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createActor.isPending}>
-          {createActor.isPending ? "Đang lưu..." : "Thêm diễn viên"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createActor.isPending}
+        submitLabel="Thêm diễn viên"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

@@ -8,10 +8,12 @@ import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { FormActions } from "@/components/common/form/form-actions";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
 import { getBusinessTodayDate } from "@/lib/business-time";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { formatDayMonth } from "@/lib/cinema-format";
 import { formatCurrency, formatTime } from "@/lib/formatters";
 
@@ -72,35 +74,48 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "movies" });
 
-  const onPreview = async (values: FormValues) => {
-    const res = await preview.mutateAsync({
-      ...values,
-      toDate: values.toDate ? values.toDate : undefined,
-    });
-    setDraft(res.data);
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onPreview = (values: FormValues) => {
+    preview.mutate(
+      {
+        ...values,
+        toDate: values.toDate ? values.toDate : undefined,
+      },
+      {
+        onSuccess: (res) => setDraft(res.data),
+        onError: applyServerErrors,
+      },
+    );
   };
 
-  const onApply = async () => {
+  const onApply = () => {
     if (!draft) return;
     const allowAfterHours = form.getValues("allowAfterHours");
-    const res = await apply.mutateAsync({
-      items: draft.items.map((i) => ({
-        movieId: i.movieId,
-        roomId: i.roomId,
-        startTime: i.startTime,
-        basePrice: i.basePrice,
-        allowAfterHours,
-      })),
-    });
-    toast.add({
-      title: `Đã tạo ${res.data.totalCreated} suất chiếu.`,
-      description:
-        res.data.totalSkipped > 0
-          ? `Bỏ qua ${res.data.totalSkipped} suất do trùng lịch hoặc không hợp lệ.`
-          : undefined,
-      type: "success",
-    });
-    onSuccess();
+    apply.mutate(
+      {
+        items: draft.items.map((i) => ({
+          movieId: i.movieId,
+          roomId: i.roomId,
+          startTime: i.startTime,
+          basePrice: i.basePrice,
+          allowAfterHours,
+        })),
+      },
+      {
+        onSuccess: (res) => {
+          toast.add({
+            title: `Đã tạo ${res.data.totalCreated} suất chiếu.`,
+            description:
+              res.data.totalSkipped > 0
+                ? `Bỏ qua ${res.data.totalSkipped} suất do trùng lịch hoặc không hợp lệ.`
+                : undefined,
+            type: "success",
+          });
+          onSuccess();
+        },
+      },
+    );
   };
 
   const removeDraftItem = (index: number) =>
@@ -290,14 +305,12 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
         <FormSwitchField name="allowAfterHours" control={form.control} label="Cho phép suất khuya (kết thúc sau giờ đóng cửa)" />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={preview.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={preview.isPending}>
-          {preview.isPending ? "Đang xếp lịch..." : "Xếp lịch đề xuất"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={preview.isPending}
+        submitLabel="Xếp lịch đề xuất"
+        pendingLabel="Đang xếp lịch..."
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

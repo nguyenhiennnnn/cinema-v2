@@ -134,13 +134,24 @@ export function handleApiError(
   showApiErrorToast(error, { title: opts.title });
 }
 
+function toFieldPath(key: string): string {
+  return key.replace(
+    /(^|\.)([A-Z])/g,
+    (_match, separator: string, char: string) => separator + char.toLowerCase(),
+  );
+}
+
 export function getFieldErrors(error: unknown): Record<string, string> {
   const { errors } = extractApiError(error);
   if (!errors) return {};
   return Object.fromEntries(
     Object.entries(errors).map(([key, msgs]) => [
-      key.charAt(0).toLowerCase() + key.slice(1),
+      toFieldPath(key),
       msgs[0] ?? "",
     ]),
   );
+}
+
+export function hasFieldErrors(error: unknown): boolean {
+  return Object.keys(getFieldErrors(error)).length > 0;
 }

@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
@@ -14,6 +13,8 @@ import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import type { AdminRoomDto } from "../../types";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const roomFormSchema = z.object({
   roomName: z.string().min(1, "Vui lòng nhập tên phòng chiếu.").max(100),
@@ -43,8 +44,10 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
     },
   });
 
-  const onSubmit = async (values: RoomFormValues) => {
-    await updateRoom.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: RoomFormValues) => {
+    updateRoom.mutate({
       id: room.roomId,
       body: {
         roomName: values.roomName,
@@ -52,9 +55,8 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
         isActive: values.isActive,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -86,14 +88,11 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
         <FormSwitchField name="isActive" control={form.control} label="Đang hoạt động" />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={updateRoom.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateRoom.isPending}>
-          {updateRoom.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateRoom.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

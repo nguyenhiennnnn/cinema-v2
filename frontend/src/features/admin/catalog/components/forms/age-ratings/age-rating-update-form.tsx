@@ -2,13 +2,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 
 import { useAdminUpdateAgeRating } from "../../../hooks/use-admin-age-rating";
 import type { AgeRatingDto } from "../../../types";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const ageRatingFormSchema = z.object({
   code: z
@@ -43,17 +44,18 @@ export const AgeRatingUpdateForm = ({
     },
   });
 
-  const onSubmit = async (values: AgeRatingFormValues) => {
-    await updateAgeRating.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: AgeRatingFormValues) => {
+    updateAgeRating.mutate({
       id: ageRating.ageRatingId,
       body: {
         code: values.code,
         description: values.description || null,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -81,19 +83,11 @@ export const AgeRatingUpdateForm = ({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={updateAgeRating.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateAgeRating.isPending}>
-          {updateAgeRating.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateAgeRating.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

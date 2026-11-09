@@ -6,6 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FormActions } from "@/components/common/form/form-actions";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
@@ -25,6 +26,7 @@ import {
   useLanguageQuickCreate,
 } from "@/features/admin/catalog/hooks/use-quick-create";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 import { useAdminMovieDetail, useAdminUpdateMovie } from "../../hooks/use-admin-movies";
@@ -80,6 +82,8 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
       cast: [],
     },
   });
+
+  const applyServerErrors = useServerFieldErrors(form);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -137,9 +141,8 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
         },
       },
       {
-        onSuccess: () => {
-          onSuccess();
-        },
+        onSuccess: () => onSuccess(),
+        onError: applyServerErrors,
       }
     );
   };
@@ -350,14 +353,11 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
         </Field>
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={updateMovie.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateMovie.isPending}>
-          {updateMovie.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateMovie.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

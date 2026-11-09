@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateGenre } from "../../../hooks/use-admin-genre";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const genreFormSchema = z.object({
   name: z
@@ -29,11 +30,12 @@ export const GenreCreateForm = ({ onSuccess }: GenreCreateFormProps) => {
     defaultValues: { name: "" },
   });
 
-  const onSubmit = async (values: GenreFormValues) => {
-    await createGenre.mutateAsync(values, {
-      onSuccess: () => {
-        onSuccess();
-      }
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: GenreFormValues) => {
+    createGenre.mutate(values, {
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -54,19 +56,11 @@ export const GenreCreateForm = ({ onSuccess }: GenreCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createGenre.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createGenre.isPending}>
-          {createGenre.isPending ? "Đang lưu..." : "Thêm thể loại"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createGenre.isPending}
+        submitLabel="Thêm thể loại"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

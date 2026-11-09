@@ -2,8 +2,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
+import { FormActions } from "@/components/common/form/form-actions";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { resolveSeatVisualKind } from "@/components/common/seat-map/seat-map-types";
@@ -171,12 +171,7 @@ export const SeatEditorAutoGenerateForm = ({
         </div>
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onDone}>
-          Hủy
-        </Button>
-        <Button type="submit">Tạo layout</Button>
-      </div>
+      <FormActions isPending={false} submitLabel="Tạo layout" onCancel={onDone} />
     </form>
   );
 };

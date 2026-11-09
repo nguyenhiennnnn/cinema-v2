@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateScreenType } from "../../../hooks/use-admin-screen-type";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const screenTypeFormSchema = z.object({
   name: z
@@ -31,11 +32,12 @@ export const ScreenTypeCreateForm = ({
     defaultValues: { name: "" },
   });
 
-  const onSubmit = async (values: ScreenTypeFormValues) => {
-    await createScreenType.mutateAsync(values, {
-      onSuccess: () => {
-        onSuccess();
-      }
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: ScreenTypeFormValues) => {
+    createScreenType.mutate(values, {
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -56,19 +58,11 @@ export const ScreenTypeCreateForm = ({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createScreenType.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createScreenType.isPending}>
-          {createScreenType.isPending ? "Đang lưu..." : "Thêm loại màn hình"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createScreenType.isPending}
+        submitLabel="Thêm loại màn hình"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

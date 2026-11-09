@@ -7,6 +7,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FormActions } from "@/components/common/form/form-actions";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { TimePickerField } from "@/components/common/date-time/time-picker-field";
@@ -16,6 +17,7 @@ import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminBulkCreateShowtimes } from "../../hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 
@@ -67,6 +69,8 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
     },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "times" });
 
   const toggleDay = (day: string) => {
@@ -78,8 +82,8 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
     }
   };
 
-  const onSubmit = async (values: BulkFormValues) => {
-    const res = await bulkCreate.mutateAsync({
+  const onSubmit = (values: BulkFormValues) => {
+    bulkCreate.mutate({
       movieId: values.movieId,
       roomId: values.roomId,
       dateRange: { from: values.fromDate, to: values.toDate },
@@ -88,7 +92,7 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
       basePrice: values.basePrice,
       allowAfterHours: values.allowAfterHours,
     }, {
-      onSuccess: () => {
+      onSuccess: (res) => {
         toast.add({
           title: `Đã tạo ${res.data.totalCreated} suất chiếu.`,
           description:
@@ -98,7 +102,8 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
           type: "success",
         });
         onSuccess();
-      }
+      },
+      onError: applyServerErrors,
     });
   };
 
@@ -213,14 +218,12 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
         <FormSwitchField name="allowAfterHours" control={form.control} label="Cho phép suất khuya (kết thúc sau giờ đóng cửa)" />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={bulkCreate.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={bulkCreate.isPending}>
-          {bulkCreate.isPending ? "Đang tạo..." : "Tạo hàng loạt"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={bulkCreate.isPending}
+        submitLabel="Tạo hàng loạt"
+        pendingLabel="Đang tạo..."
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

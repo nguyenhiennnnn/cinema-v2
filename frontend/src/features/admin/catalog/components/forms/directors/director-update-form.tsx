@@ -2,13 +2,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateDirector } from "../../../hooks/use-admin-director";
 import type { DirectorDto } from "../../../types";
 import { URL_PLACEHOLDER } from "@/config/default-constants";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const directorFormSchema = z.object({
   fullName: z
@@ -44,17 +45,18 @@ export const DirectorUpdateForm = ({
     },
   });
 
-  const onSubmit = async (values: DirectorFormValues) => {
-    await updateDirector.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: DirectorFormValues) => {
+    updateDirector.mutate({
       id: director.directorId,
       body: {
         fullName: values.fullName,
         avatarUrl: values.avatarUrl || null,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -83,19 +85,11 @@ export const DirectorUpdateForm = ({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={updateDirector.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateDirector.isPending}>
-          {updateDirector.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateDirector.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

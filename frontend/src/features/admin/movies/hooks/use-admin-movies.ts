@@ -48,7 +48,7 @@ export function useAdminDeleteMovie() {
 
 export function useAdminBulkDeleteMovies() {
   return useMutation({
-    meta: { invalidates: "movieChanged", skipSuccessToast: true },
+    meta: { invalidates: "movieChanged" },
     mutationFn: (body: BulkDeleteMoviesRequest) =>
       moviesAdminApi.bulkDeleteMovies(body),
   });

@@ -32,7 +32,6 @@ export function useCustomerLookup(params: CustomerLookupParams) {
     queryFn: () => usersAdminApi.searchCustomers(params),
     enabled: !!params.q && params.q.trim().length > 0,
     select: (res) => res.data,
-    staleTime: 30_000,
   });
 }
 
@@ -46,7 +45,7 @@ export function useAdminUpdateUserStatus() {
 
 export function useAdminBulkUpdateUserStatus() {
   return useMutation({
-    meta: { invalidates: "userChanged", skipSuccessToast: true },
+    meta: { invalidates: "userChanged" },
     mutationFn: (body: BulkStatusRequest) => usersAdminApi.bulkUpdateStatus(body),
   });
 }

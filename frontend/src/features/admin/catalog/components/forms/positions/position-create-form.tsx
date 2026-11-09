@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreatePosition } from "../../../hooks/use-admin-position";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const positionFormSchema = z.object({
   name: z
@@ -29,11 +30,12 @@ export const PositionCreateForm = ({ onSuccess }: PositionCreateFormProps) => {
     defaultValues: { name: "" },
   });
 
-  const onSubmit = async (values: PositionFormValues) => {
-    await createPosition.mutateAsync({ name: values.name }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: PositionFormValues) => {
+    createPosition.mutate({ name: values.name }, {
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -54,19 +56,11 @@ export const PositionCreateForm = ({ onSuccess }: PositionCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createPosition.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createPosition.isPending}>
-          {createPosition.isPending ? "Đang lưu..." : "Thêm chức vụ"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createPosition.isPending}
+        submitLabel="Thêm chức vụ"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

@@ -37,7 +37,7 @@ export function useAdminDeleteActor() {
 
 export function useAdminBulkDeleteActors() {
   return useMutation({
-    meta: { invalidates: "actorChanged", skipSuccessToast: true },
+    meta: { invalidates: "actorChanged" },
     mutationFn: (body: BulkIdsRequest) => actorsAdminApi.bulkDelete(body),
   });
 }

@@ -2,13 +2,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateActor } from "../../../hooks/use-admin-actor";
 import type { ActorDto } from "../../../types";
 import { URL_PLACEHOLDER } from "@/config/default-constants";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const actorFormSchema = z.object({
   fullName: z
@@ -41,17 +42,18 @@ export const ActorUpdateForm = ({ actor, onSuccess }: ActorUpdateFormProps) => {
     },
   });
 
-  const onSubmit = async (values: ActorFormValues) => {
-    await updateActor.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: ActorFormValues) => {
+    updateActor.mutate({
       id: actor.actorId,
       body: {
         fullName: values.fullName,
         avatarUrl: values.avatarUrl || null,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -80,19 +82,11 @@ export const ActorUpdateForm = ({ actor, onSuccess }: ActorUpdateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={updateActor.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateActor.isPending}>
-          {updateActor.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateActor.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

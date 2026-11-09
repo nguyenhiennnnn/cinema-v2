@@ -6,10 +6,12 @@ import { addDays, differenceInCalendarDays, format, parseISO, startOfWeek } from
 
 import { getBusinessTodayDate } from "@/lib/business-time";
 import { toDateInputValue } from "@/lib/formatters";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
+import { FormActions } from "@/components/common/form/form-actions";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 
 import { useAdminCloneShowtimes } from "../../hooks/use-admin-showtimes";
@@ -71,6 +73,8 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
     },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   const [sourceFrom, sourceTo, targetFrom] = form.watch(["sourceFrom", "sourceTo", "targetFrom"]);
   const canPreviewTarget = Boolean(sourceFrom && sourceTo && targetFrom);
   const targetRangeLabel = canPreviewTarget
@@ -82,24 +86,31 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
       })()
     : null;
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = (values: FormValues) => {
     const shiftDays = differenceInCalendarDays(parseISO(values.targetFrom), parseISO(values.sourceFrom));
-    const res = await clone.mutateAsync({
-      sourceFrom: values.sourceFrom,
-      sourceTo: values.sourceTo,
-      shiftDays,
-      allowAfterHours: values.allowAfterHours,
-    });
-    toast.add({
-      title: `Đã nhân bản ${res.data.totalCreated} suất chiếu.`,
-      description:
-        res.data.totalSkipped > 0
-          ? `Bỏ qua ${res.data.totalSkipped} suất do trùng lịch hoặc không hợp lệ.`
-          : undefined,
-      type: res.data.totalCreated > 0 ? "success" : "warning",
-    });
-    if (res.data.totalSkipped > 0) setResult(res.data);
-    else onSuccess();
+    clone.mutate(
+      {
+        sourceFrom: values.sourceFrom,
+        sourceTo: values.sourceTo,
+        shiftDays,
+        allowAfterHours: values.allowAfterHours,
+      },
+      {
+        onSuccess: (res) => {
+          toast.add({
+            title: `Đã nhân bản ${res.data.totalCreated} suất chiếu.`,
+            description:
+              res.data.totalSkipped > 0
+                ? `Bỏ qua ${res.data.totalSkipped} suất do trùng lịch hoặc không hợp lệ.`
+                : undefined,
+            type: res.data.totalCreated > 0 ? "success" : "warning",
+          });
+          if (res.data.totalSkipped > 0) setResult(res.data);
+          else onSuccess();
+        },
+        onError: applyServerErrors,
+      },
+    );
   };
 
   if (result) {
@@ -152,14 +163,12 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
         <FormSwitchField name="allowAfterHours" control={form.control} label="Cho phép suất khuya (kết thúc sau giờ đóng cửa)" />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={clone.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={clone.isPending}>
-          {clone.isPending ? "Đang nhân bản..." : "Nhân bản"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={clone.isPending}
+        submitLabel="Nhân bản"
+        pendingLabel="Đang nhân bản..."
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

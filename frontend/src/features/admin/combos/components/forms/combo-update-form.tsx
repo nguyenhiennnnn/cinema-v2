@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   FieldGroup,
   } from "@/components/ui/field";
@@ -12,6 +11,8 @@ import { useAdminUpdateCombo } from "../../hooks/use-admin-combo";
 import type { AdminComboDto } from "../../types";
 import { FormImageField } from "@/components/common/form/form-upload-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const comboFormSchema = z.object({
   name: z
@@ -49,8 +50,10 @@ export const ComboUpdateForm = ({ combo, onSuccess }: ComboUpdateFormProps) => {
     },
   });
 
-  const onSubmit = async (values: ComboFormValues) => {
-    await updateCombo.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: ComboFormValues) => {
+    updateCombo.mutate({
       id: combo.comboId,
       body: {
         name: values.name,
@@ -59,9 +62,8 @@ export const ComboUpdateForm = ({ combo, onSuccess }: ComboUpdateFormProps) => {
         imageUrl: values.imageUrl || null,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -104,19 +106,11 @@ export const ComboUpdateForm = ({ combo, onSuccess }: ComboUpdateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={updateCombo.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateCombo.isPending}>
-          {updateCombo.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateCombo.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

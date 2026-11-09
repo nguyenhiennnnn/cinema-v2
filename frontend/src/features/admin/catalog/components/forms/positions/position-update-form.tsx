@@ -2,12 +2,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdatePosition } from "../../../hooks/use-admin-position";
 import type { PositionDto } from "../../../types";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const positionFormSchema = z.object({
   name: z
@@ -34,14 +35,15 @@ export const PositionUpdateForm = ({
     defaultValues: { name: position.name },
   });
 
-  const onSubmit = async (values: PositionFormValues) => {
-    await updatePosition.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: PositionFormValues) => {
+    updatePosition.mutate({
       id: position.positionId,
       body: { name: values.name },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -62,19 +64,11 @@ export const PositionUpdateForm = ({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={updatePosition.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updatePosition.isPending}>
-          {updatePosition.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updatePosition.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

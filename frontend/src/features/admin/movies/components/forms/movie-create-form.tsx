@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FormActions } from "@/components/common/form/form-actions";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
@@ -23,6 +24,7 @@ import {
   useLanguageQuickCreate,
 } from "@/features/admin/catalog/hooks/use-quick-create";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 import { useAdminCreateMovie } from "../../hooks/use-admin-movies";
@@ -71,6 +73,8 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
     },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "cast",
@@ -98,9 +102,8 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
         })),
       },
       {
-        onSuccess: () => {
-          onSuccess();
-        },
+        onSuccess: () => onSuccess(),
+        onError: applyServerErrors,
       }
     );
   };
@@ -290,14 +293,11 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
         </Field>
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={createMovie.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createMovie.isPending}>
-          {createMovie.isPending ? "Đang lưu..." : "Thêm phim"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createMovie.isPending}
+        submitLabel="Thêm phim"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

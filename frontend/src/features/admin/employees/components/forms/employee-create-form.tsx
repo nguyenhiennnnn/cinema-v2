@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
@@ -15,6 +14,8 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useAdminUsersSelect } from "@/features/admin/users/hooks/use-admin-users";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const employeeFormSchema = z.object({
   userId: z.coerce
@@ -51,15 +52,16 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
     },
   });
 
-  const onSubmit = async (values: EmployeeFormValues) => {
-    await createEmployee.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: EmployeeFormValues) => {
+    createEmployee.mutate({
       userId: Number(values.userId),
       positionId: values.positionId ? Number(values.positionId) : null,
       hireDate: values.hireDate || null,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -104,14 +106,11 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onSuccess} disabled={createEmployee.isPending}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createEmployee.isPending}>
-          {createEmployee.isPending ? "Đang lưu..." : "Thêm nhân viên"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createEmployee.isPending}
+        submitLabel="Thêm nhân viên"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

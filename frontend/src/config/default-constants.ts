@@ -27,6 +27,10 @@ export const TOP_MOVIES_REPORT_LIMIT = 10;
 export const API_TIMEOUT_MS = 20_000;
 export const QUERY_STALE_TIME_MS = 30 * 1000;
 export const QUERY_GC_TIME_MS = 5 * 60 * 1000;
+export const QUERY_MAX_RETRIES = 2;
+export const MUTATION_MAX_RETRIES = 0;
+export const NO_RETRY_STATUS_MIN = 400;
+export const NO_RETRY_STATUS_MAX = 500;
 export const DASHBOARD_REFETCH_INTERVAL_MS = 60_000;
 export const BOOKING_RESULT_POLL_INTERVAL_MS = 3_000;
 export const SETTINGS_STALE_TIME_MS = 5 * 60 * 1000;
@@ -34,6 +38,9 @@ export const NOW_TICK_INTERVAL_MS = 60_000;
 export const QR_SCAN_REPEAT_GUARD_MS = 2500;
 export const GOOGLE_SDK_POLL_INTERVAL_MS = 100;
 export const SIGNALR_RECONNECT_DELAYS_MS = [0, 1000, 3000, 5000, 10000];
+
+export const FORM_PENDING_LABEL = "Đang lưu...";
+export const FORM_CANCEL_LABEL = "Hủy";
 
 export const URL_PLACEHOLDER = "https://...";
 export const YOUTUBE_EMBED_BASE_URL = "https://www.youtube.com/embed";

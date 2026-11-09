@@ -4,13 +4,15 @@ import { z } from "zod";
 import { useEffect, type ReactNode } from "react";
 
 import { PageHeader } from "@/components/common/page-header";
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { SubmitButton } from "@/components/common/form/submit-button";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormTimePickerField } from "@/components/common/form/form-time-picker-field";
 
+import { FORM_PENDING_LABEL } from "@/config/default-constants";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { SeatGapRuleMode } from "@/types/enum";
 import { useAdminSettings, useAdminUpdateSettings } from "../hooks/use-admin-settings";
 import { FormImageField } from "@/components/common/form/form-upload-field";
@@ -93,6 +95,8 @@ const AdminSettingsPage = () => {
     },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   useEffect(() => {
     if (settings.data) {
       form.reset({
@@ -125,34 +129,37 @@ const AdminSettingsPage = () => {
     }
   }, [settings.data, form]);
 
-  const onSubmit = async (values: SettingsFormValues) => {
-    await updateSettings.mutateAsync({
-      name: values.name,
-      address: values.address,
-      phone: values.phone || null,
-      email: values.email || null,
-      taxCode: values.taxCode || null,
-      logoUrl: values.logoUrl || null,
-      openingTime: values.openingTime || null,
-      closingTime: values.closingTime || null,
-      pointsPerAmount: values.pointsPerAmount,
-      cancelRefundPercent: values.cancelRefundPercent,
-      cancelDeadlineHours: values.cancelDeadlineHours,
-      stopSellingMinutesBefore: values.stopSellingMinutesBefore,
-      seatGapRuleMode: values.seatGapRuleMode,
-      roomBufferMinutes: values.roomBufferMinutes,
-      maxSeatsPerBooking: values.maxSeatsPerBooking,
-      maxComboQuantity: values.maxComboQuantity,
-      loyaltyWindowMonths: values.loyaltyWindowMonths,
-      movieEndGraceDays: values.movieEndGraceDays,
-      showtimeLookaheadDays: values.showtimeLookaheadDays,
-      schedulerStepMinutes: values.schedulerStepMinutes,
-      schedulerMinSameMovieGapMinutes: values.schedulerMinSameMovieGapMinutes,
-      schedulerHeatLookbackDays: values.schedulerHeatLookbackDays,
-      schedulerHeatSalesWeight: values.schedulerHeatSalesWeight,
-      schedulerHeatRatingWeight: values.schedulerHeatRatingWeight,
-      schedulerMaxRating: values.schedulerMaxRating,
-    });
+  const onSubmit = (values: SettingsFormValues) => {
+    updateSettings.mutate(
+      {
+        name: values.name,
+        address: values.address,
+        phone: values.phone || null,
+        email: values.email || null,
+        taxCode: values.taxCode || null,
+        logoUrl: values.logoUrl || null,
+        openingTime: values.openingTime || null,
+        closingTime: values.closingTime || null,
+        pointsPerAmount: values.pointsPerAmount,
+        cancelRefundPercent: values.cancelRefundPercent,
+        cancelDeadlineHours: values.cancelDeadlineHours,
+        stopSellingMinutesBefore: values.stopSellingMinutesBefore,
+        seatGapRuleMode: values.seatGapRuleMode,
+        roomBufferMinutes: values.roomBufferMinutes,
+        maxSeatsPerBooking: values.maxSeatsPerBooking,
+        maxComboQuantity: values.maxComboQuantity,
+        loyaltyWindowMonths: values.loyaltyWindowMonths,
+        movieEndGraceDays: values.movieEndGraceDays,
+        showtimeLookaheadDays: values.showtimeLookaheadDays,
+        schedulerStepMinutes: values.schedulerStepMinutes,
+        schedulerMinSameMovieGapMinutes: values.schedulerMinSameMovieGapMinutes,
+        schedulerHeatLookbackDays: values.schedulerHeatLookbackDays,
+        schedulerHeatSalesWeight: values.schedulerHeatSalesWeight,
+        schedulerHeatRatingWeight: values.schedulerHeatRatingWeight,
+        schedulerMaxRating: values.schedulerMaxRating,
+      },
+      { onError: applyServerErrors },
+    );
   };
 
   if (settings.isLoading) {
@@ -337,9 +344,11 @@ const AdminSettingsPage = () => {
         </SettingsSection>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={updateSettings.isPending}>
-            {updateSettings.isPending ? "Đang lưu..." : "Lưu cấu hình"}
-          </Button>
+          <SubmitButton
+            isPending={updateSettings.isPending}
+            label="Lưu cấu hình"
+            pendingLabel={FORM_PENDING_LABEL}
+          />
         </div>
       </form>
     </div>

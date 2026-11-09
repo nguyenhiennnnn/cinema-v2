@@ -36,7 +36,7 @@ export function useAdminDeleteDirector() {
 
 export function useAdminBulkDeleteDirectors() {
   return useMutation({
-    meta: { invalidates: "directorChanged", skipSuccessToast: true },
+    meta: { invalidates: "directorChanged" },
     mutationFn: (body: BulkIdsRequest) => directorsAdminApi.bulkDelete(body),
   });
 }

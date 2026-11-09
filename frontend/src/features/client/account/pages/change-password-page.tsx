@@ -1,13 +1,14 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, KeyRound } from "lucide-react";
+import { KeyRound } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { SubmitButton } from "@/components/common/form/submit-button";
 import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
 import { useChangePassword } from "@/features/client/account/hooks/use-account";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const changePasswordFormSchema = z
   .object({
@@ -49,12 +50,14 @@ const ChangePasswordPage = () => {
     },
   });
 
+  const applyServerErrors = useServerFieldErrors(form);
+
   const newPassword = form.watch("newPassword");
 
   const onSubmit = (values: ChangePasswordFormValues) => {
     changePassword.mutate(
       { currentPassword: values.currentPassword, newPassword: values.newPassword },
-      { onSuccess: () => form.reset() },
+      { onSuccess: () => form.reset(), onError: applyServerErrors },
     );
   };
 
@@ -94,10 +97,11 @@ const ChangePasswordPage = () => {
       </FieldGroup>
 
       <div className="mt-6 flex justify-end">
-        <Button type="submit" disabled={changePassword.isPending}>
-          {changePassword.isPending ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
-          <span>Cập nhật mật khẩu</span>
-        </Button>
+        <SubmitButton
+          isPending={changePassword.isPending}
+          label="Cập nhật mật khẩu"
+          icon={<KeyRound className="size-4" />}
+        />
       </div>
     </form>
   );

@@ -2,13 +2,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { SubmitButton } from "@/components/common/form/submit-button";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useForgotPassword } from "../hooks/use-auth";
-import { getDisplayMessage } from "@/lib/error";
+import { getDisplayMessage, hasFieldErrors } from "@/lib/error";
 import { ROUTES } from "@/config/routes";
 
 const forgotPasswordSchema = z.object({
@@ -24,6 +26,8 @@ export const ForgotPasswordForm = () => {
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: "" },
   });
+
+  const applyServerErrors = useServerFieldErrors(form);
 
   if (sent) {
     return (
@@ -50,7 +54,10 @@ export const ForgotPasswordForm = () => {
   return (
     <form
       onSubmit={form.handleSubmit((data) =>
-        forgotPassword(data, { onSuccess: () => setSent(true) }),
+        forgotPassword(data, {
+          onSuccess: () => setSent(true),
+          onError: applyServerErrors,
+        }),
       )}
       className="flex flex-col gap-4"
     >
@@ -63,16 +70,17 @@ export const ForgotPasswordForm = () => {
         placeholder="you@example.com"
       />
 
-      {error && (
+      {error && !hasFieldErrors(error) && (
         <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {getDisplayMessage(error)}
         </p>
       )}
 
-      <Button type="submit" disabled={isPending} className="w-full">
-        {isPending && <Loader2 className="size-4 animate-spin" />}
-        Gửi liên kết đặt lại mật khẩu
-      </Button>
+      <SubmitButton
+        isPending={isPending}
+        label="Gửi liên kết đặt lại mật khẩu"
+        className="w-full"
+      />
 
       <p className="text-center text-sm text-muted-foreground">
         Nhớ mật khẩu?{" "}

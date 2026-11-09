@@ -3,7 +3,14 @@ import { extractApiError, handleApiError } from "@/lib/error";
 import { getApiSuccessMessage } from "@/lib/api-response";
 import { invalidateRelated } from "@/api/query-invalidation";
 import { toast } from "@/components/ui/toast";
-import { QUERY_GC_TIME_MS, QUERY_STALE_TIME_MS } from "@/config/default-constants";
+import {
+  MUTATION_MAX_RETRIES,
+  NO_RETRY_STATUS_MAX,
+  NO_RETRY_STATUS_MIN,
+  QUERY_GC_TIME_MS,
+  QUERY_MAX_RETRIES,
+  QUERY_STALE_TIME_MS,
+} from "@/config/default-constants";
 
 function handleGlobalError(context: "Query" | "Mutation") {
   return (error: unknown, query: { meta?: Record<string, unknown> }) => {
@@ -44,13 +51,19 @@ export const queryClient: QueryClient = new QueryClient({
       gcTime: QUERY_GC_TIME_MS,
       retry: (failureCount, error) => {
         const { statusCode } = extractApiError(error);
-        if (statusCode && statusCode >= 400 && statusCode < 500) return false;
-        return failureCount < 2;
+        if (
+          statusCode &&
+          statusCode >= NO_RETRY_STATUS_MIN &&
+          statusCode < NO_RETRY_STATUS_MAX
+        ) {
+          return false;
+        }
+        return failureCount < QUERY_MAX_RETRIES;
       },
       refetchOnWindowFocus: false,
     },
     mutations: {
-      retry: 0,
+      retry: MUTATION_MAX_RETRIES,
     },
   },
 });

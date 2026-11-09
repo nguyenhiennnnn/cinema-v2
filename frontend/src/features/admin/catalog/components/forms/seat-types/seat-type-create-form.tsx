@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminCreateSeatType } from "../../../hooks/use-admin-seat-type";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const seatTypeFormSchema = z.object({
   name: z
@@ -32,14 +33,15 @@ export const SeatTypeCreateForm = ({ onSuccess }: SeatTypeCreateFormProps) => {
     defaultValues: { name: "", priceMultiplier: 1 },
   });
 
-  const onSubmit = async (values: SeatTypeFormValues) => {
-    await createSeatType.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: SeatTypeFormValues) => {
+    createSeatType.mutate({
       name: values.name,
       priceMultiplier: values.priceMultiplier,
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -70,19 +72,11 @@ export const SeatTypeCreateForm = ({ onSuccess }: SeatTypeCreateFormProps) => {
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={createSeatType.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={createSeatType.isPending}>
-          {createSeatType.isPending ? "Đang lưu..." : "Thêm loại ghế"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={createSeatType.isPending}
+        submitLabel="Thêm loại ghế"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };

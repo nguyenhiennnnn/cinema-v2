@@ -2,12 +2,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateMembershipTier } from "../../../hooks/use-admin-membership-tier";
 import type { MembershipTierDto } from "../../../types";
+import { FormActions } from "@/components/common/form/form-actions";
+import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 const membershipTierFormSchema = z.object({
   tierName: z
@@ -46,8 +47,10 @@ export const MembershipTierUpdateForm = ({
     },
   });
 
-  const onSubmit = async (values: MembershipTierFormValues) => {
-    await updateMembershipTier.mutateAsync({
+  const applyServerErrors = useServerFieldErrors(form);
+
+  const onSubmit = (values: MembershipTierFormValues) => {
+    updateMembershipTier.mutate({
       id: tier.tierId,
       body: {
         tierName: values.tierName,
@@ -55,9 +58,8 @@ export const MembershipTierUpdateForm = ({
         discountPercent: values.discountPercent,
       },
     }, {
-      onSuccess: () => {
-        onSuccess();
-      }
+      onSuccess: () => onSuccess(),
+      onError: applyServerErrors,
     });
   };
 
@@ -97,19 +99,11 @@ export const MembershipTierUpdateForm = ({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={updateMembershipTier.isPending}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={updateMembershipTier.isPending}>
-          {updateMembershipTier.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-        </Button>
-      </div>
+      <FormActions
+        isPending={updateMembershipTier.isPending}
+        submitLabel="Lưu thay đổi"
+        onCancel={onSuccess}
+      />
     </form>
   );
 };
