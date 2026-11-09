@@ -3,11 +3,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 
+import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { FormErrorAlert } from "@/components/common/form/form-error-alert";
 import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useAdminLogin } from "@/features/auth/hooks/use-auth";
-import { extractApiError, hasFieldErrors } from "@/lib/error";
 import { BRAND } from "@/config/brand";
 import { getAdminHomePath } from "@/config/routes";
 
@@ -45,29 +46,27 @@ export const AdminLoginForm = () => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
-      <FormInputField
-        name="email"
-        control={form.control}
-        label="Email quản trị"
-        type="email"
-        autoComplete="email"
-        placeholder={BRAND.adminEmailPlaceholder}
-      />
+      <FieldGroup disabled={isPending} className="gap-4">
+        <FormInputField
+          name="email"
+          control={form.control}
+          label="Email quản trị"
+          type="email"
+          autoComplete="email"
+          placeholder={BRAND.adminEmailPlaceholder}
+        />
 
-      <FormInputField
-        name="password"
-        control={form.control}
-        label="Mật khẩu"
-        type="password"
-        autoComplete="current-password"
-        placeholder="••••••••"
-      />
+        <FormInputField
+          name="password"
+          control={form.control}
+          label="Mật khẩu"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+        />
+      </FieldGroup>
 
-      {error && !hasFieldErrors(error) && (
-        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {extractApiError(error).message}
-        </p>
-      )}
+      <FormErrorAlert error={error} preferServerMessage />
 
       <SubmitButton isPending={isPending} label="Đăng nhập quản trị" className="w-full" />
     </form>

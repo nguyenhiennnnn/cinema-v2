@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFieldDisabled } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
 interface SelectFieldProps<T> {
@@ -28,6 +29,8 @@ export const SelectField = <T,>({
   disabled,
   className,
 }: SelectFieldProps<T>) => {
+  const isDisabled = useFieldDisabled(disabled);
+
   const handleChange = (val: string) => {
     const option =
       options.find((o) => String(getOptionValue(o)) === val) ?? null;
@@ -43,7 +46,7 @@ export const SelectField = <T,>({
     <Select
       value={value != null ? String(value) : undefined}
       onValueChange={(v) => handleChange(v ?? "")}
-      disabled={disabled}
+      disabled={isDisabled}
     >
       <SelectTrigger
         className={cn(

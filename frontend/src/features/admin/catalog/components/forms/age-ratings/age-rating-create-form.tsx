@@ -56,7 +56,7 @@ export const AgeRatingCreateForm = ({ onSuccess }: AgeRatingCreateFormProps) => 
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={createAgeRating.isPending}>
         <FormInputField
           name="code"
           control={form.control}

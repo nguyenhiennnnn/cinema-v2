@@ -62,7 +62,7 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={updateRoom.isPending}>
         <FormInputField
           name="roomName"
           control={form.control}

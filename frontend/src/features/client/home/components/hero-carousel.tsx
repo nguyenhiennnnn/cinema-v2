@@ -6,6 +6,7 @@ import { useMovies } from "@/features/client/movies/hooks/use-movies";
 import { HERO_INTERVAL_MS, useHeroCarousel } from "@/features/client/home/hooks/use-hero-carousel";
 import { HeroThumbnails } from "@/features/client/home/components/hero-thumbnails";
 import { MovieStatus } from "@/types/enum";
+import { HERO_CAROUSEL_MOVIES_LIMIT } from "@/config/default-constants";
 import { usePreloadPosters } from "../hooks/use-preload-posters";
 import { useHeroTransition } from "../hooks/use-hero-transition";
 import { HeroBackdrop } from "./hero-backdrop";
@@ -15,7 +16,7 @@ import { HeroSlide } from "./hero-slide";
 const HERO_HEIGHT = "min-h-[min(calc(100svh-4rem),56rem)]";
 
 export const HeroCarousel = () => {
-  const { data, isLoading } = useMovies({ status: MovieStatus.NowShowing, limit: 5 });
+  const { data, isLoading } = useMovies({ status: MovieStatus.NowShowing, limit: HERO_CAROUSEL_MOVIES_LIMIT });
   const movies = data?.pages ?? [];
   const count = movies.length;
 

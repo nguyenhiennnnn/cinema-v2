@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
+import { COUNT_ONLY_PAGE_SIZE, DEFAULT_PAGE } from "@/config/default-constants";
 
 import { useAdminGenres } from "../hooks/use-admin-genre";
 import { useAdminLanguages } from "../hooks/use-admin-language";
@@ -35,7 +36,7 @@ interface CatalogCardConfig {
   accent: string;
 }
 
-const COUNT_ONLY_PARAMS = { page: 1, pageSize: 1 };
+const COUNT_ONLY_PARAMS = { page: DEFAULT_PAGE, pageSize: COUNT_ONLY_PAGE_SIZE };
 
 const CatalogHubPage = () => {
   const genres = useAdminGenres(COUNT_ONLY_PARAMS);

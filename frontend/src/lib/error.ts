@@ -72,7 +72,17 @@ export function isNetworkError(error: unknown): boolean {
   return axios.isAxiosError(error) && !error.response && !axios.isCancel(error);
 }
 
-export function getDisplayMessage(error: unknown): string {
+function getServerMessage(error: unknown): string | undefined {
+  if (!axios.isAxiosError(error)) return undefined;
+  const message = (error.response?.data as Partial<ApiErrorShape> | undefined)
+    ?.message;
+  return typeof message === "string" && message !== "" ? message : undefined;
+}
+
+export function getDisplayMessage(
+  error: unknown,
+  options?: { preferServerMessage?: boolean },
+): string {
   const { message, statusCode } = extractApiError(error);
 
   if (isNetworkError(error)) {
@@ -84,6 +94,11 @@ export function getDisplayMessage(error: unknown): string {
   }
 
   if (statusCode) {
+    if (options?.preferServerMessage && statusCode < 500) {
+      const serverMessage = getServerMessage(error);
+      if (serverMessage) return serverMessage;
+    }
+
     const rule =
       statusCode >= 500 ? SERVER_ERROR_RULE : STATUS_ERROR_RULES[statusCode];
     if (rule) {

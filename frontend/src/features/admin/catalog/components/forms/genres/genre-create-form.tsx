@@ -45,7 +45,7 @@ export const GenreCreateForm = ({ onSuccess }: GenreCreateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={createGenre.isPending}>
         <FormInputField
           name="name"
           control={form.control}

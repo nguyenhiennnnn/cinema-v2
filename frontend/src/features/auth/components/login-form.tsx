@@ -4,12 +4,12 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { PasswordInput } from "@/components/ui/input";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { FormErrorAlert } from "@/components/common/form/form-error-alert";
 import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useLogin } from "../hooks/use-auth";
-import { extractApiError, hasFieldErrors } from "@/lib/error";
 import { GoogleSignInButton } from "./google-sign-in-button";
 import { ROUTES } from "@/config/routes";
 
@@ -47,46 +47,44 @@ export const LoginForm = () => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
-      <FormInputField
-        name="email"
-        control={form.control}
-        label="Email"
-        type="email"
-        autoComplete="email"
-        placeholder="you@example.com"
-      />
+      <FieldGroup disabled={isPending} className="gap-4">
+        <FormInputField
+          name="email"
+          control={form.control}
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+        />
 
-      <Controller
-        name="password"
-        control={form.control}
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid}>
-            <div className="flex items-center justify-between">
-              <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
-              <Link
-                to="/auth/forgot-password"
-                className="text-xs text-muted-foreground transition-colors hover:text-primary hover:underline"
-              >
-                Quên mật khẩu?
-              </Link>
-            </div>
-            <PasswordInput
-              {...field}
-              id="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              aria-invalid={fieldState.invalid}
-            />
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-          </Field>
-        )}
-      />
+        <Controller
+          name="password"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <div className="flex items-center justify-between">
+                <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
+                <Link
+                  to="/auth/forgot-password"
+                  className="text-xs text-muted-foreground transition-colors hover:text-primary hover:underline"
+                >
+                  Quên mật khẩu?
+                </Link>
+              </div>
+              <PasswordInput
+                {...field}
+                id="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+      </FieldGroup>
 
-      {error && !hasFieldErrors(error) && (
-        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {extractApiError(error).message}
-        </p>
-      )}
+      <FormErrorAlert error={error} preferServerMessage />
 
       <SubmitButton isPending={isPending} label="Đăng nhập" className="w-full" />
 

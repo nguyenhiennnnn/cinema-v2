@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useFieldDisabled } from "@/components/ui/field";
 import {
   Command,
   CommandEmpty,
@@ -61,6 +62,7 @@ export const SingleSelectField = <T,>({
 }: SingleSelectFieldProps<T>) => {
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<T | null>(null);
+  const isDisabled = useFieldDisabled(disabled);
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
@@ -115,7 +117,7 @@ export const SingleSelectField = <T,>({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            disabled={disabled}
+            disabled={isDisabled}
             className={cn(
               "w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
               !displayLabel && "text-muted-foreground",

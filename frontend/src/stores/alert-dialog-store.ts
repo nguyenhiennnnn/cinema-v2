@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
+import { logDevError } from "@/lib/error";
 
 interface AlertDialogOptions {
   title: string;
@@ -58,8 +59,8 @@ export const useAlertDialogStore = create<AlertDialogStore>((set, get) => ({
       await get().onConfirm();
       set({ isOpen: false, isLoading: false });
     } catch (error) {
+      logDevError(error, "AlertDialog");
       set({ isLoading: false });
-      throw error;
     }
   },
 }));

@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFieldDisabled } from "@/components/ui/field";
 import type { EnumOption } from "@/lib/enum-options";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ interface EnumSelectFilterProps {
   options: EnumOption[];
   placeholder: string;
   allLabel?: string;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -23,8 +25,10 @@ export const EnumSelectFilter = ({
   options,
   placeholder,
   allLabel = "Tất cả",
+  disabled,
   className,
 }: EnumSelectFilterProps) => {
+  const isDisabled = useFieldDisabled(disabled);
   const currentValue = value ?? "all";
   const currentLabel =
     currentValue === "all"
@@ -35,6 +39,7 @@ export const EnumSelectFilter = ({
     <Select
       value={currentValue}
       onValueChange={(v) => onChange(v === "all" ? null : v)}
+      disabled={isDisabled}
     >
       <SelectTrigger className={cn("w-full", className)}>
         <SelectValue placeholder={placeholder}>{currentLabel}</SelectValue>

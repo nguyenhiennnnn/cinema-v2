@@ -53,7 +53,7 @@ export const LanguageUpdateForm = ({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateLanguage.isPending}>
         <FormInputField
           name="name"
           control={form.control}

@@ -62,7 +62,7 @@ export const SeatTypeUpdateForm = ({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateSeatType.isPending}>
         <FormInputField
           name="name"
           control={form.control}

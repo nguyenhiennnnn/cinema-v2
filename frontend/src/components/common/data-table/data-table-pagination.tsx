@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PAGE_SIZE_OPTIONS } from "@/config/default-constants";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 import { SelectField } from "../select-field";
 
@@ -36,7 +37,7 @@ export const DataTablePagination = <TData extends RowData>({
             onChange={(value) =>
               table.setPagination({ pageIndex: 0, pageSize: Number(value) })
             }
-            options={[10, 20, 30, 50]}
+            options={PAGE_SIZE_OPTIONS}
             getOptionValue={(size) => size}
             getOptionLabel={(size) => String(size)}
             className="h-8 w-17.5"

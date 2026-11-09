@@ -47,7 +47,7 @@ export const GenreUpdateForm = ({ genre, onSuccess }: GenreUpdateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateGenre.isPending}>
         <FormInputField
           name="name"
           control={form.control}

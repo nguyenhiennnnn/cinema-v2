@@ -24,7 +24,7 @@ export const GlobalAlertDialog = () => {
   } = useAlertDialogState();
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => !open && close()}>
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && !isLoading && close()}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

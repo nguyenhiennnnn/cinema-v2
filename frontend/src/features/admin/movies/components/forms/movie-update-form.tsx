@@ -153,7 +153,7 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={updateMovie.isPending}>
         <FormImageField
           name="posterUrl"
           control={form.control}

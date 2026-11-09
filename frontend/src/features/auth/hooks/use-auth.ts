@@ -52,6 +52,7 @@ async function hydrateUserFromMe() {
 
 export function useLogin() {
   return useMutation({
+    meta: { skipErrorToast: true },
     mutationFn: (body: LoginRequest) => authApi.login(body),
     onSuccess: async (res) => {
       const { accessToken, refreshToken, user } = res.data;
@@ -64,6 +65,7 @@ export function useLogin() {
 
 export function useAdminLogin() {
   return useMutation({
+    meta: { skipErrorToast: true },
     mutationFn: (body: LoginRequest) => authApi.adminLogin(body),
     onSuccess: async (res) => {
       const { accessToken, refreshToken, user } = res.data;
@@ -89,6 +91,7 @@ export function useGoogleLogin() {
 
 export function useRegister() {
   return useMutation({
+    meta: { skipErrorToast: true },
     mutationFn: (body: RegisterRequest) => authApi.register(body),
   });
 }
@@ -109,12 +112,14 @@ export function useLogout() {
 
 export function useForgotPassword() {
   return useMutation({
+    meta: { skipErrorToast: true },
     mutationFn: (body: ForgotPasswordRequest) => authApi.forgotPassword(body),
   });
 }
 
 export function useResetPassword() {
   return useMutation({
+    meta: { skipErrorToast: true },
     mutationFn: (body: ResetPasswordRequest) => authApi.resetPassword(body),
   });
 }

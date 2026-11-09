@@ -1,7 +1,7 @@
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel, useFieldDisabled } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 
 interface FormSwitchFieldProps<TFieldValues extends FieldValues> {
@@ -16,15 +16,19 @@ export const FormSwitchField = <TFieldValues extends FieldValues>({
   control,
   label,
   disabled,
-}: FormSwitchFieldProps<TFieldValues>) => (
-  <Controller
-    name={name}
-    control={control}
-    render={({ field }) => (
-      <Field className="flex flex-row items-center justify-between">
-        <FieldLabel>{label}</FieldLabel>
-        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={disabled} />
-      </Field>
-    )}
-  />
-);
+}: FormSwitchFieldProps<TFieldValues>) => {
+  const isDisabled = useFieldDisabled(disabled);
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <Field className="flex flex-row items-center justify-between">
+          <FieldLabel>{label}</FieldLabel>
+          <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isDisabled} />
+        </Field>
+      )}
+    />
+  );
+};

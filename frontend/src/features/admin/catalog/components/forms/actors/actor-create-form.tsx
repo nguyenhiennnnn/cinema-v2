@@ -55,7 +55,7 @@ export const ActorCreateForm = ({ onSuccess }: ActorCreateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={createActor.isPending}>
         <FormInputField
           name="fullName"
           control={form.control}

@@ -55,7 +55,7 @@ export const DirectorCreateForm = ({ onSuccess }: DirectorCreateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={createDirector.isPending}>
         <FormInputField
           name="fullName"
           control={form.control}

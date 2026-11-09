@@ -68,7 +68,7 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
         <p className="text-xs text-muted-foreground">{employee.email}</p>
       </div>
 
-      <FieldGroup>
+      <FieldGroup disabled={updateEmployee.isPending}>
         <FormSearchSelectField
           name="positionId"
           control={form.control}

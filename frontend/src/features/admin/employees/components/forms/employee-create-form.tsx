@@ -67,7 +67,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
 
   return (
     <form id="employee-create-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={createEmployee.isPending}>
         <FormSearchSelectField
           name="userId"
           control={form.control}

@@ -70,7 +70,7 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={updateShowtime.isPending}>
         <FormSearchSelectField
           name="movieId"
           control={form.control}

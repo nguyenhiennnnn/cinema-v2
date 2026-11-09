@@ -5,16 +5,22 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { DismissGuardContext } from "@/hooks/use-block-dialog-close";
 import { cn } from "@/lib/utils";
-import { useSheetClose, useSheetState } from "@/stores/sheet-store";
+import {
+  useSheetClose,
+  useSheetDismissGuard,
+  useSheetState,
+} from "@/stores/sheet-store";
 
 export const GlobalSheet = () => {
-  const { isOpen, title, description, content, side, className } =
+  const { isOpen, title, description, content, side, className, dismissible } =
     useSheetState();
   const close = useSheetClose();
+  const dismissGuard = useSheetDismissGuard();
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && close()}>
+    <Sheet open={isOpen} onOpenChange={(open) => !open && dismissible && close()}>
       <SheetContent
         side={side}
         className={cn("flex flex-col p-0 gap-0", className)}
@@ -25,7 +31,9 @@ export const GlobalSheet = () => {
             {description && <SheetDescription>{description}</SheetDescription>}
           </SheetHeader>
         )}
-        <div className="flex-1 overflow-y-auto p-6">{content}</div>
+        <DismissGuardContext.Provider value={dismissGuard}>
+          <div className="flex-1 overflow-y-auto p-6">{content}</div>
+        </DismissGuardContext.Provider>
       </SheetContent>
     </Sheet>
   );

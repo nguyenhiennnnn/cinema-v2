@@ -13,6 +13,8 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
 import { getBusinessTodayDate } from "@/lib/business-time";
+import { SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { useBlockDialogClose } from "@/hooks/use-block-dialog-close";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { formatDayMonth } from "@/lib/cinema-format";
 import { formatCurrency, formatTime } from "@/lib/formatters";
@@ -56,10 +58,12 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
   const preview = useAdminPreviewAutoSchedule();
   const apply = useAdminApplyAutoSchedule();
 
+  useBlockDialogClose(apply.isPending);
+
   const [movieSearch, setMovieSearch] = useState("");
   const [draft, setDraft] = useState<AutoScheduleResponseDto | null>(null);
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: 20 });
+  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -157,6 +161,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
                   size="icon"
                   className="size-8 shrink-0 text-destructive"
                   onClick={() => removeDraftItem(index)}
+                  disabled={apply.isPending}
                 >
                   <Trash2 className="size-4" />
                 </Button>
@@ -184,7 +189,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
 
   return (
     <form onSubmit={form.handleSubmit(onPreview)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={preview.isPending}>
         <div className="grid grid-cols-2 gap-3">
           <FormDatePickerField
             name="date"

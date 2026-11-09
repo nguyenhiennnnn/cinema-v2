@@ -4,9 +4,10 @@ import { EmptyState } from "@/components/common/empty-state";
 import { InfiniteScrollTrigger } from "@/components/common/infinite-scroll-trigger";
 import { AccountReviewCard } from "@/features/client/account/components/account-review-card";
 import { useMyReviews } from "@/features/client/account/hooks/use-account";
+import { ACCOUNT_LIST_PAGE_LIMIT } from "@/config/default-constants";
 
 const AccountReviewsPage = () => {
-  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyReviews({ limit: 10 });
+  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyReviews({ limit: ACCOUNT_LIST_PAGE_LIMIT });
   const reviews = data?.reviews ?? [];
 
   return (

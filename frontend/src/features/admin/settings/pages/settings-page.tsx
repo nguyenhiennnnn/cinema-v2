@@ -53,10 +53,23 @@ const settingsFormSchema = z.object({
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
-const SettingsSection = ({ title, children }: { title: string; children: ReactNode }) => (
+const SettingsSection = ({
+  title,
+  disabled,
+  children,
+}: {
+  title: string;
+  disabled: boolean;
+  children: ReactNode;
+}) => (
   <section className="bg-card p-5">
     <h2 className="font-heading text-base font-semibold text-foreground">{title}</h2>
-    <FieldGroup className="mt-4 grid items-start gap-x-4 gap-y-4 sm:grid-cols-2">{children}</FieldGroup>
+    <FieldGroup
+      disabled={disabled}
+      className="mt-4 grid items-start gap-x-4 gap-y-4 sm:grid-cols-2"
+    >
+      {children}
+    </FieldGroup>
   </section>
 );
 
@@ -176,7 +189,7 @@ const AdminSettingsPage = () => {
       <PageHeader title="Cấu hình rạp" description="Thông tin chung, giờ hoạt động và chính sách." />
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl space-y-6">
-        <SettingsSection title="Thông tin rạp">
+        <SettingsSection title="Thông tin rạp" disabled={updateSettings.isPending}>
           <FormImageField
             name="logoUrl"
             control={form.control}
@@ -193,7 +206,10 @@ const AdminSettingsPage = () => {
           <FormInputField name="email" control={form.control} label="Email" />
         </SettingsSection>
 
-        <SettingsSection title="Giờ hoạt động & chính sách bán vé">
+        <SettingsSection
+          title="Giờ hoạt động & chính sách bán vé"
+          disabled={updateSettings.isPending}
+        >
           <FormTimePickerField name="openingTime" control={form.control} label="Giờ mở cửa" />
           <FormTimePickerField name="closingTime" control={form.control} label="Giờ đóng cửa" />
           <FormInputField
@@ -238,7 +254,7 @@ const AdminSettingsPage = () => {
           </div>
         </SettingsSection>
 
-        <SettingsSection title="Lịch chiếu & đặt vé">
+        <SettingsSection title="Lịch chiếu & đặt vé" disabled={updateSettings.isPending}>
           <FormInputField
             name="roomBufferMinutes"
             control={form.control}
@@ -289,7 +305,7 @@ const AdminSettingsPage = () => {
           />
         </SettingsSection>
 
-        <SettingsSection title="Xếp lịch tự động & Heat">
+        <SettingsSection title="Xếp lịch tự động & Heat" disabled={updateSettings.isPending}>
           <FormInputField
             name="schedulerStepMinutes"
             control={form.control}

@@ -63,7 +63,7 @@ export const ComboCreateForm = ({ onSuccess }: ComboCreateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={createCombo.isPending}>
         <FormImageField
           name="imageUrl"
           control={form.control}

@@ -140,7 +140,7 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={clone.isPending}>
         <div className="grid grid-cols-2 gap-3">
           <FormDatePickerField name="sourceFrom" control={form.control} label="Sao chép từ ngày" />
           <FormDatePickerField name="sourceTo" control={form.control} label="Đến ngày" />

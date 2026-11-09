@@ -1,6 +1,10 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { showtimesApi } from "../api/showtimes-api";
 import { queryKeys } from "@/api/query-keys";
+import {
+  SEAT_SUGGESTIONS_GC_TIME_MS,
+  SEAT_SUGGESTIONS_STALE_TIME_MS,
+} from "@/config/default-constants";
 
 export function useSchedule(date: string, screenType?: string | null) {
   return useQuery({
@@ -26,8 +30,8 @@ export function useSeatSuggestions(showtimeId: number, count: number | null) {
     queryKey: queryKeys.showtimes.seatSuggestions(showtimeId, count ?? 0),
     queryFn: () => showtimesApi.getSeatSuggestions(showtimeId, count!),
     enabled: showtimeId > 0 && count != null,
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: SEAT_SUGGESTIONS_STALE_TIME_MS,
+    gcTime: SEAT_SUGGESTIONS_GC_TIME_MS,
     select: (res) => res.data,
   });
 }

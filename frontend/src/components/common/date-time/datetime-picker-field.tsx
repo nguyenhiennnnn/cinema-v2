@@ -8,6 +8,7 @@ import { combineDateAndTime, toTimeValue } from "@/lib/wall-time";
 import { formatDateTime, toDateTimeInputValue } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useFieldDisabled } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -35,6 +36,7 @@ export const DateTimePickerField = ({
   id,
 }: DateTimePickerFieldProps) => {
   const [open, setOpen] = useState(false);
+  const isDisabled = useFieldDisabled(disabled);
   const selected = toWallDate(value);
   const timeValue = toTimeValue(selected);
 
@@ -74,7 +76,7 @@ export const DateTimePickerField = ({
             type="button"
             id={id}
             variant="outline"
-            disabled={disabled}
+            disabled={isDisabled}
             data-empty={!selected}
             className={cn(
               "h-10 w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 data-[empty=true]:text-muted-foreground dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
@@ -89,7 +91,7 @@ export const DateTimePickerField = ({
             {selected ? formatDateTime(selected) : placeholder}
           </span>
         </span>
-        {clearable && selected && !disabled && (
+        {clearable && selected && !isDisabled && (
           <XIcon
             className="size-3.5 shrink-0 opacity-60 hover:opacity-100"
             onClick={handleClear}

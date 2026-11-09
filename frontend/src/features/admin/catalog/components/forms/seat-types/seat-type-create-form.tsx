@@ -51,7 +51,7 @@ export const SeatTypeCreateForm = ({ onSuccess }: SeatTypeCreateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={createSeatType.isPending}>
         <FormInputField
           name="name"
           control={form.control}

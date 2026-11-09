@@ -5,6 +5,7 @@ import { MovieCardSkeleton } from "@/features/client/movies/components/movie-car
 import { EmptyState } from "@/components/common/empty-state";
 import { useMovies } from "@/features/client/movies/hooks/use-movies";
 import type { MovieStatus } from "@/types/enum";
+import { HOME_MOVIE_SECTION_LIMIT } from "@/config/default-constants";
 
 interface MovieSectionProps {
   title: string;
@@ -14,7 +15,7 @@ interface MovieSectionProps {
 }
 
 export const MovieSection = ({ title, status, viewAllHref, emptyMessage }: MovieSectionProps) => {
-  const { data, isLoading } = useMovies({ status, limit: 10 });
+  const { data, isLoading } = useMovies({ status, limit: HOME_MOVIE_SECTION_LIMIT });
   const movies = data?.pages ?? [];
 
   return (

@@ -46,15 +46,17 @@ export const Spinner = ({
 interface PageLoaderProps {
   label?: string;
   className?: string;
+  variant?: "page" | "section";
 }
 
-export const PageLoader = ({ label, className }: PageLoaderProps) => (
+export const PageLoader = ({ label, className, variant = "page" }: PageLoaderProps) => (
   <div
     role="status"
     aria-live="polite"
     aria-busy="true"
     className={cn(
-      "flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-4",
+      "flex flex-col items-center justify-center gap-6 px-4",
+      variant === "page" ? "min-h-screen bg-background" : "min-h-[50vh]",
       className,
     )}
   >

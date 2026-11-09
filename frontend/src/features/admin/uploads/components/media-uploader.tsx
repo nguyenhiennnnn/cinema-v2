@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useFieldDisabled } from "@/components/ui/field";
 import { Loader2, X, ImageIcon, Film, ImageOff } from "lucide-react";
 import type { UseMutationResult } from "@tanstack/react-query";
 
@@ -34,6 +35,7 @@ export const MediaUploader = ({
   className,
 }: MediaUploaderProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const isDisabled = useFieldDisabled();
   const [isDragging, setIsDragging] = useState(false);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -83,11 +85,13 @@ export const MediaUploader = ({
   );
 
   const handleFiles = (files: FileList | null) => {
+    if (isDisabled) return;
     const file = files?.[0];
     if (file) validateAndUpload(file);
   };
 
   const handleRemove = () => {
+    if (isDisabled) return;
     setLocalPreview(null);
     setError(null);
     setImageError(false);
@@ -138,7 +142,7 @@ export const MediaUploader = ({
             size="icon"
             className="absolute right-2 top-2 h-7 w-7"
             onClick={handleRemove}
-            disabled={uploadMutation.isPending}
+            disabled={uploadMutation.isPending || isDisabled}
           >
             <X className="size-4" />
           </Button>
@@ -146,9 +150,12 @@ export const MediaUploader = ({
       ) : (
         <div
           role="button"
-          tabIndex={0}
-          onClick={() => inputRef.current?.click()}
-          onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
+          tabIndex={isDisabled ? -1 : 0}
+          aria-disabled={isDisabled}
+          onClick={() => !isDisabled && inputRef.current?.click()}
+          onKeyDown={(e) =>
+            e.key === "Enter" && !isDisabled && inputRef.current?.click()
+          }
           onDragOver={(e) => {
             e.preventDefault();
             setIsDragging(true);
@@ -162,6 +169,7 @@ export const MediaUploader = ({
           className={cn(
             "flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border p-8 text-center transition-colors cursor-pointer",
             isDragging && "border-primary bg-accent/10",
+            isDisabled && "pointer-events-none cursor-not-allowed opacity-50",
           )}
         >
           {uploadMutation.isPending ? (

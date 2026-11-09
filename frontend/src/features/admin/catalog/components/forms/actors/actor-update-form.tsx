@@ -63,7 +63,7 @@ export const ActorUpdateForm = ({ actor, onSuccess }: ActorUpdateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateActor.isPending}>
         <FormInputField
           name="fullName"
           control={form.control}

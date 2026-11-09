@@ -65,7 +65,10 @@ const ChangePasswordPage = () => {
     <form onSubmit={form.handleSubmit(onSubmit)} className="bg-card p-5">
       <h2 className="font-heading text-lg font-semibold text-foreground">Đổi mật khẩu</h2>
 
-      <FieldGroup className="mt-5 grid items-start gap-4 sm:grid-cols-2">
+      <FieldGroup
+        disabled={changePassword.isPending}
+        className="mt-5 grid items-start gap-4 sm:grid-cols-2"
+      >
         <div className="sm:col-span-2">
           <FormInputField
             name="currentPassword"

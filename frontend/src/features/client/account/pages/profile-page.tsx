@@ -88,7 +88,10 @@ const AccountProfilePage = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="bg-card p-5">
         <h2 className="font-heading text-lg font-semibold text-foreground">Thông tin cá nhân</h2>
 
-        <div className="mt-5 flex items-center gap-4">
+        <FieldGroup
+          disabled={updateProfile.isPending}
+          className="mt-5 flex-row items-center gap-4"
+        >
           <Controller
             name="avatar"
             control={form.control}
@@ -101,9 +104,12 @@ const AccountProfilePage = () => {
               />
             )}
           />
-        </div>
+        </FieldGroup>
 
-        <FieldGroup className="mt-5 grid gap-4 sm:grid-cols-2">
+        <FieldGroup
+          disabled={updateProfile.isPending}
+          className="mt-5 grid gap-4 sm:grid-cols-2"
+        >
           <FormInputField name="fullName" control={form.control} label="Họ và tên" autoComplete="off" />
 
           <FormInputField name="phone" control={form.control} label="Số điện thoại" autoComplete="off" />

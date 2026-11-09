@@ -5,6 +5,7 @@ import { Check, ChevronsUpDown, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useFieldDisabled } from "@/components/ui/field";
 import {
   Command,
   CommandEmpty,
@@ -62,6 +63,7 @@ export const MultiSelectField = <T,>({
 }: MultiSelectFieldProps<T>) => {
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<T[]>([]);
+  const isDisabled = useFieldDisabled(disabled);
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
@@ -136,7 +138,7 @@ export const MultiSelectField = <T,>({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            disabled={disabled}
+            disabled={isDisabled}
             className={cn(
               "h-auto min-h-9 w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
               className,
@@ -166,7 +168,7 @@ export const MultiSelectField = <T,>({
                   className="cut-xs p-0.5 hover:bg-muted-foreground/20"
                   onClick={(e) => {
                     e.stopPropagation();
-                    remove(optionValue);
+                    if (!isDisabled) remove(optionValue);
                   }}
                 >
                   <X className="size-3" />

@@ -73,7 +73,7 @@ export const ComboUpdateForm = ({ combo, onSuccess }: ComboUpdateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateCombo.isPending}>
         <FormImageField
           name="imageUrl"
           control={form.control}

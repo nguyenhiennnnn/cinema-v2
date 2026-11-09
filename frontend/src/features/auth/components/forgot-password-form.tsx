@@ -6,11 +6,12 @@ import { CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { FormErrorAlert } from "@/components/common/form/form-error-alert";
 import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useForgotPassword } from "../hooks/use-auth";
-import { getDisplayMessage, hasFieldErrors } from "@/lib/error";
 import { ROUTES } from "@/config/routes";
 
 const forgotPasswordSchema = z.object({
@@ -61,20 +62,18 @@ export const ForgotPasswordForm = () => {
       )}
       className="flex flex-col gap-4"
     >
-      <FormInputField
-        name="email"
-        control={form.control}
-        label="Email"
-        type="email"
-        autoComplete="email"
-        placeholder="you@example.com"
-      />
+      <FieldGroup disabled={isPending} className="gap-4">
+        <FormInputField
+          name="email"
+          control={form.control}
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+        />
+      </FieldGroup>
 
-      {error && !hasFieldErrors(error) && (
-        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {getDisplayMessage(error)}
-        </p>
-      )}
+      <FormErrorAlert error={error} />
 
       <SubmitButton
         isPending={isPending}

@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "@/components/ui/toast";
+import { BOOKING_HOLD_POLL_INTERVAL_MS } from "@/config/default-constants";
 import {
   ShowtimeSeatStatus,
   PaymentMethod,
@@ -294,7 +295,7 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     // First check after 10 s, then every 10 s — frequent enough to be detected
     // during e2e tests (hold force-expired in DB) but gentle enough for production.
     poll(); // immediate first check
-    pollIntervalRef.current = setInterval(poll, 10_000);
+    pollIntervalRef.current = setInterval(poll, BOOKING_HOLD_POLL_INTERVAL_MS);
 
     return stopPolling;
   // eslint-disable-next-line react-hooks/exhaustive-deps

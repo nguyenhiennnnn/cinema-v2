@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Spinner } from "@/components/common/spinner";
+import { PageLoader } from "@/components/common/spinner";
 
 const DEFAULT_DELAY_MS = 300;
 
@@ -19,8 +19,6 @@ export const RouteFallback = ({ delay = DEFAULT_DELAY_MS }: RouteFallbackProps) 
   if (!visible) return null;
 
   return (
-    <div className="flex min-h-[40vh] items-center justify-center">
-      <Spinner />
-    </div>
+    <PageLoader variant="section" />
   );
 };

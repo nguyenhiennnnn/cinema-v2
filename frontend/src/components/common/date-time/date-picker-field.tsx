@@ -7,6 +7,7 @@ import { toWallDate } from "@/lib/business-time";
 import { formatDate, toDateInputValue } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useFieldDisabled } from "@/components/ui/field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface DatePickerFieldProps {
@@ -37,6 +38,7 @@ export const DatePickerField = ({
   id,
 }: DatePickerFieldProps) => {
   const [open, setOpen] = useState(false);
+  const isDisabled = useFieldDisabled(disabled);
   const selected = toWallDate(value);
 
   const handleSelect = (date: Date | undefined) => {
@@ -57,7 +59,7 @@ export const DatePickerField = ({
             type="button"
             id={id}
             variant="outline"
-            disabled={disabled}
+            disabled={isDisabled}
             data-empty={!selected}
             className={cn(
               "h-10 w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 data-[empty=true]:text-muted-foreground dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
@@ -72,7 +74,7 @@ export const DatePickerField = ({
             {selected ? formatDate(selected) : placeholder}
           </span>
         </span>
-        {clearable && selected && !disabled && (
+        {clearable && selected && !isDisabled && (
           <XIcon
             className="size-3.5 shrink-0 opacity-60 hover:opacity-100"
             onClick={handleClear}

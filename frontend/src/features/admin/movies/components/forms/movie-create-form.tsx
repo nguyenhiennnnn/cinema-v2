@@ -110,7 +110,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={createMovie.isPending}>
         <FormImageField
           name="posterUrl"
           control={form.control}

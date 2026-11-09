@@ -6,11 +6,12 @@ import { CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { FormErrorAlert } from "@/components/common/form/form-error-alert";
 import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useRegister } from "../hooks/use-auth";
-import { getDisplayMessage, hasFieldErrors } from "@/lib/error";
 import { passwordSchema } from "@/lib/validators";
 import type { RegisterRequest } from "../types";
 import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
@@ -100,55 +101,53 @@ export const RegisterForm = () => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
-      <FormInputField
-        name="fullName"
-        control={form.control}
-        label="Họ và tên"
-        placeholder="Nguyễn Văn A"
-      />
-
-      <FormInputField
-        name="email"
-        control={form.control}
-        label="Email"
-        type="email"
-        autoComplete="email"
-        placeholder="you@example.com"
-      />
-
-      <FormInputField
-        name="phone"
-        control={form.control}
-        label="Số điện thoại (không bắt buộc)"
-        placeholder="0901234567"
-      />
-
-      <div className="flex flex-col gap-2">
+      <FieldGroup disabled={isPending} className="gap-4">
         <FormInputField
-          name="password"
+          name="fullName"
           control={form.control}
-          label="Mật khẩu"
+          label="Họ và tên"
+          placeholder="Nguyễn Văn A"
+        />
+
+        <FormInputField
+          name="email"
+          control={form.control}
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+        />
+
+        <FormInputField
+          name="phone"
+          control={form.control}
+          label="Số điện thoại (không bắt buộc)"
+          placeholder="0901234567"
+        />
+
+        <div className="flex flex-col gap-2">
+          <FormInputField
+            name="password"
+            control={form.control}
+            label="Mật khẩu"
+            type="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+          />
+          <PasswordStrengthMeter password={password} />
+        </div>
+
+        <FormInputField
+          name="confirmPassword"
+          control={form.control}
+          label="Xác nhận mật khẩu"
           type="password"
           autoComplete="new-password"
           placeholder="••••••••"
         />
-        <PasswordStrengthMeter password={password} />
-      </div>
+      </FieldGroup>
 
-      <FormInputField
-        name="confirmPassword"
-        control={form.control}
-        label="Xác nhận mật khẩu"
-        type="password"
-        autoComplete="new-password"
-        placeholder="••••••••"
-      />
-
-      {error && !hasFieldErrors(error) && (
-        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {getDisplayMessage(error)}
-        </p>
-      )}
+      <FormErrorAlert error={error} />
 
       <SubmitButton isPending={isPending} label="Đăng ký" className="w-full" />
 

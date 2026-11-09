@@ -45,7 +45,7 @@ export const LanguageCreateForm = ({ onSuccess }: LanguageCreateFormProps) => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={createLanguage.isPending}>
         <FormInputField
           name="name"
           control={form.control}

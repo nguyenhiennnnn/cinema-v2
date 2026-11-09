@@ -54,7 +54,7 @@ export const RoomCreateForm = ({ onSuccess }: RoomCreateFormProps) => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={createRoom.isPending}>
         <FormInputField
           name="roomName"
           control={form.control}

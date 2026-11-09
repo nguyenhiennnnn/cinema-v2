@@ -1,9 +1,16 @@
-import { useMemo } from "react"
+import { createContext, useContext, useMemo } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+
+const FieldDisabledContext = createContext(false)
+
+function useFieldDisabled(disabled?: boolean) {
+  const inherited = useContext(FieldDisabledContext)
+  return inherited || Boolean(disabled)
+}
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -36,7 +43,14 @@ function FieldLegend({
   )
 }
 
-function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
+function FieldGroup({
+  className,
+  disabled,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & { disabled?: boolean }) {
+  const isDisabled = useFieldDisabled(disabled)
+
   return (
     <div
       data-slot="field-group"
@@ -45,7 +59,17 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
         className
       )}
       {...props}
-    />
+    >
+      {disabled === undefined ? (
+        children
+      ) : (
+        <FieldDisabledContext.Provider value={isDisabled}>
+          <fieldset disabled={disabled} className="contents">
+            {children}
+          </fieldset>
+        </FieldDisabledContext.Provider>
+      )}
+    </div>
   )
 }
 
@@ -233,4 +257,5 @@ export {
   FieldSet,
   FieldContent,
   FieldTitle,
+  useFieldDisabled,
 }

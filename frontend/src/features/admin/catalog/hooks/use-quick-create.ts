@@ -1,6 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import type { InvalidationName } from "@/api/query-invalidation";
-import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import {
+  LOOKUP_PAGE_SIZE,
+  QUICK_CREATE_AGE_RATING_MAX_LENGTH,
+  QUICK_CREATE_NAME_MAX_LENGTH,
+  QUICK_CREATE_PERSON_NAME_MAX_LENGTH,
+} from "@/config/default-constants";
 import { isSameName } from "@/components/common/form/select-name-utils";
 import { extractApiError } from "@/lib/error";
 import { useAuthStore } from "@/stores/auth-store";
@@ -64,7 +69,7 @@ function useQuickCreate<TDto>(config: QuickCreateConfig<TDto>) {
 
 const genreConfig: QuickCreateConfig<GenreDto> = {
   invalidates: "genreCreated",
-  maxLength: 50,
+  maxLength: QUICK_CREATE_NAME_MAX_LENGTH,
   create: async (name) => (await genresAdminApi.create({ name })).data,
   findExisting: async (name) =>
     (
@@ -74,7 +79,7 @@ const genreConfig: QuickCreateConfig<GenreDto> = {
 
 const languageConfig: QuickCreateConfig<LanguageDto> = {
   invalidates: "languageCreated",
-  maxLength: 50,
+  maxLength: QUICK_CREATE_NAME_MAX_LENGTH,
   create: async (name) => (await languagesAdminApi.create({ name })).data,
   findExisting: async (name) =>
     (
@@ -84,7 +89,7 @@ const languageConfig: QuickCreateConfig<LanguageDto> = {
 
 const ageRatingConfig: QuickCreateConfig<AgeRatingDto> = {
   invalidates: "ageRatingCreated",
-  maxLength: 10,
+  maxLength: QUICK_CREATE_AGE_RATING_MAX_LENGTH,
   create: async (code) =>
     (await ageRatingsAdminApi.create({ code, description: null })).data,
   findExisting: async (code) =>
@@ -95,7 +100,7 @@ const ageRatingConfig: QuickCreateConfig<AgeRatingDto> = {
 
 const positionConfig: QuickCreateConfig<PositionDto> = {
   invalidates: "positionCreated",
-  maxLength: 50,
+  maxLength: QUICK_CREATE_NAME_MAX_LENGTH,
   create: async (name) => (await positionsAdminApi.create({ name })).data,
   findExisting: async (name) =>
     (
@@ -105,7 +110,7 @@ const positionConfig: QuickCreateConfig<PositionDto> = {
 
 const screenTypeConfig: QuickCreateConfig<ScreenTypeDto> = {
   invalidates: "screenTypeCreated",
-  maxLength: 50,
+  maxLength: QUICK_CREATE_NAME_MAX_LENGTH,
   create: async (name) => (await screenTypesAdminApi.create({ name })).data,
   findExisting: async (name) =>
     (
@@ -115,14 +120,14 @@ const screenTypeConfig: QuickCreateConfig<ScreenTypeDto> = {
 
 const directorConfig: QuickCreateConfig<DirectorDto> = {
   invalidates: "directorCreated",
-  maxLength: 150,
+  maxLength: QUICK_CREATE_PERSON_NAME_MAX_LENGTH,
   create: async (fullName) =>
     (await directorsAdminApi.quickCreate({ fullName })).data,
 };
 
 const actorConfig: QuickCreateConfig<ActorDto> = {
   invalidates: "actorCreated",
-  maxLength: 150,
+  maxLength: QUICK_CREATE_PERSON_NAME_MAX_LENGTH,
   create: async (fullName) =>
     (await actorsAdminApi.quickCreate({ fullName })).data,
 };

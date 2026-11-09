@@ -14,20 +14,35 @@ interface SheetOptions {
 
 interface SheetStore extends SheetOptions {
   isOpen: boolean;
+  dismissLocks: number;
   open: (options: SheetOptions) => void;
   close: () => void;
+  blockDismiss: () => void;
+  releaseDismiss: () => void;
 }
 
 export const useSheetStore = create<SheetStore>((set) => ({
   isOpen: false,
+  dismissLocks: 0,
   title: undefined,
   description: undefined,
   content: null,
   side: "right",
   className: undefined,
   open: ({ title, description, content, side = "right", className }) =>
-    set({ isOpen: true, title, description, content, side, className }),
-  close: () => set({ isOpen: false }),
+    set({
+      isOpen: true,
+      dismissLocks: 0,
+      title,
+      description,
+      content,
+      side,
+      className,
+    }),
+  close: () => set({ isOpen: false, dismissLocks: 0 }),
+  blockDismiss: () => set((s) => ({ dismissLocks: s.dismissLocks + 1 })),
+  releaseDismiss: () =>
+    set((s) => ({ dismissLocks: Math.max(0, s.dismissLocks - 1) })),
 }));
 
 export const useSheetOpen = () => useSheetStore((s) => s.open);
@@ -42,5 +57,14 @@ export const useSheetState = () =>
       content: s.content,
       side: s.side,
       className: s.className,
+      dismissible: s.dismissLocks === 0,
+    })),
+  );
+
+export const useSheetDismissGuard = () =>
+  useSheetStore(
+    useShallow((s) => ({
+      block: s.blockDismiss,
+      release: s.releaseDismiss,
     })),
   );

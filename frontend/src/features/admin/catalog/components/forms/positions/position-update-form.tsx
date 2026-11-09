@@ -53,7 +53,7 @@ export const PositionUpdateForm = ({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updatePosition.isPending}>
         <FormInputField
           name="name"
           control={form.control}

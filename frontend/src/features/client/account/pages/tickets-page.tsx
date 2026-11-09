@@ -8,12 +8,13 @@ import { useMyBookings, useCancelBooking } from "@/features/client/bookings/hook
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 import { bookingStatusOptions } from "@/lib/enum-options";
 import { cn } from "@/lib/utils";
+import { ACCOUNT_LIST_PAGE_LIMIT } from "@/config/default-constants";
 
 const TABS = [{ value: null as string | null, label: "Tất cả" }, ...bookingStatusOptions.map((o) => ({ value: o.value as string | null, label: o.label }))];
 
 const AccountTicketsPage = () => {
   const [status, setStatus] = useState<string | null>(null);
-  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyBookings({ status: status ?? undefined, limit: 10 });
+  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyBookings({ status: status ?? undefined, limit: ACCOUNT_LIST_PAGE_LIMIT });
   const cancelBooking = useCancelBooking();
   const openAlert = useAlertDialogOpen();
 

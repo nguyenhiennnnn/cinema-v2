@@ -44,7 +44,7 @@ export const UserRoleForm = ({ user, onSuccess }: UserRoleFormProps) => {
 
   return (
     <form id="user-role-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={updateRole.isPending}>
         <FormEnumSelectField
           name="roleId"
           control={form.control}

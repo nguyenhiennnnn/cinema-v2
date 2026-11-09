@@ -66,7 +66,7 @@ export const DirectorUpdateForm = ({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateDirector.isPending}>
         <FormInputField
           name="fullName"
           control={form.control}

@@ -97,7 +97,6 @@ export function useCounterFlow() {
   const canHold =
     showtimeId != null &&
     selectedSeatIds.size > 0 &&
-    // Có userId (khách đã định danh) hoặc có tên thủ công
     (userId != null || customerName.trim().length > 0);
 
   const holdSeats = async () => {

@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { SearchIcon, XIcon, UserIcon, TagIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { COMBOBOX_BLUR_CLOSE_DELAY_MS } from "@/config/default-constants";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useCustomerLookup } from "@/features/admin/users/hooks/use-admin-users";
 import type { CustomerLookupItemDto } from "@/features/admin/users/types";
@@ -97,7 +98,7 @@ export const CustomerSearchCombobox = ({
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onBlur={() => setTimeout(() => setOpen(false), COMBOBOX_BLUR_CLOSE_DELAY_MS)}
           placeholder="Nhập SĐT, email hoặc tên..."
           className={cn(
             "w-full cut-sm border border-border bg-input py-2 pl-8 pr-3 text-sm outline-none",

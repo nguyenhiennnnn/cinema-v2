@@ -69,7 +69,7 @@ export const MembershipTierUpdateForm = ({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateMembershipTier.isPending}>
         <FormInputField
           name="tierName"
           control={form.control}

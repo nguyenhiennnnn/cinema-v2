@@ -5,11 +5,12 @@ import { AlertTriangle } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { FormErrorAlert } from "@/components/common/form/form-error-alert";
 import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useResetPassword } from "../hooks/use-auth";
-import { getDisplayMessage, hasFieldErrors } from "@/lib/error";
 import { passwordSchema } from "@/lib/validators";
 import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
 import { ROUTES } from "@/config/routes";
@@ -79,31 +80,29 @@ export const ResetPasswordForm = () => {
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
-      <FormInputField
-        name="newPassword"
-        control={form.control}
-        label="Mật khẩu mới"
-        type="password"
-        autoComplete="new-password"
-        placeholder="••••••••"
-      />
+      <FieldGroup disabled={isPending} className="gap-4">
+        <FormInputField
+          name="newPassword"
+          control={form.control}
+          label="Mật khẩu mới"
+          type="password"
+          autoComplete="new-password"
+          placeholder="••••••••"
+        />
 
-      <FormInputField
-        name="confirmPassword"
-        control={form.control}
-        label="Xác nhận mật khẩu mới"
-        type="password"
-        autoComplete="new-password"
-        placeholder="••••••••"
-      />
+        <FormInputField
+          name="confirmPassword"
+          control={form.control}
+          label="Xác nhận mật khẩu mới"
+          type="password"
+          autoComplete="new-password"
+          placeholder="••••••••"
+        />
 
-      <PasswordStrengthMeter password={newPassword} />
+        <PasswordStrengthMeter password={newPassword} />
+      </FieldGroup>
 
-      {error && !hasFieldErrors(error) && (
-        <p className="cut-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {getDisplayMessage(error)}
-        </p>
-      )}
+      <FormErrorAlert error={error} />
 
       <SubmitButton isPending={isPending} label="Đặt lại mật khẩu" className="w-full" />
     </form>

@@ -63,7 +63,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup>
+      <FieldGroup disabled={createShowtime.isPending}>
         <FormSearchSelectField
           name="movieId"
           control={form.control}

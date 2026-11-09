@@ -65,7 +65,7 @@ export const AgeRatingUpdateForm = ({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup disabled={updateAgeRating.isPending}>
         <FormInputField
           name="code"
           control={form.control}
