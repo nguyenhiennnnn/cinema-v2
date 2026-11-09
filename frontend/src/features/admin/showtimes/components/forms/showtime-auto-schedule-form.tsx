@@ -199,7 +199,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
                       <>
                         <SingleSelectField
                           value={field.value}
-                          onChange={(v) => field.onChange(v)}
+                          onChange={(v) => field.onChange(v ?? undefined)}
                           options={movies.data?.items ?? []}
                           getOptionValue={(o) => o.movieId}
                           getOptionLabel={(o) => o.title}

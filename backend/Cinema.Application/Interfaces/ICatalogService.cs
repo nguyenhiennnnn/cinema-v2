@@ -68,6 +68,10 @@ public interface ICatalogService
         UpsertPersonRequest request,
         CancellationToken cancellationToken
     );
+    Task<DirectorDto> QuickCreateDirectorAsync(
+        QuickCreatePersonRequest request,
+        CancellationToken cancellationToken
+    );
     Task<DirectorDto> UpdateDirectorAsync(
         int id,
         UpsertPersonRequest request,
@@ -87,6 +91,10 @@ public interface ICatalogService
     );
     Task<ActorDto> CreateActorAsync(
         UpsertPersonRequest request,
+        CancellationToken cancellationToken
+    );
+    Task<ActorDto> QuickCreateActorAsync(
+        QuickCreatePersonRequest request,
         CancellationToken cancellationToken
     );
     Task<ActorDto> UpdateActorAsync(

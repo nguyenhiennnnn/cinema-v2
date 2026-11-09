@@ -35,6 +35,13 @@ public class AdminDirectorsController(ICatalogService catalogService) : Controll
             await catalogService.CreateDirectorAsync(request, cancellationToken)
         );
 
+    [HttpPost("quick")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> QuickCreate(
+        [FromBody] QuickCreatePersonRequest request,
+        CancellationToken cancellationToken
+    ) => Ok(await catalogService.QuickCreateDirectorAsync(request, cancellationToken));
+
     [HttpPut("{id:int}")]
     [SuccessMessage(nameof(Messages.Success_DirectorUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]

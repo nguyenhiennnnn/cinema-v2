@@ -35,6 +35,13 @@ public class AdminActorsController(ICatalogService catalogService) : ControllerB
             await catalogService.CreateActorAsync(request, cancellationToken)
         );
 
+    [HttpPost("quick")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> QuickCreate(
+        [FromBody] QuickCreatePersonRequest request,
+        CancellationToken cancellationToken
+    ) => Ok(await catalogService.QuickCreateActorAsync(request, cancellationToken));
+
     [HttpPut("{id:int}")]
     [SuccessMessage(nameof(Messages.Success_ActorUpdated))]
     [Authorize(Policy = Policies.AdminOnly)]

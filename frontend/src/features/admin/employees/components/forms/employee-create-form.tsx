@@ -5,12 +5,13 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
-import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
 
 import { useAdminCreateEmployee } from "../../hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
+import { usePositionQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useAdminUsersSelect } from "@/features/admin/users/hooks/use-admin-users";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
@@ -32,9 +33,14 @@ interface EmployeeCreateFormProps {
 export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
   const createEmployee = useAdminCreateEmployee();
   const [userSearch, setUserSearch] = useState("");
+  const [positionSearch, setPositionSearch] = useState("");
 
-  const adminUsers = useAdminUsersSelect({ search: userSearch, availableOnly: true });
+  const adminUsers = useAdminUsersSelect({
+    search: useDebouncedValue(userSearch),
+    availableOnly: true,
+  });
   const positions = useAdminPositions({ pageSize: LOOKUP_PAGE_SIZE });
+  const positionQuickCreate = usePositionQuickCreate();
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
@@ -75,7 +81,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
           emptyText="Không tìm thấy người dùng phù hợp."
         />
 
-        <FormSelectField
+        <FormSearchSelectField
           name="positionId"
           control={form.control}
           label="Vị trí (không bắt buộc)"
@@ -83,7 +89,10 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
           options={positions.data?.items ?? []}
           getOptionValue={(o) => o.positionId}
           getOptionLabel={(o) => o.name}
-          disabled={positions.isLoading}
+          searchValue={positionSearch}
+          onSearchChange={setPositionSearch}
+          isLoading={positions.isLoading}
+          {...positionQuickCreate}
         />
 
         <FormDatePickerField

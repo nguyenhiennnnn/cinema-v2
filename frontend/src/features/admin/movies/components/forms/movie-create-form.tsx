@@ -15,6 +15,15 @@ import { useAdminLanguages } from "@/features/admin/catalog/hooks/use-admin-lang
 import { useAdminAgeRatings } from "@/features/admin/catalog/hooks/use-admin-age-rating";
 import { useAdminGenres } from "@/features/admin/catalog/hooks/use-admin-genre";
 import { useAdminActors } from "@/features/admin/catalog/hooks/use-admin-actor";
+import {
+  useActorQuickCreate,
+  useAgeRatingQuickCreate,
+  useDirectorQuickCreate,
+  useGenreQuickCreate,
+  useLanguageQuickCreate,
+} from "@/features/admin/catalog/hooks/use-quick-create";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
 import { useAdminCreateMovie } from "../../hooks/use-admin-movies";
 import { showApiErrorToast } from "@/lib/error";
@@ -35,11 +44,17 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
   const [genreSearch, setGenreSearch] = useState("");
   const [actorSearch, setActorSearch] = useState("");
 
-  const directors = useAdminDirectors({ search: directorSearch });
-  const languages = useAdminLanguages();
-  const ageRatings = useAdminAgeRatings();
-  const genres = useAdminGenres();
-  const actors = useAdminActors({ search: actorSearch });
+  const directors = useAdminDirectors({ search: useDebouncedValue(directorSearch) });
+  const languages = useAdminLanguages({ pageSize: LOOKUP_PAGE_SIZE });
+  const ageRatings = useAdminAgeRatings({ pageSize: LOOKUP_PAGE_SIZE });
+  const genres = useAdminGenres({ pageSize: LOOKUP_PAGE_SIZE });
+  const actors = useAdminActors({ search: useDebouncedValue(actorSearch) });
+
+  const directorQuickCreate = useDirectorQuickCreate();
+  const languageQuickCreate = useLanguageQuickCreate();
+  const ageRatingQuickCreate = useAgeRatingQuickCreate();
+  const genreQuickCreate = useGenreQuickCreate();
+  const actorQuickCreate = useActorQuickCreate();
 
   const form = useForm<MovieCreateFormValues>({
     resolver: zodResolver(movieFormSchema),
@@ -136,6 +151,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
             onSearchChange={setDirectorSearch}
             isLoading={directors.isLoading}
             placeholder="Chọn đạo diễn"
+            {...directorQuickCreate}
           />
 
           <FormSearchSelectField
@@ -149,6 +165,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
             onSearchChange={setLanguageSearch}
             isLoading={languages.isLoading}
             placeholder="Chọn ngôn ngữ"
+            {...languageQuickCreate}
           />
         </div>
 
@@ -180,6 +197,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
             onSearchChange={setAgeRatingSearch}
             isLoading={ageRatings.isLoading}
             placeholder="Chọn độ tuổi"
+            {...ageRatingQuickCreate}
           />
 
           <FormInputField
@@ -208,6 +226,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
           onSearchChange={setGenreSearch}
           isLoading={genres.isLoading}
           placeholder="Chọn thể loại phim"
+          {...genreQuickCreate}
         />
 
         <Field>
@@ -224,7 +243,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
                         <div data-invalid={fieldState.invalid} className="group/field">
                           <SingleSelectField
                             value={field.value}
-                            onChange={(v) => field.onChange(v)}
+                            onChange={(v) => field.onChange(v ?? undefined)}
                             options={actors.data?.items ?? []}
                             getOptionValue={(o) => o.actorId}
                             getOptionLabel={(o) => o.fullName}
@@ -232,6 +251,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
                             onSearchChange={setActorSearch}
                             isLoading={actors.isLoading}
                             placeholder="Chọn diễn viên"
+                            {...actorQuickCreate}
                           />
                           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                         </div>

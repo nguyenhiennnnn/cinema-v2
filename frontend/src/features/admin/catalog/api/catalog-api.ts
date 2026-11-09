@@ -9,6 +9,7 @@ import type {
   ActorDto,
   DirectorDto,
   UpsertPersonRequest,
+  QuickCreatePersonRequest,
   PositionDto, UpsertPositionRequest,
   ScreenTypeDto, UpsertScreenTypeRequest,
   SeatTypeDto, UpsertSeatTypeRequest,
@@ -66,6 +67,8 @@ export const actorsAdminApi = {
     apiGet<ApiResponse<OffsetPageResult<ActorDto>>>("/admin/actors", { params }),
   create: (body: UpsertPersonRequest) =>
     apiPost<ApiResponse<ActorDto>>("/admin/actors", body),
+  quickCreate: (body: QuickCreatePersonRequest) =>
+    apiPost<ApiResponse<ActorDto>>("/admin/actors/quick", body),
   update: (id: number, body: UpsertPersonRequest) =>
     apiPut<ApiResponse<ActorDto>>(`/admin/actors/${id}`, body),
   delete: (id: number) =>
@@ -79,6 +82,8 @@ export const directorsAdminApi = {
     apiGet<ApiResponse<OffsetPageResult<DirectorDto>>>("/admin/directors", { params }),
   create: (body: UpsertPersonRequest) =>
     apiPost<ApiResponse<DirectorDto>>("/admin/directors", body),
+  quickCreate: (body: QuickCreatePersonRequest) =>
+    apiPost<ApiResponse<DirectorDto>>("/admin/directors/quick", body),
   update: (id: number, body: UpsertPersonRequest) =>
     apiPut<ApiResponse<DirectorDto>>(`/admin/directors/${id}`, body),
   delete: (id: number) =>

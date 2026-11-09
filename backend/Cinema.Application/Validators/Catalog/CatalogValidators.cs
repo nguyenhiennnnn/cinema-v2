@@ -1,4 +1,5 @@
 using Cinema.Application.DTOs.Catalog;
+using Cinema.Application.Validators.Common;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Catalog;
@@ -7,7 +8,7 @@ public class UpsertLanguageRequestValidator : AbstractValidator<UpsertLanguageRe
 {
     public UpsertLanguageRequestValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(50).NoControlCharacters();
     }
 }
 
@@ -15,7 +16,7 @@ public class UpsertGenreRequestValidator : AbstractValidator<UpsertGenreRequest>
 {
     public UpsertGenreRequestValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(50).NoControlCharacters();
     }
 }
 
@@ -23,7 +24,7 @@ public class UpsertScreenTypeRequestValidator : AbstractValidator<UpsertScreenTy
 {
     public UpsertScreenTypeRequestValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(50).NoControlCharacters();
     }
 }
 
@@ -50,7 +51,7 @@ public class UpsertAgeRatingRequestValidator : AbstractValidator<UpsertAgeRating
 {
     public UpsertAgeRatingRequestValidator()
     {
-        RuleFor(x => x.Code).NotEmpty().MaximumLength(10);
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(10).NoControlCharacters();
         RuleFor(x => x.Description).MaximumLength(255);
     }
 }
@@ -59,7 +60,7 @@ public class UpsertPersonRequestValidator : AbstractValidator<UpsertPersonReques
 {
     public UpsertPersonRequestValidator()
     {
-        RuleFor(x => x.FullName).NotEmpty().MaximumLength(150);
+        RuleFor(x => x.FullName).NotEmpty().MaximumLength(150).NoControlCharacters();
         RuleFor(x => x.AvatarUrl).MaximumLength(255);
     }
 }
@@ -68,6 +69,14 @@ public class UpsertPositionRequestValidator : AbstractValidator<UpsertPositionRe
 {
     public UpsertPositionRequestValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(50).NoControlCharacters();
+    }
+}
+
+public class QuickCreatePersonRequestValidator : AbstractValidator<QuickCreatePersonRequest>
+{
+    public QuickCreatePersonRequestValidator()
+    {
+        RuleFor(x => x.FullName).NotEmpty().MaximumLength(150).NoControlCharacters();
     }
 }

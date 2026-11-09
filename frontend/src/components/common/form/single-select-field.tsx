@@ -17,8 +17,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { filterBySearch, isSameValue } from "./select-name-utils";
+import { useSelectCreate, type SelectCreateProps } from "./use-select-create";
+import { SelectCreateItem, SelectCreateNote } from "./select-create-item";
 
-export interface SingleSelectFieldProps<T> {
+export interface SingleSelectFieldProps<T> extends SelectCreateProps<T> {
   value: string | number | null | undefined;
   onChange: (value: string | number | null, option: T | null) => void;
   options: T[];
@@ -52,53 +55,86 @@ export const SingleSelectField = <T,>({
   disabled,
   clearable = true,
   className,
+  onCreate,
+  canCreate,
+  createMaxLength,
 }: SingleSelectFieldProps<T>) => {
   const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<T | null>(null);
 
-  const selectedOption = options.find((o) => getOptionValue(o) === value);
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) onSearchChange("");
+  };
+
+  const select = (option: T) => {
+    setPicked(option);
+    onChange(getOptionValue(option), option);
+    handleOpenChange(false);
+  };
+
+  const createState = useSelectCreate({
+    options,
+    getOptionLabel,
+    searchValue,
+    onCreate,
+    canCreate,
+    createMaxLength,
+    onCreated: select,
+  });
+
+  const selectedOption =
+    createState.allOptions.find((o) => isSameValue(getOptionValue(o), value)) ??
+    (picked && isSameValue(getOptionValue(picked), value) ? picked : undefined);
   const displayLabel = selectedOption
     ? getOptionLabel(selectedOption)
     : (selectedLabel ?? "");
 
   const handleSelect = (option: T) => {
-    const optionValue = getOptionValue(option);
-    if (optionValue === value && clearable) {
+    if (clearable && isSameValue(getOptionValue(option), value)) {
+      setPicked(null);
       onChange(null, null);
+      handleOpenChange(false);
     } else {
-      onChange(optionValue, option);
+      select(option);
     }
-    setOpen(false);
   };
 
+  const visibleOptions = filterBySearch(
+    createState.allOptions,
+    searchValue,
+    getOptionLabel,
+  );
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className={cn(
-            "w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
-            !displayLabel && "text-muted-foreground",
-            className,
-          )}
-        >
-          <span className="truncate">{displayLabel || placeholder}</span>
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-        </Button>
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={cn(
+              "w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
+              !displayLabel && "text-muted-foreground",
+              className,
+            )}
+          />
+        }
+      >
+        <span className="truncate">{displayLabel || placeholder}</span>
+        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
       </PopoverTrigger>
 
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-0"
-        align="start"
-      >
+      <PopoverContent className="w-(--anchor-width) p-0" align="start">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder={searchPlaceholder}
             value={searchValue}
             onValueChange={onSearchChange}
+            disabled={createState.isCreating}
           />
           <CommandList>
             {isLoading ? (
@@ -109,18 +145,21 @@ export const SingleSelectField = <T,>({
               <>
                 <CommandEmpty>{emptyText}</CommandEmpty>
                 <CommandGroup>
-                  {options.map((option) => {
+                  {visibleOptions.map((option) => {
                     const optionValue = getOptionValue(option);
                     return (
                       <CommandItem
                         key={optionValue}
                         value={String(optionValue)}
+                        disabled={createState.isCreating}
                         onSelect={() => handleSelect(option)}
                       >
                         <Check
                           className={cn(
                             "mr-2 size-4",
-                            value === optionValue ? "opacity-100" : "opacity-0",
+                            isSameValue(value, optionValue)
+                              ? "opacity-100"
+                              : "opacity-0",
                           )}
                         />
                         <span className="truncate">
@@ -129,10 +168,20 @@ export const SingleSelectField = <T,>({
                       </CommandItem>
                     );
                   })}
+                  {createState.showCreate && (
+                    <SelectCreateItem
+                      term={createState.term}
+                      isCreating={createState.isCreating}
+                      onCreate={createState.create}
+                    />
+                  )}
                 </CommandGroup>
               </>
             )}
           </CommandList>
+          <SelectCreateNote
+            message={createState.createError ?? createState.termError}
+          />
         </Command>
       </PopoverContent>
     </Popover>

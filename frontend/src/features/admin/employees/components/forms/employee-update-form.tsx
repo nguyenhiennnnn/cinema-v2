@@ -1,14 +1,16 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
-import { FormSelectField } from "@/components/common/form/form-select-field";
+import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 
 import { useAdminUpdateEmployee } from "../../hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
+import { usePositionQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
 import type { AdminEmployeeDto } from "../../types";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
@@ -29,7 +31,9 @@ interface EmployeeUpdateFormProps {
 
 export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormProps) => {
   const updateEmployee = useAdminUpdateEmployee();
+  const [positionSearch, setPositionSearch] = useState("");
   const positions = useAdminPositions({ pageSize: LOOKUP_PAGE_SIZE });
+  const positionQuickCreate = usePositionQuickCreate();
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
@@ -63,15 +67,19 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
       </div>
 
       <FieldGroup>
-        <FormSelectField
+        <FormSearchSelectField
           name="positionId"
           control={form.control}
           label="Vị trí (không bắt buộc)"
           placeholder="Chọn vị trí"
           options={positions.data?.items ?? []}
+          selectedLabel={employee.positionName ?? undefined}
           getOptionValue={(o) => o.positionId}
           getOptionLabel={(o) => o.name}
-          disabled={positions.isLoading}
+          searchValue={positionSearch}
+          onSearchChange={setPositionSearch}
+          isLoading={positions.isLoading}
+          {...positionQuickCreate}
         />
 
         <FormDatePickerField

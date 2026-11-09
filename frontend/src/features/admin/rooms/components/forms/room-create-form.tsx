@@ -8,7 +8,9 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminScreenTypes } from "@/features/admin/catalog/hooks/use-admin-screen-type";
+import { useScreenTypeQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
 import { useAdminCreateRoom } from "../../hooks/use-admin-rooms";
+import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 
 const roomFormSchema = z.object({
@@ -27,7 +29,8 @@ interface RoomCreateFormProps {
 export const RoomCreateForm = ({ onSuccess }: RoomCreateFormProps) => {
   const createRoom = useAdminCreateRoom();
   const [screenTypeSearch, setScreenTypeSearch] = useState("");
-  const screenTypes = useAdminScreenTypes();
+  const screenTypes = useAdminScreenTypes({ pageSize: LOOKUP_PAGE_SIZE });
+  const screenTypeQuickCreate = useScreenTypeQuickCreate();
 
   const form = useForm<RoomFormValues>({
     resolver: zodResolver(roomFormSchema),
@@ -85,6 +88,7 @@ export const RoomCreateForm = ({ onSuccess }: RoomCreateFormProps) => {
           onSearchChange={setScreenTypeSearch}
           isLoading={screenTypes.isLoading}
           placeholder="Chọn loại màn hình"
+          {...screenTypeQuickCreate}
         />
       </FieldGroup>
 

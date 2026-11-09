@@ -65,6 +65,19 @@ export const invalidations = {
   ],
   actorChanged: (): KeyList => [k.adminCatalog.actors(), ...movieViews()],
   directorChanged: (): KeyList => [k.adminCatalog.directors(), ...movieViews()],
+  genreCreated: (): KeyList => [k.adminCatalog.genres(), k.catalog.genres()],
+  languageCreated: (): KeyList => [
+    k.adminCatalog.languages(),
+    k.catalog.languages(),
+  ],
+  ageRatingCreated: (): KeyList => [
+    k.adminCatalog.ageRatings(),
+    k.catalog.ageRatings(),
+  ],
+  actorCreated: (): KeyList => [k.adminCatalog.actors()],
+  directorCreated: (): KeyList => [k.adminCatalog.directors()],
+  positionCreated: (): KeyList => [k.adminCatalog.positions()],
+  screenTypeCreated: (): KeyList => [k.adminCatalog.screenTypes()],
   membershipTierChanged: (): KeyList => [
     k.adminCatalog.membershipTiers(),
     k.catalog.membershipTiers(),

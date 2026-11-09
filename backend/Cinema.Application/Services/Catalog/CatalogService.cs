@@ -59,11 +59,12 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         CancellationToken cancellationToken
     )
     {
-        var exists = await db.Genres.AnyAsync(g => g.Name == request.Name, cancellationToken);
-        if (exists)
+        var name = NameNormalizer.Normalize(request.Name);
+        var existingNames = await db.Genres.Select(g => g.Name).ToListAsync(cancellationToken);
+        if (existingNames.Any(n => NameNormalizer.AreSame(n, name)))
             throw new ConflictAppException(Messages.Conflict_GenreExists);
 
-        var entity = new Genre { Name = request.Name };
+        var entity = new Genre { Name = name };
         db.Genres.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<GenreDto>();
@@ -124,11 +125,12 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         CancellationToken cancellationToken
     )
     {
-        var exists = await db.Languages.AnyAsync(l => l.Name == request.Name, cancellationToken);
-        if (exists)
+        var name = NameNormalizer.Normalize(request.Name);
+        var existingNames = await db.Languages.Select(l => l.Name).ToListAsync(cancellationToken);
+        if (existingNames.Any(n => NameNormalizer.AreSame(n, name)))
             throw new ConflictAppException(Messages.Conflict_LanguageExists);
 
-        var entity = new Language { Name = request.Name };
+        var entity = new Language { Name = name };
         db.Languages.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<LanguageDto>();
@@ -187,11 +189,12 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         CancellationToken cancellationToken
     )
     {
-        var exists = await db.AgeRatings.AnyAsync(a => a.Code == request.Code, cancellationToken);
-        if (exists)
+        var code = NameNormalizer.Normalize(request.Code);
+        var existingCodes = await db.AgeRatings.Select(a => a.Code).ToListAsync(cancellationToken);
+        if (existingCodes.Any(c => NameNormalizer.AreSame(c, code)))
             throw new ConflictAppException(Messages.Conflict_AgeRatingCodeExists);
 
-        var entity = new AgeRating { Code = request.Code, Description = request.Description };
+        var entity = new AgeRating { Code = code, Description = request.Description };
         db.AgeRatings.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<AgeRatingDto>();
@@ -241,7 +244,10 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var query = db.Directors.AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(d => d.FullName.Contains(search));
+        {
+            var term = NameNormalizer.Normalize(search).ToLowerInvariant();
+            query = query.Where(d => d.FullName.ToLower().Contains(term));
+        }
         query = query.OrderBy(d => d.FullName);
 
         var total = await query.CountAsync(cancellationToken);
@@ -259,6 +265,28 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     )
     {
         var entity = new Director { FullName = request.FullName, AvatarUrl = request.AvatarUrl };
+        db.Directors.Add(entity);
+        await db.SaveChangesAsync(cancellationToken);
+        return entity.Adapt<DirectorDto>();
+    }
+
+    public async Task<DirectorDto> QuickCreateDirectorAsync(
+        QuickCreatePersonRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        // Tên người có thể trùng thật nên không đặt unique; tạo nhanh dùng lại bản ghi cùng tên nếu có.
+        var name = NameNormalizer.Normalize(request.FullName);
+        var key = name.ToLowerInvariant();
+
+        var existing = await db
+            .Directors.Where(d => d.FullName.ToLower() == key)
+            .OrderBy(d => d.DirectorId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (existing is not null)
+            return existing.Adapt<DirectorDto>();
+
+        var entity = new Director { FullName = name };
         db.Directors.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<DirectorDto>();
@@ -311,7 +339,10 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     {
         var query = db.Actors.AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(a => a.FullName.Contains(search));
+        {
+            var term = NameNormalizer.Normalize(search).ToLowerInvariant();
+            query = query.Where(a => a.FullName.ToLower().Contains(term));
+        }
         query = query.OrderBy(a => a.FullName);
 
         var total = await query.CountAsync(cancellationToken);
@@ -329,6 +360,27 @@ public class CatalogService(IAppDbContext db) : ICatalogService
     )
     {
         var entity = new Actor { FullName = request.FullName, AvatarUrl = request.AvatarUrl };
+        db.Actors.Add(entity);
+        await db.SaveChangesAsync(cancellationToken);
+        return entity.Adapt<ActorDto>();
+    }
+
+    public async Task<ActorDto> QuickCreateActorAsync(
+        QuickCreatePersonRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var name = NameNormalizer.Normalize(request.FullName);
+        var key = name.ToLowerInvariant();
+
+        var existing = await db
+            .Actors.Where(a => a.FullName.ToLower() == key)
+            .OrderBy(a => a.ActorId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (existing is not null)
+            return existing.Adapt<ActorDto>();
+
+        var entity = new Actor { FullName = name };
         db.Actors.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<ActorDto>();
@@ -395,11 +447,12 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         CancellationToken cancellationToken
     )
     {
-        var exists = await db.Positions.AnyAsync(p => p.Name == request.Name, cancellationToken);
-        if (exists)
+        var name = NameNormalizer.Normalize(request.Name);
+        var existingNames = await db.Positions.Select(p => p.Name).ToListAsync(cancellationToken);
+        if (existingNames.Any(n => NameNormalizer.AreSame(n, name)))
             throw new ConflictAppException(Messages.Conflict_PositionExists);
 
-        var entity = new Position { Name = request.Name };
+        var entity = new Position { Name = name };
         db.Positions.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<PositionDto>();
@@ -458,11 +511,12 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         CancellationToken cancellationToken
     )
     {
-        var exists = await db.ScreenTypes.AnyAsync(s => s.Name == request.Name, cancellationToken);
-        if (exists)
+        var name = NameNormalizer.Normalize(request.Name);
+        var existingNames = await db.ScreenTypes.Select(s => s.Name).ToListAsync(cancellationToken);
+        if (existingNames.Any(n => NameNormalizer.AreSame(n, name)))
             throw new ConflictAppException(Messages.Conflict_ScreenTypeExists);
 
-        var entity = new ScreenType { Name = request.Name };
+        var entity = new ScreenType { Name = name };
         db.ScreenTypes.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<ScreenTypeDto>();

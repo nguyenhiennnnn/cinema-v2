@@ -35,7 +35,7 @@ export const FormSearchSelectField = <TFieldValues extends FieldValues, TOption>
         <SingleSelectField
           {...selectProps}
           value={field.value}
-          onChange={(v) => field.onChange(v)}
+          onChange={(v) => field.onChange(v ?? undefined)}
         />
         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
       </Field>

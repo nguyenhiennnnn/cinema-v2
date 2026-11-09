@@ -8,7 +8,9 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminScreenTypes } from "@/features/admin/catalog/hooks/use-admin-screen-type";
+import { useScreenTypeQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
 import { useAdminUpdateRoom } from "../../hooks/use-admin-rooms";
+import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import type { AdminRoomDto } from "../../types";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
@@ -29,13 +31,14 @@ interface RoomUpdateFormProps {
 export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
   const updateRoom = useAdminUpdateRoom();
   const [screenTypeSearch, setScreenTypeSearch] = useState("");
-  const screenTypes = useAdminScreenTypes();
+  const screenTypes = useAdminScreenTypes({ pageSize: LOOKUP_PAGE_SIZE });
+  const screenTypeQuickCreate = useScreenTypeQuickCreate();
 
   const form = useForm<RoomFormValues>({
     resolver: zodResolver(roomFormSchema),
     defaultValues: {
       roomName: room.roomName,
-      screenTypeId: Number(room.screenTypeId),
+      screenTypeId: room.screenTypeId ? Number(room.screenTypeId) : undefined,
       isActive: room.isActive,
     },
   });
@@ -77,6 +80,7 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
           onSearchChange={setScreenTypeSearch}
           isLoading={screenTypes.isLoading}
           placeholder="Chọn loại màn hình"
+          {...screenTypeQuickCreate}
         />
 
         <FormSwitchField name="isActive" control={form.control} label="Đang hoạt động" />

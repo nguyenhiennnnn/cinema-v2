@@ -18,8 +18,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { filterBySearch } from "./select-name-utils";
+import { useSelectCreate, type SelectCreateProps } from "./use-select-create";
+import { SelectCreateItem, SelectCreateNote } from "./select-create-item";
 
-export interface MultiSelectFieldProps<T> {
+export interface MultiSelectFieldProps<T> extends SelectCreateProps<T> {
   value: (string | number)[];
   onChange: (values: (string | number)[], options: T[]) => void;
   options: T[];
@@ -53,32 +56,61 @@ export const MultiSelectField = <T,>({
   disabled,
   maxBadges = 3,
   className,
+  onCreate,
+  canCreate,
+  createMaxLength,
 }: MultiSelectFieldProps<T>) => {
   const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<T[]>([]);
 
-  const allKnownOptions = [...selectedOptions, ...options].reduce<
-    Map<string | number, T>
-  >((map, option) => {
-    map.set(getOptionValue(option), option);
-    return map;
-  }, new Map());
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) onSearchChange("");
+  };
 
+  const lookupOptions = (known: T[]) =>
+    [...selectedOptions, ...picked, ...known].reduce<Map<string | number, T>>(
+      (map, option) => {
+        map.set(getOptionValue(option), option);
+        return map;
+      },
+      new Map(),
+    );
+
+  const addOption = (option: T, known: T[]) => {
+    const optionValue = getOptionValue(option);
+    if (value.includes(optionValue)) return;
+    setPicked((prev) => [...prev, option]);
+    const selected = value
+      .map((v) => lookupOptions(known).get(v))
+      .filter((o): o is T => o !== undefined);
+    onChange([...value, optionValue], [...selected, option]);
+  };
+
+  const createState = useSelectCreate({
+    options,
+    getOptionLabel,
+    searchValue,
+    onCreate,
+    canCreate,
+    createMaxLength,
+    onCreated: (option) => {
+      addOption(option, options);
+      onSearchChange("");
+    },
+  });
+
+  const allKnownOptions = lookupOptions(createState.allOptions);
   const selectedItems = value
     .map((v) => allKnownOptions.get(v))
     .filter((o): o is T => o !== undefined);
 
   const toggle = (option: T) => {
     const optionValue = getOptionValue(option);
-    const exists = value.includes(optionValue);
-
-    if (exists) {
-      const nextValues = value.filter((v) => v !== optionValue);
-      const nextOptions = selectedItems.filter(
-        (o) => getOptionValue(o) !== optionValue,
-      );
-      onChange(nextValues, nextOptions);
+    if (value.includes(optionValue)) {
+      remove(optionValue);
     } else {
-      onChange([...value, optionValue], [...selectedItems, option]);
+      addOption(option, createState.allOptions);
     }
   };
 
@@ -89,68 +121,75 @@ export const MultiSelectField = <T,>({
     );
   };
 
+  const visibleOptions = filterBySearch(
+    createState.allOptions,
+    searchValue,
+    getOptionLabel,
+  );
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className={cn(
-            "h-auto min-h-9 w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
-            className,
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={cn(
+              "h-auto min-h-9 w-full justify-between font-normal group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-3 group-data-[invalid=true]/field:ring-destructive/20 dark:group-data-[invalid=true]/field:border-destructive/50 dark:group-data-[invalid=true]/field:ring-destructive/40",
+              className,
+            )}
+          />
+        }
+      >
+        <div className="flex flex-wrap items-center gap-1">
+          {selectedItems.length === 0 && (
+            <span className="text-muted-foreground">{placeholder}</span>
           )}
-        >
-          <div className="flex flex-wrap items-center gap-1">
-            {selectedItems.length === 0 && (
-              <span className="text-muted-foreground">{placeholder}</span>
-            )}
-            {selectedItems.slice(0, maxBadges).map((option) => {
-              const optionValue = getOptionValue(option);
-              return (
-                <Badge
-                  key={optionValue}
-                  variant="secondary"
-                  className="gap-1 pr-1"
+          {selectedItems.slice(0, maxBadges).map((option) => {
+            const optionValue = getOptionValue(option);
+            return (
+              <Badge
+                key={optionValue}
+                variant="secondary"
+                className="gap-1 pr-1"
+              >
+                <span className="max-w-30 truncate">
+                  {getOptionLabel(option)}
+                </span>
+                <span
+                  role="button"
+                  tabIndex={-1}
+                  aria-label={`Bỏ chọn ${getOptionLabel(option)}`}
+                  className="cut-xs p-0.5 hover:bg-muted-foreground/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    remove(optionValue);
+                  }}
                 >
-                  <span className="truncate max-w-30">
-                    {getOptionLabel(option)}
-                  </span>
-                  <span
-                    role="button"
-                    tabIndex={-1}
-                    className="cut-xs p-0.5 hover:bg-muted-foreground/20"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      remove(optionValue);
-                    }}
-                  >
-                    <X className="size-3" />
-                  </span>
-                </Badge>
-              );
-            })}
-            {selectedItems.length > maxBadges && (
-              <Badge variant="secondary">
-                +{selectedItems.length - maxBadges}
+                  <X className="size-3" />
+                </span>
               </Badge>
-            )}
-          </div>
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-        </Button>
+            );
+          })}
+          {selectedItems.length > maxBadges && (
+            <Badge variant="secondary">
+              +{selectedItems.length - maxBadges}
+            </Badge>
+          )}
+        </div>
+        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
       </PopoverTrigger>
 
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-0"
-        align="start"
-      >
+      <PopoverContent className="w-(--anchor-width) p-0" align="start">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder={searchPlaceholder}
             value={searchValue}
             onValueChange={onSearchChange}
+            disabled={createState.isCreating}
           />
           <CommandList>
             {isLoading ? (
@@ -161,13 +200,14 @@ export const MultiSelectField = <T,>({
               <>
                 <CommandEmpty>{emptyText}</CommandEmpty>
                 <CommandGroup>
-                  {options.map((option) => {
+                  {visibleOptions.map((option) => {
                     const optionValue = getOptionValue(option);
                     const isSelected = value.includes(optionValue);
                     return (
                       <CommandItem
                         key={optionValue}
                         value={String(optionValue)}
+                        disabled={createState.isCreating}
                         onSelect={() => toggle(option)}
                       >
                         <Check
@@ -182,12 +222,22 @@ export const MultiSelectField = <T,>({
                       </CommandItem>
                     );
                   })}
+                  {createState.showCreate && (
+                    <SelectCreateItem
+                      term={createState.term}
+                      isCreating={createState.isCreating}
+                      onCreate={createState.create}
+                    />
+                  )}
                 </CommandGroup>
               </>
             )}
           </CommandList>
+          <SelectCreateNote
+            message={createState.createError ?? createState.termError}
+          />
         </Command>
       </PopoverContent>
     </Popover>
   );
-}
+};

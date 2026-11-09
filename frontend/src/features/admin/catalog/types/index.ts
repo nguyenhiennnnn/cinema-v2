@@ -53,10 +53,18 @@ export interface SeatTypeDto {
 
 // ── Upsert requests ───────────────────────────────────────────────────────────
 
-export interface UpsertGenreRequest { name: string }
-export interface UpsertLanguageRequest { name: string }
-export interface UpsertPositionRequest { name: string }
-export interface UpsertScreenTypeRequest { name: string }
+export interface UpsertGenreRequest {
+  name: string;
+}
+export interface UpsertLanguageRequest {
+  name: string;
+}
+export interface UpsertPositionRequest {
+  name: string;
+}
+export interface UpsertScreenTypeRequest {
+  name: string;
+}
 
 export interface UpsertAgeRatingRequest {
   code: string;
@@ -66,6 +74,10 @@ export interface UpsertAgeRatingRequest {
 export interface UpsertPersonRequest {
   fullName: string;
   avatarUrl?: string | null;
+}
+
+export interface QuickCreatePersonRequest {
+  fullName: string;
 }
 
 export interface UpsertSeatTypeRequest {
@@ -79,7 +91,6 @@ export interface UpsertMembershipTierRequest {
   discountPercent: number;
 }
 
-// backend DeleteCategoryResponse(int Id, bool Deleted)
 export interface DeleteCategoryResponse {
   id: number;
   deleted: boolean;

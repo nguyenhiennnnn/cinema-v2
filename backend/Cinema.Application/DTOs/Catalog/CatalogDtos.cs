@@ -31,6 +31,8 @@ public record UpsertAgeRatingRequest(string Code, string? Description);
 
 public record UpsertPersonRequest(string FullName, string? AvatarUrl);
 
+public record QuickCreatePersonRequest(string FullName);
+
 public record UpsertPositionRequest(string Name);
 
 public record UpsertScreenTypeRequest(string Name);
