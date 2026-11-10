@@ -40,7 +40,7 @@ export const GlobalDialog = () => {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
         size={size}
-        className={cn("flex max-h-[85vh] flex-col", className)}
+        className={cn("flex max-h-[85vh] flex-col overflow-hidden", className)}
       >
         {(title || description) && (
           <DialogHeader className="shrink-0">
@@ -52,7 +52,7 @@ export const GlobalDialog = () => {
         )}
         <ModalGuardContext.Provider value={modalGuard}>
           <DismissGuardContext.Provider value={dismissGuard}>
-            <div className="-mx-6 -mb-6 flex-1 overflow-y-auto overflow-x-hidden px-6 pb-6 [--modal-gutter:1.5rem] [--modal-surface:var(--card)]">
+            <div className="-mx-6 -mb-6 min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-6 pb-6 has-data-[slot=form-actions]:pb-0 [--modal-gutter:1.5rem] [--modal-surface:var(--card)]">
               {content}
             </div>
           </DismissGuardContext.Provider>

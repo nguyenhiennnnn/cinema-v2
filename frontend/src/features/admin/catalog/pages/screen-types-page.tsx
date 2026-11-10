@@ -13,7 +13,7 @@ import {
 } from "../hooks/use-admin-screen-type";
 import type { ScreenTypeDto } from "../types";
 
-import { createScreenTypeColumns } from "../components/columns/sreen-type-columns";
+import { createScreenTypeColumns } from "../components/columns/screen-type-columns";
 
 import { ScreenTypeCreateForm } from "../components/forms/screen-types/screen-type-create-form";
 import { ScreenTypeUpdateForm } from "../components/forms/screen-types/screen-type-update-form";

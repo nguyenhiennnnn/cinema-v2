@@ -34,7 +34,7 @@ export const FormActions = ({
       data-slot="form-actions"
       className={cn(
         "sticky bottom-0 z-10 flex justify-end gap-2 border-t border-border py-3",
-        "-mx-(--modal-gutter,0px) -mb-(--modal-gutter,0px) px-(--modal-gutter,0px)",
+        "-mx-(--modal-gutter,0px) px-(--modal-gutter,0px)",
         "bg-(--modal-surface,var(--background))",
       )}
     >

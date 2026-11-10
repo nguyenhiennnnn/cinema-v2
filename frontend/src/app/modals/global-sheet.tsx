@@ -59,7 +59,7 @@ export const GlobalSheet = () => {
         )}
         <ModalGuardContext.Provider value={modalGuard}>
           <DismissGuardContext.Provider value={dismissGuard}>
-            <div className="flex-1 overflow-y-auto p-6 [--modal-gutter:1.5rem] [--modal-surface:var(--background)]">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6 has-data-[slot=form-actions]:pb-0 [--modal-gutter:1.5rem] [--modal-surface:var(--background)]">
               {content}
             </div>
           </DismissGuardContext.Provider>

@@ -15,14 +15,17 @@ COPY . .
 RUN dotnet publish Cinema.Api/Cinema.Api.csproj -c Release -o /app/publish --no-restore
 
 FROM restore AS dev
+RUN apk add --no-cache krb5-libs tzdata
 ENV ASPNETCORE_ENVIRONMENT=Development \
     ASPNETCORE_URLS=http://+:8080 \
     DOTNET_USE_POLLING_FILE_WATCHER=true \
     DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true \
-    DOTNET_CLI_TELEMETRY_OPTOUT=1
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    # Disable runtime diagnostics IPC (named pipes) that crash on Alpine/musl
+    DOTNET_EnableDiagnostics=0
 COPY . .
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "watch", "--project", "Cinema.Api", "run", "--no-launch-profile", "--non-interactive"]
+ENTRYPOINT ["dotnet", "watch", "--project", "Cinema.Api", "run", "--no-launch-profile", "--non-interactive", "--no-hot-reload"]
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}-alpine AS production
 WORKDIR /app
