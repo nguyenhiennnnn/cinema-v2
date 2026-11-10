@@ -36,6 +36,8 @@ USER appuser
 ENV ASPNETCORE_ENVIRONMENT=Production \
     ASPNETCORE_URLS=http://+:8080 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    # Disable runtime diagnostics IPC (named pipes) that crash on Alpine/musl
+    DOTNET_EnableDiagnostics=0 \
     # GC tuning cho môi trường free-tier RAM giới hạn (~512 MB)
     # ConserveMemory=9: GC aggressively thu hồi bộ nhớ sau mỗi collection
     DOTNET_GCConserveMemory=9 \
