@@ -7,6 +7,7 @@ using Cinema.Application.Services.Combos;
 using Cinema.Application.Services.Dashboard;
 using Cinema.Application.Services.Employees;
 using Cinema.Application.Services.Movies;
+using Cinema.Application.Services.Notifications;
 using Cinema.Application.Services.Payments;
 using Cinema.Application.Services.Reports;
 using Cinema.Application.Services.Reviews;
@@ -25,6 +26,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<ICatalogService, CatalogService>();

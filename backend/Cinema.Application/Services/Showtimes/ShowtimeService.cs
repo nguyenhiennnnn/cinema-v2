@@ -22,9 +22,9 @@ public class ShowtimeService(
     IAppDbContext db,
     IEnumerable<IPaymentGateway> paymentGateways,
     IBackgroundJobClient backgroundJobClient,
+    INotificationService notificationService,
     IBookingService bookingService,
     ILogger<ShowtimeService> logger,
-    IOptions<BrandOptions>? brandOptions = null,
     IOptions<SchedulerOptions>? schedulerOptions = null
 ) : IShowtimeService
 #pragma warning restore CS9113
@@ -32,7 +32,6 @@ public class ShowtimeService(
     private const int MaxBatchSize = 2000;
     private const int MaxAutoScheduleDays = 31;
 
-    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
     private readonly SchedulerOptions _scheduler = schedulerOptions?.Value ?? new();
 
     private static SchedulerOptions BuildSchedulerOptions(
@@ -212,7 +211,7 @@ public class ShowtimeService(
                 cancellationToken
             ) ?? throw new NotFoundException(Messages.NotFound_Showtime);
 
-        EnsureScheduled(showtime, "sửa");
+        EnsureScheduled(showtime, Messages.Common_ActionEdit);
 
         if (request.RoomId != showtime.RoomId)
             throw new BusinessRuleException(
@@ -340,13 +339,13 @@ public class ShowtimeService(
                 cancellationToken
             ) ?? throw new NotFoundException(Messages.NotFound_Showtime);
 
-        EnsureScheduled(showtime, "hủy");
+        EnsureScheduled(showtime, Messages.Common_ActionCancel);
         if (showtime.StartTime <= DateTime.UtcNow)
             throw new BusinessRuleException(Messages.Rule_ShowtimeStartedCannotCancel);
 
         var manualRefundCount = 0;
         var refundPaymentIds = new List<int>();
-        var emailJobs = new List<(string ToEmail, string Subject, string Html)>();
+        var manualRefundNotices = new List<(string ToEmail, string CustomerName, string BookingCode, decimal Amount)>();
         var bookingCount = 0;
 
         await using (var transaction = await db.Database.BeginTransactionAsync(cancellationToken))
@@ -394,16 +393,12 @@ public class ShowtimeService(
                 {
                     manualRefundCount++;
                     if (booking.User is not null)
-                        emailJobs.Add(
+                        manualRefundNotices.Add(
                             (
                                 booking.User.Email,
-                                $"Suất chiếu bạn đặt vé đã bị hủy — {booking.BookingCode}",
-                                EmailTemplates.ShowtimeCancelledManualRefund(
-                                    _brand,
-                                    booking.CustomerName,
-                                    booking.BookingCode,
-                                    payment.Amount
-                                )
+                                booking.CustomerName,
+                                booking.BookingCode,
+                                payment.Amount
                             )
                         );
                     continue;
@@ -429,12 +424,15 @@ public class ShowtimeService(
             await transaction.CommitAsync(cancellationToken);
         }
 
-        foreach (var job in emailJobs)
+        foreach (var notice in manualRefundNotices)
         {
             try
             {
-                backgroundJobClient.Enqueue<SendEmailJob>(j =>
-                    j.RunAsync(job.ToEmail, job.Subject, job.Html, CancellationToken.None)
+                notificationService.SendShowtimeCancelledManualRefund(
+                    notice.ToEmail,
+                    notice.CustomerName,
+                    notice.BookingCode,
+                    notice.Amount
                 );
             }
             catch (Exception ex)
@@ -565,7 +563,7 @@ public class ShowtimeService(
 
         var result = await CreateShowtimesBatchAsync(
             drafts,
-            "Trùng khung giờ với suất chiếu đã có.",
+            Messages.Conflict_ShowtimeOverlapExisting,
             cancellationToken
         );
 
@@ -600,7 +598,7 @@ public class ShowtimeService(
                     new BulkDeleteShowtimesResultItem(
                         showtimeId,
                         false,
-                        "Không tìm thấy suất chiếu."
+                        Messages.NotFound_Showtime
                     )
                 );
             }
@@ -616,7 +614,11 @@ public class ShowtimeService(
                     showtimeId
                 );
                 results.Add(
-                    new BulkDeleteShowtimesResultItem(showtimeId, false, "Lỗi không xác định.")
+                    new BulkDeleteShowtimesResultItem(
+                        showtimeId,
+                        false,
+                        Messages.Bulk_UnknownError
+                    )
                 );
             }
         }
@@ -849,7 +851,7 @@ public class ShowtimeService(
 
         var result = await CreateShowtimesBatchAsync(
             drafts,
-            "Trùng khung giờ chiếu trong phòng này.",
+            Messages.Conflict_ShowtimeOverlapInRoom,
             cancellationToken
         );
 
@@ -910,7 +912,7 @@ public class ShowtimeService(
 
         var result = await CreateShowtimesBatchAsync(
             drafts,
-            "Trùng khung giờ với suất chiếu đã có.",
+            Messages.Conflict_ShowtimeOverlapExisting,
             cancellationToken
         );
 
@@ -1259,20 +1261,20 @@ public class ShowtimeService(
             List<(int SeatId, decimal Multiplier)>? seatTemplate = null;
 
             if (!movies.TryGetValue(draft.MovieId, out var movie))
-                reason = "movieId không tồn tại.";
+                reason = Messages.Invalid_MovieIdNotFound;
             else if (!rooms.TryGetValue(draft.RoomId, out var room))
-                reason = "roomId không tồn tại.";
+                reason = Messages.Invalid_RoomIdNotFound;
             else if (draft.StartTime <= now)
-                reason = "Giờ bắt đầu suất chiếu phải ở tương lai.";
+                reason = Messages.Rule_ShowtimeStartMustBeFuture;
             else if (movie.Status == MovieStatus.Ended)
-                reason = "Phim đã ngừng chiếu (Ended), không thể tạo suất chiếu.";
+                reason = Messages.Rule_MovieEndedCannotCreateShowtime;
             else if (!room.IsActive)
-                reason = "Phòng chiếu không hoạt động (inactive).";
+                reason = Messages.Rule_RoomInactive;
             else if (
                 !seatTemplates.TryGetValue(draft.RoomId, out seatTemplate)
                 || seatTemplate.Count == 0
             )
-                reason = "Phòng chiếu chưa được thiết lập sơ đồ ghế.";
+                reason = Messages.Rule_RoomHasNoSeatLayout;
             else
             {
                 endTime = draft.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
@@ -1302,7 +1304,7 @@ public class ShowtimeService(
                         VietnamTime
                             .ToLocal(draft.StartTime)
                             .ToString("HH:mm", CultureInfo.InvariantCulture),
-                        reason ?? "Suất chiếu không hợp lệ."
+                        reason ?? Messages.Invalid_ShowtimeInvalid
                     )
                 );
                 continue;

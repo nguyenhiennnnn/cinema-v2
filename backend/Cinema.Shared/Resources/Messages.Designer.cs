@@ -3140,6 +3140,609 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Validation_Setting_NumberRange", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vé xem phim của bạn — {0}.
+        /// </summary>
+        public static string Email_BookingConfirmedSubject {
+            get {
+                return ResourceManager.GetString("Email_BookingConfirmedSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xác nhận hủy vé &amp; hoàn tiền — {0}.
+        /// </summary>
+        public static string Email_BookingCancelledRefundedSubject {
+            get {
+                return ResourceManager.GetString("Email_BookingCancelledRefundedSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [{0}] Đã tự động hoàn tiền — Booking #{1}.
+        /// </summary>
+        public static string Email_SeatsExpiredAdminRefundedSubject {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminRefundedSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [{0}] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{1}.
+        /// </summary>
+        public static string Email_SeatsExpiredAdminManualRefundSubject {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminManualRefundSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [{0}] Đã hoàn tiền — Booking {1}.
+        /// </summary>
+        public static string Email_SeatsExpiredCustomerRefundedSubject {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredCustomerRefundedSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [{0}] Chờ hoàn tiền — Booking {1}.
+        /// </summary>
+        public static string Email_SeatsExpiredCustomerPendingRefundSubject {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredCustomerPendingRefundSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu bị hủy — đã hoàn tiền {0}.
+        /// </summary>
+        public static string Email_ShowtimeCancelledRefundedSubject {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledRefundedSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu bạn đặt vé đã bị hủy — {0}.
+        /// </summary>
+        public static string Email_ShowtimeCancelledManualRefundSubject {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledManualRefundSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xác thực email — {0}.
+        /// </summary>
+        public static string Email_ConfirmEmailSubject {
+            get {
+                return ResourceManager.GetString("Email_ConfirmEmailSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vui lòng xác thực email bằng cách bấm vào liên kết sau.
+        /// </summary>
+        public static string Email_ConfirmEmailIntro {
+            get {
+                return ResourceManager.GetString("Email_ConfirmEmailIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xác thực email.
+        /// </summary>
+        public static string Email_ConfirmEmailButton {
+            get {
+                return ResourceManager.GetString("Email_ConfirmEmailButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đặt lại mật khẩu — {0}.
+        /// </summary>
+        public static string Email_PasswordResetSubject {
+            get {
+                return ResourceManager.GetString("Email_PasswordResetSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vui lòng bấm vào liên kết sau để đặt lại mật khẩu.
+        /// </summary>
+        public static string Email_PasswordResetIntro {
+            get {
+                return ResourceManager.GetString("Email_PasswordResetIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đặt lại mật khẩu.
+        /// </summary>
+        public static string Email_PasswordResetButton {
+            get {
+                return ResourceManager.GetString("Email_PasswordResetButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Thanh toán booking {0}.
+        /// </summary>
+        public static string Payment_BookingDescription {
+            get {
+                return ResourceManager.GetString("Payment_BookingDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hoàn tiền hủy vé {0}.
+        /// </summary>
+        public static string Refund_CancelBookingDescription {
+            get {
+                return ResourceManager.GetString("Refund_CancelBookingDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hoàn tiền tự động - ghế hết hạn giữ - Payment {0}.
+        /// </summary>
+        public static string Refund_SeatsExpiredDescription {
+            get {
+                return ResourceManager.GetString("Refund_SeatsExpiredDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hoàn tiền do rạp hủy suất chiếu - booking {0}.
+        /// </summary>
+        public static string Refund_ShowtimeCancelledDescription {
+            get {
+                return ResourceManager.GetString("Refund_ShowtimeCancelledDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rạp hiện không hỗ trợ hoàn tiền..
+        /// </summary>
+        public static string Rule_RefundNotSupported {
+            get {
+                return ResourceManager.GetString("Rule_RefundNotSupported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã quá hạn hoàn tiền — chỉ áp dụng trước giờ chiếu ít nhất {0} giờ..
+        /// </summary>
+        public static string Rule_RefundDeadlineExceeded {
+            get {
+                return ResourceManager.GetString("Rule_RefundDeadlineExceeded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vui lòng kiểm tra email để xác thực.
+        /// </summary>
+        public static string Success_RegistrationCheckEmail {
+            get {
+                return ResourceManager.GetString("Success_RegistrationCheckEmail", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Trùng khung giờ với suất chiếu đã có..
+        /// </summary>
+        public static string Conflict_ShowtimeOverlapExisting {
+            get {
+                return ResourceManager.GetString("Conflict_ShowtimeOverlapExisting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu không hợp lệ..
+        /// </summary>
+        public static string Invalid_ShowtimeInvalid {
+            get {
+                return ResourceManager.GetString("Invalid_ShowtimeInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to sửa.
+        /// </summary>
+        public static string Common_ActionEdit {
+            get {
+                return ResourceManager.GetString("Common_ActionEdit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to hủy.
+        /// </summary>
+        public static string Common_ActionCancel {
+            get {
+                return ResourceManager.GetString("Common_ActionCancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin lỗi, tính năng AI Assistant hiện chưa được cấu hình khóa API trên hệ thống. Vui lòng liên hệ Quản trị viên để thiết lập..
+        /// </summary>
+        public static string Ai_NotConfigured {
+            get {
+                return ResourceManager.GetString("Ai_NotConfigured", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rất tiếc, kết nối với trợ lý AI thất bại. Vui lòng thử lại sau..
+        /// </summary>
+        public static string Ai_ConnectionFailed {
+            get {
+                return ResourceManager.GetString("Ai_ConnectionFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại..
+        /// </summary>
+        public static string Ai_NoReply {
+            get {
+                return ResourceManager.GetString("Ai_NoReply", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã vượt quá số lần truy vấn cho phép, hãy trả lời với dữ liệu đã có..
+        /// </summary>
+        public static string Ai_ToolCallLimitExceeded {
+            get {
+                return ResourceManager.GetString("Ai_ToolCallLimitExceeded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xảy ra lỗi trong quá trình xử lý yêu cầu với Trợ lý AI. Vui lòng thử lại sau..
+        /// </summary>
+        public static string Ai_ProcessingError {
+            get {
+                return ResourceManager.GetString("Ai_ProcessingError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tìm suất chiếu sắp tới (còn hiệu lực) theo phim, ngày. Dùng khi khách hỏi lịch chiếu, giờ chiếu, giá vé của một phim hoặc của một ngày..
+        /// </summary>
+        public static string Ai_Tool_SearchShowtimes_Description {
+            get {
+                return ResourceManager.GetString("Ai_Tool_SearchShowtimes_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xem tình trạng ghế trống của một suất chiếu: số ghế còn, giá theo loại ghế, danh sách ghế trống. Dùng khi khách hỏi còn ghế không, ghế nào còn trống..
+        /// </summary>
+        public static string Ai_Tool_GetSeatAvailability_Description {
+            get {
+                return ResourceManager.GetString("Ai_Tool_GetSeatAvailability_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lấy các vé/đơn đặt vé của chính khách đang đăng nhập. Không cần truyền thông tin người dùng..
+        /// </summary>
+        public static string Ai_Tool_GetMyBookings_Description {
+            get {
+                return ResourceManager.GetString("Ai_Tool_GetMyBookings_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ID phim (lấy từ danh sách phim trong system prompt)..
+        /// </summary>
+        public static string Ai_Param_MovieId {
+            get {
+                return ResourceManager.GetString("Ai_Param_MovieId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Một phần tên phim, dùng khi không biết movie_id..
+        /// </summary>
+        public static string Ai_Param_MovieTitle {
+            get {
+                return ResourceManager.GetString("Ai_Param_MovieTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán..
+        /// </summary>
+        public static string Ai_Param_Date {
+            get {
+                return ResourceManager.GetString("Ai_Param_Date", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ID suất chiếu (lấy từ kết quả search_showtimes)..
+        /// </summary>
+        public static string Ai_Param_ShowtimeId {
+            get {
+                return ResourceManager.GetString("Ai_Param_ShowtimeId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to true: chỉ vé có suất chiếu chưa diễn ra. Mặc định false..
+        /// </summary>
+        public static string Ai_Param_UpcomingOnly {
+            get {
+                return ResourceManager.GetString("Ai_Param_UpcomingOnly", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lọc theo trạng thái..
+        /// </summary>
+        public static string Ai_Param_BookingStatus {
+            get {
+                return ResourceManager.GetString("Ai_Param_BookingStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hàm '{0}' không tồn tại..
+        /// </summary>
+        public static string Ai_Error_UnknownFunction {
+            get {
+                return ResourceManager.GetString("Ai_Error_UnknownFunction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không truy vấn được dữ liệu, vui lòng thử lại..
+        /// </summary>
+        public static string Ai_Error_QueryFailed {
+            get {
+                return ResourceManager.GetString("Ai_Error_QueryFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to date phải có định dạng yyyy-MM-dd..
+        /// </summary>
+        public static string Ai_Error_DateFormat {
+            get {
+                return ResourceManager.GetString("Ai_Error_DateFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Thiếu showtime_id..
+        /// </summary>
+        public static string Ai_Error_MissingShowtimeId {
+            get {
+                return ResourceManager.GetString("Ai_Error_MissingShowtimeId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu này đã kết thúc hoặc bị hủy..
+        /// </summary>
+        public static string Ai_Error_ShowtimeEnded {
+            get {
+                return ResourceManager.GetString("Ai_Error_ShowtimeEnded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cần đăng nhập để xem vé đã đặt. Hãy mời khách đăng nhập..
+        /// </summary>
+        public static string Ai_Error_LoginRequired {
+            get {
+                return ResourceManager.GetString("Ai_Error_LoginRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Thường.
+        /// </summary>
+        public static string Ai_SeatTypeDefault {
+            get {
+                return ResourceManager.GetString("Ai_SeatTypeDefault", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:HH:mm dd/MM} • {1}.
+        /// </summary>
+        public static string Ai_Card_ShowtimeSubtitle {
+            get {
+                return ResourceManager.GetString("Ai_Card_ShowtimeSubtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Từ {0:N0} VNĐ • Còn {1} ghế.
+        /// </summary>
+        public static string Ai_Card_PriceAndSeats {
+            get {
+                return ResourceManager.GetString("Ai_Card_PriceAndSeats", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Còn {0}/{1} ghế.
+        /// </summary>
+        public static string Ai_Card_SeatsLeft {
+            get {
+                return ResourceManager.GetString("Ai_Card_SeatsLeft", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:HH:mm dd/MM} • {1} • Ghế {2}.
+        /// </summary>
+        public static string Ai_Card_BookingSubtitle {
+            get {
+                return ResourceManager.GetString("Ai_Card_BookingSubtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} • {1} • {2:N0} VNĐ.
+        /// </summary>
+        public static string Ai_Card_BookingStatusLine {
+            get {
+                return ResourceManager.GetString("Ai_Card_BookingStatusLine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Chờ thanh toán.
+        /// </summary>
+        public static string Ai_BookingStatus_Pending {
+            get {
+                return ResourceManager.GetString("Ai_BookingStatus_Pending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xác nhận.
+        /// </summary>
+        public static string Ai_BookingStatus_Confirmed {
+            get {
+                return ResourceManager.GetString("Ai_BookingStatus_Confirmed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hủy.
+        /// </summary>
+        public static string Ai_BookingStatus_Cancelled {
+            get {
+                return ResourceManager.GetString("Ai_BookingStatus_Cancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hết hạn.
+        /// </summary>
+        public static string Ai_BookingStatus_Expired {
+            get {
+                return ResourceManager.GetString("Ai_BookingStatus_Expired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Chưa cập nhật.
+        /// </summary>
+        public static string Ai_Prompt_NotUpdated {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_NotUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Khách vãng lai (Chưa đăng nhập).
+        /// </summary>
+        public static string Ai_Prompt_Guest {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_Guest", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Thành viên.
+        /// </summary>
+        public static string Ai_Prompt_DefaultTier {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_DefaultTier", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tên: {0}, Email: {1}, Điểm tích lũy: {2}, Hạng: {3}.
+        /// </summary>
+        public static string Ai_Prompt_UserInfo {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_UserInfo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Phụ đề.
+        /// </summary>
+        public static string Ai_Prompt_DefaultSubtitle {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_DefaultSubtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đang chiếu.
+        /// </summary>
+        public static string Ai_Prompt_MovieNowShowing {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_MovieNowShowing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sắp chiếu.
+        /// </summary>
+        public static string Ai_Prompt_MovieComingSoon {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_MovieComingSoon", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to - [{0}] {1} ({2}) | Thể loại: {3} | Thời lượng: {4}p | Độ tuổi: {5} | Trạng thái: {6}.
+        /// </summary>
+        public static string Ai_Prompt_MovieLine {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_MovieLine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to - {0}: {1:N0} VNĐ ({2}).
+        /// </summary>
+        public static string Ai_Prompt_ComboLine {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_ComboLine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Khách đã đăng nhập: khi hỏi về vé/đơn đã đặt, hãy gọi hàm get_my_bookings..
+        /// </summary>
+        public static string Ai_Prompt_LoggedInRule {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_LoggedInRule", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Khách CHƯA đăng nhập: bạn không có quyền xem vé đã đặt, hãy mời khách đăng nhập để xem vé..
+        /// </summary>
+        public static string Ai_Prompt_GuestRule {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_GuestRule", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bạn là Trợ lý AI thông minh và thân thiện của Rạp chiếu phim {0}....
+        /// </summary>
+        public static string Ai_Prompt_SystemTemplate {
+            get {
+                return ResourceManager.GetString("Ai_Prompt_SystemTemplate", resourceCulture);
+            }
+        }
     
     }
 }

@@ -2,6 +2,8 @@ using Cinema.Application.Utils;
 using Cinema.Application.BackgroundJobs;
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Options;
+using Cinema.Application.Services.Notifications;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
@@ -10,6 +12,7 @@ using Hangfire.Common;
 using Hangfire.States;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using Shouldly;
 
@@ -253,7 +256,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         return new ShowtimeRefundJob(
             Db,
             PaymentGatewayMocks.Select(m => m.Object),
-            BackgroundJobClientMock.Object,
+            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             NullLogger<ShowtimeRefundJob>.Instance
         );
     }

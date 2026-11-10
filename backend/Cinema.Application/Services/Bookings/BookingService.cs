@@ -1,4 +1,3 @@
-using Cinema.Application.BackgroundJobs;
 using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
@@ -9,7 +8,6 @@ using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
-using Hangfire;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -22,13 +20,11 @@ public class BookingService(
     IOptions<BookingOptions> bookingOptions,
     IRealtimeNotifier realtimeNotifier,
     IEnumerable<IPaymentGateway> paymentGateways,
-    IBackgroundJobClient backgroundJobClient,
-    ILogger<BookingService> logger,
-    IOptions<BrandOptions>? brandOptions = null
+    INotificationService notificationService,
+    ILogger<BookingService> logger
 ) : IBookingService
 {
     private readonly BookingOptions _options = bookingOptions.Value;
-    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
 
     public async Task<HoldBookingResponse> HoldSeatsAsync(
         int userId,
@@ -171,7 +167,7 @@ public class BookingService(
             new CreatePaymentRequest(
                 booking.BookingId,
                 booking.FinalAmount,
-                $"Thanh toán booking {booking.BookingCode}",
+                string.Format(Messages.Payment_BookingDescription, booking.BookingCode),
                 transactionId
             ),
             cancellationToken
@@ -211,13 +207,13 @@ public class BookingService(
     )
     {
         if (settings.CancelRefundPercent <= 0)
-            return new RefundEligibility(false, 0m, "Rạp hiện không hỗ trợ hoàn tiền.");
+            return new RefundEligibility(false, 0m, Messages.Rule_RefundNotSupported);
 
         if (DateTime.UtcNow > showtimeStartTime.AddHours(-settings.CancelDeadlineHours))
             return new RefundEligibility(
                 false,
                 0m,
-                $"Đã quá hạn hoàn tiền — chỉ áp dụng trước giờ chiếu ít nhất {settings.CancelDeadlineHours} giờ."
+                string.Format(Messages.Rule_RefundDeadlineExceeded, settings.CancelDeadlineHours)
             );
 
         var refundAmount = Math.Round(
@@ -313,7 +309,7 @@ public class BookingService(
             new RefundRequest(
                 payment.TransactionId!,
                 eligibility.RefundAmount,
-                $"Hoàn tiền hủy vé {booking.BookingCode}",
+                string.Format(Messages.Refund_CancelBookingDescription, booking.BookingCode),
                 payment.PaidAt ?? payment.CreatedAt,
                 GatewayTransactionId: payment.GatewayTransactionId
             ),
@@ -388,23 +384,15 @@ public class BookingService(
             eligibility.RefundAmount
         );
 
-        var html = EmailTemplates.BookingCancelledRefunded(
-            _brand,
-            booking.CustomerName,
-            booking.BookingCode,
-            eligibility.RefundAmount
-        );
         var userEmail = await db
             .Users.Where(u => u.UserId == userId)
             .Select(u => u.Email)
             .FirstAsync(cancellationToken);
-        backgroundJobClient.Enqueue<SendEmailJob>(j =>
-            j.RunAsync(
-                userEmail,
-                $"Xác nhận hủy vé & hoàn tiền — {_brand.Name}",
-                html,
-                CancellationToken.None
-            )
+        notificationService.SendBookingCancelledRefunded(
+            userEmail,
+            booking.CustomerName,
+            booking.BookingCode,
+            eligibility.RefundAmount
         );
 
         return new CancelBookingResponse(
@@ -781,20 +769,12 @@ public class BookingService(
                 .Showtimes.Where(s => s.ShowtimeId == booking.ShowtimeId)
                 .Select(s => s.Movie.Title)
                 .FirstOrDefaultAsync(cancellationToken);
-            var html = EmailTemplates.BookingConfirmed(
-                _brand,
+            notificationService.SendBookingConfirmed(
+                email,
                 booking.CustomerName,
                 booking.BookingCode,
-                movieTitle: movieTitle ?? string.Empty,
-                seatCount: seatIds.Count
-            );
-            backgroundJobClient.Enqueue<SendEmailJob>(j =>
-                j.RunAsync(
-                    email,
-                    $"Vé xem phim của bạn — {_brand.Name}",
-                    html,
-                    CancellationToken.None
-                )
+                movieTitle ?? string.Empty,
+                seatIds.Count
             );
             logger.LogInformation(
                 "EmailQueued BookingId {BookingId} Type TicketConfirmation",

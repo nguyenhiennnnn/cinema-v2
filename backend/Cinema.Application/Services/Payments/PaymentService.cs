@@ -1,4 +1,3 @@
-using Cinema.Application.BackgroundJobs;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Utils;
@@ -6,7 +5,7 @@ using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
-using Hangfire;
+using Cinema.Shared.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,13 +16,11 @@ public class PaymentService(
     IAppDbContext db,
     IBookingService bookingService,
     IEnumerable<IPaymentGateway> paymentGateways,
-    IBackgroundJobClient backgroundJobClient,
+    INotificationService notificationService,
     ILogger<PaymentService> logger,
-    IOptions<BrandOptions>? brandOptions = null,
     IOptions<StripeOptions>? stripeOptions = null
 ) : IPaymentService
 {
-    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
     private readonly string _stripeCurrency = (stripeOptions?.Value ?? new()).Currency;
 
     public async Task<VnPayIpnResult> ProcessVnPayIpnAsync(
@@ -323,7 +320,7 @@ public class PaymentService(
                     new RefundRequest(
                         payment.TransactionId,
                         payment.Amount,
-                        $"Hoàn tiền tự động - ghế hết hạn giữ - Payment {payment.PaymentId}",
+                        string.Format(Messages.Refund_SeatsExpiredDescription, payment.PaymentId),
                         payment.PaidAt ?? payment.CreatedAt,
                         GatewayTransactionId: payment.GatewayTransactionId
                     ),
@@ -361,22 +358,12 @@ public class PaymentService(
         );
         if (!string.IsNullOrWhiteSpace(settings?.Email))
         {
-            var html = EmailTemplates.SeatsExpiredAfterPayment(
-                _brand,
+            notificationService.SendSeatsExpiredToAdmin(
+                settings.Email!,
                 autoRefunded,
                 payment.BookingId,
                 payment.PaymentId,
                 payment.Amount
-            );
-            backgroundJobClient.Enqueue<SendEmailJob>(j =>
-                j.RunAsync(
-                    settings.Email!,
-                    autoRefunded
-                        ? $"[{_brand.Name}] Đã tự động hoàn tiền — Booking #{payment.BookingId}"
-                        : $"[{_brand.Name}] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{payment.BookingId}",
-                    html,
-                    CancellationToken.None
-                )
             );
         }
 
@@ -391,22 +378,12 @@ public class PaymentService(
             .FirstOrDefaultAsync(cancellationToken);
         if (customer is not null && !string.IsNullOrWhiteSpace(customer.Email))
         {
-            var customerHtml = EmailTemplates.SeatsExpiredAfterPaymentCustomer(
-                _brand,
+            notificationService.SendSeatsExpiredToCustomer(
+                customer.Email,
                 customer.CustomerName,
                 customer.BookingCode,
                 autoRefunded,
                 payment.Amount
-            );
-            backgroundJobClient.Enqueue<SendEmailJob>(j =>
-                j.RunAsync(
-                    customer.Email,
-                    autoRefunded
-                        ? $"[{_brand.Name}] Đã hoàn tiền — Booking {customer.BookingCode}"
-                        : $"[{_brand.Name}] Chờ hoàn tiền — Booking {customer.BookingCode}",
-                    customerHtml,
-                    CancellationToken.None
-                )
             );
         }
     }

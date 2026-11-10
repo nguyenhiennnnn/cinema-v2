@@ -1141,4 +1141,243 @@
   <data name="Validation_SchedulerHeatWeights_SumPositive" xml:space="preserve">
     <value>Tổng hai trọng số Heat (doanh số và đánh giá) phải lớn hơn 0.</value>
   </data>
+
+  <!-- ===== Email ===== -->
+  <data name="Email_BookingConfirmedSubject" xml:space="preserve">
+    <value>Vé xem phim của bạn — {0}</value>
+  </data>
+  <data name="Email_BookingCancelledRefundedSubject" xml:space="preserve">
+    <value>Xác nhận hủy vé &amp; hoàn tiền — {0}</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminRefundedSubject" xml:space="preserve">
+    <value>[{0}] Đã tự động hoàn tiền — Booking #{1}</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminManualRefundSubject" xml:space="preserve">
+    <value>[{0}] CẦN HOÀN TIỀN THỦ CÔNG — Booking #{1}</value>
+  </data>
+  <data name="Email_SeatsExpiredCustomerRefundedSubject" xml:space="preserve">
+    <value>[{0}] Đã hoàn tiền — Booking {1}</value>
+  </data>
+  <data name="Email_SeatsExpiredCustomerPendingRefundSubject" xml:space="preserve">
+    <value>[{0}] Chờ hoàn tiền — Booking {1}</value>
+  </data>
+  <data name="Email_ShowtimeCancelledRefundedSubject" xml:space="preserve">
+    <value>Suất chiếu bị hủy — đã hoàn tiền {0}</value>
+  </data>
+  <data name="Email_ShowtimeCancelledManualRefundSubject" xml:space="preserve">
+    <value>Suất chiếu bạn đặt vé đã bị hủy — {0}</value>
+  </data>
+  <data name="Email_ConfirmEmailSubject" xml:space="preserve">
+    <value>Xác thực email — {0}</value>
+  </data>
+  <data name="Email_ConfirmEmailIntro" xml:space="preserve">
+    <value>Vui lòng xác thực email bằng cách bấm vào liên kết sau</value>
+  </data>
+  <data name="Email_ConfirmEmailButton" xml:space="preserve">
+    <value>Xác thực email</value>
+  </data>
+  <data name="Email_PasswordResetSubject" xml:space="preserve">
+    <value>Đặt lại mật khẩu — {0}</value>
+  </data>
+  <data name="Email_PasswordResetIntro" xml:space="preserve">
+    <value>Vui lòng bấm vào liên kết sau để đặt lại mật khẩu</value>
+  </data>
+  <data name="Email_PasswordResetButton" xml:space="preserve">
+    <value>Đặt lại mật khẩu</value>
+  </data>
+
+  <!-- ===== Payment / Refund descriptions ===== -->
+  <data name="Payment_BookingDescription" xml:space="preserve">
+    <value>Thanh toán booking {0}</value>
+  </data>
+  <data name="Refund_CancelBookingDescription" xml:space="preserve">
+    <value>Hoàn tiền hủy vé {0}</value>
+  </data>
+  <data name="Refund_SeatsExpiredDescription" xml:space="preserve">
+    <value>Hoàn tiền tự động - ghế hết hạn giữ - Payment {0}</value>
+  </data>
+  <data name="Refund_ShowtimeCancelledDescription" xml:space="preserve">
+    <value>Hoàn tiền do rạp hủy suất chiếu - booking {0}</value>
+  </data>
+  <data name="Rule_RefundNotSupported" xml:space="preserve">
+    <value>Rạp hiện không hỗ trợ hoàn tiền.</value>
+  </data>
+  <data name="Rule_RefundDeadlineExceeded" xml:space="preserve">
+    <value>Đã quá hạn hoàn tiền — chỉ áp dụng trước giờ chiếu ít nhất {0} giờ.</value>
+  </data>
+
+  <!-- ===== Auth / Showtime ===== -->
+  <data name="Success_RegistrationCheckEmail" xml:space="preserve">
+    <value>Vui lòng kiểm tra email để xác thực</value>
+  </data>
+  <data name="Conflict_ShowtimeOverlapExisting" xml:space="preserve">
+    <value>Trùng khung giờ với suất chiếu đã có.</value>
+  </data>
+  <data name="Invalid_ShowtimeInvalid" xml:space="preserve">
+    <value>Suất chiếu không hợp lệ.</value>
+  </data>
+  <data name="Common_ActionEdit" xml:space="preserve">
+    <value>sửa</value>
+  </data>
+  <data name="Common_ActionCancel" xml:space="preserve">
+    <value>hủy</value>
+  </data>
+
+  <!-- ===== AI assistant ===== -->
+  <data name="Ai_NotConfigured" xml:space="preserve">
+    <value>Xin lỗi, tính năng AI Assistant hiện chưa được cấu hình khóa API trên hệ thống. Vui lòng liên hệ Quản trị viên để thiết lập.</value>
+  </data>
+  <data name="Ai_ConnectionFailed" xml:space="preserve">
+    <value>Rất tiếc, kết nối với trợ lý AI thất bại. Vui lòng thử lại sau.</value>
+  </data>
+  <data name="Ai_NoReply" xml:space="preserve">
+    <value>Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.</value>
+  </data>
+  <data name="Ai_ToolCallLimitExceeded" xml:space="preserve">
+    <value>Đã vượt quá số lần truy vấn cho phép, hãy trả lời với dữ liệu đã có.</value>
+  </data>
+  <data name="Ai_ProcessingError" xml:space="preserve">
+    <value>Đã xảy ra lỗi trong quá trình xử lý yêu cầu với Trợ lý AI. Vui lòng thử lại sau.</value>
+  </data>
+
+  <!-- ===== AI tools ===== -->
+  <data name="Ai_Tool_SearchShowtimes_Description" xml:space="preserve">
+    <value>Tìm suất chiếu sắp tới (còn hiệu lực) theo phim, ngày. Dùng khi khách hỏi lịch chiếu, giờ chiếu, giá vé của một phim hoặc của một ngày.</value>
+  </data>
+  <data name="Ai_Tool_GetSeatAvailability_Description" xml:space="preserve">
+    <value>Xem tình trạng ghế trống của một suất chiếu: số ghế còn, giá theo loại ghế, danh sách ghế trống. Dùng khi khách hỏi còn ghế không, ghế nào còn trống.</value>
+  </data>
+  <data name="Ai_Tool_GetMyBookings_Description" xml:space="preserve">
+    <value>Lấy các vé/đơn đặt vé của chính khách đang đăng nhập. Không cần truyền thông tin người dùng.</value>
+  </data>
+  <data name="Ai_Param_MovieId" xml:space="preserve">
+    <value>ID phim (lấy từ danh sách phim trong system prompt).</value>
+  </data>
+  <data name="Ai_Param_MovieTitle" xml:space="preserve">
+    <value>Một phần tên phim, dùng khi không biết movie_id.</value>
+  </data>
+  <data name="Ai_Param_Date" xml:space="preserve">
+    <value>Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán.</value>
+  </data>
+  <data name="Ai_Param_ShowtimeId" xml:space="preserve">
+    <value>ID suất chiếu (lấy từ kết quả search_showtimes).</value>
+  </data>
+  <data name="Ai_Param_UpcomingOnly" xml:space="preserve">
+    <value>true: chỉ vé có suất chiếu chưa diễn ra. Mặc định false.</value>
+  </data>
+  <data name="Ai_Param_BookingStatus" xml:space="preserve">
+    <value>Lọc theo trạng thái.</value>
+  </data>
+  <data name="Ai_Error_UnknownFunction" xml:space="preserve">
+    <value>Hàm '{0}' không tồn tại.</value>
+  </data>
+  <data name="Ai_Error_QueryFailed" xml:space="preserve">
+    <value>Không truy vấn được dữ liệu, vui lòng thử lại.</value>
+  </data>
+  <data name="Ai_Error_DateFormat" xml:space="preserve">
+    <value>date phải có định dạng yyyy-MM-dd.</value>
+  </data>
+  <data name="Ai_Error_MissingShowtimeId" xml:space="preserve">
+    <value>Thiếu showtime_id.</value>
+  </data>
+  <data name="Ai_Error_ShowtimeEnded" xml:space="preserve">
+    <value>Suất chiếu này đã kết thúc hoặc bị hủy.</value>
+  </data>
+  <data name="Ai_Error_LoginRequired" xml:space="preserve">
+    <value>Cần đăng nhập để xem vé đã đặt. Hãy mời khách đăng nhập.</value>
+  </data>
+  <data name="Ai_SeatTypeDefault" xml:space="preserve">
+    <value>Thường</value>
+  </data>
+  <data name="Ai_Card_ShowtimeSubtitle" xml:space="preserve">
+    <value>{0:HH:mm dd/MM} • {1}</value>
+  </data>
+  <data name="Ai_Card_PriceAndSeats" xml:space="preserve">
+    <value>Từ {0:N0} VNĐ • Còn {1} ghế</value>
+  </data>
+  <data name="Ai_Card_SeatsLeft" xml:space="preserve">
+    <value>Còn {0}/{1} ghế</value>
+  </data>
+  <data name="Ai_Card_BookingSubtitle" xml:space="preserve">
+    <value>{0:HH:mm dd/MM} • {1} • Ghế {2}</value>
+  </data>
+  <data name="Ai_Card_BookingStatusLine" xml:space="preserve">
+    <value>{0} • {1} • {2:N0} VNĐ</value>
+  </data>
+  <data name="Ai_BookingStatus_Pending" xml:space="preserve">
+    <value>Chờ thanh toán</value>
+  </data>
+  <data name="Ai_BookingStatus_Confirmed" xml:space="preserve">
+    <value>Đã xác nhận</value>
+  </data>
+  <data name="Ai_BookingStatus_Cancelled" xml:space="preserve">
+    <value>Đã hủy</value>
+  </data>
+  <data name="Ai_BookingStatus_Expired" xml:space="preserve">
+    <value>Hết hạn</value>
+  </data>
+
+  <!-- ===== AI system prompt ===== -->
+  <data name="Ai_Prompt_NotUpdated" xml:space="preserve">
+    <value>Chưa cập nhật</value>
+  </data>
+  <data name="Ai_Prompt_Guest" xml:space="preserve">
+    <value>Khách vãng lai (Chưa đăng nhập)</value>
+  </data>
+  <data name="Ai_Prompt_DefaultTier" xml:space="preserve">
+    <value>Thành viên</value>
+  </data>
+  <data name="Ai_Prompt_UserInfo" xml:space="preserve">
+    <value>Tên: {0}, Email: {1}, Điểm tích lũy: {2}, Hạng: {3}</value>
+  </data>
+  <data name="Ai_Prompt_DefaultSubtitle" xml:space="preserve">
+    <value>Phụ đề</value>
+  </data>
+  <data name="Ai_Prompt_MovieNowShowing" xml:space="preserve">
+    <value>Đang chiếu</value>
+  </data>
+  <data name="Ai_Prompt_MovieComingSoon" xml:space="preserve">
+    <value>Sắp chiếu</value>
+  </data>
+  <data name="Ai_Prompt_MovieLine" xml:space="preserve">
+    <value>- [{0}] {1} ({2}) | Thể loại: {3} | Thời lượng: {4}p | Độ tuổi: {5} | Trạng thái: {6}</value>
+  </data>
+  <data name="Ai_Prompt_ComboLine" xml:space="preserve">
+    <value>- {0}: {1:N0} VNĐ ({2})</value>
+  </data>
+  <data name="Ai_Prompt_LoggedInRule" xml:space="preserve">
+    <value>Khách đã đăng nhập: khi hỏi về vé/đơn đã đặt, hãy gọi hàm get_my_bookings.</value>
+  </data>
+  <data name="Ai_Prompt_GuestRule" xml:space="preserve">
+    <value>Khách CHƯA đăng nhập: bạn không có quyền xem vé đã đặt, hãy mời khách đăng nhập để xem vé.</value>
+  </data>
+  <data name="Ai_Prompt_SystemTemplate" xml:space="preserve">
+    <value>Bạn là Trợ lý AI thông minh và thân thiện của Rạp chiếu phim {0}.
+Nhiệm vụ của bạn là hỗ trợ khách hàng tư vấn phim, lịch chiếu, giá vé, tình trạng ghế, combo bắp nước, và thông tin rạp.
+
+=== DỮ LIỆU THỜI GIAN THỰC TỪ HỆ THỐNG DB RẠP CHÍNH THỨC ===
+- Thời gian hiện tại: {1:dd/MM/yyyy HH:mm:ss}
+- Thông tin Rạp: {0} | Địa chỉ: {2} | Hotline: {3} | Giờ mở/đóng cửa: {4} - {5}
+- Thông tin khách hàng đang trò chuyện: {6}
+
+--- DANH SÁCH PHIM DỰ KIẾN / ĐANG CHIẾU (số trong [] là movie_id) ---
+{7}
+
+--- DANH SÁCH COMBO BẮP NƯỚC ---
+{8}
+==========================================================
+
+QUY TẮC PHẢN HỒI:
+1. Luôn trả lời lịch sự, thân thiện bằng tiếng Việt, xưng "Trợ lý {9}" hoặc "Em", gọi khách là "Anh/Chị" hoặc "Bạn".
+2. Chỉ tư vấn dựa trên thông tin chính xác từ dữ liệu hệ thống ở trên và kết quả các hàm. Nếu khách hỏi thông tin không có, hãy trả lời khéo léo, tuyệt đối không bịa.
+3. Trình bày phản hồi đẹp mắt bằng Markdown (dùng in đậm **, danh sách đầu dòng -).
+4. Khuyến khích khách hàng chọn suất chiếu và đặt vé trên ứng dụng.
+
+QUY TẮC DÙNG HÀM (FUNCTION CALLING):
+5. Lịch chiếu, giờ chiếu, giá vé: PHẢI gọi search_showtimes, không tự đoán. Khi khách nói "hôm nay/ngày mai/cuối tuần", hãy đổi sang ngày yyyy-MM-dd dựa trên thời gian hiện tại ở trên.
+6. Tình trạng ghế/còn chỗ không: PHẢI gọi get_seat_availability với showtime_id lấy từ search_showtimes (nếu chưa có thì gọi search_showtimes trước).
+7. {10}
+8. Các thẻ suất chiếu/vé sẽ tự hiển thị bên dưới câu trả lời, nên KHÔNG cần chép lại toàn bộ danh sách; chỉ tóm tắt ngắn gọn và nêu điểm đáng chú ý.
+9. Nếu hàm trả về lỗi hoặc không có kết quả, hãy báo lại cho khách một cách tự nhiên và gợi ý lựa chọn khác.</value>
+  </data>
 </root>

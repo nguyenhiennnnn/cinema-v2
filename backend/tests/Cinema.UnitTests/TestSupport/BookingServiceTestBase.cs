@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Services.Bookings;
+using Cinema.Application.Services.Notifications;
 using Cinema.Infrastructure.Persistence;
 using Hangfire;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -90,7 +91,7 @@ public abstract class BookingServiceTestBase : IDisposable
             Options.Create(new BookingOptions()),
             RealtimeNotifierMock.Object,
             PaymentGatewayMocks.Select(m => m.Object),
-            BackgroundJobClientMock.Object,
+            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             NullLogger<BookingService>.Instance
         );
     }

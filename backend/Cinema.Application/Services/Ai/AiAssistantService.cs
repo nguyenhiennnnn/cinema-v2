@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using Cinema.Application.DTOs.Ai;
 using Cinema.Application.Interfaces;
+using Cinema.Shared.Resources;
 using Microsoft.Extensions.Logging;
 
 namespace Cinema.Application.Services.Ai;
@@ -32,7 +33,7 @@ public class AiAssistantService(
         {
             logger.LogWarning("AI model client is not configured (missing API key).");
             return new AiChatResponse(
-                "Xin lỗi, tính năng AI Assistant hiện chưa được cấu hình khóa API trên hệ thống. Vui lòng liên hệ Quản trị viên để thiết lập.",
+                Messages.Ai_NotConfigured,
                 DateTime.UtcNow
             );
         }
@@ -78,7 +79,7 @@ public class AiAssistantService(
                 {
                     logger.LogError(ex, "AI model call failed.");
                     return new AiChatResponse(
-                        "Rất tiếc, kết nối với trợ lý AI thất bại. Vui lòng thử lại sau.",
+                        Messages.Ai_ConnectionFailed,
                         DateTime.UtcNow,
                         FinalizeCards(cards)
                     );
@@ -96,7 +97,7 @@ public class AiAssistantService(
                     );
 
                     if (string.IsNullOrWhiteSpace(reply))
-                        reply = "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.";
+                        reply = Messages.Ai_NoReply;
 
                     return new AiChatResponse(reply.Trim(), DateTime.UtcNow, FinalizeCards(cards));
                 }
@@ -113,7 +114,7 @@ public class AiAssistantService(
                             new JsonObject
                             {
                                 ["error"] =
-                                    "Đã vượt quá số lần truy vấn cho phép, hãy trả lời với dữ liệu đã có.",
+                                    Messages.Ai_ToolCallLimitExceeded,
                             },
                             []
                         );
@@ -136,7 +137,7 @@ public class AiAssistantService(
             }
 
             return new AiChatResponse(
-                "Trợ lý AI không tạo được câu trả lời phù hợp. Vui lòng thử lại.",
+                Messages.Ai_NoReply,
                 DateTime.UtcNow
             );
         }
@@ -148,7 +149,7 @@ public class AiAssistantService(
         {
             logger.LogError(ex, "Lỗi khi xử lý hội thoại với Trợ lý AI.");
             return new AiChatResponse(
-                "Đã xảy ra lỗi trong quá trình xử lý yêu cầu với Trợ lý AI. Vui lòng thử lại sau.",
+                Messages.Ai_ProcessingError,
                 DateTime.UtcNow
             );
         }

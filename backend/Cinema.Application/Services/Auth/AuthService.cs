@@ -1,4 +1,3 @@
-using Cinema.Application.BackgroundJobs;
 using Cinema.Application.DTOs.Auth;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
@@ -8,7 +7,6 @@ using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
-using Hangfire;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,12 +23,10 @@ public class AuthService(
     IOptions<AppUrlOptions> appurlOptions,
     IOptions<JwtOptions> jwtOptions,
     IOptions<EmailOptions> emailOptions,
-    IBackgroundJobClient backgroundJobClient,
-    ILogger<AuthService> logger,
-    IOptions<BrandOptions>? brandOptions = null
+    INotificationService notificationService,
+    ILogger<AuthService> logger
 ) : IAuthService
 {
-    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
     private readonly int _refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
 
     // Points/hạng trả về cho client lấy từ sổ điểm 12 tháng, không dùng bản cache trên CustomerProfile.
@@ -100,12 +96,14 @@ public class AuthService(
             VerificationTokenPurpose.EmailConfirmation,
             TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
             "auth/confirm-email",
-            $"Xác thực email — {_brand.Name}",
-            "Vui lòng xác thực email bằng cách bấm vào liên kết sau",
             cancellationToken
         );
 
-        return new RegisterResponse(user.UserId, user.Email, "Vui lòng kiểm tra email để xác thực");
+        return new RegisterResponse(
+            user.UserId,
+            user.Email,
+            Messages.Success_RegistrationCheckEmail
+        );
     }
 
     public async Task<MessageResponse> ConfirmEmailAsync(
@@ -525,8 +523,6 @@ public class AuthService(
             VerificationTokenPurpose.PasswordReset,
             TimeSpan.FromMinutes(emailOptions.Value.PasswordResetExpirationMinutes),
             "reset-password",
-            $"Đặt lại mật khẩu — {_brand.Name}",
-            "Vui lòng bấm vào liên kết sau để đặt lại mật khẩu",
             cancellationToken
         );
 
@@ -617,8 +613,6 @@ public class AuthService(
             VerificationTokenPurpose.EmailConfirmation,
             TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
             "auth/confirm-email",
-            $"Xác thực email — {_brand.Name}",
-            "Vui lòng xác thực email bằng cách bấm vào liên kết sau",
             cancellationToken
         );
 
@@ -667,8 +661,6 @@ public class AuthService(
         VerificationTokenPurpose purpose,
         TimeSpan validFor,
         string frontendPath,
-        string subject,
-        string introText,
         CancellationToken cancellationToken
     )
     {
@@ -690,25 +682,12 @@ public class AuthService(
         var link =
             $"{appurlOptions.Value.FrontendBaseUrl.TrimEnd('/')}/{frontendPath.TrimStart('/')}?token={Uri.EscapeDataString(rawToken)}";
 
-        var buttonLabel = purpose switch
-        {
-            VerificationTokenPurpose.EmailConfirmation => "Xác thực email",
-            VerificationTokenPurpose.PasswordReset => "Đặt lại mật khẩu",
-            _ => "Tiếp tục",
-        };
-
-        var html = EmailTemplates.ActionLink(
-            _brand,
+        notificationService.SendVerificationLink(
+            purpose,
+            user.Email,
             user.FullName,
-            subject,
-            introText,
-            buttonLabel,
             link,
-            DateTimeUtils.FormatDuration(validFor)
-        );
-
-        backgroundJobClient.Enqueue<SendEmailJob>(j =>
-            j.RunAsync(user.Email, subject, html, CancellationToken.None)
+            validFor
         );
 
         logger.LogInformation(

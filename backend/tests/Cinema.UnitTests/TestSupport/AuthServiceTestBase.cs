@@ -1,6 +1,7 @@
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Services.Auth;
+using Cinema.Application.Services.Notifications;
 using Cinema.Domain.Entities;
 using Cinema.Infrastructure.Persistence;
 using Hangfire;
@@ -59,7 +60,7 @@ public abstract class AuthServiceTestBase : IDisposable
                 new JwtOptions { RefreshTokenExpirationDays = RefreshTokenExpirationDays }
             ),
             Options.Create(new EmailOptions()),
-            BackgroundJobClientMock.Object,
+            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             NullLogger<AuthService>.Instance
         );
     }

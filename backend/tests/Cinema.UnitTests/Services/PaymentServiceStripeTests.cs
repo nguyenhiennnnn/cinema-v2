@@ -2,6 +2,8 @@ using Hangfire.States;
 using Hangfire.Common;
 using Cinema.Application.BackgroundJobs;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Options;
+using Cinema.Application.Services.Notifications;
 using Cinema.Application.Services.Payments;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -11,6 +13,7 @@ using Cinema.UnitTests.TestSupport;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using Shouldly;
 
@@ -37,7 +40,7 @@ public class PaymentServiceStripeTests : IDisposable
             _handle.Db,
             _bookingServiceMock.Object,
             gateways,
-            _backgroundJobClientMock.Object,
+            new NotificationService(_backgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             NullLogger<PaymentService>.Instance
         );
     }

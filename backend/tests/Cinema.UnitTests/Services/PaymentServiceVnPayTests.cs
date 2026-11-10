@@ -1,4 +1,6 @@
 using Cinema.Application.Interfaces;
+using Cinema.Application.Options;
+using Cinema.Application.Services.Notifications;
 using Cinema.Application.Services.Payments;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -8,6 +10,7 @@ using Cinema.UnitTests.TestSupport;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using Shouldly;
 
@@ -28,7 +31,7 @@ public class PaymentServiceVnPayTests : IDisposable
             _handle.Db,
             _bookingServiceMock.Object,
             [_gatewayMock.Object],
-            backgroundJobClientMock.Object,
+            new NotificationService(backgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             NullLogger<PaymentService>.Instance
         );
     }
@@ -255,7 +258,7 @@ public class PaymentServiceVnPayTests : IDisposable
             _handle.Db,
             _bookingServiceMock.Object,
             [], 
-            backgroundJobClientMock.Object,
+            new NotificationService(backgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             NullLogger<PaymentService>.Instance
         );
 

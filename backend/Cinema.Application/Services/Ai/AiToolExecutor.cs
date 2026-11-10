@@ -5,6 +5,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -28,33 +29,33 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
         {
             new(
                 SearchShowtimes,
-                "Tìm suất chiếu sắp tới (còn hiệu lực) theo phim, ngày. Dùng khi khách hỏi lịch chiếu, giờ chiếu, giá vé của một phim hoặc của một ngày.",
+                Messages.Ai_Tool_SearchShowtimes_Description,
                 [
                     new AiToolParameter(
                         "movie_id",
                         AiToolParameterType.Integer,
-                        "ID phim (lấy từ danh sách phim trong system prompt)."
+                        Messages.Ai_Param_MovieId
                     ),
                     new AiToolParameter(
                         "movie_title",
                         AiToolParameterType.String,
-                        "Một phần tên phim, dùng khi không biết movie_id."
+                        Messages.Ai_Param_MovieTitle
                     ),
                     new AiToolParameter(
                         "date",
                         AiToolParameterType.String,
-                        "Ngày chiếu định dạng yyyy-MM-dd. Bỏ trống để tìm trong khoảng lịch chiếu đang mở bán."
+                        Messages.Ai_Param_Date
                     ),
                 ]
             ),
             new(
                 GetSeatAvailability,
-                "Xem tình trạng ghế trống của một suất chiếu: số ghế còn, giá theo loại ghế, danh sách ghế trống. Dùng khi khách hỏi còn ghế không, ghế nào còn trống.",
+                Messages.Ai_Tool_GetSeatAvailability_Description,
                 [
                     new AiToolParameter(
                         "showtime_id",
                         AiToolParameterType.Integer,
-                        "ID suất chiếu (lấy từ kết quả search_showtimes).",
+                        Messages.Ai_Param_ShowtimeId,
                         Required: true
                     ),
                 ]
@@ -66,17 +67,17 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             tools.Add(
                 new AiToolDefinition(
                     GetMyBookings,
-                    "Lấy các vé/đơn đặt vé của chính khách đang đăng nhập. Không cần truyền thông tin người dùng.",
+                    Messages.Ai_Tool_GetMyBookings_Description,
                     [
                         new AiToolParameter(
                             "upcoming_only",
                             AiToolParameterType.Boolean,
-                            "true: chỉ vé có suất chiếu chưa diễn ra. Mặc định false."
+                            Messages.Ai_Param_UpcomingOnly
                         ),
                         new AiToolParameter(
                             "status",
                             AiToolParameterType.String,
-                            "Lọc theo trạng thái.",
+                            Messages.Ai_Param_BookingStatus,
                             AllowedValues: ["Pending", "Confirmed", "Cancelled", "Expired"]
                         ),
                     ]
@@ -101,7 +102,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                 SearchShowtimes => await SearchShowtimesAsync(args, cancellationToken),
                 GetSeatAvailability => await GetSeatAvailabilityAsync(args, cancellationToken),
                 GetMyBookings => await GetMyBookingsAsync(args, userId, cancellationToken),
-                _ => Error($"Hàm '{name}' không tồn tại."),
+                _ => Error(string.Format(Messages.Ai_Error_UnknownFunction, name)),
             };
         }
         catch (OperationCanceledException)
@@ -111,7 +112,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
         catch (Exception ex)
         {
             logger.LogError(ex, "AI tool {Tool} failed.", name);
-            return Error("Không truy vấn được dữ liệu, vui lòng thử lại.");
+            return Error(Messages.Ai_Error_QueryFailed);
         }
     }
 
@@ -136,7 +137,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     out var date
                 )
             )
-                return Error("date phải có định dạng yyyy-MM-dd.");
+                return Error(Messages.Ai_Error_DateFormat);
 
             var dayStart = VietnamTime.StartOfDayUtc(date);
             var dayEnd = VietnamTime.StartOfNextDayUtc(date);
@@ -199,8 +200,12 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                 new AiCardDto(
                     "showtime",
                     r.MovieTitle,
-                    $"{VietnamTime.ToLocal(r.StartTime):HH:mm dd/MM} • {r.RoomName}",
-                    $"Từ {r.BasePrice:N0} VNĐ • Còn {r.AvailableSeats} ghế",
+                    string.Format(
+                        Messages.Ai_Card_ShowtimeSubtitle,
+                        VietnamTime.ToLocal(r.StartTime),
+                        r.RoomName
+                    ),
+                    string.Format(Messages.Ai_Card_PriceAndSeats, r.BasePrice, r.AvailableSeats),
                     r.PosterUrl,
                     $"/booking/{r.ShowtimeId}"
                 )
@@ -217,7 +222,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
     {
         var showtimeId = GetInt(args, "showtime_id");
         if (showtimeId is null)
-            return Error("Thiếu showtime_id.");
+            return Error(Messages.Ai_Error_MissingShowtimeId);
 
         var now = DateTime.UtcNow;
         var showtime = await db
@@ -236,10 +241,11 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             .FirstOrDefaultAsync(ct);
 
         if (showtime is null)
-            return Error("Không tìm thấy suất chiếu.");
+            return Error(Messages.NotFound_Showtime);
         if (showtime.Status != ShowtimeStatus.Scheduled || showtime.StartTime < now)
-            return Error("Suất chiếu này đã kết thúc hoặc bị hủy.");
+            return Error(Messages.Ai_Error_ShowtimeEnded);
 
+        var defaultSeatTypeName = Messages.Ai_SeatTypeDefault;
         var seats = await db
             .ShowtimeSeats.AsNoTracking()
             .Where(ss => ss.ShowtimeId == showtimeId.Value && ss.Seat.IsActive && !ss.Seat.IsAisle)
@@ -247,7 +253,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             {
                 ss.Seat.SeatRow,
                 ss.Seat.SeatNumber,
-                TypeName = ss.Seat.SeatType != null ? ss.Seat.SeatType.Name : "Thường",
+                TypeName = ss.Seat.SeatType != null ? ss.Seat.SeatType.Name : defaultSeatTypeName,
                 ss.Price,
                 IsFree = ss.Status == ShowtimeSeatStatus.Available
                     || (ss.Status == ShowtimeSeatStatus.Held && ss.HeldUntil < now),
@@ -299,8 +305,12 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
         var card = new AiCardDto(
             "showtime",
             showtime.MovieTitle,
-            $"{VietnamTime.ToLocal(showtime.StartTime):HH:mm dd/MM} • {showtime.RoomName}",
-            $"Còn {free.Count}/{seats.Count} ghế",
+            string.Format(
+                Messages.Ai_Card_ShowtimeSubtitle,
+                VietnamTime.ToLocal(showtime.StartTime),
+                showtime.RoomName
+            ),
+            string.Format(Messages.Ai_Card_SeatsLeft, free.Count, seats.Count),
             showtime.PosterUrl,
             $"/booking/{showtime.ShowtimeId}"
         );
@@ -315,7 +325,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
     )
     {
         if (userId is null)
-            return Error("Cần đăng nhập để xem vé đã đặt. Hãy mời khách đăng nhập.");
+            return Error(Messages.Ai_Error_LoginRequired);
 
         var now = DateTime.UtcNow;
         var query = db.Bookings.AsNoTracking().Where(b => b.UserId == userId.Value);
@@ -379,8 +389,18 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                 new AiCardDto(
                     "booking",
                     r.MovieTitle,
-                    $"{VietnamTime.ToLocal(r.StartTime):HH:mm dd/MM} • {r.RoomName} • Ghế {string.Join(", ", seats)}",
-                    $"{r.BookingCode} • {statusText} • {r.FinalAmount:N0} VNĐ",
+                    string.Format(
+                        Messages.Ai_Card_BookingSubtitle,
+                        VietnamTime.ToLocal(r.StartTime),
+                        r.RoomName,
+                        string.Join(", ", seats)
+                    ),
+                    string.Format(
+                        Messages.Ai_Card_BookingStatusLine,
+                        r.BookingCode,
+                        statusText,
+                        r.FinalAmount
+                    ),
                     r.PosterUrl,
                     $"/account/tickets/{r.BookingId}"
                 )
@@ -396,10 +416,10 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
     private static string StatusText(BookingStatus s) =>
         s switch
         {
-            BookingStatus.Pending => "Chờ thanh toán",
-            BookingStatus.Confirmed => "Đã xác nhận",
-            BookingStatus.Cancelled => "Đã hủy",
-            BookingStatus.Expired => "Hết hạn",
+            BookingStatus.Pending => Messages.Ai_BookingStatus_Pending,
+            BookingStatus.Confirmed => Messages.Ai_BookingStatus_Confirmed,
+            BookingStatus.Cancelled => Messages.Ai_BookingStatus_Cancelled,
+            BookingStatus.Expired => Messages.Ai_BookingStatus_Expired,
             _ => s.ToString(),
         };
 

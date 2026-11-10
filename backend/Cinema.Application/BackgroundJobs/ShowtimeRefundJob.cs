@@ -2,6 +2,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Resources;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +14,11 @@ namespace Cinema.Application.BackgroundJobs;
 public class ShowtimeRefundJob(
     IAppDbContext db,
     IEnumerable<IPaymentGateway> paymentGateways,
-    IBackgroundJobClient backgroundJobClient,
+    INotificationService notificationService,
     ILogger<ShowtimeRefundJob> logger,
-    IOptions<BrandOptions>? brandOptions = null,
     IOptions<BackgroundJobOptions>? jobOptions = null
 )
 {
-    private readonly BrandOptions _brand = brandOptions?.Value ?? new();
     private readonly int _retryAttempts = (jobOptions?.Value ?? new()).RetryAttempts;
 
     public async Task RunAsync(
@@ -64,7 +63,11 @@ public class ShowtimeRefundJob(
 
         RefundResult refundResult;
         if (gateway is null)
-            refundResult = new RefundResult(false, null, "Cổng thanh toán chưa được cấu hình.");
+            refundResult = new RefundResult(
+                false,
+                null,
+                string.Format(Messages.Rule_RefundGatewayNotConfigured, payment.PaymentMethod)
+            );
         else
             try
             {
@@ -72,7 +75,10 @@ public class ShowtimeRefundJob(
                     new RefundRequest(
                         payment.TransactionId!,
                         payment.Amount,
-                        $"Hoàn tiền do rạp hủy suất chiếu - booking {booking.BookingCode}",
+                        string.Format(
+                            Messages.Refund_ShowtimeCancelledDescription,
+                            booking.BookingCode
+                        ),
                         payment.PaidAt ?? payment.CreatedAt,
                         GatewayTransactionId: payment.GatewayTransactionId
                     ),
@@ -100,15 +106,11 @@ public class ShowtimeRefundJob(
             );
 
             if (booking.User is not null)
-                EnqueueEmail(
+                notificationService.SendShowtimeCancelledRefunded(
                     booking.User.Email,
-                    $"Suất chiếu bị hủy — đã hoàn tiền {booking.BookingCode}",
-                    EmailTemplates.ShowtimeCancelledAutoRefunded(
-                        _brand,
-                        booking.CustomerName,
-                        booking.BookingCode,
-                        payment.Amount
-                    )
+                    booking.CustomerName,
+                    booking.BookingCode,
+                    payment.Amount
                 );
             return;
         }
@@ -127,22 +129,13 @@ public class ShowtimeRefundJob(
             throw new InvalidOperationException(failureMessage);
 
         if (booking.User is not null)
-            EnqueueEmail(
+            notificationService.SendShowtimeCancelledManualRefund(
                 booking.User.Email,
-                $"Suất chiếu bạn đặt vé đã bị hủy — {booking.BookingCode}",
-                EmailTemplates.ShowtimeCancelledManualRefund(
-                    _brand,
-                    booking.CustomerName,
-                    booking.BookingCode,
-                    payment.Amount
-                )
+                booking.CustomerName,
+                booking.BookingCode,
+                payment.Amount
             );
 
         throw new InvalidOperationException(failureMessage);
     }
-
-    private void EnqueueEmail(string toEmail, string subject, string html) =>
-        backgroundJobClient.Enqueue<SendEmailJob>(j =>
-            j.RunAsync(toEmail, subject, html, CancellationToken.None)
-        );
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Cinema.Application.Services.Notifications;
 using Cinema.Application.Services.Showtimes;
 using Cinema.Infrastructure.Persistence;
 using Hangfire;
@@ -53,6 +54,7 @@ public abstract class ShowtimeServiceTestBase : IDisposable
             Db,
             PaymentGatewayMocks.Select(m => m.Object),
             BackgroundJobClientMock.Object,
+            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             BookingServiceMock.Object,
             NullLogger<ShowtimeService>.Instance
         );
