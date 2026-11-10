@@ -1,149 +1,355 @@
 ---
-name: perfo-design-system
-description: Design system riêng của Perfo (hệ thống đặt vé xem phim, React 19 + Tailwind v4 + shadcn/base-ui). Dùng skill này mỗi khi viết, sửa hoặc review bất kỳ UI nào trong frontend/ - trang client, trang admin, component, màu, chữ, form, bảng, sơ đồ ghế, vé điện tử, trạng thái trống/lỗi, copy giao diện, hoặc khi người dùng nhắc tới "thiết kế", "giao diện", "style", "đẹp hơn", "nhìn như AI". Dùng cả khi chỉ sửa một nút hay một màu, vì mọi thay đổi UI phải theo hệ thống này.
+name: cinema-design-system
+description: >-
+  Comprehensive Design System, UI/UX guidelines, design tokens, and component code patterns
+  for the Cinema project (React 19, Tailwind CSS v4, Base UI, Shadcn, OKLCH theme).
+  Use this skill whenever creating, updating, or styling UI components, pages, forms,
+  movie cards, seat selection maps, showtimes, badges, booking flows, or admin tables to
+  ensure 100% aesthetic consistency and code quality.
 ---
 
-# Perfo design system
+# Cinema Design System & UI/UX Skill Guide
 
-Perfo lấy tên từ perforation, đường đứt nét trên tấm vé. Giao diện là tấm vé bị xé làm hai phần: phần bạn giữ lại và phần bạn đưa đi. Mọi quyết định hình khối đều xuất phát từ động tác đó, không từ xu hướng giao diện chung.
+Hệ thống quy chuẩn thiết kế giao diện (Design System) và nguyên tắc lập trình Component dành cho toàn bộ các AI Assistant và lập trình viên trong dự án **Cinema**.
 
-Quy trình khi làm UI:
-1. Đọc mục 1 đến 4 của file này.
-2. Làm component cụ thể (ghế, vé, suất chiếu, bảng admin, form) thì đọc `references/components.md`.
-3. Cần token hoặc utility thì lấy từ `references/tokens.css`. Không tự chế giá trị.
-4. Trước khi báo xong, đối chiếu `references/anti-patterns.md` và checklist ở mục 8.
+---
 
-## 1. Ý tưởng: đường xé
+## 1. Tech Stack & Nền tảng giao diện
 
-Ba motif, và chỉ ba. Mỗi motif có việc riêng, không dùng làm trang trí.
+| Thành phần | Công nghệ / Thư viện | Quy chuẩn sử dụng |
+| :--- | :--- | :--- |
+| **Framework** | React 19 + TypeScript + Vite | Khai báo functional component, typing nghiêm ngặt |
+| **Styling Engine** | Tailwind CSS v4 (`@import "tailwindcss"`) | Sử dụng semantic utility classes, `@custom-variant dark` |
+| **Animation** | `tw-animate-css` | Smooth transition, modal enter/leave, hover scaling |
+| **Component Primitives** | `@base-ui/react` + Shadcn (`base-nova` style) | Base UI primitives thay vì tự viết DOM thô |
+| **Typography** | `@fontsource-variable/geist` (`Geist Variable`) | Font sans-serif hiện đại, tối ưu hiển thị số & text |
+| **Iconography** | `lucide-react` | Kích thước đồng bộ: `size-4` (default), `size-3.5` (sm), `size-5` (lg) |
+| **Color System** | OKLCH Color Space (Light & Dark mode) | Độ tương phản cao, phong cách rạp phim cao cấp |
+| **State & Data** | Zustand, TanStack Query v5, Nuqs (URL state) | Đồng bộ trạng thái và cache client-side |
 
-| Motif | Hình | Dùng khi | Class |
-|---|---|---|---|
-| Vát góc | Cắt góc 45°, thay cho bo tròn | Mọi khối có hình (nút, chip, thẻ phim, ô ghế) | `cut-xs/sm/md/lg`, `cut-flip` |
-| Khấc | Bán nguyệt cắt vào cạnh | Chỉ ở chỗ nội dung thật sự tách đôi: vé điện tử, dòng suất chiếu có cuống | `notch-x`, `notch-y` |
-| Đục lỗ | Hàng chấm | Chỉ làm đường tách giữa phần "giữ lại" và phần "đưa đi" | `perf-h`, `perf-v` |
+---
 
-Ngân sách: mỗi màn hình tối đa một vùng dùng khấc hoặc đục lỗ. Vát góc dùng rộng rãi. Dải lỗ phim 35mm chỉ dùng trên banner và ấn phẩm, không đưa vào UI.
+## 2. Design Tokens & Bảng màu OKLCH
 
-## 2. Nguyên tắc
+Dự án sử dụng không gian màu **OKLCH** hiện đại với 2 chế độ:
+- **Dark Mode (Chính - Cinema Atmosphere)**: Nền tối đậm điện ảnh (`oklch(0.12 0.014 30)`), card nổi bật (`oklch(0.18 0.02 30)`), điểm nhấn đỏ nhung (`oklch(0.56 0.21 25)`) và vàng ánh kim (`oklch(0.72 0.15 82)`).
+- **Light Mode**: Nền kem sáng ấm (`oklch(0.99 0.006 80)`), chữ trầm ấm sắc nét.
 
-1. **Phẳng và đặc.** Khối màu phẳng, không viền mảnh, không bóng, không kính, không gradient. Phân cấp bằng bậc tông (`background`, `card`, `secondary`) và khoảng trắng.
-2. **Số là nhân vật chính.** Giờ chiếu, giá, mã ghế, tổng tiền dùng chữ số lớn, hẹp, đều nét (`t-numeral`). Tiêu đề phim đứng dưới poster, không đè lên poster.
-3. **Nội dung thật lên đầu.** Trang chủ client mở bằng lịch chiếu hôm nay và poster, không bằng khối giới thiệu. Không có hero căn giữa kèm ba thẻ tính năng.
-4. **Căn trái, không đối xứng máy móc.** Bố cục lệch, cột chính rộng, cột phụ hẹp. Căn giữa chỉ dùng cho trạng thái trống và vé.
-5. **Một điểm nhấn mỗi màn hình.** Một khối đỏ `primary` đặc (CTA chính hoặc cuống vé). Phần còn lại im.
-6. **Trạng thái phải đọc được không cần màu.** Mỗi trạng thái có hình riêng (ghế, huy hiệu), màu chỉ bổ trợ.
-7. **Tiếng Việt là ưu tiên một.** Dấu chồng (Ế, Ặ, Ữ) không được cắt: tiêu đề `line-height` từ 1.05 trở lên, kiểm tra mọi font mới bằng chuỗi "Ếch ở Phòng Chiếu Ữ".
+### 2.1 Bảng mã Semantic Color Tokens
 
-## 3. Token
+| Semantic Token | Mục đích sử dụng | Class Tailwind tương ứng |
+| :--- | :--- | :--- |
+| `--primary` | Màu chủ đạo (Cinema Red/Crimson). Nút hành động chính, active tab, icon nổi bật, ghế đang chọn. | `bg-primary`, `text-primary`, `border-primary` |
+| `--primary-foreground` | Màu chữ trên nền primary (Thường là trắng/kem sáng). | `text-primary-foreground` |
+| `--secondary` | Màu phụ (Neutral/Slate ấm). Nút phụ, badge sắp chiếu, tag phụ. | `bg-secondary`, `text-secondary-foreground` |
+| `--accent` | Màu điểm nhấn vàng kim (Cinema Gold/Amber). Ghế VIP, rating sao, badge giải thưởng, VIP card. | `bg-accent`, `text-accent`, `border-accent` |
+| `--background` | Màu nền toàn trang. | `bg-background` |
+| `--foreground` | Màu chữ chính của toàn trang. | `text-foreground` |
+| `--card` / `--popover` | Màu nền khối nội dung, card phim, modal, dropdown, sheet. | `bg-card`, `text-card-foreground`, `bg-popover` |
+| `--muted` / `--muted-foreground` | Màu nền nhạt, placeholder, metadata ngày giờ, mô tả phụ. | `bg-muted`, `text-muted-foreground` |
+| `--border` / `--input` | Đường viền ngăn cách, viền input form, viền bảng. | `border-border`, `border-input` |
+| `--destructive` | Trạng thái lỗi, cảnh báo, hủy vé, xóa phim, thất bại. | `bg-destructive`, `text-destructive` |
+| `--ring` | Viền focus trạng thái bàn phím/accessibility. | `ring-ring`, `focus-visible:ring-ring/50` |
 
-Giá trị đầy đủ nằm trong `references/tokens.css`. Không hardcode HEX, RGB, OKLCH trong component; chỉ dùng class semantic.
+### 2.2 Hình khối: Cut-corner (KHÔNG bo tròn)
+Dự án dùng phong cách **vát góc** (`--radius: 0px`). Mọi khối UI phải vuông vức, góc vát bằng utility `cut-*` (định nghĩa trong `index.css`, dùng `clip-path`):
+- `cut-xs` (4px): ghế, nút nhỏ, thanh màn hình
+- `cut-sm` (6px) / `cut-md` (12px): input, button, card nhỏ
+- `cut-lg` (20px): khung lớn (seat map frame, panel)
+- `cut-flip`: vát ngược góc, dùng khi cần nhấn hướng
 
-### Màu
+Không dùng `rounded-*` cho card/button/ghế (chỉ avatar, dot trạng thái mới `rounded-full`). Vì dùng `clip-path`, **không dùng `shadow-*`/`outline` bên ngoài** trên phần tử `cut-*` (bị cắt mất), hãy dùng `background`, `::before/::after` hoặc `outline-offset` âm.
 
-Nền trung tính ấm như phòng chiếu và nhung ghế: kem sáng ở light, nâu đỏ ink ở dark. Điểm nhấn là đỏ nhung và vàng ánh kim. Không đi cùng chữ serif hay màu đất nung.
+---
 
-| Token | Light | Dark | Việc |
-|---|---|---|---|
-| `background` | `oklch(0.965 0.012 80)` | `oklch(0.12 0.014 30)` | Nền trang |
-| `card` | `oklch(0.99 0.006 80)` | `oklch(0.18 0.02 30)` | Khối nổi một bậc (thẻ, dialog) |
-| `secondary` / `muted` | `oklch(0.925 0.014 75)` | `oklch(0.22 0.018 30)` | Khối tách khỏi nền (input, ô ghế thường, hàng bảng xen kẽ) |
-| `foreground` | `oklch(0.2 0.02 30)` | `oklch(0.95 0.01 80)` | Chữ chính |
-| `muted-foreground` | `oklch(0.48 0.025 50)` | `oklch(0.7 0.02 60)` | Chữ phụ |
-| `primary` | `oklch(0.45 0.19 25)` | `oklch(0.56 0.21 25)` | Đỏ nhung Perfo: CTA, ghế đang chọn, cuống vé |
-| `accent` | `oklch(0.72 0.15 82)` | `oklch(0.72 0.15 82)` | Vàng ánh kim: ghế VIP, sao đánh giá |
-| `border` | `oklch(0.87 0.014 75)` | `oklch(0.28 0.02 30)` | Chỉ cho đường kẻ bảng và đáy input, không bao khối |
-| `destructive` | `oklch(0.55 0.22 30)` | `oklch(0.62 0.22 30)` | Hủy vé, xóa dữ liệu, lỗi |
-| `success` | `oklch(0.52 0.12 155)` | `oklch(0.64 0.14 155)` | Đã thanh toán, thành công |
-| `warning` | `oklch(0.7 0.15 70)` | `oklch(0.74 0.15 70)` | Chờ thanh toán, sắp hết hạn |
-| `couple` | `oklch(0.52 0.15 350)` | `oklch(0.64 0.15 350)` | Ghế đôi |
-| `held` | `oklch(0.7 0.15 62)` | `oklch(0.74 0.15 62)` | Ghế đang giữ |
+## 3. Quy chuẩn Typography & Phông chữ
 
-`vip` trỏ tới `accent`. Mọi token màu đều nằm trong `references/tokens.css`, thay toàn bộ giá trị cũ trong project.
+1. **Heading (Tiêu đề trang & Section)**:
+   ```tsx
+   // Page Title lớn
+   <h1 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+     Tiêu đề trang
+   </h1>
 
-Quy tắc dùng màu:
-- Chữ trên `primary` luôn là `primary-foreground`.
-- Chữ vàng trên nền sáng không đạt độ tương phản: vàng chỉ làm nền cho chip có chữ tối, hoặc làm icon kèm nhãn.
-- Không dùng quá hai sắc độ đỏ trên một màn hình.
-- `primary` và `destructive` cùng họ đỏ: không đặt cạnh nhau, phân biệt bằng icon và nhãn.
+   // Section Title (Khối danh sách phim, chọn suất chiếu)
+   <h2 className="font-heading text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+     Phim đang chiếu
+   </h2>
 
-### Chữ
+   // Sub-heading / Card Title
+   <h3 className="font-heading text-base md:text-lg font-medium text-foreground line-clamp-1">
+     Tên phim hoặc tiêu đề thẻ
+   </h3>
+   ```
 
-| Vai trò | Font | Thiết lập |
-|---|---|---|
-| Tiêu đề, số | Archivo Variable (trục `wdth`) | Hẹp (`wdth` 75 đến 85) cho display và số, thường (`wdth` 100) cho H2 trở xuống. **Viết câu thường, không viết hoa cả chuỗi.** |
-| Nội dung | Be Vietnam Pro 400, 500, 600 | 15px, `line-height` 1.55 |
-| Mã vé, mã ghế | Archivo `wdth` 80, `tabular-nums`, tracking 0.04em | Không dùng font monospace |
+2. **Body & Metadata Text**:
+   - Văn bản nội dung: `text-sm text-foreground leading-relaxed`
+   - Mô tả phụ / Phụ đề / Thể loại: `text-xs md:text-sm text-muted-foreground`
+   - Nhãn form (Label): `text-sm font-medium text-foreground`
+   - Giá tiền & Số ghế: `font-semibold tabular-nums text-primary` hoặc `font-mono font-medium`
 
-Thang chữ (class có sẵn trong `tokens.css`): `t-display` 72, `t-h1` 40, `t-h2` 28, `t-h3` 20, `t-numeral` (kích thước tự đặt), `t-code`. Nội dung 15, chú thích 13. Không có cỡ dưới 13px.
+---
 
-### Hình khối và khoảng cách
+## 4. Quy chuẩn Component UI cơ bản
 
-- `--radius: 0`. Không `rounded-*` trên thẻ, nút, input, dialog. Chỉ `rounded-full` cho avatar.
-- Vát: `cut-xs` 4px (chip), `cut-sm` 6px (nút, input), `cut-md` 12px (thẻ), `cut-lg` 20px (dialog, vé).
-- Khoảng cách theo nhịp 4: 4, 8, 12, 16, 24, 32, 48, 64, 96. Quanh dữ liệu dày (bảng, sơ đồ ghế) dùng 4 đến 12. Quanh poster và tiêu đề dùng 32 đến 96.
-- Icon: `lucide-react` với nét vuông (đã ép bằng CSS trong `tokens.css`), kích thước 16, 20, 24. Icon riêng của Perfo trong `perfo-brand/icons/` ưu tiên hơn khi có icon tương ứng.
+Mọi component phải dùng helper `cn(...)` từ `@/lib/utils` và import các primitive từ `@/components/ui/*`.
 
-## 4. Bố cục theo vai trò
+### 4.1 Buttons (`@/components/ui/button`)
+Các variant tiêu chuẩn:
+- `default`: Nút đặt vé ngay, xác nhận thanh toán, lưu dữ liệu (`bg-primary text-primary-foreground hover:bg-primary/80`).
+- `secondary`: Nút chọn suất phụ, bộ lọc, xem chi tiết (`bg-secondary text-secondary-foreground`).
+- `outline`: Nút hủy, quay lại, đổi ngày (`border-border hover:bg-muted`).
+- `ghost`: Nút icon trên thanh header, nút close modal (`hover:bg-muted`).
+- `destructive`: Nút xóa, hủy vé (`bg-destructive/10 text-destructive hover:bg-destructive/20`).
 
-**Client (khán giả).** Nền `background`, khối `card`. Poster tỉ lệ 2:3, không viền, không overlay gradient. Lưới poster 2 cột mobile, 4 đến 6 cột desktop, khoảng cách 16. Lịch chiếu là danh sách dòng, mỗi dòng một suất: số giờ lớn bên trái, thông tin ở giữa, cuống đặt vé bên phải (đây là chỗ duy nhất được dùng khấc kèm đục lỗ). Header nền đặc `background`, không blur, không đường kẻ mảnh.
+**Quy tắc Icon trong Button**:
+```tsx
+import { Button } from "@/components/ui/button";
+import { Ticket, Loader2 } from "lucide-react";
 
-**Admin (vận hành).** Nền `background`, thanh bên dùng token `sidebar` và đổi theo theme: sáng ở light mode, tối ở dark mode. Không ghim thanh bên ở một theme cố định. Mật độ cao, bảng là trung tâm. Mục đang chọn là một khối `primary` đặc phủ hết chiều ngang nhãn, không dùng thanh viền trái, không đánh số nhóm. Thẻ số liệu là một khối `card` có số lớn `t-numeral` và nhãn câu thường bên dưới, không viền nhấn bên trái, không biểu tượng tròn.
+// Nút kèm icon trước
+<Button variant="default" size="default">
+  <Ticket className="size-4" />
+  <span>Mua vé ngay</span>
+</Button>
 
-## 5. Chuyển động
+// Nút Loading state
+<Button disabled>
+  <Loader2 className="size-4 animate-spin" />
+  <span>Đang xử lý...</span>
+</Button>
+```
 
-- Mặc định không có chuyển động vào trang. Không fade-up theo section, không stagger, không hover nâng thẻ.
-- Chuyển động chỉ để trả lời thao tác: đổi trạng thái ghế, mở dialog, chọn ngày. 120 đến 160ms, `ease-out`.
-- Một khoảnh khắc đặc trưng duy nhất: **xé vé** khi đặt vé thành công. Cuống vé tách ra dọc đường đục lỗ rồi lệch xuống 16px, xoay 4°, 420ms (`.tear-stub[data-torn="true"]`). Không dùng ở nơi khác.
-- Tôn trọng `prefers-reduced-motion`: bỏ chuyển động, giữ trạng thái cuối.
-- Skeleton dùng nhấp nháy độ mờ (opacity), không dùng dải sáng chạy ngang.
+### 4.2 Badges & Status Chips (`@/components/ui/badge`)
+Sử dụng cho phân loại độ tuổi, định dạng chiếu, trạng thái vé:
+```tsx
+import { Badge } from "@/components/ui/badge";
 
-### Loading
+// Độ tuổi: T18 (Đỏ), T16 (Cam/Vàng), P (Xanh)
+<Badge variant="destructive" className="font-bold">T18</Badge>
+<Badge variant="secondary">2D Phụ đề</Badge>
+<Badge variant="outline" className="border-accent text-accent">IMAX Laser</Badge>
+```
 
-Chỉ có ba kiểu loading, chọn theo phạm vi. Không dùng `Loader2`, `animate-spin` hay khối xoay tự viết trong trang và feature; import từ `@/components/common/spinner` hoặc dùng skeleton.
+---
 
-| Phạm vi | Dùng | Ví dụ |
-|---|---|---|
-| Toàn trang, route lazy, kiểm tra đăng nhập | `PageLoader` (`variant="page"`, tự phủ `min-h-screen`) | `AuthLoadingGuard` |
-| Một vùng nội dung hoặc trang con đang chờ một thao tác | `PageLoader variant="section"` (`min-h-[50vh]`), có thể thêm `label` | `RouteFallback`, `confirm-email-page.tsx` |
-| Danh sách, thẻ, bảng, biểu đồ có hình khối biết trước | Skeleton đúng hình khối (`Skeleton`, `MovieCardSkeleton`, ...) | Lưới phim, bảng admin |
-| Nút, ô chọn, overlay upload, ô tìm kiếm | `Spinner` (`size` `sm` 16px, `md` 32px, `lg` 48px) | `SubmitButton`, `MediaUploader` |
+## 5. Quy chuẩn Component đặc thù Cinema (Domain Components)
 
-Quy tắc:
-- `PageLoader` là logo vé có năm chấm nhấp nháy. Đây là loading duy nhất ở cấp trang, người dùng không được thấy hai kiểu loading khác nhau khi vào app.
-- `Spinner` mặc định màu `primary`. Đặt trong nút đặc màu thì thêm `className="text-current"` để spinner đổi theo màu chữ của nút. Truyền `decorative` khi đã có chữ hoặc nhãn bên cạnh, để không đọc "Đang tải" hai lần.
-- Cỡ khác 16, 32, 48 thì ghi đè bằng `className="size-5"`, không viết lại spinner.
-- `PageLoader` có `role="status"` và chữ ẩn "Đang tải" cho trình đọc màn hình; truyền `label` khi cần nói rõ việc đang chờ.
-- `prefers-reduced-motion`: chấm của `PageLoader` nhấp nháy chậm lại (2.4s), `Spinner` thôi xoay và chuyển sang nhấp nháy độ mờ. Không loading nào được xoay hay chuyển động di chuyển khi người dùng tắt chuyển động.
-- `RouteFallback` trễ 300ms trước khi hiện để route tải nhanh không bị nháy.
+### 5.1 Thẻ phim (Movie Card)
+Chuẩn tỷ lệ Poster phim là **2:3** (`aspect-[2/3]`). Card cần hiệu ứng hover điện ảnh, overlay gradient khi rê chuột.
 
-## 6. Giọng chữ
+```tsx
+import { Badge } from "@/components/ui/badge";
+import { Star, Clock } from "lucide-react";
 
-- Câu thường, động từ rõ ràng: "Đặt vé", "Giữ ghế", "Đổi suất chiếu". Không viết hoa cả nhãn, không nhãn nhỏ đặt phía trên tiêu đề.
-- Một hành động giữ một tên xuyên suốt: nút "Giữ ghế" thì toast là "Đã giữ ghế".
-- Dùng đúng thuật ngữ rạp: Suất chiếu, Phòng chiếu, Đặt vé, Bắp nước, Ghế VIP, Ghế đôi.
-- Lỗi nói rõ chuyện gì xảy ra và cách sửa, không xin lỗi chung chung: "Ghế H12 vừa có người đặt. Chọn ghế khác trong sơ đồ."
-- Trạng thái trống là lời mời hành động: "Chưa có suất chiếu hôm nay. Chọn ngày khác." Kèm một nút.
-- Chỉ nhắc "xé", "cuống" ở slogan và lúc đặt vé thành công. Không dùng trong lỗi.
-- Không nối chuỗi bằng dấu chấm giữa ("A · B · C"), không mũi tên cuối nút hay liên kết, không emoji, không gạch ngang dài ngăn đôi câu.
+interface MovieCardProps {
+  title: string;
+  posterUrl: string;
+  ageRating: string;
+  formats: string[];
+  durationMinutes: number;
+  ratingScore: number;
+  releaseDate?: string;
+  onBookTicket?: () => void;
+}
 
-## 7. Kỹ thuật
+export function MovieCard({
+  title,
+  posterUrl,
+  ageRating,
+  formats,
+  durationMinutes,
+  ratingScore,
+  onBookTicket,
+}: MovieCardProps) {
+  return (
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border/50 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
+      {/* Poster Image Container */}
+      <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
+        <img
+          src={posterUrl}
+          alt={title}
+          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          loading="lazy"
+        />
 
-- Tailwind v4 và shadcn (base-nova): chỉ đổi token và thêm utility, không viết lại component. Giá trị thay trong `index.css` đã nằm sẵn ở `references/tokens.css`.
-- Font: cài `@fontsource-variable/archivo` và `@fontsource/be-vietnam-pro`, thay import Oswald và Geist. Nếu import `wdth.css` không tồn tại ở phiên bản cài về, dùng `full.css`. Kiểm tra bằng `npm ls`.
-- `clip-path` của lớp `cut-*` cắt luôn outline ngoài. Focus phải dùng outline lệch vào trong (đã có trong `tokens.css`). Không đặt `cut-*` lên phần tử cần `box-shadow` hoặc tooltip tràn ra ngoài.
-- Khấc dùng `mask`, nên phần tử đó không có viền. Nội dung bên trong không được chạm sát mép khấc: chừa tối thiểu `--notch` + 8px.
-- Luôn ghép class bằng `cn(...)` từ `@/lib/utils`. Tiền tệ dùng `@/lib/formatters` (120.000 ₫).
-- Kiểm tra độ tương phản: chữ thường từ 4.5:1, chữ lớn và icon từ 3:1. Vùng bấm tối thiểu 44px trên mobile.
+        {/* Overlay Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
 
-## 8. Checklist trước khi báo xong
+        {/* Top Badges: Age rating & Format */}
+        <div className="absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5">
+          <Badge variant="destructive" className="px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase">
+            {ageRating}
+          </Badge>
+          {formats.slice(0, 2).map((fmt) => (
+            <Badge key={fmt} variant="secondary" className="bg-black/60 text-[10px] text-white backdrop-blur-md">
+              {fmt}
+            </Badge>
+          ))}
+        </div>
 
-- [ ] Không có HEX, RGB, OKLCH nằm trong component.
-- [ ] Không có `rounded-*` (trừ avatar), `shadow-*`, `backdrop-blur`, `bg-gradient-*`.
-- [ ] Không có nhãn viết hoa cả chuỗi, không số thứ tự 01 02 03, không mũi tên cuối nút.
-- [ ] Màn hình có tối đa một vùng khấc hoặc đục lỗ, tối đa một khối `primary` đặc.
-- [ ] Mọi trạng thái có hình riêng ngoài màu (ghế, huy hiệu, bảng).
-- [ ] Focus nhìn thấy được trên nút có `cut-*`.
-- [ ] Tiêu đề tiếng Việt có dấu chồng không bị cắt.
-- [ ] Light và dark đều đã xem. Mobile 375px đã xem.
-- [ ] Chạy `references/anti-patterns.md` từ trên xuống, không dòng nào vi phạm.
+        {/* Rating Score Top-Right */}
+        {ratingScore > 0 && (
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-md bg-black/70 px-2 py-0.5 text-xs font-semibold text-accent backdrop-blur-md">
+            <Star className="size-3 fill-accent text-accent" />
+            <span>{ratingScore.toFixed(1)}</span>
+          </div>
+        )}
+
+        {/* Duration bottom badge */}
+        <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 text-xs text-white/90 font-medium drop-shadow">
+          <Clock className="size-3.5" />
+          <span>{durationMinutes} phút</span>
+        </div>
+      </div>
+
+      {/* Content Info */}
+      <div className="flex flex-1 flex-col justify-between p-3.5">
+        <div>
+          <h3 className="font-heading text-sm font-semibold text-foreground line-clamp-1 transition-colors group-hover:text-primary" title={title}>
+            {title}
+          </h3>
+        </div>
+
+        {/* Action Button */}
+        {onBookTicket && (
+          <button
+            onClick={onBookTicket}
+            className="mt-3 w-full rounded-lg bg-primary py-2 text-xs font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
+          >
+            Mua vé
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+### 5.2 Sơ đồ ghế rạp (Seat Selection Map)
+Code nằm ở `src/components/common/seat-map/` (dùng chung cho client booking, quầy bán vé, editor admin). **Không tự viết lại DOM ghế**, hãy tái sử dụng `SeatMapFrame`, `SeatGrid`, `SeatButton`, `SeatLegend`, `CinemaScreen`. Style ghế nằm ở class `.seat` trong `index.css`, điều khiển bằng data-attribute:
+
+`<button class="seat" data-state="available|selected|held|booked|inactive|aisle" data-type="standard|vip|couple" data-mark="suggested|range|pending">`
+
+**Token màu (không hard-code pink-500/amber-500):** `--vip` (vàng), `--couple` (hồng), `--held` (cam), `--primary` (đỏ, đang chọn).
+
+| Trạng thái / loại | Nhận diện (không chỉ dựa vào màu) |
+| :--- | :--- |
+| Thường | Nền `--seat-base` trung tính |
+| VIP | Nhuộm 14% `--vip` + thanh vàng 3px **phía trên** |
+| Ghế đôi | Nhuộm 16% `--couple` + thanh hồng 3px **phía dưới**, rộng 2 ô, nhãn `1-2` |
+| Đang chọn | Nền `--primary` + **dấu tick** góc phải trên |
+| Đang giữ | Sọc chéo `--held` |
+| Đã bán | Dấu X, không hiện số |
+| Đã tắt (editor) | Gạch ngang số |
+| Lối đi | Khung nét đứt (editor) / khoảng trống (client) |
+
+**Quy tắc layout:**
+1. **Màn hình** dùng `CinemaScreen`: thanh `cut-xs` + chùm sáng gradient đổ xuống hàng A, rộng bằng đúng lưới ghế. Không dùng `rounded-t-*` hay shadow đỏ.
+2. **Lối đi**: ở sơ đồ khách bật `compactAisles` trên `SeatGrid`, cột lối đi chạy suốt mọi hàng được thu còn 45% bề rộng ghế, lối đi lẻ vẫn để trống nguyên ô. Editor KHÔNG bật (cần ô đủ lớn để bấm).
+3. **Kích thước ghế tối thiểu `1.75rem`** (đủ ngón tay). Phòng rộng trên mobile sẽ cuộn ngang, không ép ghế nhỏ hơn.
+4. **Chú thích (`SeatLegend`)** chia 2 nhóm bằng `group`: *loại ghế* (kèm giá/ghế lấy từ dữ liệu suất chiếu qua `hint`) và *trạng thái* (đang chọn / đang giữ / đã bán). Không viết giá cứng trong legend.
+5. **A11y**: mỗi hàng là `role="group" aria-label="Hàng A"`; mỗi ghế có `aria-label="Ghế A5, trống"` và `aria-pressed`. Mọi trạng thái phải phân biệt được khi không thấy màu.
+6. Thêm trạng thái/loại ghế mới: thêm `data-*` + CSS trong `.seat`, cập nhật `SeatCellState`/`SeatVisualKind` và legend, không thêm class Tailwind rời rạc vào từng nút.
+
+```tsx
+<SelectableSeatMap
+  rows={data.rows} cols={data.cols} aisles={data.aisles} seats={data.seats}
+  statusMap={statusMap} selectedIds={selectedIds}
+  onToggle={(seat) => onToggleSeat(seat.showtimeSeatId)}
+  fitWidth   // sơ đồ co theo bề rộng container (client); bỏ qua ở quầy bán vé
+/>
+```
+
+---
+
+### 5.3 Thanh chọn ngày & Suất chiếu (Showtime Picker)
+
+1. **Bộ chọn ngày (Date Strip)**:
+   - Hiển thị danh sách 7 - 14 ngày tới dưới dạng tab ngang cuộn được.
+   - Thẻ ngày gồm: Thứ (`Th 2`, `Th 3`, `CN`), Ngày tháng (`28/08`).
+   - Active: `bg-primary text-primary-foreground shadow-md`.
+   - Inactive: `bg-card hover:bg-muted text-foreground border border-border`.
+
+2. **Nút suất chiếu (Showtime Slot Pill)**:
+   - Format: Giờ bắt đầu (`19:30`), Giờ kết thúc mờ (`~ 21:45`), Phòng chiếu (`P.03`).
+   - Style: `border border-border/80 bg-card hover:border-primary hover:text-primary px-3 py-2 rounded-lg text-xs font-medium transition-all`.
+
+---
+
+### 5.4 Hiển thị tiền tệ & Ngày giờ chuẩn Việt Nam
+
+Sử dụng formatters thống nhất từ `@/lib/formatters`:
+- **Tiền tệ (VND)**: Luôn format dạng `120.000 ₫` hoặc `120.000 VND` (Không viết `$120` hay `120000`).
+- **Thời gian**: `19:30 - Thứ Năm, 28/08/2026`.
+- **Mã vé / Đơn hàng**: Viết hoa mono `font-mono font-bold tracking-wider` (Ví dụ: `CNM-892348`).
+
+---
+
+## 6. Quy chuẩn Giao diện Quản trị (Admin System)
+
+1. **Page Header Chuẩn**:
+   Mọi trang Admin (`/admin/*`) phải dùng component `PageHeader`:
+   ```tsx
+   import { PageHeader } from "@/components/common/page-header";
+   import { Button } from "@/components/ui/button";
+   import { Plus } from "lucide-react";
+
+   <PageHeader
+     title="Quản lý Suất chiếu"
+     description="Lên lịch và theo dõi trạng thái các suất chiếu trong rạp."
+     action={
+       <Button onClick={handleCreate}>
+         <Plus className="size-4" />
+         <span>Thêm suất chiếu</span>
+       </Button>
+     }
+   />
+   ```
+
+2. **Data Table Pattern**:
+   - Sử dụng `@tanstack/react-table` kết hợp `@/components/common/data-table/*`.
+   - Luôn có cột `Actions` dạng dropdown menu (`MoreHorizontal` icon).
+   - Sử dụng `StatusBadge` cho các cột trạng thái (`MovieStatusBadge`, `ShowtimeStatusBadge`, `BookingStatusBadge`, `PaymentStatusBadge`).
+
+3. **Form & Dialog**:
+   - Nhập liệu sử dụng `Input`, `Textarea`, `Select`, `InputGroup` từ `@/components/ui/*`.
+   - Validation lỗi hiển thị bên dưới input với màu `text-destructive text-xs mt-1`.
+   - Tương tác mở Modal qua Zustand Store (`useDialogStore`, `useAlertDialogStore`, `useSheetStore`).
+
+---
+
+## 7. Skeleton Loading & Trạng thái rỗng (Empty States)
+
+1. **Skeleton Loading**:
+   - Poster Skeleton: `<Skeleton className="aspect-[2/3] w-full rounded-xl" />`
+   - Table Row Skeleton: `<Skeleton className="h-10 w-full rounded-md my-2" />`
+   - Showtime Skeleton: `<Skeleton className="h-10 w-20 rounded-lg" />`
+
+2. **Empty State Component**:
+   - Luôn kèm icon minh họa (`Film`, `Ticket`, `CalendarX`), tiêu đề rõ ràng, mô tả giải thích và nút hành động (reset filter hoặc tạo mới).
+
+---
+
+## 8. Nguyên tắc cốt lõi khi AI sinh mã Component (AI Guardrails)
+
+1. **KHÔNG hardcode màu HEX / RGB tùy tiện**:
+   - Tuyệt đối dùng semantic token: `bg-background`, `text-foreground`, `bg-card`, `bg-primary`, `border-border`, `text-muted-foreground`.
+   - Không dùng `bg-[#1a1a1a]` hoặc `text-[#ff0000]`.
+2. **Luôn sử dụng `cn(...)` để merge class**:
+   ```tsx
+   import { cn } from "@/lib/utils";
+   <div className={cn("base-classes", className)} />
+   ```
+3. **Đồng bộ kích thước Icon `lucide-react`**:
+   - Default: `size-4`
+   - Compact / Badge: `size-3` hoặc `size-3.5`
+   - Large / Hero: `size-5` hoặc `size-6`
+4. **Responsive First**:
+   - Mobile: 1-2 cột (`grid-cols-2`).
+   - Tablet: 3 cột (`md:grid-cols-3`).
+   - Desktop: 4-5 cột (`lg:grid-cols-4 xl:grid-cols-5`).
+5. **Tiêu chuẩn tiếng Việt trong UI**:
+   - Giao diện người dùng mặc định sử dụng Tiếng Việt tự nhiên, chính xác thuật ngữ rạp chiếu phim (Suất chiếu, Rạp/Phòng chiếu, Vé xem phim, Bắp nước/Combo, Ghế VIP, Ghế Sweetbox, Đang chiếu, Sắp chiếu).

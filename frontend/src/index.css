@@ -486,7 +486,8 @@
 
   .seat {
     --seat-size: 2.25rem;
-    --seat-bg: color-mix(in oklch, var(--secondary) 94%, var(--foreground));
+    --seat-base: color-mix(in oklch, var(--secondary) 94%, var(--foreground));
+    --seat-bg: var(--seat-base);
     --cut: var(--cut-xs);
     position: relative;
     width: var(--seat-size);
@@ -520,12 +521,24 @@
   }
   @media (hover: hover) {
     .seat[data-state="available"]:not(:disabled):hover {
-      background: color-mix(in oklch, var(--secondary) 84%, var(--foreground));
+      background: color-mix(in oklch, var(--foreground) 12%, var(--seat-bg));
     }
   }
   .seat[data-state="selected"] {
     background: var(--primary);
     color: var(--primary-foreground);
+  }
+  /* Dấu tick: trạng thái "đang chọn" không chỉ dựa vào màu (an toàn cho người mù màu). */
+  .seat[data-state="selected"]::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 5px;
+    width: 6px;
+    height: 3px;
+    border-left: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
   }
   .seat[data-state="held"] {
     background:
@@ -559,6 +572,13 @@
     background: transparent;
     color: var(--muted-foreground);
     border: 1px dashed var(--input);
+  }
+  /* Ghế VIP / đôi: nhuộm nhẹ cả thân ghế + giữ thanh màu, nhận ra loại ghế từ xa. */
+  .seat[data-type="vip"] {
+    --seat-bg: color-mix(in oklch, var(--vip) 14%, var(--seat-base));
+  }
+  .seat[data-type="couple"] {
+    --seat-bg: color-mix(in oklch, var(--couple) 16%, var(--seat-base));
   }
   .seat[data-type="vip"]::before {
     content: "";

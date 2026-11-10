@@ -3,13 +3,20 @@ import type {
   AislePositionDto,
   ShowtimeSeatItemDto,
 } from "@/features/client/showtimes/types";
+import { formatCurrency } from "@/lib/formatters";
 import type { SeatLegendItem } from "./seat-legend";
 import { SeatButton } from "./seat-button";
 import { SeatGrid } from "./seat-grid";
 import { SeatMapFrame } from "./seat-map-frame";
 import { useSeatGridModel } from "./use-seat-grid-model";
 import { toCellState } from "./seat-map-utils";
-import { resolveSeatVisualKind, seatCellKey, type SeatCellData, type SeatCellState } from "./seat-map-types";
+import {
+  resolveSeatVisualKind,
+  seatCellKey,
+  type SeatCellData,
+  type SeatCellState,
+  type SeatVisualKind,
+} from "./seat-map-types";
 
 interface SelectableSeatMapProps {
   rows: number;
@@ -34,13 +41,25 @@ const STATE_TEXT: Record<SeatCellState, string> = {
 };
 
 const LEGEND: SeatLegendItem[] = [
-  { label: "Trống", state: "available", type: "standard" },
-  { label: "VIP", state: "available", type: "vip" },
-  { label: "Ghế đôi", state: "available", type: "couple" },
-  { label: "Đang chọn", state: "selected", type: "standard" },
-  { label: "Đang giữ", state: "held", type: "standard" },
-  { label: "Đã bán", state: "booked", type: "standard" },
+  { label: "Thường", state: "available", type: "standard", group: "type" },
+  { label: "VIP", state: "available", type: "vip", group: "type" },
+  { label: "Ghế đôi", state: "available", type: "couple", group: "type" },
+  { label: "Đang chọn", state: "selected", type: "standard", group: "status" },
+  { label: "Đang giữ", state: "held", type: "standard", group: "status" },
+  { label: "Đã bán", state: "booked", type: "standard", group: "status" },
 ];
+
+const buildLegend = (seats: ShowtimeSeatItemDto[]): SeatLegendItem[] => {
+  const priceByKind = new Map<SeatVisualKind, number>();
+  for (const seat of seats) {
+    const kind = resolveSeatVisualKind(seat.seatType);
+    if (!priceByKind.has(kind) && seat.price != null) priceByKind.set(kind, seat.price);
+  }
+  return LEGEND.map((item) => {
+    const price = item.group === "type" && item.type ? priceByKind.get(item.type) : undefined;
+    return price != null ? { ...item, hint: `${formatCurrency(price)}/ghế` } : item;
+  }).filter((item) => item.group !== "type" || item.hint || item.type === "standard");
+};
 
 export const SelectableSeatMap = ({
   rows,
@@ -81,12 +100,13 @@ export const SelectableSeatMap = ({
   const { rowLabels, cellAt } = useSeatGridModel({ rowsCount: rows, cols, cells });
 
   return (
-    <SeatMapFrame legend={LEGEND} className={className}>
+    <SeatMapFrame legend={buildLegend(seats)} className={className}>
       <SeatGrid
         rowLabels={rowLabels}
         cols={cols}
         cellAt={cellAt}
         fitWidth={fitWidth}
+        compactAisles
         renderCell={(cell, _rowLabel, col) => {
           if (!cell) return null;
           if (cell.isAisle) {

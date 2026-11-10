@@ -13,6 +13,7 @@ interface SeatGridProps {
   rowLabelClassName?: (rowLabel: string) => string | undefined;
   rowLabelTitle?: (rowLabel: string) => string | undefined;
   fitWidth?: boolean;
+  compactAisles?: boolean;
 }
 
 const ROW_LABEL = "t-code w-6 shrink-0 text-center text-[13px] text-muted-foreground";
@@ -27,9 +28,27 @@ export const SeatGrid = ({
   rowLabelClassName,
   rowLabelTitle,
   fitWidth = false,
+  compactAisles = false,
 }: SeatGridProps) => {
+  const aisleCols = new Set<number>();
+  if (compactAisles && rowLabels.length > 0) {
+    for (let col = 1; col <= cols; col++) {
+      if (rowLabels.every((r) => cellAt(r, col)?.isAisle)) aisleCols.add(col);
+    }
+  }
+  const AISLE_RATIO = 0.45;
+  const effectiveCols = cols - aisleCols.size * (1 - AISLE_RATIO);
+
+  const columnTemplate = Array.from({ length: cols }, (_, i) => i + 1)
+    .map((col) => {
+      const isAisle = aisleCols.has(col);
+      if (fitWidth) return isAisle ? `calc(var(--fit) * ${AISLE_RATIO})` : "var(--fit)";
+      return isAisle ? "1rem" : "minmax(2.25rem, 2.5rem)";
+    })
+    .join(" ");
+
   return (
-    <div className={cn("w-full pb-2", fitWidth ? "@container" : "overflow-x-auto", className)}>
+    <div className={cn("w-full pb-2", fitWidth ? "@container overflow-x-auto" : "overflow-x-auto", className)}>
       <div
         className={cn(
           "mx-auto flex w-max flex-col gap-1.5",
@@ -39,7 +58,7 @@ export const SeatGrid = ({
         style={
           fitWidth
             ? ({
-                "--fit": `min(2.5rem, calc((100cqw - 4rem - ${cols - 1} * var(--fit-gap)) / ${cols}))`,
+                "--fit": `max(1.75rem, min(2.5rem, calc((100cqw - 4rem - ${cols - 1} * var(--fit-gap)) / ${effectiveCols})))`,
               } as CSSProperties)
             : undefined
         }
@@ -47,7 +66,7 @@ export const SeatGrid = ({
         <CinemaScreen className="mx-8 mb-8" />
 
         {rowLabels.map((rowLabel) => (
-          <div key={rowLabel} className="flex items-center gap-2">
+          <div key={rowLabel} role="group" aria-label={`Hàng ${rowLabel}`} className="flex items-center gap-2">
             {onRowLabelClick ? (
               <button
                 type="button"
@@ -66,11 +85,7 @@ export const SeatGrid = ({
             )}
             <div
               className={cn("grid", fitWidth ? "gap-(--fit-gap)" : "gap-1.5")}
-              style={{
-                gridTemplateColumns: fitWidth
-                  ? `repeat(${cols}, var(--fit))`
-                  : `repeat(${cols}, minmax(2.25rem, 2.5rem))`,
-              }}
+              style={{ gridTemplateColumns: columnTemplate }}
             >
               {Array.from({ length: cols }, (_, i) => i + 1).map((col) => {
                 const cell = cellAt(rowLabel, col);
