@@ -12,10 +12,11 @@ import { logDevError } from "@/lib/error";
 import { ENV } from "@/config/env";
 import { ROUTES } from "@/config/routes";
 import { API_TIMEOUT_MS } from "@/config/default-constants";
+import { ENDPOINTS } from "@/api/endpoints";
 
 const BASE_URL = ENV.API_BASE_URL;
 
-const AUTH_REFRESH_URL = `${BASE_URL}/auth/refresh`;
+const AUTH_REFRESH_URL = `${BASE_URL}${ENDPOINTS.auth.refresh}`;
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -79,16 +80,16 @@ export async function refreshAccessToken(): Promise<string> {
 
 // ─── Auth Exclusion & Redirect Helpers ─────────────────────────────────────────
 const AUTH_EXCLUDED_URLS = [
-  "/auth/login",
-  "/auth/admin-login",
-  "/auth/google",
-  "/auth/register",
-  "/auth/confirm-email",
-  "/auth/forgot-password",
-  "/auth/reset-password",
-  "/auth/resend-confirmation",
-  "/auth/refresh",
-  "/auth/logout",
+  ENDPOINTS.auth.login,
+  ENDPOINTS.auth.adminLogin,
+  ENDPOINTS.auth.google,
+  ENDPOINTS.auth.register,
+  ENDPOINTS.auth.confirmEmail,
+  ENDPOINTS.auth.forgotPassword,
+  ENDPOINTS.auth.resetPassword,
+  ENDPOINTS.auth.resendConfirmation,
+  ENDPOINTS.auth.refresh,
+  ENDPOINTS.auth.logout,
 ];
 
 function isAuthExcludedUrl(url?: string): boolean {
@@ -99,10 +100,10 @@ function isAuthExcludedUrl(url?: string): boolean {
 function redirectToLogin() {
   const currentPath = window.location.pathname + window.location.search;
   const isAuthRoute =
-    currentPath.startsWith("/auth") ||
+    currentPath.startsWith(ROUTES.auth.root) ||
     currentPath.startsWith(ROUTES.admin.login);
   if (isAuthRoute) return;
-  const isAdminRoute = currentPath.startsWith("/admin");
+  const isAdminRoute = currentPath.startsWith(ROUTES.admin.root);
   window.location.href = isAdminRoute
     ? ROUTES.admin.login
     : `${ROUTES.auth.login}?redirect=${encodeURIComponent(currentPath)}`;

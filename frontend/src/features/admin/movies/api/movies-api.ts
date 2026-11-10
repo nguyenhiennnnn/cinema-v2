@@ -9,27 +9,26 @@ import type {
   BulkDeleteMoviesRequest,
   BulkDeleteMoviesResponse,
 } from "../types";
-
-const BASE = "/admin/movies";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const moviesAdminApi = {
   getMovies: (params: AdminMovieListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<AdminMovieListItemDto>>>(BASE, { params }),
+    apiGet<ApiResponse<OffsetPageResult<AdminMovieListItemDto>>>(ENDPOINTS.admin.movies.root, { params }),
 
   getMovieDetail: (movieId: number) =>
-    apiGet<ApiResponse<MovieDetailDto>>(`/movies/${movieId}`),
+    apiGet<ApiResponse<MovieDetailDto>>(ENDPOINTS.movies.byId(movieId)),
 
   createMovie: (body: UpsertMovieRequest) =>
-    apiPost<ApiResponse<AdminMovieListItemDto>>(BASE, body),
+    apiPost<ApiResponse<AdminMovieListItemDto>>(ENDPOINTS.admin.movies.root, body),
 
   updateMovie: (id: number, body: UpsertMovieRequest) =>
-    apiPut<ApiResponse<AdminMovieListItemDto>>(`${BASE}/${id}`, body),
+    apiPut<ApiResponse<AdminMovieListItemDto>>(ENDPOINTS.admin.movies.byId(id), body),
 
   deleteMovie: (id: number) =>
-    apiDelete<ApiResponse<DeleteMovieResponse>>(`${BASE}/${id}`),
+    apiDelete<ApiResponse<DeleteMovieResponse>>(ENDPOINTS.admin.movies.byId(id)),
 
   bulkDeleteMovies: (body: BulkDeleteMoviesRequest) =>
-    apiDelete<ApiResponse<BulkDeleteMoviesResponse>>(`${BASE}/bulk`, {
+    apiDelete<ApiResponse<BulkDeleteMoviesResponse>>(ENDPOINTS.admin.movies.bulk, {
       data: body,
     }),
 };

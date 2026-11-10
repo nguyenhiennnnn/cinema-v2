@@ -23,6 +23,7 @@ import {
 } from "./use-bookings";
 import { bookingsApi } from "../api/bookings-api";
 import type { HoldBookingResponse, PricedSeat } from "../types";
+import { ROUTES } from "@/config/routes";
 
 export type BookingStep = "select" | "payment";
 
@@ -62,7 +63,7 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
       confirmText: "Đăng nhập ngay",
       cancelText: "Để sau",
       onConfirm: () => {
-        navigate(`/auth/login?redirect=${redirectTo}`);
+        navigate(`${ROUTES.auth.login}?redirect=${redirectTo}`);
       },
     });
   };

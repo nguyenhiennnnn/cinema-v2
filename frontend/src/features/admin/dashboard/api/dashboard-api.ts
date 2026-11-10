@@ -5,12 +5,11 @@ import type {
   DashboardInsightsDto,
   DashboardInsightsParams,
 } from "../types";
-
-const BASE = "/admin/dashboard";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const dashboardApi = {
-  getSummary: () => apiGet<ApiResponse<DashboardSummaryDto>>(`${BASE}/summary`),
+  getSummary: () => apiGet<ApiResponse<DashboardSummaryDto>>(ENDPOINTS.admin.dashboard.summary),
 
   getInsights: (params: DashboardInsightsParams) =>
-    apiGet<ApiResponse<DashboardInsightsDto>>(`${BASE}/insights`, { params }),
+    apiGet<ApiResponse<DashboardInsightsDto>>(ENDPOINTS.admin.dashboard.insights, { params }),
 };

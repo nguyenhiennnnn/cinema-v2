@@ -17,42 +17,41 @@ import type {
   MeResponse,
   MessageResponse,
 } from "../types";
-
-const BASE = "/auth";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const authApi = {
   register: (body: RegisterRequest) =>
-    apiPost<ApiResponse<RegisterResponse>>(`${BASE}/register`, body),
+    apiPost<ApiResponse<RegisterResponse>>(ENDPOINTS.auth.register, body),
 
   confirmEmail: (body: ConfirmEmailRequest) =>
-    apiPost<ApiResponse<MessageResponse>>(`${BASE}/confirm-email`, body),
+    apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.confirmEmail, body),
 
   login: (body: LoginRequest) =>
-    apiPost<ApiResponse<LoginResponse>>(`${BASE}/login`, body),
+    apiPost<ApiResponse<LoginResponse>>(ENDPOINTS.auth.login, body),
 
   adminLogin: (body: LoginRequest) =>
-    apiPost<ApiResponse<LoginResponse>>(`${BASE}/admin-login`, body),
+    apiPost<ApiResponse<LoginResponse>>(ENDPOINTS.auth.adminLogin, body),
 
   googleLogin: (body: GoogleLoginRequest) =>
-    apiPost<ApiResponse<LoginResponse>>(`${BASE}/google`, body),
+    apiPost<ApiResponse<LoginResponse>>(ENDPOINTS.auth.google, body),
 
   refresh: (body: RefreshRequest) =>
-    apiPost<ApiResponse<RefreshResponse>>(`${BASE}/refresh`, body),
+    apiPost<ApiResponse<RefreshResponse>>(ENDPOINTS.auth.refresh, body),
 
   logout: (body: LogoutRequest) =>
-    apiPost<ApiResponse<MessageResponse>>(`${BASE}/logout`, body),
+    apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.logout, body),
 
   forgotPassword: (body: ForgotPasswordRequest) =>
-    apiPost<ApiResponse<MessageResponse>>(`${BASE}/forgot-password`, body),
+    apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.forgotPassword, body),
 
   resetPassword: (body: ResetPasswordRequest) =>
-    apiPost<ApiResponse<MessageResponse>>(`${BASE}/reset-password`, body),
+    apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.resetPassword, body),
 
   resendConfirmation: (body: ResendConfirmationEmailRequest) =>
-    apiPost<ApiResponse<MessageResponse>>(`${BASE}/resend-confirmation`, body),
+    apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.resendConfirmation, body),
 
   getSocketToken: () =>
-    apiPost<ApiResponse<SocketTokenResponse>>(`${BASE}/socket-token`),
+    apiPost<ApiResponse<SocketTokenResponse>>(ENDPOINTS.auth.socketToken),
 
-  me: () => apiGet<ApiResponse<MeResponse>>(`${BASE}/me`),
+  me: () => apiGet<ApiResponse<MeResponse>>(ENDPOINTS.auth.me),
 };

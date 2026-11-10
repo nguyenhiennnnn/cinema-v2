@@ -10,22 +10,21 @@ import type {
   BookingListItemDto,
   BookingDetailDto,
 } from "../types";
-
-const BASE = "/bookings";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const bookingsApi = {
   holdSeats: (body: HoldSeatsRequest) =>
-    apiPost<ApiResponse<HoldBookingResponse>>(`${BASE}/hold`, body),
+    apiPost<ApiResponse<HoldBookingResponse>>(ENDPOINTS.bookings.hold, body),
 
   getMyBookings: (params: BookingListParams) =>
-    apiGet<ApiResponse<CursorPageResult<BookingListItemDto>>>(BASE, { params }),
+    apiGet<ApiResponse<CursorPageResult<BookingListItemDto>>>(ENDPOINTS.bookings.root, { params }),
 
   getBookingDetail: (bookingId: number) =>
-    apiGet<ApiResponse<BookingDetailDto>>(`${BASE}/${bookingId}`),
+    apiGet<ApiResponse<BookingDetailDto>>(ENDPOINTS.bookings.byId(bookingId)),
 
   checkout: (bookingId: number, body: CheckoutRequest) =>
-    apiPost<ApiResponse<CheckoutResponse>>(`${BASE}/${bookingId}/checkout`, body),
+    apiPost<ApiResponse<CheckoutResponse>>(ENDPOINTS.bookings.checkout(bookingId), body),
 
   cancelBooking: (bookingId: number) =>
-    apiPost<ApiResponse<CancelBookingResponse>>(`${BASE}/${bookingId}/cancel`),
+    apiPost<ApiResponse<CancelBookingResponse>>(ENDPOINTS.bookings.cancel(bookingId)),
 };

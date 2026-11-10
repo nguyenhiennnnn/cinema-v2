@@ -8,6 +8,7 @@ import ErrorPage from "@/pages/error-page";
 import { GlobalModals } from "../modals/global-modals";
 import { Toaster } from "@/components/ui/toast";
 import { isNoIndexPath } from "@/config/seo";
+import { ROUTES } from "@/config/routes";
 
 const RootLayout = () => {
   const { pathname } = useLocation();
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
     children: [
       ...clientRoutes,
       ...adminRoutes,
-      { path: "/403", element: <ForbiddenPage /> },
+      { path: ROUTES.forbidden, element: <ForbiddenPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

@@ -1,13 +1,12 @@
 import { apiGet, apiPut } from "@/api/axios";
 import type { ApiResponse } from "@/types/api";
 import type { CinemaSettingsDto, UpdateSettingsRequest } from "../types";
-
-const BASE = "/admin/settings";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const settingsApi = {
   getSettings: () =>
-    apiGet<ApiResponse<CinemaSettingsDto>>(BASE),
+    apiGet<ApiResponse<CinemaSettingsDto>>(ENDPOINTS.admin.settings),
 
   updateSettings: (body: UpdateSettingsRequest) =>
-    apiPut<ApiResponse<CinemaSettingsDto>>(BASE, body),
+    apiPut<ApiResponse<CinemaSettingsDto>>(ENDPOINTS.admin.settings, body),
 };

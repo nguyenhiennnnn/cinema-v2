@@ -1,9 +1,11 @@
+import { ROUTES } from "@/config/routes";
+
 export const NOINDEX_PATH_PREFIXES = [
-  "/admin",
-  "/auth",
-  "/account",
-  "/booking",
-  "/403",
+  ROUTES.admin.root,
+  ROUTES.auth.root,
+  ROUTES.account.root,
+  ROUTES.booking.root,
+  ROUTES.forbidden,
 ] as const;
 
 export function isNoIndexPath(pathname: string): boolean {

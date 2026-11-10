@@ -7,6 +7,7 @@ import { BookingStatus } from "@/types/enum";
 import type { BookingListItemDto } from "@/features/client/bookings/types";
 import { useNow } from "@/hooks/use-now";
 import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
+import { ROUTES } from "@/config/routes";
 
 interface TicketCardProps {
   booking: BookingListItemDto;
@@ -44,7 +45,7 @@ export const TicketCard = ({ booking, onCancel }: TicketCardProps) => {
         </div>
         <div className="flex flex-col gap-2">
           <Link
-            to={`/account/tickets/${booking.bookingId}`}
+            to={ROUTES.account.ticketDetail(booking.bookingId)}
             className="inline-flex items-center justify-center gap-1.5 border border-border bg-muted px-2 py-0.5 text-xs font-medium"
           >
             <QrCode className="size-3.5" />

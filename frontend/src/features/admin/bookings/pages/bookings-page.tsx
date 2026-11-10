@@ -15,6 +15,7 @@ import { DateFilterPicker } from "@/components/common/filter/date-filter-picker"
 import { bookingStatusOptions } from "@/lib/enum-options";
 import { EnumSelectFilter } from "@/components/common/filter/enum-select-filter";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { ROUTES } from "@/config/routes";
 
 const AdminBookingsPage = () => {
   const [params, setParams] = useAdminBookingParams();
@@ -24,7 +25,7 @@ const AdminBookingsPage = () => {
   const bookings = useAdminBookings(stripNulls({ ...params, search: useDebouncedValue(params.search) }));
 
   const handleViewDetail = (booking: AdminBookingListItemDto) => {
-    navigate(`/admin/bookings/${booking.bookingId}`);
+    navigate(ROUTES.admin.bookingDetail(booking.bookingId));
   };
 
   const columns = createBookingColumns({ onViewDetail: handleViewDetail });

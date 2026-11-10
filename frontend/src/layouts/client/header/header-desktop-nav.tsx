@@ -1,11 +1,12 @@
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/config/routes";
 
 export const NAV_LINKS = [
-  { to: "/", label: "Trang chủ" },
-  { to: "/movies", label: "Phim" },
-  { to: "/schedule", label: "Lịch chiếu" },
-  { to: "/membership", label: "Thành viên" },
+  { to: ROUTES.home, label: "Trang chủ" },
+  { to: ROUTES.movies.list, label: "Phim" },
+  { to: ROUTES.schedule, label: "Lịch chiếu" },
+  { to: ROUTES.membership, label: "Thành viên" },
 ];
 
 export const HeaderDesktopNav = () => (

@@ -5,26 +5,25 @@ import type {
   ShowtimeSeatsResponseDto,
   SeatSuggestionDto,
 } from "../types";
-
-const BASE = "/showtimes";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const showtimesApi = {
   // GET /showtimes?date=dd/MM/yyyy — date is required, pass as "dd/MM/yyyy"
   getSchedule: (date: string, screenType?: string | null) =>
-    apiGet<ApiResponse<WholeCinemaScheduleDto>>(BASE, {
+    apiGet<ApiResponse<WholeCinemaScheduleDto>>(ENDPOINTS.showtimes.root, {
       params: { date, screenType: screenType || undefined },
     }),
 
   // GET /showtimes/{showtimeId}/seats
   getSeats: (showtimeId: number) =>
     apiGet<ApiResponse<ShowtimeSeatsResponseDto>>(
-      `${BASE}/${showtimeId}/seats`,
+      ENDPOINTS.showtimes.seats(showtimeId),
     ),
 
   // GET /showtimes/{showtimeId}/seat-suggestions?count=
   getSeatSuggestions: (showtimeId: number, count: number) =>
     apiGet<ApiResponse<SeatSuggestionDto[]>>(
-      `${BASE}/${showtimeId}/seat-suggestions`,
+      ENDPOINTS.showtimes.seatSuggestions(showtimeId),
       { params: { count } },
     ),
 };

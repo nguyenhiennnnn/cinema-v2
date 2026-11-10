@@ -24,6 +24,7 @@ import { useAdminPositions } from "../hooks/use-admin-position";
 import { useAdminActors } from "../hooks/use-admin-actor";
 import { useAdminDirectors } from "../hooks/use-admin-director";
 import { CatalogCard } from "../components/catalog-card";
+import { ROUTES } from "@/config/routes";
 
 interface CatalogCardConfig {
   key: string;
@@ -52,7 +53,7 @@ const CatalogHubPage = () => {
   const cards: CatalogCardConfig[] = [
     {
       key: "genres",
-      to: "/admin/catalog/genres",
+      to: ROUTES.admin.catalogGenres,
       icon: Clapperboard,
       title: "Thể loại phim",
       description: "Hành động, Kinh dị, Hoạt hình...",
@@ -62,7 +63,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "languages",
-      to: "/admin/catalog/languages",
+      to: ROUTES.admin.catalogLanguages,
       icon: Globe2,
       title: "Ngôn ngữ",
       description: "Ngôn ngữ & hình thức dịch phim.",
@@ -72,7 +73,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "age-ratings",
-      to: "/admin/catalog/age-ratings",
+      to: ROUTES.admin.catalogAgeRatings,
       icon: ShieldAlert,
       title: "Phân loại độ tuổi",
       description: "P, K, T13, T16, T18, C.",
@@ -82,7 +83,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "seat-types",
-      to: "/admin/catalog/seat-types",
+      to: ROUTES.admin.catalogSeatTypes,
       icon: Armchair,
       title: "Loại ghế",
       description: "Thường, VIP, Sweetbox và hệ số phụ thu.",
@@ -92,7 +93,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "screen-types",
-      to: "/admin/catalog/screen-types",
+      to: ROUTES.admin.catalogScreenTypes,
       icon: MonitorPlay,
       title: "Loại màn hình",
       description: "2D, 3D, IMAX Laser, ScreenX.",
@@ -102,7 +103,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "membership-tiers",
-      to: "/admin/catalog/membership-tiers",
+      to: ROUTES.admin.catalogMembershipTiers,
       icon: Award,
       title: "Hạng thành viên",
       description: "Bronze, Silver, Gold, Platinum.",
@@ -112,7 +113,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "positions",
-      to: "/admin/catalog/positions",
+      to: ROUTES.admin.catalogPositions,
       icon: Briefcase,
       title: "Chức vụ",
       description: "Danh sách chức vụ nhân viên rạp.",
@@ -122,7 +123,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "actors",
-      to: "/admin/catalog/actors",
+      to: ROUTES.admin.catalogActors,
       icon: UserRound,
       title: "Diễn viên",
       description: "Hồ sơ diễn viên & ảnh đại diện.",
@@ -132,7 +133,7 @@ const CatalogHubPage = () => {
     },
     {
       key: "directors",
-      to: "/admin/catalog/directors",
+      to: ROUTES.admin.catalogDirectors,
       icon: Video,
       title: "Đạo diễn",
       description: "Hồ sơ đạo diễn & tiểu sử.",

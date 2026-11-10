@@ -5,6 +5,7 @@ import { CinemaExperienceSection } from "@/features/client/home/components/cinem
 import { MovieStatus } from "@/types/enum";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
+import { ROUTES } from "@/config/routes";
 
 const homeStructuredData = {
   "@context": "https://schema.org",
@@ -38,14 +39,14 @@ const HomePage = () => {
         <MovieSection
           title="Phim đang chiếu"
           status={MovieStatus.NowShowing}
-          viewAllHref="/movies?status=NowShowing"
+          viewAllHref={`${ROUTES.movies.list}?status=${MovieStatus.NowShowing}`}
           emptyMessage="Chưa có phim đang chiếu"
         />
 
         <MovieSection
           title="Phim sắp chiếu"
           status={MovieStatus.ComingSoon}
-          viewAllHref="/movies?status=ComingSoon"
+          viewAllHref={`${ROUTES.movies.list}?status=${MovieStatus.ComingSoon}`}
           emptyMessage="Chưa có phim sắp chiếu"
         />
 

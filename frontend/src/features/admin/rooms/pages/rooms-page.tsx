@@ -15,6 +15,7 @@ import { RoomCreateForm } from "../components/forms/room-create-form";
 import { RoomUpdateForm } from "../components/forms/room-update-form";
 import { useAdminListParams } from "@/hooks/use-query-params";
 import { useNavigate } from "react-router";
+import { ROUTES } from "@/config/routes";
 
 const AdminRoomsPage = () => {
   const [params, setParams] = useAdminListParams();
@@ -69,7 +70,7 @@ const AdminRoomsPage = () => {
   };
 
   const handleViewDetail = (room: AdminRoomDto) => {
-    navigate(`/admin/rooms/${room.roomId}/seats`, { state: { room } });
+    navigate(ROUTES.admin.roomSeats(room.roomId), { state: { room } });
   };
 
   const columns = createRoomColumns({

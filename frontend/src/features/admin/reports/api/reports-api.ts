@@ -8,16 +8,15 @@ import type {
   ReportDateParams,
   EmployeePerformanceDto,
 } from "../types";
-
-const BASE = "/admin/reports";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const reportsApi = {
   getRevenue: (params: RevenueReportParams) =>
-    apiGet<ApiResponse<RevenueReportDto>>(`${BASE}/revenue`, { params }),
+    apiGet<ApiResponse<RevenueReportDto>>(ENDPOINTS.admin.reports.revenue, { params }),
 
   getTopMovies: (params: TopMovieReportParams) =>
-    apiGet<ApiResponse<TopMovieDto[]>>(`${BASE}/top-movies`, { params }),
+    apiGet<ApiResponse<TopMovieDto[]>>(ENDPOINTS.admin.reports.topMovies, { params }),
 
   getEmployeePerformance: (params: ReportDateParams) =>
-    apiGet<ApiResponse<EmployeePerformanceDto[]>>(`${BASE}/employee-performance`, { params }),
+    apiGet<ApiResponse<EmployeePerformanceDto[]>>(ENDPOINTS.admin.reports.employeePerformance, { params }),
 };

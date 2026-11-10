@@ -1,6 +1,7 @@
 using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
+using Cinema.Domain.Enums;
 using Mapster;
 
 namespace Cinema.Application.MappingConfig;
@@ -34,10 +35,10 @@ public class BookingMappingConfig : IRegister
 
         // ── Hold responses ────────────────────────────────────────────────────
         config.NewConfig<Booking, HoldBookingResponse>()
-            .Map(dest => dest.Status, _ => "Pending");
+            .Map(dest => dest.Status, _ => BookingStatus.Pending.ToDtoStatus());
 
         config.NewConfig<Booking, CounterHoldResponse>()
-            .Map(dest => dest.Status, _ => "Pending")
+            .Map(dest => dest.Status, _ => BookingStatus.Pending.ToDtoStatus())
             .Map(dest => dest.Channel, _ => "Counter")
             .Map(dest => dest.CreatedByEmployeeId, src => src.CreatedByEmployeeId);
 

@@ -48,7 +48,7 @@ const BookingPage = () => {
             <Button variant="outline" nativeButton={false} render={<Link to={ROUTES.account.tickets} />}>
               Xem vé của tôi
             </Button>
-            <Button nativeButton={false} render={<Link to={`/booking/${showtimeId}`} />}>
+            <Button nativeButton={false} render={<Link to={ROUTES.booking.detail(showtimeId)} />}>
               Đặt vé mới
             </Button>
           </div>

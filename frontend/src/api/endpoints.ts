@@ -1,0 +1,164 @@
+export const ENDPOINTS = {
+  auth: {
+    register: "/auth/register",
+    confirmEmail: "/auth/confirm-email",
+    login: "/auth/login",
+    adminLogin: "/auth/admin-login",
+    google: "/auth/google",
+    refresh: "/auth/refresh",
+    logout: "/auth/logout",
+    forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
+    resendConfirmation: "/auth/resend-confirmation",
+    socketToken: "/auth/socket-token",
+    me: "/auth/me",
+  },
+  users: {
+    me: "/users/me",
+    myReviews: "/users/me/reviews",
+    changePassword: "/users/me/change-password",
+  },
+  ai: {
+    chat: "/ai/chat",
+  },
+  settings: "/settings",
+  catalog: {
+    genres: "/genres",
+    languages: "/languages",
+    ageRatings: "/age-ratings",
+    membershipTiers: "/membership-tiers",
+  },
+  combos: {
+    root: "/combos",
+    suggestions: "/combos/suggestions",
+  },
+  movies: {
+    root: "/movies",
+    byId: (id: number) => `/movies/${id}`,
+    reviews: (id: number) => `/movies/${id}/reviews`,
+    canReview: (id: number) => `/movies/${id}/can-review`,
+    reviewById: (movieId: number, reviewId: number) =>
+      `/movies/${movieId}/reviews/${reviewId}`,
+  },
+  showtimes: {
+    root: "/showtimes",
+    seats: (id: number) => `/showtimes/${id}/seats`,
+    seatSuggestions: (id: number) => `/showtimes/${id}/seat-suggestions`,
+  },
+  bookings: {
+    root: "/bookings",
+    hold: "/bookings/hold",
+    byId: (id: number) => `/bookings/${id}`,
+    checkout: (id: number) => `/bookings/${id}/checkout`,
+    cancel: (id: number) => `/bookings/${id}/cancel`,
+  },
+  admin: {
+    settings: "/admin/settings",
+    uploads: {
+      image: "/admin/uploads/image",
+      video: "/admin/uploads/video",
+    },
+    dashboard: {
+      summary: "/admin/dashboard/summary",
+      insights: "/admin/dashboard/insights",
+    },
+    reports: {
+      revenue: "/admin/reports/revenue",
+      topMovies: "/admin/reports/top-movies",
+      employeePerformance: "/admin/reports/employee-performance",
+    },
+    users: {
+      root: "/admin/users",
+      admins: "/admin/users/admins",
+      customers: "/admin/users/customers",
+      status: (id: number) => `/admin/users/${id}/status`,
+      bulkStatus: "/admin/users/bulk/status",
+      role: (id: number) => `/admin/users/${id}/role`,
+    },
+    bookings: {
+      root: "/admin/bookings",
+      byId: (id: number) => `/admin/bookings/${id}`,
+      counterHold: "/admin/bookings/counter-hold",
+      counterCheckout: (id: number) => `/admin/bookings/${id}/counter-checkout`,
+      checkin: "/admin/bookings/checkin",
+    },
+    combos: {
+      root: "/admin/combos",
+      byId: (id: number) => `/admin/combos/${id}`,
+      toggle: (id: number) => `/admin/combos/${id}/toggle`,
+      bulkStatus: "/admin/combos/bulk/status",
+    },
+    employees: {
+      root: "/admin/employees",
+      byId: (id: number) => `/admin/employees/${id}`,
+    },
+    movies: {
+      root: "/admin/movies",
+      byId: (id: number) => `/admin/movies/${id}`,
+      bulk: "/admin/movies/bulk",
+    },
+    payments: {
+      root: "/admin/payments",
+      byId: (id: number) => `/admin/payments/${id}`,
+    },
+    reviews: {
+      root: "/admin/reviews",
+      byId: (id: number) => `/admin/reviews/${id}`,
+      bulk: "/admin/reviews/bulk",
+    },
+    rooms: {
+      root: "/admin/rooms",
+      byId: (id: number) => `/admin/rooms/${id}`,
+      seats: (id: number) => `/admin/rooms/${id}/seats`,
+    },
+    showtimes: {
+      root: "/admin/showtimes",
+      byId: (id: number) => `/admin/showtimes/${id}`,
+      bulk: "/admin/showtimes/bulk",
+      autoSchedulePreview: "/admin/showtimes/auto-schedule/preview",
+      autoScheduleApply: "/admin/showtimes/auto-schedule/apply",
+      clone: "/admin/showtimes/clone",
+      calendar: "/admin/showtimes/calendar",
+    },
+    genres: {
+      root: "/admin/genres",
+      byId: (id: number) => `/admin/genres/${id}`,
+    },
+    languages: {
+      root: "/admin/languages",
+      byId: (id: number) => `/admin/languages/${id}`,
+    },
+    ageRatings: {
+      root: "/admin/age-ratings",
+      byId: (id: number) => `/admin/age-ratings/${id}`,
+    },
+    membershipTiers: {
+      root: "/admin/membership-tiers",
+      byId: (id: number) => `/admin/membership-tiers/${id}`,
+    },
+    positions: {
+      root: "/admin/positions",
+      byId: (id: number) => `/admin/positions/${id}`,
+    },
+    screenTypes: {
+      root: "/admin/screen-types",
+      byId: (id: number) => `/admin/screen-types/${id}`,
+    },
+    seatTypes: {
+      root: "/admin/seat-types",
+      byId: (id: number) => `/admin/seat-types/${id}`,
+    },
+    actors: {
+      root: "/admin/actors",
+      byId: (id: number) => `/admin/actors/${id}`,
+      bulk: "/admin/actors/bulk",
+      quick: "/admin/actors/quick",
+    },
+    directors: {
+      root: "/admin/directors",
+      byId: (id: number) => `/admin/directors/${id}`,
+      bulk: "/admin/directors/bulk",
+      quick: "/admin/directors/quick",
+    },
+  },
+} as const;

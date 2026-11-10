@@ -9,6 +9,7 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 
 import { useAdminBookingDetail } from "../hooks/use-admin-booking";
 import { BookingStatusBadge } from "@/components/common/status-badge";
+import { ROUTES } from "@/config/routes";
 
 const AdminBookingDetailPage = () => {
   const { id } = useParams();
@@ -34,7 +35,7 @@ const AdminBookingDetailPage = () => {
         title={`Đơn ${b.bookingCode}`}
         description={`Đặt ngày ${formatDate(b.createdAt)} qua kênh ${b.channel}.`}
         action={
-          <Button variant="outline" onClick={() => navigate("/admin/bookings")}>
+          <Button variant="outline" onClick={() => navigate(ROUTES.admin.bookings)}>
             <ArrowLeft className="size-4" />
             <span>Quay lại</span>
           </Button>

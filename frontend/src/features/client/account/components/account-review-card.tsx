@@ -8,6 +8,7 @@ import { useDeleteMyReview, useUpdateReview } from "@/features/client/movies/hoo
 import { formatDate } from "@/lib/formatters";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 import type { UserMyReviewDto } from "@/features/client/account/types";
+import { ROUTES } from "@/config/routes";
 
 interface AccountReviewCardProps {
   review: UserMyReviewDto;
@@ -32,7 +33,7 @@ export const AccountReviewCard = ({ review }: AccountReviewCardProps) => {
   return (
     <div className="bg-card p-4">
       <div className="flex gap-3">
-        <Link to={`/movies/${review.movieId}`} className="aspect-2/3 w-16 shrink-0 overflow-hidden bg-muted">
+        <Link to={ROUTES.movies.detail(review.movieId)} className="aspect-2/3 w-16 shrink-0 overflow-hidden bg-muted">
           {review.moviePosterUrl ? (
             <img src={review.moviePosterUrl} alt={review.movieTitle} className="h-full w-full object-cover" />
           ) : (
@@ -45,7 +46,7 @@ export const AccountReviewCard = ({ review }: AccountReviewCardProps) => {
         <div className="flex-1">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <Link to={`/movies/${review.movieId}`} className="font-heading text-sm font-semibold text-foreground hover:text-primary">
+              <Link to={ROUTES.movies.detail(review.movieId)} className="font-heading text-sm font-semibold text-foreground hover:text-primary">
                 {review.movieTitle}
               </Link>
               <div className="mt-1 flex items-center gap-2">

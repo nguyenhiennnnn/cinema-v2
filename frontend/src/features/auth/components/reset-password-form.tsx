@@ -54,7 +54,7 @@ export const ResetPasswordForm = () => {
         </p>
         <Button
           variant="outline"
-          render={<Link to="/auth/forgot-password" />}
+          render={<Link to={ROUTES.auth.forgotPassword} />}
           nativeButton={false}
         >
           Yêu cầu liên kết mới

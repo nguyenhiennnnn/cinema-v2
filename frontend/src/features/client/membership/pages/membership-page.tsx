@@ -5,6 +5,7 @@ import { MembershipFaq } from "../components/membership-faq";
 import { useMembershipTiers } from "../../catalog/hooks/use-catalog";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
+import { ROUTES } from "@/config/routes";
 
 const MembershipPage = () => {
   const { data: tiers, isLoading, isError } = useMembershipTiers();
@@ -18,7 +19,7 @@ const MembershipPage = () => {
       <Seo
         title={`Chương trình thành viên ${BRAND.name} Rewards`}
         description={`Tích điểm mỗi lần đặt vé và nhận quyền lợi độc quyền theo hạng thành viên ${BRAND.name} Rewards: Bronze, Silver, Gold, Platinum.`}
-        canonical="/membership"
+        canonical={ROUTES.membership}
       />
       <section className="mb-10 border border-border/60 bg-card p-6 text-center md:p-10">
         <p className="mb-3 text-sm font-medium text-accent">{BRAND.name} Rewards</p>

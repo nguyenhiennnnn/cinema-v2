@@ -13,25 +13,24 @@ import type {
   CustomerLookupItemDto,
   CustomerLookupParams,
 } from "../types";
-
-const BASE = "/admin/users";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const usersAdminApi = {
   getUsers: (params: AdminUserListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<AdminUserListItemDto>>>(BASE, { params }),
+    apiGet<ApiResponse<OffsetPageResult<AdminUserListItemDto>>>(ENDPOINTS.admin.users.root, { params }),
 
   getAdminUsers: (params?: AdminUserSelectParams) =>
-    apiGet<ApiResponse<AdminUserSelectDto[]>>(`${BASE}/admins`, { params }),
+    apiGet<ApiResponse<AdminUserSelectDto[]>>(ENDPOINTS.admin.users.admins, { params }),
 
   searchCustomers: (params: CustomerLookupParams) =>
-    apiGet<ApiResponse<CustomerLookupItemDto[]>>(`${BASE}/customers`, { params }),
+    apiGet<ApiResponse<CustomerLookupItemDto[]>>(ENDPOINTS.admin.users.customers, { params }),
 
   updateStatus: (id: number, body: UpdateUserStatusRequest) =>
-    apiPut<ApiResponse<UpdateUserStatusResponse>>(`${BASE}/${id}/status`, body),
+    apiPut<ApiResponse<UpdateUserStatusResponse>>(ENDPOINTS.admin.users.status(id), body),
 
   bulkUpdateStatus: (body: BulkStatusRequest) =>
-    apiPut<ApiResponse<BulkActionResponse>>(`${BASE}/bulk/status`, body),
+    apiPut<ApiResponse<BulkActionResponse>>(ENDPOINTS.admin.users.bulkStatus, body),
 
   updateRole: (id: number, body: UpdateUserRoleRequest) =>
-    apiPut<ApiResponse<UpdateUserRoleResponse>>(`${BASE}/${id}/role`, body),
+    apiPut<ApiResponse<UpdateUserRoleResponse>>(ENDPOINTS.admin.users.role(id), body),
 };

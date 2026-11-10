@@ -85,7 +85,7 @@ public class ShowtimeRefundJob(
                     cancellationToken
                 );
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 logger.LogError(ex, "ShowtimeRefundGatewayError PaymentId {PaymentId}", paymentId);
                 refundResult = new RefundResult(false, null, ex.Message);

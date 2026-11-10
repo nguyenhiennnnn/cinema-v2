@@ -65,7 +65,7 @@ export const LoginForm = () => {
               <div className="flex items-center justify-between">
                 <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
                 <Link
-                  to="/auth/forgot-password"
+                  to={ROUTES.auth.forgotPassword}
                   className="text-xs text-muted-foreground transition-colors hover:text-primary hover:underline"
                 >
                   Quên mật khẩu?

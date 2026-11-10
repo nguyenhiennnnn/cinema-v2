@@ -8,6 +8,7 @@ import { useMovieDetail } from "@/features/client/movies/hooks/use-movies";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
+import { ROUTES } from "@/config/routes";
 
 const MovieDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,7 +54,7 @@ const MovieDetailPage = () => {
       <Seo
         title={movie.title}
         description={seoDescription}
-        canonical={`/movies/${movie.movieId}`}
+        canonical={ROUTES.movies.detail(movie.movieId)}
         ogImage={movie.posterUrl ?? undefined}
         ogType="article"
         structuredData={movieStructuredData}

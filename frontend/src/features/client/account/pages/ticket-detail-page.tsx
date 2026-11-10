@@ -11,6 +11,7 @@ import { formatCurrency, formatDate, formatDateTime, formatTime } from "@/lib/fo
 import { BookingStatus } from "@/types/enum";
 import { useNow } from "@/hooks/use-now";
 import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
+import { ROUTES } from "@/config/routes";
 
 const AccountTicketDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -85,13 +86,13 @@ const AccountTicketDetailPage = () => {
           </div>
           {canResumePayment ? (
             <Button>
-              <Link to={`/booking/${booking.showtime.showtimeId}?resume=${booking.bookingId}`}>
+              <Link to={`${ROUTES.booking.detail(booking.showtime.showtimeId)}?resume=${booking.bookingId}`}>
                 Thanh toán ngay
               </Link>
             </Button>
           ) : (
             <Button variant="outline">
-              <Link to={`/booking/${booking.showtime.showtimeId}`}>Đặt vé mới</Link>
+              <Link to={ROUTES.booking.detail(booking.showtime.showtimeId)}>Đặt vé mới</Link>
             </Button>
           )}
         </div>

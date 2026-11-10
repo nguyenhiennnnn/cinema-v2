@@ -282,7 +282,7 @@ public class ReviewService : IReviewService
             {
                 results.Add(new BulkDeleteReviewsResultItem(reviewId, false, ex.Message));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 logger.LogWarning(ex, "BulkDeleteReview th\u1ea5t b\u1ea1i ReviewId {ReviewId}", reviewId);
                 results.Add(new BulkDeleteReviewsResultItem(reviewId, false, "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."));

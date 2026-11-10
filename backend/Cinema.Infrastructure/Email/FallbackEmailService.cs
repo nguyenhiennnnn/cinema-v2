@@ -1,5 +1,6 @@
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Cinema.Infrastructure.Email;
@@ -7,7 +8,8 @@ namespace Cinema.Infrastructure.Email;
 public class FallbackEmailService(
     ResendEmailService resend,
     MailKitEmailService smtp,
-    IOptions<EmailOptions> options
+    IOptions<EmailOptions> options,
+    ILogger<FallbackEmailService> logger
 ) : IEmailService
 {
     public async Task SendAsync(
@@ -27,7 +29,14 @@ public class FallbackEmailService(
                 await resend.SendAsync(toEmail, subject, htmlBody, cancellationToken);
                 return;
             }
-            catch when (hasSmtp) { }
+            catch (Exception ex) when (hasSmtp && ex is not OperationCanceledException)
+            {
+                logger.LogWarning(
+                    ex,
+                    "ResendEmailFailed chuyển sang SMTP. To: {ToEmail}",
+                    toEmail
+                );
+            }
         }
 
         await smtp.SendAsync(toEmail, subject, htmlBody, cancellationToken);

@@ -6,6 +6,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import type { MovieStatus } from "@/types/enum";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
+import { ROUTES } from "@/config/routes";
 
 const MoviesPage = () => {
   const [params, setParams] = useClientMovieParams();
@@ -25,7 +26,7 @@ const MoviesPage = () => {
       <Seo
         title="Danh sách phim"
         description={`Xem tất cả phim đang và sắp chiếu tại ${BRAND.name}. Lọc theo thể loại, ngôn ngữ và nhiều tiêu chí khác.`}
-        canonical="/movies"
+        canonical={ROUTES.movies.list}
       />
       <div className="mb-6">
         <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">Danh sách phim</h1>

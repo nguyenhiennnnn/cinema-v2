@@ -5,6 +5,7 @@ import { formatShowtimeRange } from "@/lib/cinema-format";
 import { formatCurrency } from "@/lib/formatters";
 import { useAuthStore, useIsAuthenticated } from "@/stores/auth-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
+import { ROUTES } from "@/config/routes";
 
 export interface ShowtimeSlotItem {
   showtimeId: number;
@@ -31,18 +32,18 @@ export const ShowtimeGroupList = ({ showtimes, className }: ShowtimeGroupListPro
   const handleBooking = useCallback(
     (showtimeId: number) => {
       if (isAuthenticated) {
-        navigate(`/booking/${showtimeId}`);
+        navigate(ROUTES.booking.detail(showtimeId));
         return;
       }
 
-      const redirectTo = encodeURIComponent(`/booking/${showtimeId}`);
+      const redirectTo = encodeURIComponent(ROUTES.booking.detail(showtimeId));
       openAlertDialog({
         title: "Yêu cầu đăng nhập",
         description: "Bạn cần đăng nhập để đặt vé. Bạn có muốn đăng nhập ngay không?",
         confirmText: "Đăng nhập ngay",
         cancelText: "Để sau",
         onConfirm: () => {
-          navigate(`/auth/login?redirect=${redirectTo}`);
+          navigate(`${ROUTES.auth.login}?redirect=${redirectTo}`);
         },
       });
     },

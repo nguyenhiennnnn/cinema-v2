@@ -17,47 +17,46 @@ import type {
   ApplyAutoScheduleRequest,
   CloneShowtimesRequest,
 } from "../types";
-
-const BASE = "/admin/showtimes";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const showtimesAdminApi = {
   getShowtimes: (params: AdminShowtimeListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<AdminShowtimeDto>>>(BASE, { params }),
+    apiGet<ApiResponse<OffsetPageResult<AdminShowtimeDto>>>(ENDPOINTS.admin.showtimes.root, { params }),
 
   createShowtime: (body: UpsertShowtimeRequest) =>
-    apiPost<ApiResponse<CreateShowtimeResponse>>(BASE, body),
+    apiPost<ApiResponse<CreateShowtimeResponse>>(ENDPOINTS.admin.showtimes.root, body),
 
   updateShowtime: (id: number, body: UpsertShowtimeRequest) =>
-    apiPut<ApiResponse<AdminShowtimeDto>>(`${BASE}/${id}`, body),
+    apiPut<ApiResponse<AdminShowtimeDto>>(ENDPOINTS.admin.showtimes.byId(id), body),
 
   deleteShowtime: (id: number) =>
-    apiDelete<ApiResponse<DeleteShowtimeResponse>>(`${BASE}/${id}`),
+    apiDelete<ApiResponse<DeleteShowtimeResponse>>(ENDPOINTS.admin.showtimes.byId(id)),
 
   bulkCreate: (body: BulkCreateShowtimesRequest) =>
-    apiPost<ApiResponse<BulkCreateShowtimesResponse>>(`${BASE}/bulk`, body),
+    apiPost<ApiResponse<BulkCreateShowtimesResponse>>(ENDPOINTS.admin.showtimes.bulk, body),
 
   bulkDelete: (body: BulkDeleteShowtimesRequest) =>
-    apiDelete<ApiResponse<BulkDeleteShowtimesResponse>>(`${BASE}/bulk`, {
+    apiDelete<ApiResponse<BulkDeleteShowtimesResponse>>(ENDPOINTS.admin.showtimes.bulk, {
       data: body,
     }),
 
   previewAutoSchedule: (body: AutoScheduleRequest) =>
     apiPost<ApiResponse<AutoScheduleResponseDto>>(
-      `${BASE}/auto-schedule/preview`,
+      ENDPOINTS.admin.showtimes.autoSchedulePreview,
       body,
     ),
 
   applyAutoSchedule: (body: ApplyAutoScheduleRequest) =>
     apiPost<ApiResponse<BulkCreateShowtimesResponse>>(
-      `${BASE}/auto-schedule/apply`,
+      ENDPOINTS.admin.showtimes.autoScheduleApply,
       body,
     ),
 
   cloneShowtimes: (body: CloneShowtimesRequest) =>
-    apiPost<ApiResponse<BulkCreateShowtimesResponse>>(`${BASE}/clone`, body),
+    apiPost<ApiResponse<BulkCreateShowtimesResponse>>(ENDPOINTS.admin.showtimes.clone, body),
 
   getCalendar: (params: AdminShowtimeCalendarParams) =>
-    apiGet<ApiResponse<ShowtimeCalendarResponseDto>>(`${BASE}/calendar`, {
+    apiGet<ApiResponse<ShowtimeCalendarResponseDto>>(ENDPOINTS.admin.showtimes.calendar, {
       params,
     }),
 };

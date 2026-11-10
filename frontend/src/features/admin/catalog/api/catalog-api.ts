@@ -17,110 +17,111 @@ import type {
   CatalogListParams,
   PersonListParams,
 } from "../types";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const genresAdminApi = {
   getAll: (params?: CatalogListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<GenreDto>>>("/admin/genres", { params }),
+    apiGet<ApiResponse<OffsetPageResult<GenreDto>>>(ENDPOINTS.admin.genres.root, { params }),
   create: (body: UpsertGenreRequest) =>
-    apiPost<ApiResponse<GenreDto>>("/admin/genres", body),
+    apiPost<ApiResponse<GenreDto>>(ENDPOINTS.admin.genres.root, body),
   update: (id: number, body: UpsertGenreRequest) =>
-    apiPut<ApiResponse<GenreDto>>(`/admin/genres/${id}`, body),
+    apiPut<ApiResponse<GenreDto>>(ENDPOINTS.admin.genres.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/genres/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.genres.byId(id)),
 };
 
 export const languagesAdminApi = {
   getAll: (params?: CatalogListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<LanguageDto>>>("/admin/languages", { params }),
+    apiGet<ApiResponse<OffsetPageResult<LanguageDto>>>(ENDPOINTS.admin.languages.root, { params }),
   create: (body: UpsertLanguageRequest) =>
-    apiPost<ApiResponse<LanguageDto>>("/admin/languages", body),
+    apiPost<ApiResponse<LanguageDto>>(ENDPOINTS.admin.languages.root, body),
   update: (id: number, body: UpsertLanguageRequest) =>
-    apiPut<ApiResponse<LanguageDto>>(`/admin/languages/${id}`, body),
+    apiPut<ApiResponse<LanguageDto>>(ENDPOINTS.admin.languages.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/languages/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.languages.byId(id)),
 };
 
 export const ageRatingsAdminApi = {
   getAll: (params?: CatalogListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<AgeRatingDto>>>("/admin/age-ratings", { params }),
+    apiGet<ApiResponse<OffsetPageResult<AgeRatingDto>>>(ENDPOINTS.admin.ageRatings.root, { params }),
   create: (body: UpsertAgeRatingRequest) =>
-    apiPost<ApiResponse<AgeRatingDto>>("/admin/age-ratings", body),
+    apiPost<ApiResponse<AgeRatingDto>>(ENDPOINTS.admin.ageRatings.root, body),
   update: (id: number, body: UpsertAgeRatingRequest) =>
-    apiPut<ApiResponse<AgeRatingDto>>(`/admin/age-ratings/${id}`, body),
+    apiPut<ApiResponse<AgeRatingDto>>(ENDPOINTS.admin.ageRatings.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/age-ratings/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.ageRatings.byId(id)),
 };
 
 export const membershipTiersAdminApi = {
   getAll: (params?: CatalogListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<MembershipTierDto>>>("/admin/membership-tiers", { params }),
+    apiGet<ApiResponse<OffsetPageResult<MembershipTierDto>>>(ENDPOINTS.admin.membershipTiers.root, { params }),
   create: (body: UpsertMembershipTierRequest) =>
-    apiPost<ApiResponse<MembershipTierDto>>("/admin/membership-tiers", body),
+    apiPost<ApiResponse<MembershipTierDto>>(ENDPOINTS.admin.membershipTiers.root, body),
   update: (id: number, body: UpsertMembershipTierRequest) =>
-    apiPut<ApiResponse<MembershipTierDto>>(`/admin/membership-tiers/${id}`, body),
+    apiPut<ApiResponse<MembershipTierDto>>(ENDPOINTS.admin.membershipTiers.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/membership-tiers/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.membershipTiers.byId(id)),
 };
 
 export const actorsAdminApi = {
   getAll: (params?: PersonListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<ActorDto>>>("/admin/actors", { params }),
+    apiGet<ApiResponse<OffsetPageResult<ActorDto>>>(ENDPOINTS.admin.actors.root, { params }),
   create: (body: UpsertPersonRequest) =>
-    apiPost<ApiResponse<ActorDto>>("/admin/actors", body),
+    apiPost<ApiResponse<ActorDto>>(ENDPOINTS.admin.actors.root, body),
   quickCreate: (body: QuickCreatePersonRequest) =>
-    apiPost<ApiResponse<ActorDto>>("/admin/actors/quick", body),
+    apiPost<ApiResponse<ActorDto>>(ENDPOINTS.admin.actors.quick, body),
   update: (id: number, body: UpsertPersonRequest) =>
-    apiPut<ApiResponse<ActorDto>>(`/admin/actors/${id}`, body),
+    apiPut<ApiResponse<ActorDto>>(ENDPOINTS.admin.actors.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/actors/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.actors.byId(id)),
   bulkDelete: (body: BulkIdsRequest) =>
-    apiDelete<ApiResponse<BulkActionResponse>>("/admin/actors/bulk", { data: body }),
+    apiDelete<ApiResponse<BulkActionResponse>>(ENDPOINTS.admin.actors.bulk, { data: body }),
 };
 
 export const directorsAdminApi = {
   getAll: (params?: PersonListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<DirectorDto>>>("/admin/directors", { params }),
+    apiGet<ApiResponse<OffsetPageResult<DirectorDto>>>(ENDPOINTS.admin.directors.root, { params }),
   create: (body: UpsertPersonRequest) =>
-    apiPost<ApiResponse<DirectorDto>>("/admin/directors", body),
+    apiPost<ApiResponse<DirectorDto>>(ENDPOINTS.admin.directors.root, body),
   quickCreate: (body: QuickCreatePersonRequest) =>
-    apiPost<ApiResponse<DirectorDto>>("/admin/directors/quick", body),
+    apiPost<ApiResponse<DirectorDto>>(ENDPOINTS.admin.directors.quick, body),
   update: (id: number, body: UpsertPersonRequest) =>
-    apiPut<ApiResponse<DirectorDto>>(`/admin/directors/${id}`, body),
+    apiPut<ApiResponse<DirectorDto>>(ENDPOINTS.admin.directors.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/directors/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.directors.byId(id)),
   bulkDelete: (body: BulkIdsRequest) =>
-    apiDelete<ApiResponse<BulkActionResponse>>("/admin/directors/bulk", { data: body }),
+    apiDelete<ApiResponse<BulkActionResponse>>(ENDPOINTS.admin.directors.bulk, { data: body }),
 };
 
 export const positionsAdminApi = {
   getAll: (params?: CatalogListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<PositionDto>>>("/admin/positions", { params }),
+    apiGet<ApiResponse<OffsetPageResult<PositionDto>>>(ENDPOINTS.admin.positions.root, { params }),
   create: (body: UpsertPositionRequest) =>
-    apiPost<ApiResponse<PositionDto>>("/admin/positions", body),
+    apiPost<ApiResponse<PositionDto>>(ENDPOINTS.admin.positions.root, body),
   update: (id: number, body: UpsertPositionRequest) =>
-    apiPut<ApiResponse<PositionDto>>(`/admin/positions/${id}`, body),
+    apiPut<ApiResponse<PositionDto>>(ENDPOINTS.admin.positions.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/positions/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.positions.byId(id)),
 };
 
 export const screenTypesAdminApi = {
   getAll: (params?: CatalogListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<ScreenTypeDto>>>("/admin/screen-types", { params }),
+    apiGet<ApiResponse<OffsetPageResult<ScreenTypeDto>>>(ENDPOINTS.admin.screenTypes.root, { params }),
   create: (body: UpsertScreenTypeRequest) =>
-    apiPost<ApiResponse<ScreenTypeDto>>("/admin/screen-types", body),
+    apiPost<ApiResponse<ScreenTypeDto>>(ENDPOINTS.admin.screenTypes.root, body),
   update: (id: number, body: UpsertScreenTypeRequest) =>
-    apiPut<ApiResponse<ScreenTypeDto>>(`/admin/screen-types/${id}`, body),
+    apiPut<ApiResponse<ScreenTypeDto>>(ENDPOINTS.admin.screenTypes.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/screen-types/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.screenTypes.byId(id)),
 };
 
 export const seatTypesAdminApi = {
   getAll: (params?: CatalogListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<SeatTypeDto>>>("/admin/seat-types", { params }),
+    apiGet<ApiResponse<OffsetPageResult<SeatTypeDto>>>(ENDPOINTS.admin.seatTypes.root, { params }),
   create: (body: UpsertSeatTypeRequest) =>
-    apiPost<ApiResponse<SeatTypeDto>>("/admin/seat-types", body),
+    apiPost<ApiResponse<SeatTypeDto>>(ENDPOINTS.admin.seatTypes.root, body),
   update: (id: number, body: UpsertSeatTypeRequest) =>
-    apiPut<ApiResponse<SeatTypeDto>>(`/admin/seat-types/${id}`, body),
+    apiPut<ApiResponse<SeatTypeDto>>(ENDPOINTS.admin.seatTypes.byId(id), body),
   delete: (id: number) =>
-    apiDelete<ApiResponse<DeleteCategoryResponse>>(`/admin/seat-types/${id}`),
+    apiDelete<ApiResponse<DeleteCategoryResponse>>(ENDPOINTS.admin.seatTypes.byId(id)),
 };

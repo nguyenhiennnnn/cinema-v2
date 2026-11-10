@@ -24,7 +24,7 @@ public static class BulkOperation
             {
                 results.Add(new BulkActionResultItem(id, false, ex.Message));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 onUnexpected?.Invoke(id, ex);
                 results.Add(new BulkActionResultItem(id, false, Messages.Bulk_UnknownError));

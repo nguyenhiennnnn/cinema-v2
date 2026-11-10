@@ -6,16 +6,15 @@ import type {
   CreateEmployeeRequest,
   UpdateEmployeeRequest,
 } from "../types";
-
-const BASE = "/admin/employees";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const employeesAdminApi = {
   getEmployees: (params?: AdminEmployeeListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<AdminEmployeeDto>>>(BASE, { params }),
+    apiGet<ApiResponse<OffsetPageResult<AdminEmployeeDto>>>(ENDPOINTS.admin.employees.root, { params }),
 
   createEmployee: (body: CreateEmployeeRequest) =>
-    apiPost<ApiResponse<AdminEmployeeDto>>(BASE, body),
+    apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.root, body),
 
   updateEmployee: (id: number, body: UpdateEmployeeRequest) =>
-    apiPut<ApiResponse<AdminEmployeeDto>>(`${BASE}/${id}`, body),
+    apiPut<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.byId(id), body),
 };

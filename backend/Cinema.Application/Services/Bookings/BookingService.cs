@@ -249,7 +249,7 @@ public class BookingService(
             );
             return new CancelBookingResponse(
                 bookingId,
-                "Cancelled",
+                BookingStatus.Cancelled.ToDtoStatus(),
                 RefundAmount: null,
                 RefundStatus: null
             );
@@ -397,9 +397,9 @@ public class BookingService(
 
         return new CancelBookingResponse(
             bookingId,
-            "Cancelled",
+            BookingStatus.Cancelled.ToDtoStatus(),
             eligibility.RefundAmount,
-            "Refunded"
+            PaymentStatus.Refunded.ToDtoStatus()
         );
     }
 

@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/formatters";
 import { MovieStatus } from "@/types/enum";
 import { cn } from "@/lib/utils";
 import type { MovieListItemDto } from "@/features/client/movies/types";
+import { ROUTES } from "@/config/routes";
 
 interface MovieCardProps {
   movie: MovieListItemDto;
@@ -14,7 +15,7 @@ interface MovieCardProps {
 }
 
 export const MovieCard = ({ movie, className }: MovieCardProps) => {
-  const href = `/movies/${movie.movieId}`;
+  const href = ROUTES.movies.detail(movie.movieId);
   const genreText = movie.genres.slice(0, 2).join(", ");
   const durationText = formatDuration(movie.durationMinutes);
   const isNowShowing = movie.status === MovieStatus.NowShowing;

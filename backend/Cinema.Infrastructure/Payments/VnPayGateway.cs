@@ -4,11 +4,16 @@ using System.Web;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Shared.Constants;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Cinema.Infrastructure.Payments;
 
-public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient) : IPaymentGateway
+public class VnPayGateway(
+    IOptions<VnPayOptions> options,
+    HttpClient httpClient,
+    ILogger<VnPayGateway> logger
+) : IPaymentGateway
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -211,6 +216,7 @@ public class VnPayGateway(IOptions<VnPayOptions> options, HttpClient httpClient)
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "VnPayRefundApiError OriginalTransactionId {TransactionId}", request.OriginalTransactionId);
             return new RefundResult(false, null, $"Lỗi gọi VNPay refund API: {ex.Message}");
         }
     }

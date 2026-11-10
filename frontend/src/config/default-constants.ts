@@ -57,3 +57,8 @@ export const QUICK_CREATE_PERSON_NAME_MAX_LENGTH = 150;
 
 export const URL_PLACEHOLDER = "https://...";
 export const YOUTUBE_EMBED_BASE_URL = "https://www.youtube.com/embed";
+
+export const MOVIE_LIST_STATUS_QUERY = {
+  nowShowing: "now-showing",
+  comingSoon: "coming-soon",
+} as const;

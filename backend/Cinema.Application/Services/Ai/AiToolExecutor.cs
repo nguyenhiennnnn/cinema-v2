@@ -78,7 +78,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                             "status",
                             AiToolParameterType.String,
                             Messages.Ai_Param_BookingStatus,
-                            AllowedValues: ["Pending", "Confirmed", "Cancelled", "Expired"]
+                            AllowedValues: Enum.GetValues<BookingStatus>().Select(s => s.ToDtoStatus()).ToList()
                         ),
                     ]
                 )

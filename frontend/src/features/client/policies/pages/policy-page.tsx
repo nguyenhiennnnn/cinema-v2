@@ -3,6 +3,7 @@ import { Seo } from "@/components/common/seo";
 import { cn } from "@/lib/utils";
 import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { getPolicy, POLICIES } from "../policy-content";
+import { ROUTES } from "@/config/routes";
 
 const PolicyPage = () => {
   const { slug } = useParams();
@@ -22,7 +23,7 @@ const PolicyPage = () => {
       <Seo
         title={policy.title}
         description={policy.description}
-        canonical={`/policies/${policy.slug}`}
+        canonical={ROUTES.policy(policy.slug)}
       />
 
       <aside className="md:sticky md:top-24 md:self-start">
@@ -31,7 +32,7 @@ const PolicyPage = () => {
           {POLICIES.map((item) => (
             <Link
               key={item.slug}
-              to={`/policies/${item.slug}`}
+              to={ROUTES.policy(item.slug)}
               aria-current={item.slug === policy.slug ? "page" : undefined}
               className={cn(
                 "border border-transparent px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground",

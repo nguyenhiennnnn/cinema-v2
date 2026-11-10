@@ -6,6 +6,7 @@ import { formatDuration } from "@/lib/cinema-format";
 import { cn } from "@/lib/utils";
 import type { MovieListItemDto } from "@/features/client/movies/types";
 import type { HeroDirection } from "@/features/client/home/hooks/use-hero-carousel";
+import { ROUTES } from "@/config/routes";
 
 interface HeroSlideProps {
   movie: MovieListItemDto;
@@ -35,7 +36,7 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
   const dividerReveal = reveal(3);
   const actionsReveal = reveal(4);
   const posterReveal = reveal(5);
-  const href = `/movies/${movie.movieId}`;
+  const href = ROUTES.movies.detail(movie.movieId);
 
   return (
     <article

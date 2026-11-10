@@ -2,19 +2,21 @@ import { Link } from "react-router";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { BrandMark, BrandWordmark } from "@/components/common/brand-mark";
 import { BRAND } from "@/config/brand";
+import { ROUTES } from "@/config/routes";
+import { MOVIE_LIST_STATUS_QUERY } from "@/config/default-constants";
 
 const FOOTER_CATEGORIES = [
-  { label: "Phim đang chiếu", to: "/movies?status=now-showing" },
-  { label: "Phim sắp chiếu", to: "/movies?status=coming-soon" },
-  { label: "Lịch chiếu", to: "/schedule" },
-  { label: "Chương trình thành viên", to: "/membership" },
+  { label: "Phim đang chiếu", to: `${ROUTES.movies.list}?status=${MOVIE_LIST_STATUS_QUERY.nowShowing}` },
+  { label: "Phim sắp chiếu", to: `${ROUTES.movies.list}?status=${MOVIE_LIST_STATUS_QUERY.comingSoon}` },
+  { label: "Lịch chiếu", to: ROUTES.schedule },
+  { label: "Chương trình thành viên", to: ROUTES.membership },
 ];
 
 const FOOTER_POLICIES = [
-  { label: "Điều khoản sử dụng", to: "/policies/terms" },
-  { label: "Chính sách bảo mật", to: "/policies/privacy" },
-  { label: "Quy định hoàn/đổi vé", to: "/policies/refund" },
-  { label: "Quy định độ tuổi", to: "/policies/age-rating" },
+  { label: "Điều khoản sử dụng", to: ROUTES.policy("terms") },
+  { label: "Chính sách bảo mật", to: ROUTES.policy("privacy") },
+  { label: "Quy định hoàn/đổi vé", to: ROUTES.policy("refund") },
+  { label: "Quy định độ tuổi", to: ROUTES.policy("age-rating") },
 ];
 
 export const ClientFooter = () => {

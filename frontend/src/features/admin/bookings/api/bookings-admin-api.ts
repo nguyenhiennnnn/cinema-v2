@@ -11,22 +11,21 @@ import type {
   CheckinRequest,
   CheckinResponse,
 } from "../types";
-
-const BASE = "/admin/bookings";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const bookingsAdminApi = {
   getBookings: (params: AdminBookingListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<AdminBookingListItemDto>>>(BASE, { params }),
+    apiGet<ApiResponse<OffsetPageResult<AdminBookingListItemDto>>>(ENDPOINTS.admin.bookings.root, { params }),
 
   getBookingDetail: (bookingId: number) =>
-    apiGet<ApiResponse<AdminBookingDetailDto>>(`${BASE}/${bookingId}`),
+    apiGet<ApiResponse<AdminBookingDetailDto>>(ENDPOINTS.admin.bookings.byId(bookingId)),
 
   counterHold: (body: CounterHoldRequest) =>
-    apiPost<ApiResponse<CounterHoldResponse>>(`${BASE}/counter-hold`, body),
+    apiPost<ApiResponse<CounterHoldResponse>>(ENDPOINTS.admin.bookings.counterHold, body),
 
   counterCheckout: (bookingId: number, body: CounterCheckoutRequest) =>
-    apiPost<ApiResponse<CounterCheckoutResponse>>(`${BASE}/${bookingId}/counter-checkout`, body),
+    apiPost<ApiResponse<CounterCheckoutResponse>>(ENDPOINTS.admin.bookings.counterCheckout(bookingId), body),
 
   checkin: (body: CheckinRequest) =>
-    apiPost<ApiResponse<CheckinResponse>>(`${BASE}/checkin`, body),
+    apiPost<ApiResponse<CheckinResponse>>(ENDPOINTS.admin.bookings.checkin, body),
 };

@@ -10,28 +10,27 @@ import type {
   UpdateSeatLayoutRequest,
   UpdateSeatLayoutResponse,
 } from "../types";
-
-const BASE = "/admin/rooms";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const roomsApi = {
   getRooms: (params?: RoomListParams) =>
-    apiGet<ApiResponse<OffsetPageResult<AdminRoomDto>>>(BASE, { params }),
+    apiGet<ApiResponse<OffsetPageResult<AdminRoomDto>>>(ENDPOINTS.admin.rooms.root, { params }),
 
   getRoom: (id: number) =>
-    apiGet<ApiResponse<AdminRoomDto>>(`${BASE}/${id}`),
+    apiGet<ApiResponse<AdminRoomDto>>(ENDPOINTS.admin.rooms.byId(id)),
 
   createRoom: (body: CreateRoomRequest) =>
-    apiPost<ApiResponse<AdminRoomDto>>(BASE, body),
+    apiPost<ApiResponse<AdminRoomDto>>(ENDPOINTS.admin.rooms.root, body),
 
   updateRoom: (id: number, body: UpdateRoomRequest) =>
-    apiPut<ApiResponse<AdminRoomDto>>(`${BASE}/${id}`, body),
+    apiPut<ApiResponse<AdminRoomDto>>(ENDPOINTS.admin.rooms.byId(id), body),
 
   deleteRoom: (id: number) =>
-    apiDelete<ApiResponse<DeleteRoomResponse>>(`${BASE}/${id}`),
+    apiDelete<ApiResponse<DeleteRoomResponse>>(ENDPOINTS.admin.rooms.byId(id)),
 
   getRoomSeats: (roomId: number) =>
-    apiGet<ApiResponse<SeatDto[]>>(`${BASE}/${roomId}/seats`),
+    apiGet<ApiResponse<SeatDto[]>>(ENDPOINTS.admin.rooms.seats(roomId)),
 
   updateSeatLayout: (roomId: number, body: UpdateSeatLayoutRequest) =>
-    apiPut<ApiResponse<UpdateSeatLayoutResponse>>(`${BASE}/${roomId}/seats`, body),
+    apiPut<ApiResponse<UpdateSeatLayoutResponse>>(ENDPOINTS.admin.rooms.seats(roomId), body),
 };

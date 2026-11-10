@@ -10,32 +10,31 @@ import type {
   CanReviewResponse,
   DeleteReviewResponse,
 } from "../types";
-
-const BASE = "/movies";
+import { ENDPOINTS } from "@/api/endpoints";
 
 export const moviesApi = {
   getMovies: ({ cursor, limit, ...filter }: MovieListParams) =>
-    apiGet<ApiResponse<CursorPageResult<MovieListItemDto>>>(BASE, {
+    apiGet<ApiResponse<CursorPageResult<MovieListItemDto>>>(ENDPOINTS.movies.root, {
       params: { ...filter, cursor, limit },
     }),
 
   getMovieDetail: (movieId: number) =>
-    apiGet<ApiResponse<MovieDetailDto>>(`${BASE}/${movieId}`),
+    apiGet<ApiResponse<MovieDetailDto>>(ENDPOINTS.movies.byId(movieId)),
 
   getMovieReviews: ({ movieId, cursor, limit }: ReviewListParams) =>
-    apiGet<ApiResponse<CursorPageResult<ReviewDto>>>(`${BASE}/${movieId}/reviews`, {
+    apiGet<ApiResponse<CursorPageResult<ReviewDto>>>(ENDPOINTS.movies.reviews(movieId), {
       params: { cursor, limit },
     }),
 
   getCanReviewStatus: (movieId: number) =>
-    apiGet<ApiResponse<CanReviewResponse>>(`${BASE}/${movieId}/can-review`),
+    apiGet<ApiResponse<CanReviewResponse>>(ENDPOINTS.movies.canReview(movieId)),
 
   createReview: (movieId: number, body: CreateReviewRequest) =>
-    apiPost<ApiResponse<ReviewDto>>(`${BASE}/${movieId}/reviews`, body),
+    apiPost<ApiResponse<ReviewDto>>(ENDPOINTS.movies.reviews(movieId), body),
 
   updateReview: (movieId: number, reviewId: number, body: CreateReviewRequest) =>
-    apiPut<ApiResponse<ReviewDto>>(`${BASE}/${movieId}/reviews/${reviewId}`, body),
+    apiPut<ApiResponse<ReviewDto>>(ENDPOINTS.movies.reviewById(movieId, reviewId), body),
 
   deleteMyReview: (movieId: number, reviewId: number) =>
-    apiDelete<ApiResponse<DeleteReviewResponse>>(`${BASE}/${movieId}/reviews/${reviewId}`),
+    apiDelete<ApiResponse<DeleteReviewResponse>>(ENDPOINTS.movies.reviewById(movieId, reviewId)),
 };

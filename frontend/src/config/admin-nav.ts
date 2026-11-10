@@ -183,7 +183,7 @@ export const getAdminBreadcrumbs = (pathname: string): AdminBreadcrumb[] => {
   const segments = pathname.split("/").filter(Boolean).slice(1);
 
   return segments.flatMap((segment, index) => {
-    const to = `/admin/${segments.slice(0, index + 1).join("/")}`;
+    const to = `${ROUTES.admin.root}/${segments.slice(0, index + 1).join("/")}`;
     const isId = /^\d+$/.test(segment);
     if (isId && index < segments.length - 1) return [];
     const label = isId ? "Chi tiết" : (ADMIN_NAV_LABELS.get(to) ?? ADMIN_SEGMENT_LABELS[segment]);

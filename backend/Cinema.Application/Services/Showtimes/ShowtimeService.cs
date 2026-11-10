@@ -606,7 +606,7 @@ public class ShowtimeService(
             {
                 results.Add(new BulkDeleteShowtimesResultItem(showtimeId, false, ex.Message));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 logger.LogWarning(
                     ex,
