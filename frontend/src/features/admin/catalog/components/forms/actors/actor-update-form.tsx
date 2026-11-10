@@ -84,6 +84,7 @@ export const ActorUpdateForm = ({ actor, onSuccess }: ActorUpdateFormProps) => {
 
       <FormActions
         isPending={updateActor.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

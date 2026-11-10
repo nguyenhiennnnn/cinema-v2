@@ -20,6 +20,7 @@ import { getBusinessTodayDate } from "@/lib/business-time";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const daysOfWeekOptions = [
   { value: "Mon", label: "Th 2" },
@@ -54,7 +55,7 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
   const [movieSearch, setMovieSearch] = useState("");
   const [roomSearch, setRoomSearch] = useState("");
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
+  const movies = useAdminMovies({ search: useDebouncedValue(movieSearch), pageSize: SEARCH_LOOKUP_PAGE_SIZE });
   const rooms = useAdminRooms({ pageSize: LOOKUP_PAGE_SIZE });
 
   const form = useForm<BulkFormValues>({
@@ -76,9 +77,9 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
   const toggleDay = (day: string) => {
     const current = form.getValues("daysOfWeek");
     if (current.includes(day)) {
-      form.setValue("daysOfWeek", current.filter((d) => d !== day));
+      form.setValue("daysOfWeek", current.filter((d) => d !== day), { shouldDirty: true });
     } else {
-      form.setValue("daysOfWeek", [...current, day]);
+      form.setValue("daysOfWeek", [...current, day], { shouldDirty: true });
     }
   };
 
@@ -220,6 +221,7 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
 
       <FormActions
         isPending={bulkCreate.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Tạo hàng loạt"
         pendingLabel="Đang tạo..."
         onCancel={onSuccess}

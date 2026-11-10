@@ -26,6 +26,7 @@ import {
 } from "../../hooks/use-admin-showtimes";
 import type { AutoScheduleResponseDto } from "../../types";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const formSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày."),
@@ -63,7 +64,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
   const [movieSearch, setMovieSearch] = useState("");
   const [draft, setDraft] = useState<AutoScheduleResponseDto | null>(null);
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
+  const movies = useAdminMovies({ search: useDebouncedValue(movieSearch), pageSize: SEARCH_LOOKUP_PAGE_SIZE });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -312,6 +313,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
 
       <FormActions
         isPending={preview.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Xếp lịch đề xuất"
         pendingLabel="Đang xếp lịch..."
         onCancel={onSuccess}

@@ -9,6 +9,7 @@ import type { GoogleCredentialResponse } from "@/types/google-identity";
 import { useGoogleLogin } from "../hooks/use-auth";
 import { ENV } from "@/config/env";
 import { GOOGLE_SDK_POLL_INTERVAL_MS } from "@/config/default-constants";
+import { getSafeRedirect } from "@/lib/utils";
 
 const GOOGLE_CLIENT_ID = ENV.GOOGLE_CLIENT_ID;
 
@@ -40,7 +41,7 @@ export const GoogleSignInButton = ({ redirectTo }: GoogleSignInButtonProps) => {
         { idToken: response.credential },
         {
           onSuccess: () => {
-            navigate(redirectTo ?? searchParams.get("redirect") ?? "/", {
+            navigate(getSafeRedirect(redirectTo ?? searchParams.get("redirect")), {
               replace: true,
             });
           },

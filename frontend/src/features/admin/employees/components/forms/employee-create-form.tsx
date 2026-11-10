@@ -108,6 +108,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
 
       <FormActions
         isPending={createEmployee.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm nhân viên"
         onCancel={onSuccess}
       />

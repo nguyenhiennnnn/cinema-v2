@@ -17,6 +17,7 @@ import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-cons
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -38,7 +39,7 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
   const [movieSearch, setMovieSearch] = useState("");
   const [roomSearch, setRoomSearch] = useState("");
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
+  const movies = useAdminMovies({ search: useDebouncedValue(movieSearch), pageSize: SEARCH_LOOKUP_PAGE_SIZE });
   const rooms = useAdminRooms({ pageSize: LOOKUP_PAGE_SIZE });
 
   const form = useForm<ShowtimeFormValues>({
@@ -119,6 +120,7 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
 
       <FormActions
         isPending={updateShowtime.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

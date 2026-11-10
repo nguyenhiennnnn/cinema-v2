@@ -76,6 +76,7 @@ export const ActorCreateForm = ({ onSuccess }: ActorCreateFormProps) => {
 
       <FormActions
         isPending={createActor.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm diễn viên"
         onCancel={onSuccess}
       />

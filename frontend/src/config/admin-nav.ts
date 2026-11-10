@@ -150,6 +150,13 @@ export const filterNavGroupsByRole = (
     }))
     .filter((group) => group.items.length > 0);
 
+export const canAccessAdminPath = (pathname: string, role: string | undefined): boolean => {
+  const item = ADMIN_NAV_GROUPS.flatMap((group) => group.items)
+    .filter((nav) => pathname === nav.to || pathname.startsWith(`${nav.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0];
+  return !item || (!!role && item.roles.includes(role as Role));
+};
+
 export interface AdminBreadcrumb {
   label: string;
   to: string;

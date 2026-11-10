@@ -87,6 +87,7 @@ export const DirectorUpdateForm = ({
 
       <FormActions
         isPending={updateDirector.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

@@ -2,11 +2,12 @@ import { useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PageLoader, Spinner } from "@/components/common/spinner";
 import { useConfirmEmail, useResendConfirmation } from "../hooks/use-auth";
 import { getDisplayMessage } from "@/lib/error";
 import { ROUTES } from "@/config/routes";
@@ -67,12 +68,7 @@ const ConfirmEmailPage = () => {
   }
 
   if (isPending) {
-    return (
-      <div className="flex flex-col items-center gap-3 text-center">
-        <Loader2 className="size-10 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">Đang xác thực email...</p>
-      </div>
-    );
+    return <PageLoader variant="section" label="Đang xác thực email..." />;
   }
 
   if (isSuccess) {
@@ -135,7 +131,7 @@ const ConfirmEmailPage = () => {
               )}
             />
             <Button type="submit" variant="outline" disabled={isResending}>
-              {isResending && <Loader2 className="size-4 animate-spin" />}
+              {isResending && <Spinner size="sm" decorative className="text-current" />}
               Gửi lại liên kết xác thực
             </Button>
           </form>

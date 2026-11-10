@@ -14,13 +14,14 @@ import { DEFAULT_PAGE } from "@/config/default-constants";
 import { DateFilterPicker } from "@/components/common/filter/date-filter-picker";
 import { bookingStatusOptions } from "@/lib/enum-options";
 import { EnumSelectFilter } from "@/components/common/filter/enum-select-filter";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const AdminBookingsPage = () => {
   const [params, setParams] = useAdminBookingParams();
   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
   const navigate = useNavigate();
 
-  const bookings = useAdminBookings(stripNulls(params));
+  const bookings = useAdminBookings(stripNulls({ ...params, search: useDebouncedValue(params.search) }));
 
   const handleViewDetail = (booking: AdminBookingListItemDto) => {
     navigate(`/admin/bookings/${booking.bookingId}`);

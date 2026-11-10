@@ -136,9 +136,13 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         const refreshStatus = (refreshError as AxiosError)?.response?.status;
-        const hasResponse = (refreshError as AxiosError)?.response != null;
+        const isNetworkError =
+          axios.isAxiosError(refreshError) && !refreshError.response;
 
-        if (!hasResponse || refreshStatus === 401 || refreshStatus === 403) {
+        if (
+          !isNetworkError &&
+          (!refreshStatus || refreshStatus === 401 || refreshStatus === 403)
+        ) {
           logDevError(refreshError, "Token Refresh — phiên đăng nhập hết hạn");
           useAuthStore.getState().logout();
           redirectToLogin();

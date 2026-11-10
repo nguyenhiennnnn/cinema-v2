@@ -62,6 +62,8 @@ Tất cả dùng class semantic. Ví dụ dưới đây là hướng dẫn cấu
 
 ## Dialog và toast
 - Dialog: `bg-card cut-lg`, nền che `bg-foreground/60` đặc, không blur. Tiêu đề `t-h2`. Nút chính bên phải, nút nhẹ bên trái.
+- Cỡ: `size` `sm` | `md` | `lg` | `xl` trên `DialogContent`, `SheetContent` và trong `useDialogOpen`, `useSheetOpen`. Cả hai cùng bậc 384, 448, 576, 672px. Mở qua store thì dialog mặc định `md`, sheet mặc định `lg`; mobile sheet full width (riêng `sm` giữ 3/4 màn hình, dùng cho menu). Form một cột dùng dialog `md`; form hai cột hoặc nhiều trường dùng sheet `lg`; bảng hay bản xem trước rộng dùng `xl`. Chỉnh chiều rộng chỉ bằng `size`, không truyền `sm:max-w-*` qua `className`; `className` dành cho style phụ.
+- Chưa lưu: form trong sheet hoặc dialog truyền `isDirty={form.formState.isDirty}` cho `FormActions`. Khi đó bấm ra ngoài, Esc, nút X hay Hủy đều hỏi "Bỏ thay đổi chưa lưu?" với "Tiếp tục chỉnh sửa" và "Bỏ thay đổi"; form chưa chỉnh gì thì đóng ngay. Đóng sau khi lưu thành công (gọi `close()` từ `onSuccess`) không bị chặn. Field tự viết phải cập nhật giá trị qua `field.onChange`, hoặc `setValue(..., { shouldDirty: true })`, nếu không `isDirty` không đổi. Hộp thoại xác nhận nằm trong popup của sheet hoặc dialog (`DiscardChangesDialog`), không dùng `openAlertDialog`.
 - Toast: góc dưới trái, `bg-foreground text-background cut-sm`, tự tắt sau 5 giây, có nút "Hoàn tác" khi hành động hoàn tác được.
 
 ## Trạng thái trống và lỗi

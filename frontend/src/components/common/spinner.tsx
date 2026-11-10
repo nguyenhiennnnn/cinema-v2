@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const DEFAULT_LABEL = "Đang tải";
 
 export const spinnerVariants = cva(
-  "shrink-0 animate-spin text-primary motion-reduce:animate-[spin_2s_linear_infinite]",
+  "shrink-0 animate-spin text-primary motion-reduce:animate-pulse",
   {
     variants: {
       size: {

@@ -90,6 +90,7 @@ export const RoomUpdateForm = ({ room, onSuccess }: RoomUpdateFormProps) => {
 
       <FormActions
         isPending={updateRoom.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

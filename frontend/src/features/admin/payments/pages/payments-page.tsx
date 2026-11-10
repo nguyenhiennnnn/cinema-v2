@@ -14,12 +14,13 @@ import { EnumSelectFilter } from "@/components/common/filter/enum-select-filter"
 import { paymentMethodOptions, paymentStatusOptions } from "@/lib/enum-options";
 import { DateFilterPicker } from "@/components/common/filter/date-filter-picker";
 import { DEFAULT_PAGE } from "@/config/default-constants";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const AdminPaymentsPage = () => {
   const [params, setParams] = useAdminPaymentParams();
   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
 
-  const payments = useAdminPayments(stripNulls(params));
+  const payments = useAdminPayments(stripNulls({ ...params, search: useDebouncedValue(params.search) }));
   const openDialog = useDialogOpen();
 
   const handleViewDetail = (payment: AdminPaymentListItemDto) => {

@@ -58,6 +58,7 @@ export const PositionCreateForm = ({ onSuccess }: PositionCreateFormProps) => {
 
       <FormActions
         isPending={createPosition.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm chức vụ"
         onCancel={onSuccess}
       />

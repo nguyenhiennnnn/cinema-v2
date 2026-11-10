@@ -85,6 +85,7 @@ export const AgeRatingUpdateForm = ({
 
       <FormActions
         isPending={updateAgeRating.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

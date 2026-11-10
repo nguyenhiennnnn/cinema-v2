@@ -96,6 +96,7 @@ export const RoomCreateForm = ({ onSuccess }: RoomCreateFormProps) => {
 
       <FormActions
         isPending={createRoom.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm phòng chiếu"
         onCancel={onSuccess}
       />

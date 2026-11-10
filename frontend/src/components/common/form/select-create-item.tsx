@@ -1,4 +1,5 @@
-import { CircleAlert, Loader2, Plus } from "lucide-react";
+import { CircleAlert, Plus } from "lucide-react";
+import { Spinner } from "@/components/common/spinner";
 import { CommandItem } from "@/components/ui/command";
 
 interface SelectCreateItemProps {
@@ -18,7 +19,7 @@ export const SelectCreateItem = ({
     onSelect={onCreate}
   >
     {isCreating ? (
-      <Loader2 className="mr-2 size-4 animate-spin" />
+      <Spinner size="sm" decorative className="mr-2 text-current" />
     ) : (
       <Plus className="mr-2 size-4" />
     )}

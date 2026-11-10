@@ -17,6 +17,7 @@ import { FormSearchSelectField } from "@/components/common/form/form-search-sele
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -38,7 +39,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
   const [movieSearch, setMovieSearch] = useState("");
   const [roomSearch, setRoomSearch] = useState("");
 
-  const movies = useAdminMovies({ search: movieSearch, pageSize: SEARCH_LOOKUP_PAGE_SIZE });
+  const movies = useAdminMovies({ search: useDebouncedValue(movieSearch), pageSize: SEARCH_LOOKUP_PAGE_SIZE });
   const rooms = useAdminRooms({ pageSize: LOOKUP_PAGE_SIZE });
 
   const form = useForm<ShowtimeFormValues>({
@@ -113,6 +114,7 @@ export const ShowtimeCreateForm = ({ onSuccess }: ShowtimeCreateFormProps) => {
 
       <FormActions
         isPending={createShowtime.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Tạo suất chiếu"
         onCancel={onSuccess}
       />

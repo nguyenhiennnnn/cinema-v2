@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { Input } from "@/components/ui/input";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
@@ -260,11 +261,11 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
                     <Controller
                       name={`cast.${index}.characterName`}
                       control={form.control}
-                      render={({ field }) => (
-                        <input
+                      render={({ field, fieldState }) => (
+                        <Input
                           {...field}
                           placeholder="Vai diễn"
-                          className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                          aria-invalid={fieldState.invalid}
                         />
                       )}
                     />
@@ -295,6 +296,7 @@ export const MovieCreateForm = ({ onSuccess }: MovieCreateFormProps) => {
 
       <FormActions
         isPending={createMovie.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm phim"
         onCancel={onSuccess}
       />

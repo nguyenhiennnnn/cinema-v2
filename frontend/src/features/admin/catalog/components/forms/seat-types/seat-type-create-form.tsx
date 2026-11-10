@@ -74,6 +74,7 @@ export const SeatTypeCreateForm = ({ onSuccess }: SeatTypeCreateFormProps) => {
 
       <FormActions
         isPending={createSeatType.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm loại ghế"
         onCancel={onSuccess}
       />

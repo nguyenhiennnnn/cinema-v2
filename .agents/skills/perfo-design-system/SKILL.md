@@ -98,6 +98,25 @@ Thang chữ (class có sẵn trong `tokens.css`): `t-display` 72, `t-h1` 40, `t-
 - Tôn trọng `prefers-reduced-motion`: bỏ chuyển động, giữ trạng thái cuối.
 - Skeleton dùng nhấp nháy độ mờ (opacity), không dùng dải sáng chạy ngang.
 
+### Loading
+
+Chỉ có ba kiểu loading, chọn theo phạm vi. Không dùng `Loader2`, `animate-spin` hay khối xoay tự viết trong trang và feature; import từ `@/components/common/spinner` hoặc dùng skeleton.
+
+| Phạm vi | Dùng | Ví dụ |
+|---|---|---|
+| Toàn trang, route lazy, kiểm tra đăng nhập | `PageLoader` (`variant="page"`, tự phủ `min-h-screen`) | `AuthLoadingGuard` |
+| Một vùng nội dung hoặc trang con đang chờ một thao tác | `PageLoader variant="section"` (`min-h-[50vh]`), có thể thêm `label` | `RouteFallback`, `confirm-email-page.tsx` |
+| Danh sách, thẻ, bảng, biểu đồ có hình khối biết trước | Skeleton đúng hình khối (`Skeleton`, `MovieCardSkeleton`, ...) | Lưới phim, bảng admin |
+| Nút, ô chọn, overlay upload, ô tìm kiếm | `Spinner` (`size` `sm` 16px, `md` 32px, `lg` 48px) | `SubmitButton`, `MediaUploader` |
+
+Quy tắc:
+- `PageLoader` là logo vé có năm chấm nhấp nháy. Đây là loading duy nhất ở cấp trang, người dùng không được thấy hai kiểu loading khác nhau khi vào app.
+- `Spinner` mặc định màu `primary`. Đặt trong nút đặc màu thì thêm `className="text-current"` để spinner đổi theo màu chữ của nút. Truyền `decorative` khi đã có chữ hoặc nhãn bên cạnh, để không đọc "Đang tải" hai lần.
+- Cỡ khác 16, 32, 48 thì ghi đè bằng `className="size-5"`, không viết lại spinner.
+- `PageLoader` có `role="status"` và chữ ẩn "Đang tải" cho trình đọc màn hình; truyền `label` khi cần nói rõ việc đang chờ.
+- `prefers-reduced-motion`: chấm của `PageLoader` nhấp nháy chậm lại (2.4s), `Spinner` thôi xoay và chuyển sang nhấp nháy độ mờ. Không loading nào được xoay hay chuyển động di chuyển khi người dùng tắt chuyển động.
+- `RouteFallback` trễ 300ms trước khi hiện để route tải nhanh không bị nháy.
+
 ## 6. Giọng chữ
 
 - Câu thường, động từ rõ ràng: "Đặt vé", "Giữ ghế", "Đổi suất chiếu". Không viết hoa cả nhãn, không nhãn nhỏ đặt phía trên tiêu đề.

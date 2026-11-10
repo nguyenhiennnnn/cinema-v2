@@ -9,6 +9,10 @@ export function getInitials(name?: string | null) {
   return (first + last).toUpperCase();
 }
 
+export function getSafeRedirect(target?: string | null, fallback = "/") {
+  return target && /^\/(?![/\\])/.test(target) ? target : fallback;
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

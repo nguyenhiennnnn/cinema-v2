@@ -99,6 +99,7 @@ export const ComboCreateForm = ({ onSuccess }: ComboCreateFormProps) => {
 
       <FormActions
         isPending={createCombo.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm combo"
         onCancel={onSuccess}
       />

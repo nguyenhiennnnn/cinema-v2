@@ -60,6 +60,7 @@ export const GenreUpdateForm = ({ genre, onSuccess }: GenreUpdateFormProps) => {
 
       <FormActions
         isPending={updateGenre.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

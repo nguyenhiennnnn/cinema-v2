@@ -136,7 +136,7 @@ const AdminShowtimesPage = () => {
       title: "Tự động xếp lịch",
       description: "Đề xuất lịch chiếu cả ngày cho toàn bộ phòng, xem lại rồi áp dụng.",
       content: <ShowtimeAutoScheduleForm onSuccess={closeDialog} />,
-      className: "sm:max-w-2xl",
+      size: "xl",
     });
   };
 

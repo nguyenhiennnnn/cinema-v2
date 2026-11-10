@@ -86,7 +86,7 @@ export const SeatEditorToolbar = ({
       title: "Tạo layout ghế tự động",
       description:
         "Nhập kích thước phòng, layout sẽ được tạo sẵn để bạn chỉnh tay tiếp. Thao tác này thay thế toàn bộ sơ đồ hiện tại (có thể bấm Hoàn tác nếu cần).",
-      className: "sm:max-w-md",
+      size: "md",
       content: (
         <SeatEditorAutoGenerateForm
           rows={rows}

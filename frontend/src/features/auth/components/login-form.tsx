@@ -12,6 +12,7 @@ import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useLogin } from "../hooks/use-auth";
 import { GoogleSignInButton } from "./google-sign-in-button";
 import { ROUTES } from "@/config/routes";
+import { getSafeRedirect } from "@/lib/utils";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
@@ -35,8 +36,7 @@ export const LoginForm = () => {
   const onSubmit = (data: LoginFormValues) => {
     login(data, {
       onSuccess: () => {
-        const redirect = searchParams.get("redirect") || "/";
-        navigate(redirect, { replace: true });
+        navigate(getSafeRedirect(searchParams.get("redirect")), { replace: true });
       },
       onError: applyServerErrors,
     });

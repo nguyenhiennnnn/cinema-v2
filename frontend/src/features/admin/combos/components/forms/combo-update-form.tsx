@@ -108,6 +108,7 @@ export const ComboUpdateForm = ({ combo, onSuccess }: ComboUpdateFormProps) => {
 
       <FormActions
         isPending={updateCombo.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

@@ -58,6 +58,7 @@ export const LanguageCreateForm = ({ onSuccess }: LanguageCreateFormProps) => {
 
       <FormActions
         isPending={createLanguage.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm ngôn ngữ"
         onCancel={onSuccess}
       />

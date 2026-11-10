@@ -83,6 +83,14 @@ export function useShowtimeHub(
       onHoldExpiredRef.current?.(payload),
     );
 
+    connection.onreconnected(() => {
+      connection.invoke("JoinShowtime", showtimeId).catch((err) => {
+        if (ENV.IS_DEV) {
+          console.warn("[SignalR] Tham gia lại suất chiếu thất bại:", err);
+        }
+      });
+    });
+
     connectionRef.current = connection;
 
     const startAndJoin = async () => {

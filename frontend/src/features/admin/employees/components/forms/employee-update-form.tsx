@@ -97,6 +97,7 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
 
       <FormActions
         isPending={updateEmployee.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

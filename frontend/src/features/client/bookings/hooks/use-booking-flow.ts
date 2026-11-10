@@ -292,25 +292,23 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
       }
     };
 
-    // First check after 10 s, then every 10 s — frequent enough to be detected
-    // during e2e tests (hold force-expired in DB) but gentle enough for production.
-    poll(); // immediate first check
+    poll();
     pollIntervalRef.current = setInterval(poll, BOOKING_HOLD_POLL_INTERVAL_MS);
 
     return stopPolling;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [freshHoldResult?.bookingId, step]);
 
-  const cancelHold = async () => {
+  const cancelHold = () => {
     if (!holdResult) return;
-    try {
-      await cancelBookingMutation.mutateAsync(holdResult.bookingId);
-    } finally {
-      if (!isResumeMode) resetToSelection();
-    }
+    cancelBookingMutation.mutate(holdResult.bookingId, {
+      onSuccess: () => {
+        if (!isResumeMode) resetToSelection();
+      },
+    });
   };
 
-  const submitPayment = async () => {
+  const submitPayment = () => {
     if (!holdResult) return;
 
     if (!isAuthenticated) {
@@ -320,7 +318,7 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
       return;
     }
 
-    await checkoutMutation.mutateAsync(
+    checkoutMutation.mutate(
       { paymentMethod },
       {
         onSuccess: (res) => {

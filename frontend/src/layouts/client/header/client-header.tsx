@@ -19,6 +19,7 @@ export const ClientHeader = () => {
     openSheet({
       title: "Menu",
       side: "right",
+      size: "sm",
       content: <MobileNavContent onNavigate={closeSheet} />,
     });
   };

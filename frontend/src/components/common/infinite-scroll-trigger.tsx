@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/common/spinner";
 import type { ReactNode } from "react";
 
 interface InfiniteScrollTriggerProps {
@@ -38,7 +38,7 @@ export const InfiniteScrollTrigger = ({
       {isFetchingNextPage &&
         (loader ?? (
           <div className="flex items-center justify-center py-4">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
+            <Spinner size="sm" decorative className="size-5 text-muted-foreground" />
           </div>
         ))}
       {!hasNextPage && !isFetchingNextPage && endMessage}

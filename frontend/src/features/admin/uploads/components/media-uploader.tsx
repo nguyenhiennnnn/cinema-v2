@@ -4,7 +4,9 @@ import { useCallback, useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useFieldDisabled } from "@/components/ui/field";
-import { Loader2, X, ImageIcon, Film, ImageOff } from "lucide-react";
+import { X, ImageIcon, Film, ImageOff } from "lucide-react";
+import { Spinner } from "@/components/common/spinner";
+import { isYoutubeUrl, toEmbedUrl } from "@/features/client/movies/utils/embed-url";
 import type { UseMutationResult } from "@tanstack/react-query";
 
 type MediaKind = "image" | "video";
@@ -126,13 +128,21 @@ export const MediaUploader = ({
                 onError={() => setImageError(true)}
               />
             )
+          ) : isYoutubeUrl(previewUrl) ? (
+            <iframe
+              src={toEmbedUrl(previewUrl, false)}
+              title="Trailer"
+              allow="encrypted-media; picture-in-picture"
+              allowFullScreen
+              className="aspect-video w-full"
+            />
           ) : (
             <video src={previewUrl} controls className="max-h-64 w-full" />
           )}
 
           {uploadMutation.isPending && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/70">
-              <Loader2 className="size-6 animate-spin text-primary" />
+              <Spinner decorative className="size-6" />
             </div>
           )}
 
@@ -173,7 +183,7 @@ export const MediaUploader = ({
           )}
         >
           {uploadMutation.isPending ? (
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Spinner decorative className="text-muted-foreground" />
           ) : kind === "image" ? (
             <ImageIcon className="h-8 w-8 text-muted-foreground" />
           ) : (

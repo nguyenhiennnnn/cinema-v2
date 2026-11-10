@@ -21,13 +21,26 @@ function SheetPortal({ ...props }: SheetPrimitive.Portal.Props) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />
 }
 
-const sheetVariants = {
+type SheetSide = "top" | "right" | "bottom" | "left"
+type SheetSize = "sm" | "md" | "lg" | "xl"
+
+const sheetVariants: Record<SheetSide, string> = {
   top: "inset-x-0 top-0 border-b data-open:animate-in data-open:slide-in-from-top data-closed:animate-out data-closed:slide-out-to-top",
   bottom:
     "inset-x-0 bottom-0 border-t data-open:animate-in data-open:slide-in-from-bottom data-closed:animate-out data-closed:slide-out-to-bottom",
-  left: "inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left",
+  left: "inset-y-0 left-0 h-full border-r data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left",
   right:
-    "inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm data-open:animate-in data-open:slide-in-from-right data-closed:animate-out data-closed:slide-out-to-right",
+    "inset-y-0 right-0 h-full border-l data-open:animate-in data-open:slide-in-from-right data-closed:animate-out data-closed:slide-out-to-right",
+}
+
+// Chiều rộng cho sheet trái/phải. `sm` giữ nguyên kích thước cũ (3/4 màn hình
+// trên mobile, 384px từ breakpoint sm). Các cỡ còn lại full width trên mobile
+// rồi giới hạn theo breakpoint sm: md 448px, lg 576px, xl 672px.
+const sheetSizeVariants: Record<SheetSize, string> = {
+  sm: "w-3/4 sm:max-w-sm",
+  md: "w-full sm:max-w-md",
+  lg: "w-full sm:max-w-xl",
+  xl: "w-full sm:max-w-2xl",
 }
 
 function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
@@ -47,10 +60,12 @@ function SheetContent({
   className,
   children,
   side = "right",
+  size = "sm",
   showCloseButton = true,
   ...props
 }: SheetPrimitive.Popup.Props & {
-  side?: "top" | "right" | "bottom" | "left"
+  side?: SheetSide
+  size?: SheetSize
   showCloseButton?: boolean
 }) {
   return (
@@ -61,6 +76,7 @@ function SheetContent({
         className={cn(
           "fixed z-50 flex flex-col gap-4 bg-background p-6 text-foreground duration-200 ease-in-out outline-none",
           sheetVariants[side],
+          (side === "left" || side === "right") && sheetSizeVariants[size],
           className
         )}
         {...props}
@@ -131,6 +147,8 @@ function SheetDescription({
     />
   )
 }
+
+export type { SheetSide, SheetSize }
 
 export {
   Sheet,

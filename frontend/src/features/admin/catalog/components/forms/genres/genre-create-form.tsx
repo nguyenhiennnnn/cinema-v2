@@ -58,6 +58,7 @@ export const GenreCreateForm = ({ onSuccess }: GenreCreateFormProps) => {
 
       <FormActions
         isPending={createGenre.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm thể loại"
         onCancel={onSuccess}
       />

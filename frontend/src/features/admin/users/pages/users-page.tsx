@@ -22,12 +22,13 @@ import { useAdminUserParams } from "@/hooks/use-query-params";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { DEFAULT_PAGE } from "@/config/default-constants";
 import { stripNulls } from "@/lib/query-params";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const AdminUsersPage = () => {
   const [params, setParams] = useAdminUserParams();
   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
 
-  const users = useAdminUsers(stripNulls(params));
+  const users = useAdminUsers(stripNulls({ ...params, search: useDebouncedValue(params.search) }));
   const currentUserId = useAuthStore((s) => s.user?.userId);
   const toggleStatus = useAdminUpdateUserStatus();
   const bulkUpdateStatus = useAdminBulkUpdateUserStatus();

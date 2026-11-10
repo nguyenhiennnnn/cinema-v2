@@ -93,6 +93,7 @@ export const MembershipTierCreateForm = ({
 
       <FormActions
         isPending={createMembershipTier.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm hạng"
         onCancel={onSuccess}
       />

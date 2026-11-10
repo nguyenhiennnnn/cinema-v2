@@ -24,6 +24,7 @@ import { createActorColumns } from "../components/columns/actor-columns";
 import { ActorCreateForm } from "../components/forms/actors/actor-create-form";
 import { ActorUpdateForm } from "../components/forms/actors/actor-update-form";
 import { DEFAULT_PAGE } from "@/config/default-constants";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const ActorsPage = () => {
   const [params, setParams] = useAdminPersonParams();
@@ -32,7 +33,7 @@ const ActorsPage = () => {
   const actors = useAdminActors({
     page: params.page,
     pageSize: params.pageSize,
-    search: params.search,
+    search: useDebouncedValue(params.search),
   });
   const deleteActor = useAdminDeleteActor();
   const bulkDeleteActors = useAdminBulkDeleteActors();

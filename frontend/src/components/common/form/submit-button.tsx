@@ -1,5 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/common/spinner";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +20,7 @@ export const SubmitButton = ({
   ...props
 }: SubmitButtonProps) => (
   <Button type="submit" disabled={isPending || disabled} {...props}>
-    {isPending ? <Loader2 className="size-4 animate-spin" /> : icon}
+    {isPending ? <Spinner size="sm" decorative className="text-current" /> : icon}
     {isPending ? (pendingLabel ?? label) : label}
   </Button>
 );

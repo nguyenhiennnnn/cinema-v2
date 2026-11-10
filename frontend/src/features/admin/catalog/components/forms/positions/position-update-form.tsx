@@ -66,6 +66,7 @@ export const PositionUpdateForm = ({
 
       <FormActions
         isPending={updatePosition.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

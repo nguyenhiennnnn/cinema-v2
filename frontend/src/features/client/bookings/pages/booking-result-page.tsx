@@ -18,6 +18,7 @@ const BookingResultPage = () => {
   const bookingId = Number(searchParams.get("bookingId"));
 
   const bookingDetail = useBookingDetail(bookingId);
+  const { refetch } = bookingDetail;
   const status = bookingDetail.data?.status;
   const isPending = status === BookingStatus.Pending;
 
@@ -27,11 +28,11 @@ const BookingResultPage = () => {
   useEffect(() => {
     if (!isPending) return;
     const interval = setInterval(
-      () => bookingDetail.refetch(),
+      () => refetch(),
       BOOKING_RESULT_POLL_INTERVAL_MS,
     );
     return () => clearInterval(interval);
-  }, [isPending, bookingDetail]);
+  }, [isPending, refetch]);
 
   useEffect(() => {
     if (status !== BookingStatus.Confirmed || hasCelebrated.current) return;

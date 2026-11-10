@@ -165,6 +165,7 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
 
       <FormActions
         isPending={clone.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Nhân bản"
         pendingLabel="Đang nhân bản..."
         onCancel={onSuccess}

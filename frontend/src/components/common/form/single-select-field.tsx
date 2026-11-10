@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Spinner } from "@/components/common/spinner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useFieldDisabled } from "@/components/ui/field";
@@ -141,7 +142,7 @@ export const SingleSelectField = <T,>({
           <CommandList>
             {isLoading ? (
               <div className="flex items-center justify-center py-6">
-                <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                <Spinner size="sm" decorative className="text-muted-foreground" />
               </div>
             ) : (
               <>

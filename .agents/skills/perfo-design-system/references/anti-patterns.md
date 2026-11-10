@@ -50,6 +50,7 @@
 | Fade-up lần lượt cho từng section hay thẻ | Không có chuyển động vào trang |
 | Hover nâng thẻ, phóng to ảnh | Hover đổi gạch chân hoặc đổi tông |
 | Spinner xoay ở giữa trang cho mọi lần tải | Skeleton đúng hình khối nội dung |
+| `Loader2` hoặc `animate-spin` tự viết trong trang, route hay feature | `PageLoader variant="section"` cho trang hoặc vùng, `Spinner` cho nút và ô nhỏ |
 
 ## Giọng chữ
 | Cấm | Thay bằng |

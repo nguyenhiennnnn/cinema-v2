@@ -76,6 +76,7 @@ export const AgeRatingCreateForm = ({ onSuccess }: AgeRatingCreateFormProps) => 
 
       <FormActions
         isPending={createAgeRating.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm phân loại"
         onCancel={onSuccess}
       />

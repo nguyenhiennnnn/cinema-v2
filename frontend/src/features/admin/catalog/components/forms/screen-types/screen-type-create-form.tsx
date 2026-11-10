@@ -60,6 +60,7 @@ export const ScreenTypeCreateForm = ({
 
       <FormActions
         isPending={createScreenType.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm loại màn hình"
         onCancel={onSuccess}
       />

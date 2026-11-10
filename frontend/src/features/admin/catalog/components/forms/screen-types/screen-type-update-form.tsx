@@ -66,6 +66,7 @@ export const ScreenTypeUpdateForm = ({
 
       <FormActions
         isPending={updateScreenType.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

@@ -1,6 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { SearchIcon, XIcon, UserIcon, TagIcon } from "lucide-react";
 
+import { Spinner } from "@/components/common/spinner";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { COMBOBOX_BLUR_CLOSE_DELAY_MS } from "@/config/default-constants";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -20,6 +22,9 @@ export const CustomerSearchCombobox = ({
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const debouncedQuery = useDebouncedValue(query);
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(blurTimerRef.current), []);
 
   const { data: results = [], isFetching } = useCustomerLookup({
     q: debouncedQuery,
@@ -90,24 +95,28 @@ export const CustomerSearchCombobox = ({
 
       <div className="relative">
         <SearchIcon className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <input
+        <Input
           type="text"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
             setOpen(true);
           }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), COMBOBOX_BLUR_CLOSE_DELAY_MS)}
+          onFocus={() => {
+            clearTimeout(blurTimerRef.current);
+            setOpen(true);
+          }}
+          onBlur={() => {
+            blurTimerRef.current = setTimeout(() => setOpen(false), COMBOBOX_BLUR_CLOSE_DELAY_MS);
+          }}
           placeholder="Nhập SĐT, email hoặc tên..."
-          className={cn(
-            "w-full cut-sm border border-border bg-input py-2 pl-8 pr-3 text-sm outline-none",
-            "placeholder:text-muted-foreground/60",
-            "focus:border-primary",
-          )}
+          className="pl-9 pr-9"
         />
         {isFetching && (
-          <span className="absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+          <Spinner
+            decorative
+            className="absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+          />
         )}
       </div>
 

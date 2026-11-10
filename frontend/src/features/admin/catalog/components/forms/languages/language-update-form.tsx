@@ -66,6 +66,7 @@ export const LanguageUpdateForm = ({
 
       <FormActions
         isPending={updateLanguage.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

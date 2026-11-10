@@ -1,40 +1,49 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import type { ReactNode } from "react";
+import type { DialogSize } from "@/components/ui/dialog";
 
 interface DialogOptions {
   title?: string;
   description?: string;
   content: ReactNode;
+  size?: DialogSize;
   className?: string;
 }
 
 interface DialogStore extends DialogOptions {
   isOpen: boolean;
+  isDirty: boolean;
   dismissLocks: number;
   open: (options: DialogOptions) => void;
   close: () => void;
+  setDirty: (dirty: boolean) => void;
   blockDismiss: () => void;
   releaseDismiss: () => void;
 }
 
 export const useDialogStore = create<DialogStore>((set) => ({
   isOpen: false,
+  isDirty: false,
   dismissLocks: 0,
   title: undefined,
   description: undefined,
   content: null,
+  size: "md",
   className: undefined,
-  open: ({ title, description, content, className }) =>
+  open: ({ title, description, content, size = "md", className }) =>
     set({
       isOpen: true,
+      isDirty: false,
       dismissLocks: 0,
       title,
       description,
       content,
+      size,
       className,
     }),
-  close: () => set({ isOpen: false, dismissLocks: 0 }),
+  close: () => set({ isOpen: false, isDirty: false, dismissLocks: 0 }),
+  setDirty: (dirty) => set({ isDirty: dirty }),
   blockDismiss: () => set((s) => ({ dismissLocks: s.dismissLocks + 1 })),
   releaseDismiss: () =>
     set((s) => ({ dismissLocks: Math.max(0, s.dismissLocks - 1) })),
@@ -42,6 +51,9 @@ export const useDialogStore = create<DialogStore>((set) => ({
 
 export const useDialogOpen = () => useDialogStore((s) => s.open);
 export const useDialogClose = () => useDialogStore((s) => s.close);
+export const useDialogSetDirty = () => useDialogStore((s) => s.setDirty);
+const getDialogIsDirty = () => useDialogStore.getState().isDirty;
+export { getDialogIsDirty };
 
 export const useDialogState = () =>
   useDialogStore(
@@ -50,6 +62,7 @@ export const useDialogState = () =>
       title: s.title,
       description: s.description,
       content: s.content,
+      size: s.size,
       className: s.className,
       dismissible: s.dismissLocks === 0,
     })),

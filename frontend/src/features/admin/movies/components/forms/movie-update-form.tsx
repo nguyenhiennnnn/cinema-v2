@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { FormInputField } from "@/components/common/form/form-input-field";
+import { Input } from "@/components/ui/input";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
@@ -93,26 +94,29 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
   useEffect(() => {
     if (movieDetail.data) {
       const d = movieDetail.data;
-      form.reset({
-        title: d.title ?? "",
-        originalTitle: d.originalTitle ?? "",
-        description: d.description ?? "",
-        directorId: d.director?.directorId ?? undefined,
-        durationMinutes: d.durationMinutes ?? 120,
-        releaseDate: d.releaseDate ? String(d.releaseDate) : "",
-        languageId: d.language?.languageId ?? undefined,
-        subtitle: d.subtitle ?? "",
-        ageRatingId: d.ageRating?.ageRatingId ?? undefined,
-        posterUrl: d.posterUrl ?? "",
-        trailerUrl: d.trailerUrl ?? "",
-        status: d.status ?? movie.status,
-        genreIds: d.genres?.map((g) => g.genreId) ?? [],
-        cast:
-          d.cast?.map((c) => ({
-            actorId: c.actorId,
-            characterName: c.characterName ?? "",
-          })) ?? [],
-      });
+      form.reset(
+        {
+          title: d.title ?? "",
+          originalTitle: d.originalTitle ?? "",
+          description: d.description ?? "",
+          directorId: d.director?.directorId ?? undefined,
+          durationMinutes: d.durationMinutes ?? 120,
+          releaseDate: d.releaseDate ? String(d.releaseDate) : "",
+          languageId: d.language?.languageId ?? undefined,
+          subtitle: d.subtitle ?? "",
+          ageRatingId: d.ageRating?.ageRatingId ?? undefined,
+          posterUrl: d.posterUrl ?? "",
+          trailerUrl: d.trailerUrl ?? "",
+          status: d.status ?? movie.status,
+          genreIds: d.genres?.map((g) => g.genreId) ?? [],
+          cast:
+            d.cast?.map((c) => ({
+              actorId: c.actorId,
+              characterName: c.characterName ?? "",
+            })) ?? [],
+        },
+        { keepDirtyValues: true },
+      );
     }
   }, [movieDetail.data, form, movie.status]);
 
@@ -320,11 +324,11 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
                     <Controller
                       name={`cast.${index}.characterName`}
                       control={form.control}
-                      render={({ field }) => (
-                        <input
+                      render={({ field, fieldState }) => (
+                        <Input
                           {...field}
                           placeholder="Vai diễn"
-                          className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                          aria-invalid={fieldState.invalid}
                         />
                       )}
                     />
@@ -355,6 +359,7 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
 
       <FormActions
         isPending={updateMovie.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
+import { Spinner } from "@/components/common/spinner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RatingStars } from "@/components/common/rating-stars";
@@ -29,7 +30,7 @@ export const ReviewForm = ({ initialRating = 0, initialComment = "", isSubmittin
           </Button>
         )}
         <Button disabled={rating === 0 || isSubmitting} onClick={() => onSubmit({ rating, comment })}>
-          {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+          {isSubmitting ? <Spinner size="sm" decorative className="text-current" /> : <Send className="size-4" />}
           <span>{submitLabel}</span>
         </Button>
       </div>

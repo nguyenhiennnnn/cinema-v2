@@ -2,6 +2,7 @@
 import { useAuthStore } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
 import { AuthLoadingGuard } from "./auth-loading-guard";
+import { getSafeRedirect } from "@/lib/utils";
 
 interface GuestRouteProps {
   redirectTo?: string;
@@ -17,7 +18,7 @@ export const GuestRoute = ({ redirectTo = "/" }: GuestRouteProps) => {
     if (redirectTo.startsWith("/admin") && user?.role !== Role.Admin) {
       return <Outlet />;
     }
-    const target = searchParams.get("redirect") || redirectTo;
+    const target = getSafeRedirect(searchParams.get("redirect"), redirectTo);
     return <Navigate to={target} replace />;
   }
 

@@ -101,6 +101,7 @@ export const MembershipTierUpdateForm = ({
 
       <FormActions
         isPending={updateMembershipTier.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

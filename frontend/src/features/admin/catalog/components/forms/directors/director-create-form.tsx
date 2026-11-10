@@ -76,6 +76,7 @@ export const DirectorCreateForm = ({ onSuccess }: DirectorCreateFormProps) => {
 
       <FormActions
         isPending={createDirector.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Thêm đạo diễn"
         onCancel={onSuccess}
       />

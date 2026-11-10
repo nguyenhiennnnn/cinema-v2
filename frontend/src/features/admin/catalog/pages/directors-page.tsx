@@ -23,6 +23,7 @@ import { DirectorUpdateForm } from "../components/forms/directors/director-updat
 import { useAdminPersonParams } from "@/hooks/use-query-params";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { DEFAULT_PAGE } from "@/config/default-constants";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const DirectorsPage = () => {
   const [params, setParams] = useAdminPersonParams();
@@ -31,7 +32,7 @@ const DirectorsPage = () => {
   const directors = useAdminDirectors({
     page: params.page,
     pageSize: params.pageSize,
-    search: params.search,
+    search: useDebouncedValue(params.search),
   });
 
   const deleteDirector = useAdminDeleteDirector();

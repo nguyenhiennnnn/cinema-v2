@@ -56,6 +56,7 @@ export const UserRoleForm = ({ user, onSuccess }: UserRoleFormProps) => {
 
       <FormActions
         isPending={updateRole.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />

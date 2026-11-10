@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera } from "lucide-react";
+import { Spinner } from "@/components/common/spinner";
 import { UserAvatar } from "@/components/common/user-avatar";
 import {
   ACCEPTED_IMAGE_ACCEPT,
@@ -50,7 +51,7 @@ export const AvatarUpload = ({
 
         {uploadMutation.isPending && (
           <div className="absolute inset-0 flex items-center justify-center rounded-full bg-background/70">
-            <Loader2 className="size-5 animate-spin text-primary" />
+            <Spinner decorative className="size-5" />
           </div>
         )}
 

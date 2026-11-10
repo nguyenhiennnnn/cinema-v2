@@ -28,6 +28,7 @@ import { MovieUpdateForm } from "../components/forms/movie-update-form";
 import { useSheetClose, useSheetOpen } from "@/stores/sheet-store";
 import { useAuthRole } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const AdminMoviesPage = () => {
   const [params, setParams] = useAdminMovieParams();
@@ -37,7 +38,7 @@ const AdminMoviesPage = () => {
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const movies = useAdminMovies(stripNulls(params));
+  const movies = useAdminMovies(stripNulls({ ...params, search: useDebouncedValue(params.search) }));
   const deleteMovie = useAdminDeleteMovie();
   const bulkDeleteMovies = useAdminBulkDeleteMovies();
 

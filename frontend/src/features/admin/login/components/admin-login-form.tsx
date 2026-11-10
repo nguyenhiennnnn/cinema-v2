@@ -11,6 +11,7 @@ import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useAdminLogin } from "@/features/auth/hooks/use-auth";
 import { BRAND } from "@/config/brand";
 import { getAdminHomePath } from "@/config/routes";
+import { getSafeRedirect } from "@/lib/utils";
 
 const adminLoginSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
@@ -34,8 +35,10 @@ export const AdminLoginForm = () => {
   const onSubmit = (data: AdminLoginFormValues) => {
     adminLogin(data, {
       onSuccess: (res) => {
-        const redirect = searchParams.get("redirect") || getAdminHomePath(res.data.user.role);
-        navigate(redirect, { replace: true });
+        navigate(
+          getSafeRedirect(searchParams.get("redirect"), getAdminHomePath(res.data.user.role)),
+          { replace: true },
+        );
       },
       onError: applyServerErrors,
     });

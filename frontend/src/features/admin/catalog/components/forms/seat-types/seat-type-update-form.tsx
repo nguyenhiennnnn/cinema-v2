@@ -84,6 +84,7 @@ export const SeatTypeUpdateForm = ({
 
       <FormActions
         isPending={updateSeatType.isPending}
+        isDirty={form.formState.isDirty}
         submitLabel="Lưu thay đổi"
         onCancel={onSuccess}
       />
