@@ -57,7 +57,7 @@ namespace Cinema.Infrastructure.Migrations
                     ClosingTime = table.Column<TimeOnly>(type: "time", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     PointsPerAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false, defaultValue: 10000m),
-                    CancelRefundPercent = table.Column<decimal>(type: "numeric(5,2)", nullable: false, defaultValue: 0m),
+                    CancelRefundPercent = table.Column<decimal>(type: "numeric(5,2)", nullable: false, defaultValue: 100m),
                     CancelDeadlineHours = table.Column<int>(type: "integer", nullable: false),
                     StopSellingMinutesBefore = table.Column<int>(type: "integer", nullable: false),
                     HoldDurationMinutes = table.Column<int>(type: "integer", nullable: false),
@@ -850,8 +850,8 @@ namespace Cinema.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "CinemaSettings",
-                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CheckInOpenMinutes", "ClosingTime", "Email", "HoldDurationMinutes", "LogoUrl", "LoyaltyWindowMonths", "MaxComboQuantity", "MaxSeatsPerBooking", "MovieEndGraceDays", "Name", "OpeningTime", "Phone", "PointsPerAmount", "RoomBufferMinutes", "SchedulerHeatLookbackDays", "SchedulerHeatRatingWeight", "SchedulerHeatSalesWeight", "SchedulerMaxRating", "SchedulerMinSameMovieGapMinutes", "SchedulerStepMinutes", "ShowtimeLookaheadDays", "StopSellingMinutesBefore", "TaxCode", "UpdatedAt" },
-                values: new object[] { 1, "Đang cập nhật", 2, 30, new TimeOnly(23, 59, 0), null, 15, null, 12, 10, 10, 1, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, 15, 7, 0.29999999999999999, 0.69999999999999996, 5.0, 60, 5, 7, 0, null, null });
+                columns: new[] { "Id", "Address", "CancelDeadlineHours", "CancelRefundPercent", "CheckInOpenMinutes", "ClosingTime", "Email", "HoldDurationMinutes", "LogoUrl", "LoyaltyWindowMonths", "MaxComboQuantity", "MaxSeatsPerBooking", "MovieEndGraceDays", "Name", "OpeningTime", "Phone", "PointsPerAmount", "RoomBufferMinutes", "SchedulerHeatLookbackDays", "SchedulerHeatRatingWeight", "SchedulerHeatSalesWeight", "SchedulerMaxRating", "SchedulerMinSameMovieGapMinutes", "SchedulerStepMinutes", "ShowtimeLookaheadDays", "StopSellingMinutesBefore", "TaxCode", "UpdatedAt" },
+                values: new object[] { 1, "Đang cập nhật", 2, 100m, 30, new TimeOnly(23, 59, 0), null, 15, null, 12, 10, 10, 1, "Cinema", new TimeOnly(8, 0, 0), null, 10000m, 15, 7, 0.29999999999999999, 0.69999999999999996, 5.0, 60, 5, 7, 0, null, null });
 
             migrationBuilder.InsertData(
                 table: "Combos",

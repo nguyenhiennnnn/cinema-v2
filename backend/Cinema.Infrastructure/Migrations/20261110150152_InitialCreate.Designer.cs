@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cinema.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261106040650_InitialCreate")]
+    [Migration("20261110150152_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -625,7 +625,7 @@ namespace Cinema.Infrastructure.Migrations
                     b.Property<decimal>("CancelRefundPercent")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(5,2)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(100m);
 
                     b.Property<int>("CheckInOpenMinutes")
                         .HasColumnType("integer");
@@ -751,7 +751,7 @@ namespace Cinema.Infrastructure.Migrations
                             Id = 1,
                             Address = "Đang cập nhật",
                             CancelDeadlineHours = 2,
-                            CancelRefundPercent = 0m,
+                            CancelRefundPercent = 100m,
                             CheckInOpenMinutes = 30,
                             ClosingTime = new TimeOnly(23, 59, 0),
                             HoldDurationMinutes = 15,
