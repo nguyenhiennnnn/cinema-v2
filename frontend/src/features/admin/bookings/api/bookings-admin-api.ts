@@ -10,7 +10,7 @@ import type {
   CounterCheckoutResponse,
   CheckinRequest,
   CheckinResponse,
-} from "../types";
+} from "@/features/admin/bookings/types";
 import { ENDPOINTS } from "@/api/endpoints";
 
 export const bookingsAdminApi = {

@@ -12,7 +12,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 
-import type { DirectorDto } from "../../types";
+import type { DirectorDto } from "@/features/admin/catalog/types";
 
 interface DirectorColumnsOptions {
   onEdit: (director: DirectorDto) => void;

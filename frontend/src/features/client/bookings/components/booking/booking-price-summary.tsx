@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/formatters";
 import type { ComboOption } from "@/components/common/combo-picker/combo-picker";
-import type { HoldBookingResponse, PricedSeat } from "../../types";
+import type { HoldBookingResponse, PricedSeat } from "@/features/client/bookings/types";
 
 interface BookingPriceSummaryProps {
   seats: PricedSeat[];

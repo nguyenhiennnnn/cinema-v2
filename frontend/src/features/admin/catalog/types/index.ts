@@ -1,5 +1,3 @@
-// ── Catalog DTOs (match backend Cinema.Application.DTOs.Catalog exactly) ──────
-
 export interface GenreDto {
   genreId: number;
   name: string;
@@ -51,8 +49,6 @@ export interface SeatTypeDto {
   priceMultiplier: number;
 }
 
-// ── Upsert requests ───────────────────────────────────────────────────────────
-
 export interface UpsertGenreRequest {
   name: string;
 }
@@ -95,8 +91,6 @@ export interface DeleteCategoryResponse {
   id: number;
   deleted: boolean;
 }
-
-// ── Shared list params ────────────────────────────────────────────────────────
 
 export interface CatalogListParams {
   page?: number;

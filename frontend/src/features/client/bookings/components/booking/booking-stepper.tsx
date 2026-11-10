@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { BookingStep } from "../../hooks/use-booking-flow";
+import type { BookingStep } from "@/features/client/bookings/hooks/use-booking-flow";
 
 const STEPS: { key: BookingStep | "ticket"; label: string }[] = [
   { key: "select", label: "Chọn ghế" },

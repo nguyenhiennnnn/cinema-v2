@@ -14,7 +14,7 @@ import { TimePickerField } from "@/components/common/date-time/time-picker-field
 
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
-import { useAdminBulkCreateShowtimes } from "../../hooks/use-admin-showtimes";
+import { useAdminBulkCreateShowtimes } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";

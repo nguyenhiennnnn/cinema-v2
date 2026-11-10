@@ -5,7 +5,7 @@ import type {
   CounterHoldRequest,
   CounterCheckoutRequest,
   CheckinRequest,
-} from "../types";
+} from "@/features/admin/bookings/types";
 import { bookingsAdminApi } from "../api/bookings-admin-api";
 
 export function useAdminBookings(params: AdminBookingListParams) {

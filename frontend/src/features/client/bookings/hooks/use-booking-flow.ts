@@ -121,8 +121,6 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     initialSeats: showtimeSeats.data?.seats,
     ownBookingId: holdResult?.bookingId ?? null,
     onHoldExpired: () => {
-      // Guard against double-notification when both SignalR and the polling
-      // fallback detect the expiry at nearly the same time.
       if (expiredNotifiedRef.current) return;
       expiredNotifiedRef.current = true;
       stopPolling();
@@ -203,10 +201,6 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     setComboQuantities((prev) => ({ ...prev, [comboId]: quantity }));
   };
 
-  // Use the auth user's name as a fallback when customerName is still empty
-  // (i.e. the useEffect that syncs authUser.fullName has not fired yet on the
-  // first render). This prevents canHold from flickering false briefly after
-  // the booking page mounts while the auth store finishes hydrating.
   const effectiveCustomerName = customerName.trim() || (authUser?.fullName ?? '').trim();
 
   const canHold =
@@ -246,10 +240,6 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     setFreshHoldResult(null);
   };
 
-  // Polling fallback: continuously checks booking status while on the payment
-  // step so that a server-side expiry (forced by DB or Hangfire job) is detected
-  // even when the SignalR notification is delayed or the frontend countdown has
-  // not yet reached zero.
   const expiredNotifiedRef = useRef(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -269,7 +259,6 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
       return;
     }
 
-    // Already polling — do not start a second interval.
     if (pollIntervalRef.current !== null) return;
 
     const poll = async () => {

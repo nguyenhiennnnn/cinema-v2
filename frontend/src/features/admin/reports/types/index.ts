@@ -1,5 +1,3 @@
-// ── Revenue report ────────────────────────────────────────────────────────────
-
 export interface RevenueReportParams {
   fromDate: string;
   toDate: string;
@@ -25,8 +23,6 @@ export interface RevenueReportDto {
   summary: RevenueSummaryDto;
 }
 
-// ── Top movies report ─────────────────────────────────────────────────────────
-
 export interface TopMovieReportParams {
   fromDate: string;
   toDate: string;
@@ -39,8 +35,6 @@ export interface TopMovieDto {
   ticketsSold: number;
   revenue: number;
 }
-
-// ── Employee performance report ───────────────────────────────────────────────
 
 export interface ReportDateParams {
   fromDate: string;

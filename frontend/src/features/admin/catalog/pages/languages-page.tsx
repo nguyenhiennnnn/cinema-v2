@@ -64,8 +64,6 @@ const LanguagesPage = () => {
     });
   };
 
-  // Không dùng useMemo ở đây vì handleEdit/handleDelete tạo mới mỗi render;
-  // tính lại columns mỗi lần render để tránh đóng gói (closure) dữ liệu cũ.
   const columns = createLanguageColumns({
     onEdit: handleEdit,
     onDelete: handleDelete,

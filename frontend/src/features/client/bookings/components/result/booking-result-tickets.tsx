@@ -1,6 +1,6 @@
 import { PerfoTicket } from "@/components/common/perfo-ticket";
 import { formatCurrency, formatDate, formatTime } from "@/lib/formatters";
-import type { BookingDetailDto } from "../../types";
+import type { BookingDetailDto } from "@/features/client/bookings/types";
 
 export const BookingResultTickets = ({ booking }: { booking: BookingDetailDto }) => {
   const seats = booking.seats.map((s) => `${s.seatRow}${s.seatNumber}`).join(", ");

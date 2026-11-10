@@ -11,8 +11,8 @@ import { toDateTimeInputValue } from "@/lib/formatters";
 
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
-import { useAdminUpdateShowtime } from "../../hooks/use-admin-showtimes";
-import type { AdminShowtimeDto } from "../../types";
+import { useAdminUpdateShowtime } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
+import type { AdminShowtimeDto } from "@/features/admin/showtimes/types";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormActions } from "@/components/common/form/form-actions";

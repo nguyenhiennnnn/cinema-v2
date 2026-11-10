@@ -69,7 +69,6 @@ export function useShowtimeHub(
       )
       .build();
 
-    // Register event handlers
     connection.on(SignalREvents.SeatHeld, (payload: SeatHeldPayload) =>
       onSeatHeldRef.current?.(payload),
     );

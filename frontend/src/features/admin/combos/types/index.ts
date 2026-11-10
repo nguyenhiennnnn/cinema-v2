@@ -1,5 +1,3 @@
-// ── Combo ─────────────────────────────────────────────────────────────────────
-
 export interface ComboDto {
   comboId: number;
   name: string;

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminCreatePosition } from "../../../hooks/use-admin-position";
+import { useAdminCreatePosition } from "@/features/admin/catalog/hooks/use-admin-position";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 

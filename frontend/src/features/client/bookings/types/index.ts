@@ -1,7 +1,5 @@
 import type { BookingStatus } from "@/types/enum";
 
-// ── Hold Seats ────────────────────────────────────────────────────────────────
-
 export interface ComboSelectionRequest {
   comboId: number;
   quantity: number;
@@ -25,8 +23,6 @@ export interface HoldBookingResponse {
   expiresAt: string;
 }
 
-// ── Checkout ──────────────────────────────────────────────────────────────────
-
 export interface CheckoutRequest {
   paymentMethod: string;
 }
@@ -36,16 +32,12 @@ export interface CheckoutResponse {
   paymentId: number;
 }
 
-// ── Cancel ────────────────────────────────────────────────────────────────────
-
 export interface CancelBookingResponse {
   bookingId: number;
   status: string;
   refundAmount?: number | null;
   refundStatus?: string | null;
 }
-
-// ── My Bookings list ──────────────────────────────────────────────────────────
 
 export interface BookingListParams {
   status?: string;
@@ -62,8 +54,6 @@ export interface BookingListItemDto {
   status: BookingStatus;
   createdAt: string;
 }
-
-// ── Booking detail ────────────────────────────────────────────────────────────
 
 export interface BookingMovieBriefDto {
   movieId: number;

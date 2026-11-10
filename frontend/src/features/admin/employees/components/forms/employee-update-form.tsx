@@ -7,10 +7,10 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 
-import { useAdminUpdateEmployee } from "../../hooks/use-admin-employee";
+import { useAdminUpdateEmployee } from "@/features/admin/employees/hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
 import { usePositionQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
-import type { AdminEmployeeDto } from "../../types";
+import type { AdminEmployeeDto } from "@/features/admin/employees/types";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";

@@ -12,7 +12,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 
-import type { ActorDto } from "../../types";
+import type { ActorDto } from "@/features/admin/catalog/types";
 
 interface ActorColumnsOptions {
   onEdit: (actor: ActorDto) => void;

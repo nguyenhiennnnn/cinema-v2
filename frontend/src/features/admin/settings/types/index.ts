@@ -1,7 +1,5 @@
 import type { SeatGapRuleMode } from "@/types/enum";
 
-// Backend DTO is named CinemaSettingsDto, not SettingsDto
-
 export interface CinemaSettingsDto {
   name: string;
   address: string;
@@ -59,5 +57,4 @@ export interface UpdateSettingsRequest {
   schedulerMaxRating?: number;
 }
 
-// Alias for backward compat
 export type SettingsDto = CinemaSettingsDto;

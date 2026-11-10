@@ -15,7 +15,6 @@ interface MovieShowtimeSelectorProps {
 export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps) => {
   const dateKeys = useMemo(() => {
     const set = new Set(showtimes.map((s) => toDateKey(s.startTime)));
-    // set.delete("");
     return Array.from(set).sort();
   }, [showtimes]);
 

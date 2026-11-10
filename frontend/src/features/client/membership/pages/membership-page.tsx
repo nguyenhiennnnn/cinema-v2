@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TierCard } from "../components/tier-card";
 import { TierCompareTable } from "../components/tier-compare-table";
 import { MembershipFaq } from "../components/membership-faq";
-import { useMembershipTiers } from "../../catalog/hooks/use-catalog";
+import { useMembershipTiers } from "@/features/client/catalog/hooks/use-catalog";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
 import { ROUTES } from "@/config/routes";

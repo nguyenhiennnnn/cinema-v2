@@ -176,19 +176,16 @@ export function useSeatEditorState({
     buildPayload,
     markSaved: history.markSaved,
 
-    // history
     canUndo: history.canUndo,
     canRedo: history.canRedo,
     undo,
     redo,
 
-    // multi-select / bulk edit
     selectedKeys,
     setSelectionKeys,
     clearSelection,
     applyBrushToSelection,
 
-    // copy/paste row
     copiedRow,
     copyRow,
     cancelCopyRow: () => setCopiedRow(null),

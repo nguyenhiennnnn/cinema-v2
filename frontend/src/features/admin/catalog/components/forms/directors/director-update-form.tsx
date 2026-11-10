@@ -5,8 +5,8 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminUpdateDirector } from "../../../hooks/use-admin-director";
-import type { DirectorDto } from "../../../types";
+import { useAdminUpdateDirector } from "@/features/admin/catalog/hooks/use-admin-director";
+import type { DirectorDto } from "@/features/admin/catalog/types";
 import { URL_PLACEHOLDER } from "@/config/default-constants";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";

@@ -21,15 +21,11 @@ function toOptions<T extends Record<string, string>>(
   }));
 }
 
-// ── Role ───────────────────────────────────────────────────────────────────
-
 export const roleOptions: EnumOption[] = [
   { value: "1", label: "Khách hàng" },
   { value: "2", label: "Quản trị viên" },
   { value: "3", label: "Nhân viên" },
 ];
-
-// ── Booking ────────────────────────────────────────────────────────────────
 
 export const bookingStatusOptions = toOptions(BookingStatus, {
   Pending: "Chờ xử lý",
@@ -37,8 +33,6 @@ export const bookingStatusOptions = toOptions(BookingStatus, {
   Cancelled: "Đã hủy",
   Expired: "Hết hạn",
 });
-
-// ── Payment ────────────────────────────────────────────────────────────────
 
 export const paymentStatusOptions = toOptions(PaymentStatus, {
   Pending: "Chờ xử lý",
@@ -54,15 +48,11 @@ export const paymentMethodOptions = toOptions(PaymentMethod, {
   Stripe: "Stripe",
 });
 
-// ── Movie ──────────────────────────────────────────────────────────────────
-
 export const movieStatusOptions = toOptions(MovieStatus, {
   ComingSoon: "Sắp chiếu",
   NowShowing: "Đang chiếu",
   Ended: "Đã ngừng chiếu",
 });
-
-// ── Showtime ───────────────────────────────────────────────────────────────
 
 export const showtimeStatusOptions = toOptions(ShowtimeStatus, {
   Scheduled: "Đã lên lịch",

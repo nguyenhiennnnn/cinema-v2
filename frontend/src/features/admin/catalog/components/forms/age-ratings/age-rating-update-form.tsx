@@ -6,8 +6,8 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 
-import { useAdminUpdateAgeRating } from "../../../hooks/use-admin-age-rating";
-import type { AgeRatingDto } from "../../../types";
+import { useAdminUpdateAgeRating } from "@/features/admin/catalog/hooks/use-admin-age-rating";
+import type { AgeRatingDto } from "@/features/admin/catalog/types";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 

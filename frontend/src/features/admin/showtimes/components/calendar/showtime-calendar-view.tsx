@@ -12,8 +12,8 @@ import { toDateInputValue } from "@/lib/formatters";
 import { useAdminShowtimeCalendarParams } from "@/hooks/use-query-params";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 
-import { useAdminShowtimesCalendar } from "../../hooks/use-admin-showtimes";
-import type { ShowtimeCalendarItemDto } from "../../types";
+import { useAdminShowtimesCalendar } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
+import type { ShowtimeCalendarItemDto } from "@/features/admin/showtimes/types";
 import { ShowtimeCalendarDay } from "./showtime-calendar-day";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 

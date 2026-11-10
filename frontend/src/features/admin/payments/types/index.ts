@@ -1,6 +1,3 @@
-// ── Admin payment list ────────────────────────────────────────────────────────
-// Backend AdminPaymentListFilter(string? Status, string? PaymentMethod, DateOnly? FromDate, DateOnly? ToDate, string? Search)
-
 export interface AdminPaymentListParams {
   status?: string;
   paymentMethod?: string;
@@ -23,8 +20,6 @@ export interface AdminPaymentListItemDto {
   paidAt?: string | null;
   createdAt: string;
 }
-
-// ── Admin payment detail ──────────────────────────────────────────────────────
 
 export interface AdminPaymentBookingBriefDto {
   bookingId: number;

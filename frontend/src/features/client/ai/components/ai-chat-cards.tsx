@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { ChevronRight, Film, Ticket } from "lucide-react";
-import type { AiCard } from "../types";
+import type { AiCard } from "@/features/client/ai/types";
 
 interface AiChatCardsProps {
   cards: AiCard[];

@@ -2,11 +2,8 @@ import { format } from "date-fns";
 import { ENV } from "@/config/env";
 import { toWallDate } from "@/lib/business-time";
 
-// ─── Locale & currency config (một điểm duy nhất) ───────────────────────────
 const LOCALE = ENV.LOCALE;
 const CURRENCY_SYMBOL = ENV.CURRENCY_SYMBOL;
-
-// ─── Number / currency formatters ────────────────────────────────────────────
 
 export function formatPoints(points: number) {
   return new Intl.NumberFormat(LOCALE).format(points);
@@ -32,8 +29,6 @@ export function formatNumber(
   if (value == null || isNaN(value)) return "0";
   return new Intl.NumberFormat(LOCALE, options).format(value);
 }
-
-// ─── Date / time formatters ──────────────────────────────────────────────────
 
 export function formatShowtimeHour(iso: string) {
   return formatTime(iso, iso);

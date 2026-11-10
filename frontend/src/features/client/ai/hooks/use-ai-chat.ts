@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { aiApi } from "../api/ai-api";
-import type { AiChatRequest } from "../types";
+import type { AiChatRequest } from "@/features/client/ai/types";
 
 export function useAiChat() {
   return useMutation({

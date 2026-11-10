@@ -7,7 +7,7 @@ import {
   } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminCreateAgeRating } from "../../../hooks/use-admin-age-rating";
+import { useAdminCreateAgeRating } from "@/features/admin/catalog/hooks/use-admin-age-rating";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";

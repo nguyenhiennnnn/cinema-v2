@@ -7,7 +7,7 @@ import {
   } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminCreateCombo } from "../../hooks/use-admin-combo";
+import { useAdminCreateCombo } from "@/features/admin/combos/hooks/use-admin-combo";
 import { FormImageField } from "@/components/common/form/form-upload-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 import { FormActions } from "@/components/common/form/form-actions";

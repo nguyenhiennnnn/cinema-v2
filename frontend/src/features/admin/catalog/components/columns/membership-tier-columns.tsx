@@ -11,7 +11,7 @@ DropdownMenu,
 } from "@/components/ui/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
-import type { MembershipTierDto } from "../../types";
+import type { MembershipTierDto } from "@/features/admin/catalog/types";
 interface MembershipTierColumnsOptions {
   onEdit: (tier: MembershipTierDto) => void;
   onDelete: (tier: MembershipTierDto) => void;

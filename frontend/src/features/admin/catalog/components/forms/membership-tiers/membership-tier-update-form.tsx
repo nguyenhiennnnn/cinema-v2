@@ -5,8 +5,8 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminUpdateMembershipTier } from "../../../hooks/use-admin-membership-tier";
-import type { MembershipTierDto } from "../../../types";
+import { useAdminUpdateMembershipTier } from "@/features/admin/catalog/hooks/use-admin-membership-tier";
+import type { MembershipTierDto } from "@/features/admin/catalog/types";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 

@@ -1,9 +1,5 @@
 ﻿import { z } from "zod";
 
-// ─── Password (strong) ────────────────────────────────────────────────────────
-// Rules: min 8 chars, uppercase + lowercase, at least 1 digit or special char
-// Score >= 3 of: length, case-mix, digit, special char
-
 export const passwordSchema = z
   .string()
   .min(8, "Mật khẩu phải có ít nhất 8 ký tự.")

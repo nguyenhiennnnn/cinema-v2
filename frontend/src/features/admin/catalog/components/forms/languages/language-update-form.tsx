@@ -5,8 +5,8 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminUpdateLanguage } from "../../../hooks/use-admin-language";
-import type { LanguageDto } from "../../../types";
+import { useAdminUpdateLanguage } from "@/features/admin/catalog/hooks/use-admin-language";
+import type { LanguageDto } from "@/features/admin/catalog/types";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 

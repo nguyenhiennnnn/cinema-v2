@@ -14,8 +14,8 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 
-import { useAdminCloneShowtimes } from "../../hooks/use-admin-showtimes";
-import type { BulkCreateShowtimesResponse } from "../../types";
+import { useAdminCloneShowtimes } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
+import type { BulkCreateShowtimesResponse } from "@/features/admin/showtimes/types";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 
 const MAX_SOURCE_DAYS = 31;
@@ -61,7 +61,6 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
   const clone = useAdminCloneShowtimes();
   const [result, setResult] = useState<BulkCreateShowtimesResponse | null>(null);
 
-  // Mặc định: nhân bản tuần hiện tại (T2–CN) sang tuần kế tiếp — thao tác phổ biến nhất.
   const monday = startOfWeek(getBusinessTodayDate(), { weekStartsOn: 1 });
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

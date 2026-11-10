@@ -69,7 +69,6 @@ export const SeatEditorGrid = ({
 
   const { rowLabels, cellAt } = useSeatGridModel({ rowsCount: rows, cols, cells });
 
-  // ── Drag-to-select ─────────────────────────────────────────────────────
   const [isDragging, setIsDragging] = useState(false);
   const dragAnchorRef = useRef<{ r: number; c: number } | null>(null);
 

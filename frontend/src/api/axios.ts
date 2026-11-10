@@ -34,7 +34,6 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// ─── Singleton Refresh Token Promise ──────────────────────────────────────────
 type RetryableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
 let refreshPromise: Promise<string> | null = null;
@@ -78,7 +77,6 @@ export async function refreshAccessToken(): Promise<string> {
   return refreshPromise;
 }
 
-// ─── Auth Exclusion & Redirect Helpers ─────────────────────────────────────────
 const AUTH_EXCLUDED_URLS = [
   ENDPOINTS.auth.login,
   ENDPOINTS.auth.adminLogin,
@@ -162,7 +160,6 @@ apiClient.interceptors.response.use(
   },
 );
 
-// ─── Typed HTTP helpers ───────────────────────────────────────────────────────
 export async function apiGet<T>(url: string, config?: AxiosRequestConfig) {
   const { data } = await apiClient.get<T>(url, config);
   return data;

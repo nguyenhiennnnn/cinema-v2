@@ -9,7 +9,7 @@ import { FormDateTimePickerField } from "@/components/common/form/form-datetime-
 
 import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
-import { useAdminCreateShowtime } from "../../hooks/use-admin-showtimes";
+import { useAdminCreateShowtime } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate, toBusinessIso } from "@/lib/business-time";
 import { MovieStatus } from "@/types/enum";

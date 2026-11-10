@@ -28,8 +28,8 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
-import { useAdminCreateMovie } from "../../hooks/use-admin-movies";
-import { movieFormSchema, type MovieCreateFormValues } from "../../schemas/movie-schema";
+import { useAdminCreateMovie } from "@/features/admin/movies/hooks/use-admin-movies";
+import { movieFormSchema, type MovieCreateFormValues } from "@/features/admin/movies/schemas/movie-schema";
 import { FormMultiSelectField, FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormImageField, FormVideoField } from "@/components/common/form/form-upload-field";
 

@@ -1,6 +1,3 @@
-// ── Admin review list ─────────────────────────────────────────────────────────
-// Backend: GetReviews([FromQuery] int? movieId, [FromQuery] int? rating, page, pageSize)
-
 export interface AdminReviewListParams {
   movieId?: number;
   rating?: number;
@@ -24,7 +21,6 @@ export interface DeleteReviewResponse {
   deleted: boolean;
 }
 
-// ── Bulk delete reviews ───────────────────────────────────────────────────────
 export interface BulkDeleteReviewsRequest {
   reviewIds: number[];
 }

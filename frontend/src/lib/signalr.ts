@@ -12,8 +12,6 @@ export const SignalREvents = {
 export type SignalREventName =
   (typeof SignalREvents)[keyof typeof SignalREvents];
 
-// ── Payload types gửi từ server ───────────────────────────────────────────────
-
 export interface SeatHeldPayload {
   showtimeId: number;
   seatIds: number[];

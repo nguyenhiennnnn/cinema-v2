@@ -7,8 +7,8 @@ import {
   } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminUpdateCombo } from "../../hooks/use-admin-combo";
-import type { AdminComboDto } from "../../types";
+import { useAdminUpdateCombo } from "@/features/admin/combos/hooks/use-admin-combo";
+import type { AdminComboDto } from "@/features/admin/combos/types";
 import { FormImageField } from "@/components/common/form/form-upload-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 import { FormActions } from "@/components/common/form/form-actions";

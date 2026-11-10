@@ -1,5 +1,3 @@
-// ── Admin showtime list ───────────────────────────────────────────────────────
-
 export interface AdminShowtimeListParams {
   roomId?: number;
   movieId?: number;
@@ -20,8 +18,6 @@ export interface AdminShowtimeDto {
   basePrice: number;
   status: string;
 }
-
-// ── Create / update showtime ──────────────────────────────────────────────────
 
 export interface UpsertShowtimeRequest {
   movieId: number;
@@ -51,10 +47,8 @@ export interface DeleteShowtimeResponse {
   autoRefundQueuedCount?: number;
 }
 
-// ── Bulk create ───────────────────────────────────────────────────────────────
-
 export interface BulkDateRange {
-  from: string; // "yyyy-MM-dd"
+  from: string;
   to: string;
 }
 
@@ -62,8 +56,8 @@ export interface BulkCreateShowtimesRequest {
   movieId: number;
   roomId: number;
   dateRange: BulkDateRange;
-  daysOfWeek: string[]; // ["Mon", "Tue", ...]
-  times: string[]; // ["09:00", "13:00", ...]
+  daysOfWeek: string[];
+  times: string[];
   basePrice: number;
   allowAfterHours?: boolean;
 }
@@ -87,8 +81,6 @@ export interface BulkCreateShowtimesResponse {
   totalSkipped: number;
 }
 
-// ── Bulk delete ───────────────────────────────────────────────────────────────
-
 export interface BulkDeleteShowtimesRequest {
   showtimeIds: number[];
 }
@@ -105,11 +97,9 @@ export interface BulkDeleteShowtimesResponse {
   totalFailed: number;
 }
 
-// ── Admin showtime calendar ─────────────────────────────────
-
 export interface AdminShowtimeCalendarParams {
-  from: string; // "yyyy-MM-dd"
-  to: string; // "yyyy-MM-dd"
+  from: string;
+  to: string;
   roomId?: number;
   movieId?: number;
   status?: string;
@@ -132,7 +122,7 @@ export interface ShowtimeCalendarItemDto {
 }
 
 export interface ShowtimeCalendarDayDto {
-  date: string; // "dd/MM/yyyy"
+  date: string;
   showtimes: ShowtimeCalendarItemDto[];
 }
 
@@ -142,8 +132,6 @@ export interface ShowtimeCalendarResponseDto {
   days: ShowtimeCalendarDayDto[];
 }
 
-// ── Auto schedule ─────────────────────────────────────────────────────────────
-
 export interface AutoScheduleMovieRequest {
   movieId: number;
   shows: number;
@@ -151,7 +139,7 @@ export interface AutoScheduleMovieRequest {
 }
 
 export interface AutoScheduleRequest {
-  date: string; // "yyyy-MM-dd"
+  date: string;
   movies: AutoScheduleMovieRequest[];
   basePrice: number;
   roomIds?: number[];
@@ -177,8 +165,8 @@ export interface AutoScheduleUnplacedDto {
 }
 
 export interface AutoScheduleResponseDto {
-  date: string; // "dd/MM/yyyy"
-  toDate?: string | null; // "dd/MM/yyyy", có khi xếp nhiều ngày
+  date: string;
+  toDate?: string | null;
   items: AutoScheduleItemDto[];
   unplaced: AutoScheduleUnplacedDto[];
 }
@@ -188,7 +176,7 @@ export interface ApplyAutoScheduleRequest {
 }
 
 export interface CloneShowtimesRequest {
-  sourceFrom: string; // "yyyy-MM-dd"
+  sourceFrom: string;
   sourceTo: string;
   shiftDays: number;
   roomIds?: number[];

@@ -1,7 +1,5 @@
 import type { MovieStatus } from "@/types/enum";
 
-// ── Client movie list ─────────────────────────────────────────────────────────
-
 export interface MovieListParams {
   status?: MovieStatus;
   genreId?: number;
@@ -27,8 +25,6 @@ export interface MovieListItemDto {
   genres: string[];
   releaseDate?: string | null;
 }
-
-// ── Movie detail ──────────────────────────────────────────────────────────────
 
 export interface DirectorDto {
   directorId: number;
@@ -90,8 +86,6 @@ export interface MovieDetailDto {
   cast: CastMemberDto[];
   upcomingShowtimes: UpcomingShowtimeDto[];
 }
-
-// ── Reviews ───────────────────────────────────────────────────────────────────
 
 export interface ReviewListParams {
   movieId: number;

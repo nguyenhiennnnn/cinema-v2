@@ -5,7 +5,7 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminCreateMembershipTier } from "../../../hooks/use-admin-membership-tier";
+import { useAdminCreateMembershipTier } from "@/features/admin/catalog/hooks/use-admin-membership-tier";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 

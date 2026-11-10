@@ -1,6 +1,3 @@
-// ── Admin user list ───────────────────────────────────────────────────────────
-// Backend: GetUsers([FromQuery] int? roleId, [FromQuery] string? search, page, pageSize)
-
 export interface AdminUserListParams {
   roleId?: number;
   search?: string;
@@ -29,8 +26,6 @@ export interface AdminUserSelectParams {
   availableOnly?: boolean;
 }
 
-// ── Update status / role ──────────────────────────────────────────────────────
-
 export interface UpdateUserStatusRequest {
   isActive: boolean;
 }
@@ -49,8 +44,6 @@ export interface UpdateUserRoleResponse {
   roleId: number;
   roleName: string;
 }
-
-// ── Customer lookup (counter) ──────────────────────────────────────────────
 
 export interface CustomerLookupItemDto {
   userId: number;

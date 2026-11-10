@@ -1,7 +1,5 @@
 import type { MovieStatus } from "@/types/enum";
 
-// ── Admin movie list ──────────────────────────────────────────────────────────
-
 export interface AdminMovieListParams {
   search?: string;
   status?: MovieStatus;
@@ -22,8 +20,6 @@ export interface AdminMovieListItemDto {
   directorName?: string | null;
   languageName?: string | null;
 }
-
-// ── Upsert movie ──────────────────────────────────────────────────────────────
 
 export interface MovieCastItemRequest {
   actorId: number;
@@ -53,8 +49,6 @@ export interface DeleteMovieResponse {
   softDeleted: boolean;
 }
 
-// ── Re-export client movie types ──────────────────────────────────────────────
-
 export type {
   MovieListParams,
   MovieListItemDto,
@@ -66,7 +60,6 @@ export type {
   DeleteReviewResponse,
 } from "@/features/client/movies/types";
 
-// ── Bulk delete movies ────────────────────────────────────────────────────────
 export interface BulkDeleteMoviesRequest {
   movieIds: number[];
 }

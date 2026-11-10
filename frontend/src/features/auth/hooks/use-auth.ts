@@ -14,8 +14,6 @@ import type {
   MeResponse,
 } from "../types";
 
-// ─── Helper: map DTO sang AuthUser ───────────────────────────────────────────
-
 function mapLoginUserToAuthUser(dto: LoginUserDto): AuthUser {
   return {
     userId: dto.userId,
@@ -47,8 +45,6 @@ async function hydrateUserFromMe() {
     //
   }
 }
-
-// ─── Hooks ───────────────────────────────────────────────────────────────────
 
 export function useLogin() {
   return useMutation({

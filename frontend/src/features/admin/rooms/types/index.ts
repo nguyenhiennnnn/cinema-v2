@@ -1,5 +1,3 @@
-// ── Room ──────────────────────────────────────────────────────────────────────
-
 export interface AdminRoomDto {
   roomId: number;
   roomName: string;
@@ -34,8 +32,6 @@ export interface RoomListParams {
   page?: number;
   pageSize?: number;
 }
-
-// ── Seat layout ───────────────────────────────────────────────────────────────
 
 export interface SeatDto {
   seatId: number;

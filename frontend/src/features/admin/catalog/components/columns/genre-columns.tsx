@@ -11,7 +11,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 
-import type { GenreDto } from "../../types";
+import type { GenreDto } from "@/features/admin/catalog/types";
 
 interface GenreColumnsOptions {
   onEdit: (genre: GenreDto) => void;

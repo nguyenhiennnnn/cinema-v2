@@ -12,7 +12,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 
-import type { SeatTypeDto } from "../../types";
+import type { SeatTypeDto } from "@/features/admin/catalog/types";
 
 interface SeatTypeColumnsOptions {
   onEdit: (seatType: SeatTypeDto) => void;

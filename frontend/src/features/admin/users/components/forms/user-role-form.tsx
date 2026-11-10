@@ -5,8 +5,8 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { roleOptions } from "@/lib/enum-options";
 
-import type { AdminUserListItemDto } from "../../types";
-import { useAdminUpdateUserRole } from "../../hooks/use-admin-users";
+import type { AdminUserListItemDto } from "@/features/admin/users/types";
+import { useAdminUpdateUserRole } from "@/features/admin/users/hooks/use-admin-users";
 import { FormEnumSelectField } from "@/components/common/form/form-enum-select-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";

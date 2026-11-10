@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { getBusinessMinutesOfDay } from "@/lib/business-time";
 import { formatShowtimeHour, formatCurrency } from "@/lib/formatters";
 import { ShowtimeStatus } from "@/types/enum";
-import type { ShowtimeCalendarItemDto } from "../../types";
+import type { ShowtimeCalendarItemDto } from "@/features/admin/showtimes/types";
 
 const MINUTES_IN_DAY = 24 * 60;
 

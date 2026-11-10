@@ -4,7 +4,7 @@ export const DEFAULT_PAGE_SIZE = 10;
 export const SEARCH_DEBOUNCE_MS = 300;
 
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
-export const MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024; // 100MB
+export const MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024;
 export const ACCEPTED_IMAGE_TYPES = [
   "image/png",
   "image/jpeg",

@@ -12,7 +12,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 
-import type { AgeRatingDto } from "../../types";
+import type { AgeRatingDto } from "@/features/admin/catalog/types";
 
 interface AgeRatingColumnsOptions {
   onEdit: (ageRating: AgeRatingDto) => void;

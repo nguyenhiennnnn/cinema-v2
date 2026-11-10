@@ -1,5 +1,3 @@
-// ── Client: Schedule ──────────────────────────────────────────────────────────
-
 export interface WholeCinemaShowtimeSlotDto {
   showtimeId: number;
   roomId: number;
@@ -25,8 +23,6 @@ export interface WholeCinemaScheduleDto {
   movies: WholeCinemaMovieDto[];
   formats: string[];
 }
-
-// ── Client: Showtime seats ────────────────────────────────────────────────────
 
 export interface ShowtimeSeatItemDto {
   showtimeSeatId: number;

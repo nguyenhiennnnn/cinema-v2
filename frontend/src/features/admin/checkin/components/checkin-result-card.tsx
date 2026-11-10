@@ -1,7 +1,7 @@
 import { CheckCircle2, XCircle, Film, Armchair, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime, formatTime } from "@/lib/formatters";
-import type { CheckinResponse } from "../../bookings/types";
+import type { CheckinResponse } from "@/features/admin/bookings/types";
 
 
 interface CheckinResultCardProps {

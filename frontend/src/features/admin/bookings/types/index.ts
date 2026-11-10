@@ -17,8 +17,6 @@ export type {
   BookingPaymentDto,
 };
 
-// ── Admin booking list ────────────────────────────────────────────────────────
-
 export interface AdminBookingListParams {
   status?: string;
   channel?: string;
@@ -39,8 +37,6 @@ export interface AdminBookingListItemDto {
   channel: string;
   createdAt: string;
 }
-
-// ── Admin booking detail ──────────────────────────────────────────────────────
 
 export interface BookingEmployeeBriefDto {
   employeeId: number;
@@ -65,8 +61,6 @@ export interface AdminBookingDetailDto {
   payments: BookingPaymentDto[];
 }
 
-// ── Counter hold ──────────────────────────────────────────────────────────────
-
 export interface CounterHoldRequest {
   showtimeId: number;
   seatIds: number[];
@@ -88,8 +82,6 @@ export interface CounterHoldResponse {
   createdByEmployeeId?: number | null;
 }
 
-// ── Counter checkout ──────────────────────────────────────────────────────────
-
 export interface CounterCheckoutRequest {
   amountReceived: number;
 }
@@ -99,8 +91,6 @@ export interface CounterCheckoutResponse {
   status: string;
   change: number;
 }
-
-// ── Checkin ───────────────────────────────────────────────────────────────────
 
 export interface CheckinRequest {
   qrCode: string;

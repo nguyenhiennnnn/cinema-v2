@@ -11,7 +11,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 
-import type { LanguageDto } from "../../types";
+import type { LanguageDto } from "@/features/admin/catalog/types";
 
 interface LanguageColumnsOptions {
   onEdit: (language: LanguageDto) => void;

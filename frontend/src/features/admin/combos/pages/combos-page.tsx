@@ -73,8 +73,6 @@ const AdminCombosPage = () => {
     });
   };
 
-  // Không dùng useMemo ở đây vì handleEdit/handleToggle tạo mới mỗi render;
-  // tính lại columns mỗi lần render để tránh đóng gói (closure) dữ liệu cũ.
   const handleBulkSetActive = async (selectedIds: string[], isActive: boolean) => {
     const res = await bulkSetActive.mutateAsync({ ids: selectedIds.map(Number), isActive });
     setRowSelection({});

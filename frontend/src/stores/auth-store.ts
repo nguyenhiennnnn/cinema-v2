@@ -77,7 +77,6 @@ export const useAuthStore = create<AuthStore>()((set) => ({
   setInitialized: () => set({ isInitialized: true }),
 }));
 
-// Granular selectors
 export const useAuthUser = () => useAuthStore((s) => s.user);
 export const useIsAuthenticated = () => useAuthStore((s) => s.isAuthenticated);
 export const useAuthRole = () => useAuthStore((s) => s.user?.role ?? null);

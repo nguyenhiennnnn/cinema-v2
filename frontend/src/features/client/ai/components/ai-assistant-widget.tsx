@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAiChat } from "../hooks/use-ai-chat";
-import type { AiCard, ChatMessageDto } from "../types";
+import type { AiCard, ChatMessageDto } from "@/features/client/ai/types";
 import { AiChatMessageBubble } from "./ai-chat-message-bubble";
 import { AiChatCards } from "./ai-chat-cards";
 import { AiChatInput } from "./ai-chat-input";

@@ -13,7 +13,7 @@ import type { DataTableFeatures } from "@/components/common/data-table/data-tabl
 import { BookingChannelBadge, BookingStatusBadge } from "@/components/common/status-badge";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
-import type { AdminBookingListItemDto } from "../types";
+import type { AdminBookingListItemDto } from "@/features/admin/bookings/types";
 
 interface BookingColumnsOptions {
   onViewDetail: (booking: AdminBookingListItemDto) => void;

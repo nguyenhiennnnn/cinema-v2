@@ -1,8 +1,8 @@
-import type { ShowtimeCalendarDayDto, ShowtimeCalendarItemDto } from "../../types";
-import { groupByRoom } from "../../utils/group-by-room";
+import type { ShowtimeCalendarDayDto, ShowtimeCalendarItemDto } from "@/features/admin/showtimes/types";
+import { groupByRoom } from "@/features/admin/showtimes/utils/group-by-room";
 import { ShowtimeCalendarItem } from "./showtime-calendar-item";
 
-const HOUR_MARKS = Array.from({ length: 13 }, (_, i) => i * 2); // 0, 2, 4, ..., 24
+const HOUR_MARKS = Array.from({ length: 13 }, (_, i) => i * 2);
 
 interface ShowtimeCalendarDayProps {
   day: ShowtimeCalendarDayDto;

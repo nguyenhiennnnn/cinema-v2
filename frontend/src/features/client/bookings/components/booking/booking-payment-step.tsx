@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { PaymentMethod } from "@/types/enum";
-import type { HoldBookingResponse, PricedSeat } from "../../types";
+import type { HoldBookingResponse, PricedSeat } from "@/features/client/bookings/types";
 import { BookingHoldTimer } from "./booking-hold-timer";
 import { BookingPaymentMethod } from "./booking-payment-method";
 import { BookingPriceSummary } from "./booking-price-summary";

@@ -24,7 +24,6 @@ export const PerfoTicket = ({
   isCheckedIn = false,
   className,
 }: PerfoTicketProps) => {
-  // Tránh tràn tên phim quá dài
   const title = movieTitle.length > 25 ? movieTitle.slice(0, 24) + "…" : movieTitle;
   const isImageQr = qrValue.startsWith("data:image") || qrValue.startsWith("http");
 

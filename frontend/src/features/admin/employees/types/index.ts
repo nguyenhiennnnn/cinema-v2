@@ -1,6 +1,3 @@
-// ── Employee ──────────────────────────────────────────────────────────────────
-// Backend: GetEmployees([FromQuery] int? positionId, page, pageSize)
-
 export interface AdminEmployeeListParams {
   positionId?: number;
   page?: number;

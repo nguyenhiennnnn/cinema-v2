@@ -8,9 +8,9 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminScreenTypes } from "@/features/admin/catalog/hooks/use-admin-screen-type";
 import { useScreenTypeQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
-import { useAdminUpdateRoom } from "../../hooks/use-admin-rooms";
+import { useAdminUpdateRoom } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
-import type { AdminRoomDto } from "../../types";
+import type { AdminRoomDto } from "@/features/admin/rooms/types";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { FormActions } from "@/components/common/form/form-actions";

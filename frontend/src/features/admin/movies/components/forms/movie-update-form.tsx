@@ -30,10 +30,10 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 
-import { useAdminMovieDetail, useAdminUpdateMovie } from "../../hooks/use-admin-movies";
-import type { AdminMovieListItemDto } from "../../types";
+import { useAdminMovieDetail, useAdminUpdateMovie } from "@/features/admin/movies/hooks/use-admin-movies";
+import type { AdminMovieListItemDto } from "@/features/admin/movies/types";
 import { FormSelectField } from "@/components/common/form/form-select-field";
-import { movieUpdateFormSchema, type MovieUpdateFormValues } from "../../schemas/movie-schema";
+import { movieUpdateFormSchema, type MovieUpdateFormValues } from "@/features/admin/movies/schemas/movie-schema";
 import { FormMultiSelectField, FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormImageField, FormVideoField } from "@/components/common/form/form-upload-field";
 

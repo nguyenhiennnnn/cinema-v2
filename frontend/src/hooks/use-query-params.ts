@@ -18,8 +18,6 @@ const searchParser = parseAsString.withDefault("").withOptions({
   shallow: false,
 });
 
-// ── Common admin offset-paginated list ────────────────────────────────────────
-
 const adminListParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
   pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
@@ -29,8 +27,6 @@ const adminListParsers = {
 export const useAdminListParams = (
   options?: Parameters<typeof useQueryStates<typeof adminListParsers>>[1],
 ) => useQueryStates(adminListParsers, options);
-
-// ── Admin movies ──────────────────────────────────────────────────────────────
 
 const movieStatuses = [
   "ComingSoon",
@@ -53,8 +49,6 @@ export const useAdminMovieParams = (
   options?: Parameters<typeof useQueryStates<typeof adminMovieParsers>>[1],
 ) => useQueryStates(adminMovieParsers, options);
 
-// ── Admin showtimes ───────────────────────────────────────────────────────────
-
 const adminShowtimeParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
   pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
@@ -67,8 +61,6 @@ const adminShowtimeParsers = {
 export const useAdminShowtimeParams = (
   options?: Parameters<typeof useQueryStates<typeof adminShowtimeParsers>>[1],
 ) => useQueryStates(adminShowtimeParsers, options);
-
-// ── Admin showtimes calendar ─────────────────────────────────
 
 const adminShowtimeCalendarParsers = {
   from: parseAsString,
@@ -84,8 +76,6 @@ export const useAdminShowtimeCalendarParams = (
   >[1],
 ) => useQueryStates(adminShowtimeCalendarParsers, options);
 
-// ── Admin bookings ────────────────────────────────────────────────────────────
-
 const adminBookingParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
   pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
@@ -100,8 +90,6 @@ export const useAdminBookingParams = (
   options?: Parameters<typeof useQueryStates<typeof adminBookingParsers>>[1],
 ) => useQueryStates(adminBookingParsers, options);
 
-// ── Admin users ───────────────────────────────────────────────────────────────
-
 const adminUserParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
   pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
@@ -113,8 +101,6 @@ export const useAdminUserParams = (
   options?: Parameters<typeof useQueryStates<typeof adminUserParsers>>[1],
 ) => useQueryStates(adminUserParsers, options);
 
-// ── Admin employees ───────────────────────────────────────────────────────────
-
 const adminEmployeeParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
   pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
@@ -124,8 +110,6 @@ const adminEmployeeParsers = {
 export const useAdminEmployeeParams = (
   options?: Parameters<typeof useQueryStates<typeof adminEmployeeParsers>>[1],
 ) => useQueryStates(adminEmployeeParsers, options);
-
-// ── Admin reviews ─────────────────────────────────────────────────────────────
 
 const adminReviewParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
@@ -137,8 +121,6 @@ const adminReviewParsers = {
 export const useAdminReviewParams = (
   options?: Parameters<typeof useQueryStates<typeof adminReviewParsers>>[1],
 ) => useQueryStates(adminReviewParsers, options);
-
-// ── Admin payments ────────────────────────────────────────────────────────────
 
 const adminPaymentParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
@@ -154,8 +136,6 @@ export const useAdminPaymentParams = (
   options?: Parameters<typeof useQueryStates<typeof adminPaymentParsers>>[1],
 ) => useQueryStates(adminPaymentParsers, options);
 
-// ── Admin catalog (actors / directors search) ─────────────────────────────────
-
 const adminPersonParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
   pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
@@ -165,8 +145,6 @@ const adminPersonParsers = {
 export const useAdminPersonParams = (
   options?: Parameters<typeof useQueryStates<typeof adminPersonParsers>>[1],
 ) => useQueryStates(adminPersonParsers, options);
-
-// ── Client movies ─────────────────────────────────────────────────────────────
 
 const clientMovieParsers = {
   cursor: parseAsString,
@@ -181,8 +159,6 @@ const clientMovieParsers = {
 export const useClientMovieParams = (
   options?: Parameters<typeof useQueryStates<typeof clientMovieParsers>>[1],
 ) => useQueryStates(clientMovieParsers, options);
-
-// ── Client schedule ───────────────────────────────────────────────────────────
 
 const scheduleParsers = {
   date: parseAsString.withDefault(""),

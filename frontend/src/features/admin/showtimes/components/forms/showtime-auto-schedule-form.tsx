@@ -23,8 +23,8 @@ import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import {
   useAdminApplyAutoSchedule,
   useAdminPreviewAutoSchedule,
-} from "../../hooks/use-admin-showtimes";
-import type { AutoScheduleResponseDto } from "../../types";
+} from "@/features/admin/showtimes/hooks/use-admin-showtimes";
+import type { AutoScheduleResponseDto } from "@/features/admin/showtimes/types";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 

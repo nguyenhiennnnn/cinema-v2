@@ -7,7 +7,7 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
 
-import { useAdminCreateEmployee } from "../../hooks/use-admin-employee";
+import { useAdminCreateEmployee } from "@/features/admin/employees/hooks/use-admin-employee";
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
 import { usePositionQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";

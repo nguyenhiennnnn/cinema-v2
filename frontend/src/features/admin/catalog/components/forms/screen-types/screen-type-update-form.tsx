@@ -5,8 +5,8 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminUpdateScreenType } from "../../../hooks/use-admin-screen-type";
-import type { ScreenTypeDto } from "../../../types";
+import { useAdminUpdateScreenType } from "@/features/admin/catalog/hooks/use-admin-screen-type";
+import type { ScreenTypeDto } from "@/features/admin/catalog/types";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 

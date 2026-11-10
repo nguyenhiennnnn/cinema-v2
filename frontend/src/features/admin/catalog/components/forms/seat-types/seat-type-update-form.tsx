@@ -5,8 +5,8 @@ import { z } from "zod";
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 
-import { useAdminUpdateSeatType } from "../../../hooks/use-admin-seat-type";
-import type { SeatTypeDto } from "../../../types";
+import { useAdminUpdateSeatType } from "@/features/admin/catalog/hooks/use-admin-seat-type";
+import type { SeatTypeDto } from "@/features/admin/catalog/types";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
