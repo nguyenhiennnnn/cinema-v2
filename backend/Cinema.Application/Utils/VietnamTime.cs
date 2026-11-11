@@ -3,8 +3,11 @@ namespace Cinema.Application.Utils;
 public static class VietnamTime
 {
     private static TimeZoneInfo _zone = ResolveZone("Asia/Ho_Chi_Minh")!;
+    private static string _ianaId = ToIanaId(_zone);
 
     public static TimeZoneInfo Zone => _zone;
+
+    public static string IanaId => _ianaId;
 
     public static void Configure(string timeZoneId)
     {
@@ -19,6 +22,8 @@ public static class VietnamTime
                 $"Timezone '{timeZoneId}' (Brand:TimeZoneId) không hợp lệ hoặc không được hỗ trợ trên hệ thống này. "
                     + "Dùng IANA ID (ví dụ: 'Asia/Ho_Chi_Minh') hoặc Windows ID ('SE Asia Standard Time')."
             );
+
+        _ianaId = ToIanaId(_zone);
     }
 
     public static DateTime ToUtc(DateTime value) =>
@@ -49,6 +54,14 @@ public static class VietnamTime
 
     private static DateTime AsUtc(DateTime value) =>
         value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+
+    private static string ToIanaId(TimeZoneInfo zone)
+    {
+        if (zone.HasIanaId)
+            return zone.Id;
+
+        return TimeZoneInfo.TryConvertWindowsIdToIanaId(zone.Id, out var iana) ? iana : zone.Id;
+    }
 
     private static TimeZoneInfo? ResolveZone(string id)
     {

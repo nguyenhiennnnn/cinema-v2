@@ -3,6 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionInitializer } from "./session-initializer";
+import { BusinessTimeProvider } from "./business-time-provider";
 import { ThemeProvider } from "./theme-provider";
 import { HelmetProvider } from "react-helmet-async";
 import { BRAND } from "@/config/brand";
@@ -19,7 +20,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
           <NuqsAdapter>
             <TooltipProvider>
               <SessionInitializer />
-              {children}
+              <BusinessTimeProvider>{children}</BusinessTimeProvider>
             </TooltipProvider>
           </NuqsAdapter>
         </QueryClientProvider>

@@ -126,6 +126,7 @@ export function showApiErrorToast(
   const description = getDisplayMessage(error);
 
   const key = `${title}|${description}`;
+  // Date.now() ở đây chỉ để chống trùng toast (debounce), không so với mốc server.
   const now = Date.now();
   if (key === lastToast.key && now - lastToast.at < ERROR_TOAST_DEDUPE_MS)
     return;

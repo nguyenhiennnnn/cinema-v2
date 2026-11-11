@@ -28,7 +28,10 @@ public record CinemaSettingsDto(
     double SchedulerHeatSalesWeight,
     double SchedulerHeatRatingWeight,
     double SchedulerMaxRating
-);
+)
+{
+    public string TimeZoneId { get; init; } = string.Empty;
+}
 
 public record UpdateSettingsRequest(
     string Name,

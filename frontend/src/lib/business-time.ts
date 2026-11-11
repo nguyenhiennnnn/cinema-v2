@@ -1,20 +1,63 @@
 import { isValid, parseISO } from "date-fns";
 import { ENV } from "@/config/env";
+import { getServerNow } from "@/lib/server-clock";
 
-export const BUSINESS_TIME_ZONE = ENV.BUSINESS_TIME_ZONE;
+export const DEFAULT_BUSINESS_TIME_ZONE = ENV.BUSINESS_TIME_ZONE;
 
 const ZONE_DESIGNATOR = /T.*(Z|[+-]\d{2}:?\d{2})$/i;
 
-const partsFormatter = new Intl.DateTimeFormat("en-GB", {
-  timeZone: BUSINESS_TIME_ZONE,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hourCycle: "h23",
-});
+function createPartsFormatter(timeZone: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+}
+
+function isValidTimeZone(id: string): boolean {
+  try {
+    createPartsFormatter(id);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+let businessTimeZone = DEFAULT_BUSINESS_TIME_ZONE;
+let partsFormatter = createPartsFormatter(
+  isValidTimeZone(businessTimeZone) ? businessTimeZone : "Asia/Ho_Chi_Minh",
+);
+const timeZoneListeners = new Set<() => void>();
+
+export const getBusinessTimeZone = () => businessTimeZone;
+
+export function subscribeBusinessTimeZone(listener: () => void) {
+  timeZoneListeners.add(listener);
+  return () => {
+    timeZoneListeners.delete(listener);
+  };
+}
+
+export function setBusinessTimeZone(id: string | null | undefined): boolean {
+  const next = id?.trim();
+  if (!next || !isValidTimeZone(next)) {
+    console.warn(
+      `[business-time] Múi giờ không hợp lệ "${id ?? ""}", giữ nguyên "${businessTimeZone}".`,
+    );
+    return false;
+  }
+  if (next === businessTimeZone) return true;
+
+  businessTimeZone = next;
+  partsFormatter = createPartsFormatter(next);
+  timeZoneListeners.forEach((listener) => listener());
+  return true;
+}
 
 export const hasZoneDesignator = (value: string) =>
   ZONE_DESIGNATOR.test(value.trim());
@@ -65,7 +108,14 @@ export function toWallDate(value?: string | Date | null): Date | undefined {
 
 function getBusinessOffsetMinutes(instant: Date): number {
   const p = getBusinessParts(instant);
-  const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+  const asUtc = Date.UTC(
+    p.year,
+    p.month - 1,
+    p.day,
+    p.hour,
+    p.minute,
+    p.second,
+  );
   const instantSeconds = Math.floor(instant.getTime() / 1000) * 1000;
   return Math.round((asUtc - instantSeconds) / 60000);
 }
@@ -90,19 +140,23 @@ export function toBusinessIso(value: string): string {
   if (Number.isNaN(naiveUtc)) return trimmed;
 
   const firstGuess = getBusinessOffsetMinutes(new Date(naiveUtc));
-  const offset = getBusinessOffsetMinutes(new Date(naiveUtc - firstGuess * 60000));
+  const offset = getBusinessOffsetMinutes(
+    new Date(naiveUtc - firstGuess * 60000),
+  );
   return `${normalized}${formatOffset(offset)}`;
 }
 
-export const getBusinessNow = (now: Date = new Date()): Date =>
+export const getBusinessNow = (now: Date = new Date(getServerNow())): Date =>
   instantToBusinessWall(now);
 
-export function getBusinessTodayDate(now: Date = new Date()): Date {
+export function getBusinessTodayDate(
+  now: Date = new Date(getServerNow()),
+): Date {
   const wall = instantToBusinessWall(now);
   return new Date(wall.getFullYear(), wall.getMonth(), wall.getDate());
 }
 
-export function getBusinessToday(now: Date = new Date()): string {
+export function getBusinessToday(now: Date = new Date(getServerNow())): string {
   const p = getBusinessParts(now);
   return `${p.year}-${String(p.month).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
 }

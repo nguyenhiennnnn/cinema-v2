@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getServerNow } from "@/lib/server-clock";
 
 export function useCountdown(expiresAt: string | null) {
   const [remainingMs, setRemainingMs] = useState(0);
@@ -9,7 +10,7 @@ export function useCountdown(expiresAt: string | null) {
       return;
     }
     const target = new Date(expiresAt).getTime();
-    const tick = () => setRemainingMs(Math.max(0, target - Date.now()));
+    const tick = () => setRemainingMs(Math.max(0, target - getServerNow()));
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);

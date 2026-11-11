@@ -24,6 +24,7 @@ import {
 import { bookingsApi } from "../api/bookings-api";
 import type { HoldBookingResponse, PricedSeat } from "../types";
 import { ROUTES } from "@/config/routes";
+import { getServerNow } from "@/lib/server-clock";
 
 export type BookingStep = "select" | "payment";
 
@@ -89,7 +90,7 @@ export function useBookingFlow(showtimeId: number, resumeBookingId?: number) {
     if (!booking) return null;
     if (booking.status !== BookingStatus.Pending || !booking.holdExpiresAt)
       return "not-pending";
-    if (new Date(booking.holdExpiresAt).getTime() <= Date.now())
+    if (new Date(booking.holdExpiresAt).getTime() <= getServerNow())
       return "expired";
     return null;
   }, [isResumeMode, resumeBookingQuery.isError, resumeBookingQuery.data]);

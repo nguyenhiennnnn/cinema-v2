@@ -1,6 +1,7 @@
 using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
+using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
@@ -17,7 +18,7 @@ public class SettingsService(IAppDbContext db) : ISettingsService
             await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == AppDbContextExtensions.CinemaSettingsId, cancellationToken)
             ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
 
-        return settings.Adapt<CinemaSettingsDto>();
+        return ToDto(settings);
     }
 
     public async Task<CinemaSettingsDto> UpdateSettingsAsync(
@@ -82,6 +83,12 @@ public class SettingsService(IAppDbContext db) : ISettingsService
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return settings.Adapt<CinemaSettingsDto>();
+        return ToDto(settings);
     }
+
+    private static CinemaSettingsDto ToDto(CinemaSettings settings) =>
+        settings.Adapt<CinemaSettingsDto>() with
+        {
+            TimeZoneId = VietnamTime.IanaId,
+        };
 }

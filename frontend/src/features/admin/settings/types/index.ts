@@ -27,6 +27,7 @@ export interface CinemaSettingsDto {
   schedulerHeatSalesWeight: number;
   schedulerHeatRatingWeight: number;
   schedulerMaxRating: number;
+  timeZoneId?: string;
 }
 
 export interface UpdateSettingsRequest {

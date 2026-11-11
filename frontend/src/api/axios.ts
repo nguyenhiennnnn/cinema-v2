@@ -1,6 +1,8 @@
 import axios, {
   AxiosError,
+  type AxiosInstance,
   type AxiosRequestConfig,
+  type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios";
 import {
@@ -9,10 +11,55 @@ import {
   type AuthUser,
 } from "@/stores/auth-store";
 import { logDevError } from "@/lib/error";
+import { syncServerClock } from "@/lib/server-clock";
 import { ENV } from "@/config/env";
 import { ROUTES } from "@/config/routes";
 import { API_TIMEOUT_MS } from "@/config/default-constants";
 import { ENDPOINTS } from "@/api/endpoints";
+
+declare module "axios" {
+  interface InternalAxiosRequestConfig {
+    _clockSentAt?: number;
+  }
+}
+
+function readDateHeader(headers: unknown): string | undefined {
+  if (!headers || typeof headers !== "object") return undefined;
+  const h = headers as { get?: (name: string) => unknown } & Record<
+    string,
+    unknown
+  >;
+  const value = typeof h.get === "function" ? h.get("date") : h["date"];
+  return typeof value === "string" ? value : undefined;
+}
+
+function trackServerClock(
+  response: Pick<AxiosResponse, "headers" | "config"> | undefined,
+  sentAt?: number,
+) {
+  if (!response) return;
+  const startedAt = sentAt ?? response.config?._clockSentAt;
+  const rttMs =
+    startedAt === undefined ? undefined : performance.now() - startedAt;
+  syncServerClock(readDateHeader(response.headers), rttMs);
+}
+
+function installServerClockSync(instance: AxiosInstance) {
+  instance.interceptors.request.use((config) => {
+    config._clockSentAt = performance.now();
+    return config;
+  });
+  instance.interceptors.response.use(
+    (response) => {
+      trackServerClock(response);
+      return response;
+    },
+    (error: unknown) => {
+      if (axios.isAxiosError(error)) trackServerClock(error.response);
+      return Promise.reject(error);
+    },
+  );
+}
 
 const BASE_URL = ENV.API_BASE_URL;
 
@@ -25,6 +72,11 @@ export const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+installServerClockSync(apiClient);
+
+const refreshClient = axios.create();
+installServerClockSync(refreshClient);
 
 apiClient.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState();
@@ -50,7 +102,7 @@ export async function refreshAccessToken(): Promise<string> {
 
   refreshPromise = (async () => {
     try {
-      const { data } = await axios.post<{
+      const { data } = await refreshClient.post<{
         data: {
           accessToken: string;
           refreshToken: string;

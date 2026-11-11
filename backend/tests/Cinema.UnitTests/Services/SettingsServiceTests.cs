@@ -1,3 +1,4 @@
+using Cinema.Application.Utils;
 using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Services.Settings;
 using Cinema.Domain.Enums;
@@ -53,6 +54,17 @@ public class SettingsServiceTests : IDisposable
         var result = await sut.GetSettingsAsync(CancellationToken.None);
 
         result.Name.ShouldNotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task GetSettingsAsync_ReturnsBusinessTimeZoneAsIanaId()
+    {
+        var sut = CreateSut();
+
+        var result = await sut.GetSettingsAsync(CancellationToken.None);
+
+        result.TimeZoneId.ShouldBe(VietnamTime.IanaId);
+        result.TimeZoneId.ShouldContain("/");
     }
 
     [Fact]

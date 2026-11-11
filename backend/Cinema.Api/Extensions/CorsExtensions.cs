@@ -5,6 +5,8 @@ public static class CorsExtensions
     public const string PolicyName = "Default";
     private const string AllowedOriginsKey = "Cors:AllowedOrigins";
 
+    private static readonly string[] ExposedHeaders = ["Date"];
+
     public static string[] GetCorsOrigins(this IConfiguration configuration) =>
         configuration.GetSection(AllowedOriginsKey).Get<string[]>() ?? [];
 
@@ -24,11 +26,13 @@ public static class CorsExtensions
                     if (corsOrigins.Length > 0)
                         policy
                             .WithOrigins(corsOrigins)
+                            .WithExposedHeaders(ExposedHeaders)
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials();
                     else
                         policy
+                            .WithExposedHeaders(ExposedHeaders)
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .SetIsOriginAllowed(_ => true)
