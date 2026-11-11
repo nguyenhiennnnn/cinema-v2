@@ -24,6 +24,7 @@ export interface AdminUserSelectDto {
 export interface AdminUserSelectParams {
   search?: string;
   availableOnly?: boolean;
+  includeCustomers?: boolean;
 }
 
 export interface UpdateUserStatusRequest {

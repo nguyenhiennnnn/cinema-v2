@@ -91,6 +91,8 @@ export const ENDPOINTS = {
     employees: {
       root: "/admin/employees",
       byId: (id: number) => `/admin/employees/${id}`,
+      invite: "/admin/employees/invite",
+      resendInvite: (id: number) => `/admin/employees/${id}/resend-invite`,
     },
     movies: {
       root: "/admin/movies",

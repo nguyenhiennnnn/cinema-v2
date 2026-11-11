@@ -5,6 +5,15 @@ public static class VietnamTime
     private static TimeZoneInfo _zone = ResolveZone("Asia/Ho_Chi_Minh")!;
     private static string _ianaId = ToIanaId(_zone);
 
+    public static TimeZoneInfo FixedGmt7 { get; } =
+        ResolveZone("Asia/Ho_Chi_Minh")
+        ?? TimeZoneInfo.CreateCustomTimeZone(
+            "Vietnam-GMT7",
+            TimeSpan.FromHours(7),
+            "Indochina Time",
+            "Indochina Time"
+        );
+
     public static TimeZoneInfo Zone => _zone;
 
     public static string IanaId => _ianaId;

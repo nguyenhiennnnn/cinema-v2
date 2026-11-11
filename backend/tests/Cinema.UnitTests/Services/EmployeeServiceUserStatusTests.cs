@@ -1,8 +1,10 @@
+using Cinema.Application.Interfaces;
 using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Services.Employees;
 using Cinema.Domain.Entities;
 using Cinema.UnitTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Shouldly;
 
 namespace Cinema.UnitTests.Services;
@@ -14,7 +16,7 @@ public class EmployeeServiceUserStatusTests : IDisposable
     private EmployeeService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new EmployeeService(_handle.Db);
+        return new EmployeeService(_handle.Db, Mock.Of<IAuthService>());
     }
 
     private async Task<User> SeedUserWithTokensAsync()

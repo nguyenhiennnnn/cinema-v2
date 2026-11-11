@@ -29,6 +29,37 @@ public class CreateEmployeeRequestValidator : AbstractValidator<CreateEmployeeRe
     }
 }
 
+public class InviteEmployeeRequestValidator : AbstractValidator<InviteEmployeeRequest>
+{
+    public InviteEmployeeRequestValidator()
+    {
+        RuleFor(x => x.FullName)
+            .NotEmpty()
+            .WithMessage(Messages.Validation_FullName_Required)
+            .MaximumLength(100);
+
+        RuleFor(x => x.Email)
+            .NotEmpty()
+            .WithMessage(Messages.Validation_Email_Required)
+            .EmailAddress()
+            .WithMessage(Messages.Validation_Email_Invalid)
+            .MaximumLength(150)
+            .WithMessage(Messages.Validation_Email_MaxLength150);
+
+        RuleFor(x => x.Phone)
+            .Matches(@"^(0|\+84)[0-9]{9,10}$")
+            .When(x => !string.IsNullOrEmpty(x.Phone))
+            .WithMessage(Messages.Validation_Phone_Invalid)
+            .MaximumLength(20)
+            .WithMessage(Messages.Validation_Phone_MaxLength20);
+
+        RuleFor(x => x.PositionId)
+            .GreaterThan(0)
+            .When(x => x.PositionId is not null)
+            .WithMessage(Messages.Validation_PositionId_Positive);
+    }
+}
+
 public class UpdateEmployeeRequestValidator : AbstractValidator<UpdateEmployeeRequest>
 {
     public UpdateEmployeeRequestValidator()

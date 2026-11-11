@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import type {
   CreateEmployeeRequest,
+  InviteEmployeeRequest,
   AdminEmployeeListParams,
   UpdateEmployeeRequest,
 } from "../types";
@@ -20,6 +21,19 @@ export function useAdminCreateEmployee() {
     meta: { invalidates: "employeeChanged" },
     mutationFn: (body: CreateEmployeeRequest) =>
       employeesAdminApi.createEmployee(body),
+  });
+}
+
+export function useAdminInviteEmployee() {
+  return useMutation({
+    meta: { invalidates: "employeeChanged" },
+    mutationFn: (body: InviteEmployeeRequest) => employeesAdminApi.inviteEmployee(body),
+  });
+}
+
+export function useAdminResendEmployeeInvite() {
+  return useMutation({
+    mutationFn: (id: number) => employeesAdminApi.resendInvite(id),
   });
 }
 

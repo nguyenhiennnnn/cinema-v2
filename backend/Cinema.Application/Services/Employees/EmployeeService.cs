@@ -18,11 +18,17 @@ public class EmployeeService : IEmployeeService
     private const int UserLookupLimit = 50;
 
     private readonly IAppDbContext db;
+    private readonly IAuthService authService;
     private readonly IOptions<BookingOptions> bookingOptions;
 
-    public EmployeeService(IAppDbContext db, IOptions<BookingOptions>? bookingOptions = null)
+    public EmployeeService(
+        IAppDbContext db,
+        IAuthService authService,
+        IOptions<BookingOptions>? bookingOptions = null
+    )
     {
         this.db = db;
+        this.authService = authService;
         this.bookingOptions =
             bookingOptions ?? Microsoft.Extensions.Options.Options.Create(new BookingOptions());
     }
@@ -56,11 +62,16 @@ public class EmployeeService : IEmployeeService
     public async Task<List<AdminUserSelectDto>> GetAdminUsersForSelectAsync(
         string? search,
         bool availableOnly,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        bool includeCustomers = false
     )
     {
         var staffRoleIds = await db
-            .Roles.Where(r => r.RoleName == Roles.Admin || r.RoleName == Roles.Employee)
+            .Roles.Where(r =>
+                r.RoleName == Roles.Admin
+                || r.RoleName == Roles.Employee
+                || (includeCustomers && r.RoleName == Roles.Customer)
+            )
             .Select(r => r.RoleId)
             .ToListAsync(cancellationToken);
         if (staffRoleIds.Count == 0)
@@ -285,11 +296,14 @@ public class EmployeeService : IEmployeeService
 
     public async Task<AdminEmployeeDto> CreateEmployeeAsync(
         CreateEmployeeRequest request,
+        int currentUserId,
         CancellationToken cancellationToken
     )
     {
         var user =
-            await db.Users.FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken)
+            await db
+                .Users.Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken)
             ?? throw new NotFoundException(Messages.NotFound_UserId);
 
         var alreadyEmployee = await db.Employees.AnyAsync(
@@ -299,11 +313,11 @@ public class EmployeeService : IEmployeeService
         if (alreadyEmployee)
             throw new ConflictAppException(Messages.Conflict_EmployeeProfileExists);
 
-        var role = await db.Roles.FirstAsync(r => r.RoleId == user.RoleId, cancellationToken);
-        if (role.RoleName != Roles.Admin && role.RoleName != Roles.Employee)
-            throw new BusinessRuleException(
-                Messages.Rule_UserMustBeStaffRole
-            );
+        var promote = request.PromoteCustomer && user.Role.RoleName == Roles.Customer;
+        if (promote && user.UserId == currentUserId)
+            throw new BusinessRuleException(Messages.Rule_CannotChangeOwnRole);
+        if (!promote && user.Role.RoleName != Roles.Admin && user.Role.RoleName != Roles.Employee)
+            throw new BusinessRuleException(Messages.Rule_UserMustBeStaffRole);
 
         if (
             request.PositionId is not null
@@ -314,6 +328,19 @@ public class EmployeeService : IEmployeeService
         )
             throw new NotFoundException(Messages.NotFound_PositionId);
 
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
+        if (promote)
+        {
+            user.Role =
+                await db.Roles.FirstOrDefaultAsync(
+                    r => r.RoleName == Roles.Employee,
+                    cancellationToken
+                ) ?? throw new BusinessRuleException(Messages.Rule_EmployeeRoleNotSeeded);
+            user.UpdatedAt = DateTime.UtcNow;
+            await db.RevokeActiveTokensAsync(user.UserId, cancellationToken);
+        }
+
         var employee = new Employee
         {
             UserId = request.UserId,
@@ -323,6 +350,83 @@ public class EmployeeService : IEmployeeService
         };
         db.Employees.Add(employee);
         await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return await LoadEmployeeDtoAsync(employee.EmployeeId, cancellationToken);
+    }
+
+    public async Task<AdminEmployeeDto> InviteEmployeeAsync(
+        InviteEmployeeRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var email = request.Email.Trim();
+        if (await db.Users.AnyAsync(u => u.Email == email, cancellationToken))
+            throw new ValidationAppException(
+                Messages.Invalid_EmailExists,
+                new Dictionary<string, string[]> { ["email"] = [Messages.Invalid_EmailInUse] }
+            );
+
+        if (
+            request.PositionId is not null
+            && !await db.Positions.AnyAsync(
+                p => p.PositionId == request.PositionId,
+                cancellationToken
+            )
+        )
+            throw new ValidationAppException(
+                Messages.NotFound_PositionId,
+                new Dictionary<string, string[]> { ["positionId"] = [Messages.NotFound_PositionId] }
+            );
+
+        var employeeRole =
+            await db.Roles.FirstOrDefaultAsync(r => r.RoleName == Roles.Employee, cancellationToken)
+            ?? throw new BusinessRuleException(Messages.Rule_EmployeeRoleNotSeeded);
+
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
+        var user = new User
+        {
+            FullName = request.FullName.Trim(),
+            Email = email,
+            Phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim(),
+            PasswordHash = User.PendingPasswordHash,
+            RoleId = employeeRole.RoleId,
+            IsActive = true,
+            EmailConfirmed = true,
+            CreatedAt = DateTime.UtcNow,
+        };
+        var employee = new Employee
+        {
+            User = user,
+            PositionId = request.PositionId,
+            HireDate = request.JoiningDate,
+            IsActive = true,
+        };
+        db.Employees.Add(employee);
+        await db.SaveChangesAsync(cancellationToken);
+
+        await authService.SendStaffInviteAsync(user, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return await LoadEmployeeDtoAsync(employee.EmployeeId, cancellationToken);
+    }
+
+    public async Task<AdminEmployeeDto> ResendEmployeeInviteAsync(
+        int employeeId,
+        CancellationToken cancellationToken
+    )
+    {
+        var employee =
+            await db
+                .Employees.Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.EmployeeId == employeeId, cancellationToken)
+            ?? throw new NotFoundException(Messages.NotFound_Employee);
+
+        if (employee.User.PasswordHash != User.PendingPasswordHash)
+            throw new BusinessRuleException(Messages.Rule_EmployeeAlreadyActivated);
+
+        await authService.SendStaffInviteAsync(employee.User, cancellationToken);
 
         return await LoadEmployeeDtoAsync(employee.EmployeeId, cancellationToken);
     }

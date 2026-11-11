@@ -36,6 +36,11 @@ public class NotificationService(
                 Messages.Email_PasswordResetIntro,
                 Messages.Email_PasswordResetButton
             ),
+            VerificationTokenPurpose.StaffInvite => (
+                string.Format(Messages.Email_StaffInviteSubject, _brand.Name),
+                Messages.Email_StaffInviteIntro,
+                Messages.Email_StaffInviteButton
+            ),
             _ => throw new ArgumentOutOfRangeException(nameof(purpose), purpose, null),
         };
 

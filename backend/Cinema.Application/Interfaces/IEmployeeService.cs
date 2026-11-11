@@ -16,7 +16,8 @@ public interface IEmployeeService
     Task<List<AdminUserSelectDto>> GetAdminUsersForSelectAsync(
         string? search,
         bool availableOnly,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        bool includeCustomers = false
     );
 
     Task<List<CustomerLookupItemDto>> SearchCustomersForCounterAsync(
@@ -52,6 +53,15 @@ public interface IEmployeeService
     );
     Task<AdminEmployeeDto> CreateEmployeeAsync(
         CreateEmployeeRequest request,
+        int currentUserId,
+        CancellationToken cancellationToken
+    );
+    Task<AdminEmployeeDto> InviteEmployeeAsync(
+        InviteEmployeeRequest request,
+        CancellationToken cancellationToken
+    );
+    Task<AdminEmployeeDto> ResendEmployeeInviteAsync(
+        int employeeId,
         CancellationToken cancellationToken
     );
     Task<AdminEmployeeDto> UpdateEmployeeAsync(

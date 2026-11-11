@@ -4,6 +4,7 @@ import type {
   AdminEmployeeListParams,
   AdminEmployeeDto,
   CreateEmployeeRequest,
+  InviteEmployeeRequest,
   UpdateEmployeeRequest,
 } from "../types";
 import { ENDPOINTS } from "@/api/endpoints";
@@ -14,6 +15,12 @@ export const employeesAdminApi = {
 
   createEmployee: (body: CreateEmployeeRequest) =>
     apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.root, body),
+
+  inviteEmployee: (body: InviteEmployeeRequest) =>
+    apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.invite, body),
+
+  resendInvite: (id: number) =>
+    apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.resendInvite(id)),
 
   updateEmployee: (id: number, body: UpdateEmployeeRequest) =>
     apiPut<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.byId(id), body),

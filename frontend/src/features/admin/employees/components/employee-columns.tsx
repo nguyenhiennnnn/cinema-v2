@@ -1,7 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Power, PowerOff } from "lucide-react";
+import { MailPlus, MoreHorizontal, Pencil, Power, PowerOff } from "lucide-react";
 
 import { EmployeeStatusBadge, PositionBadge } from "@/components/common/status-badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,12 +19,13 @@ import type { AdminEmployeeDto } from "../types";
 interface EmployeeColumnsOptions {
   onEdit: (employee: AdminEmployeeDto) => void;
   onToggle: (employee: AdminEmployeeDto) => void;
+  onResendInvite: (employee: AdminEmployeeDto) => void;
   currentUserId?: number;
 }
 
 const columnHelper = createColumnHelper<DataTableFeatures, AdminEmployeeDto>();
 
-export const createEmployeeColumns = ({ onEdit, onToggle, currentUserId }: EmployeeColumnsOptions) =>
+export const createEmployeeColumns = ({ onEdit, onToggle, onResendInvite, currentUserId }: EmployeeColumnsOptions) =>
   columnHelper.columns([
     columnHelper.accessor("employeeId", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
@@ -58,7 +60,12 @@ export const createEmployeeColumns = ({ onEdit, onToggle, currentUserId }: Emplo
     }),
     columnHelper.accessor("isActive", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Trạng thái" />,
-      cell: ({ row }) => <EmployeeStatusBadge isActive={row.original.isActive} />,
+      cell: ({ row }) =>
+        row.original.isPendingActivation ? (
+          <Badge variant="warning">Chờ kích hoạt</Badge>
+        ) : (
+          <EmployeeStatusBadge isActive={row.original.isActive} />
+        ),
       enableSorting: false,
     }),
     columnHelper.display({
@@ -77,6 +84,11 @@ export const createEmployeeColumns = ({ onEdit, onToggle, currentUserId }: Emplo
               <DropdownMenuItem onClick={() => onEdit(row.original)}>
                 <Pencil /> Chỉnh sửa
               </DropdownMenuItem>
+              {row.original.isPendingActivation && (
+                <DropdownMenuItem onClick={() => onResendInvite(row.original)}>
+                  <MailPlus /> Gửi lại lời mời
+                </DropdownMenuItem>
+              )}
               {row.original.isActive ? (
                 <DropdownMenuItem
                   variant="destructive"

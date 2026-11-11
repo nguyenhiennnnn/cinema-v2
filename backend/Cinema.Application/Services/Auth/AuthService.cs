@@ -27,6 +27,8 @@ public class AuthService(
     ILogger<AuthService> logger
 ) : IAuthService
 {
+    private const int StaffInviteExpirationHours = 72;
+
     private readonly int _refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
 
     // Points/hạng trả về cho client lấy từ sổ điểm 12 tháng, không dùng bản cache trên CustomerProfile.
@@ -540,7 +542,11 @@ public class AuthService(
             .UserVerificationTokens.Include(t => t.User)
             .FirstOrDefaultAsync(
                 t =>
-                    t.TokenHash == tokenHash && t.Purpose == VerificationTokenPurpose.PasswordReset,
+                    t.TokenHash == tokenHash
+                    && (
+                        t.Purpose == VerificationTokenPurpose.PasswordReset
+                        || t.Purpose == VerificationTokenPurpose.StaffInvite
+                    ),
                 cancellationToken
             );
 
@@ -617,6 +623,28 @@ public class AuthService(
         );
 
         return new MessageResponse(standardMessage);
+    }
+
+    public async Task SendStaffInviteAsync(User user, CancellationToken cancellationToken)
+    {
+        var oldTokens = await db
+            .UserVerificationTokens.Where(t =>
+                t.UserId == user.UserId
+                && t.Purpose == VerificationTokenPurpose.StaffInvite
+                && !t.Used
+                && t.ExpiresAt > DateTime.UtcNow
+            )
+            .ToListAsync(cancellationToken);
+        foreach (var t in oldTokens)
+            t.Used = true;
+
+        await IssueVerificationTokenAndSendEmailAsync(
+            user,
+            VerificationTokenPurpose.StaffInvite,
+            TimeSpan.FromHours(StaffInviteExpirationHours),
+            "reset-password",
+            cancellationToken
+        );
     }
 
     public async Task<SocketTokenResponse> GenerateSocketTokenAsync(

@@ -3743,6 +3743,96 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Ai_Prompt_SystemTemplate", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã tạo nhân viên và gửi email mời đặt mật khẩu..
+        /// </summary>
+        public static string Success_EmployeeInvited {
+            get {
+                return ResourceManager.GetString("Success_EmployeeInvited", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã gửi lại lời mời cho nhân viên..
+        /// </summary>
+        public static string Success_EmployeeInviteResent {
+            get {
+                return ResourceManager.GetString("Success_EmployeeInviteResent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã nâng cấp tài khoản thành nhân viên..
+        /// </summary>
+        public static string Success_EmployeePromoted {
+            get {
+                return ResourceManager.GetString("Success_EmployeePromoted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nhân viên đã kích hoạt tài khoản, không cần gửi lại lời mời..
+        /// </summary>
+        public static string Rule_EmployeeAlreadyActivated {
+            get {
+                return ResourceManager.GetString("Rule_EmployeeAlreadyActivated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Role 'Employee' chưa được seed trong hệ thống..
+        /// </summary>
+        public static string Rule_EmployeeRoleNotSeeded {
+            get {
+                return ResourceManager.GetString("Rule_EmployeeRoleNotSeeded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Họ tên không được để trống..
+        /// </summary>
+        public static string Validation_FullName_Required {
+            get {
+                return ResourceManager.GetString("Validation_FullName_Required", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email không được để trống..
+        /// </summary>
+        public static string Validation_Email_Required {
+            get {
+                return ResourceManager.GetString("Validation_Email_Required", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lời mời tham gia đội ngũ — {0}.
+        /// </summary>
+        public static string Email_StaffInviteSubject {
+            get {
+                return ResourceManager.GetString("Email_StaffInviteSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bạn được mời làm nhân viên. Vui lòng bấm vào liên kết sau để đặt mật khẩu và kích hoạt tài khoản.
+        /// </summary>
+        public static string Email_StaffInviteIntro {
+            get {
+                return ResourceManager.GetString("Email_StaffInviteIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đặt mật khẩu.
+        /// </summary>
+        public static string Email_StaffInviteButton {
+            get {
+                return ResourceManager.GetString("Email_StaffInviteButton", resourceCulture);
+            }
+        }
     
     }
 }

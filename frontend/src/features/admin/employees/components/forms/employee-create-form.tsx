@@ -39,6 +39,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
   const adminUsers = useAdminUsersSelect({
     search: useDebouncedValue(userSearch),
     availableOnly: true,
+    includeCustomers: true,
   });
   const positions = useAdminPositions({ pageSize: LOOKUP_PAGE_SIZE });
   const positionQuickCreate = usePositionQuickCreate();
@@ -59,6 +60,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
       userId: Number(values.userId),
       positionId: values.positionId ? Number(values.positionId) : null,
       hireDate: values.hireDate || null,
+      promoteCustomer: true,
     }, {
       onSuccess: () => onSuccess(),
       onError: applyServerErrors,
@@ -71,7 +73,7 @@ export const EmployeeCreateForm = ({ onSuccess }: EmployeeCreateFormProps) => {
         <FormSearchSelectField
           name="userId"
           control={form.control}
-          label="Người dùng"
+          label="Tài khoản có sẵn (nhân viên, quản trị viên hoặc khách hàng)"
           options={adminUsers.data ?? []}
           getOptionValue={(o) => o.userId}
           getOptionLabel={(o) => `${o.fullName} (${o.email})`}

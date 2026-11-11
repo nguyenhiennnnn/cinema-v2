@@ -18,7 +18,11 @@ public class UserEmployeeMappingConfig : IRegister
             .NewConfig<Employee, AdminEmployeeDto>()
             .Map(dest => dest.FullName, src => src.User.FullName)
             .Map(dest => dest.Email, src => src.User.Email)
-            .Map(dest => dest.PositionName, src => src.Position != null ? src.Position.Name : null);
+            .Map(dest => dest.PositionName, src => src.Position != null ? src.Position.Name : null)
+            .Map(
+                dest => dest.IsPendingActivation,
+                src => src.User.PasswordHash == User.PendingPasswordHash
+            );
 
         config.NewConfig<MembershipTier, MembershipTierBriefDto>();
     }

@@ -1,4 +1,5 @@
 using Cinema.Application.DTOs.Auth;
+using Cinema.Domain.Entities;
 
 namespace Cinema.Application.Interfaces;
 
@@ -43,6 +44,8 @@ public interface IAuthService
         ResendConfirmationEmailRequest request,
         CancellationToken cancellationToken
     );
+
+    Task SendStaffInviteAsync(User user, CancellationToken cancellationToken);
 
     Task<SocketTokenResponse> GenerateSocketTokenAsync(
         int userId,

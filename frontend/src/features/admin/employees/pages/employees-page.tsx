@@ -13,10 +13,14 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
-import { useAdminEmployees, useAdminUpdateEmployee } from "../hooks/use-admin-employee";
+import {
+  useAdminEmployees,
+  useAdminResendEmployeeInvite,
+  useAdminUpdateEmployee,
+} from "../hooks/use-admin-employee";
 import type { AdminEmployeeDto } from "../types";
 import { createEmployeeColumns } from "../components/employee-columns";
-import { EmployeeCreateForm } from "../components/forms/employee-create-form";
+import { EmployeeAddTabs } from "../components/employee-add-tabs";
 import { EmployeeUpdateForm } from "../components/forms/employee-update-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { useAdminEmployeeParams } from "@/hooks/use-query-params";
@@ -28,6 +32,7 @@ const AdminEmployeesPage = () => {
 
   const employees = useAdminEmployees(stripNulls(params));
   const updateEmployee = useAdminUpdateEmployee();
+  const resendInvite = useAdminResendEmployeeInvite();
   const currentUserId = useAuthStore((s) => s.user?.userId);
   const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -39,8 +44,8 @@ const AdminEmployeesPage = () => {
   const handleCreate = () => {
     openDialog({
       title: "Thêm nhân viên mới",
-      description: "Gán vị trí và ngày vào làm cho người dùng đã đăng ký.",
-      content: <EmployeeCreateForm onSuccess={closeDialog} />,
+      description: "Mời nhân viên mới qua email hoặc nâng cấp một tài khoản có sẵn.",
+      content: <EmployeeAddTabs onSuccess={closeDialog} />,
     });
   };
 
@@ -76,6 +81,17 @@ const AdminEmployeesPage = () => {
     });
   };
 
+  const handleResendInvite = (employee: AdminEmployeeDto) => {
+    openAlertDialog({
+      title: `Gửi lại lời mời cho "${employee.fullName}"?`,
+      description: `Một email đặt mật khẩu mới sẽ được gửi tới ${employee.email}. Liên kết cũ sẽ không còn hiệu lực.`,
+      confirmText: "Gửi lại lời mời",
+      onConfirm: async () => {
+        await resendInvite.mutateAsync(employee.employeeId);
+      },
+    });
+  };
+
   const handleBulkSetActive = async (selectedUserIds: string[], isActive: boolean) => {
     const res = await bulkUpdateStatus.mutateAsync({
       ids: selectedUserIds.map(Number),
@@ -90,6 +106,7 @@ const AdminEmployeesPage = () => {
     ...createEmployeeColumns({
       onEdit: handleEdit,
       onToggle: handleToggle,
+      onResendInvite: handleResendInvite,
       currentUserId,
     }),
   ];

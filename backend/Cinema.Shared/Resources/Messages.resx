@@ -442,6 +442,9 @@
   <data name="Rule_CustomerRoleNotSeeded" xml:space="preserve">
     <value>Role 'Customer' chưa được seed trong hệ thống.</value>
   </data>
+  <data name="Rule_EmployeeRoleNotSeeded" xml:space="preserve">
+    <value>Role 'Employee' chưa được seed trong hệ thống.</value>
+  </data>
   <data name="Rule_GoogleOAuthNotConfigured" xml:space="preserve">
     <value>Google OAuth chưa được cấu hình (thiếu ClientId).</value>
   </data>
@@ -589,6 +592,24 @@
   </data>
   <data name="Success_EmployeeCreated" xml:space="preserve">
     <value>Đã thêm nhân viên mới.</value>
+  </data>
+  <data name="Success_EmployeeInvited" xml:space="preserve">
+    <value>Đã tạo nhân viên và gửi email mời đặt mật khẩu.</value>
+  </data>
+  <data name="Success_EmployeeInviteResent" xml:space="preserve">
+    <value>Đã gửi lại lời mời cho nhân viên.</value>
+  </data>
+  <data name="Success_EmployeePromoted" xml:space="preserve">
+    <value>Đã nâng cấp tài khoản thành nhân viên.</value>
+  </data>
+  <data name="Rule_EmployeeAlreadyActivated" xml:space="preserve">
+    <value>Nhân viên đã kích hoạt tài khoản, không cần gửi lại lời mời.</value>
+  </data>
+  <data name="Validation_FullName_Required" xml:space="preserve">
+    <value>Họ tên không được để trống.</value>
+  </data>
+  <data name="Validation_Email_Required" xml:space="preserve">
+    <value>Email không được để trống.</value>
   </data>
   <data name="Success_EmployeeUpdated" xml:space="preserve">
     <value>Đã cập nhật nhân viên.</value>
@@ -1184,6 +1205,15 @@
   </data>
   <data name="Email_PasswordResetButton" xml:space="preserve">
     <value>Đặt lại mật khẩu</value>
+  </data>
+  <data name="Email_StaffInviteSubject" xml:space="preserve">
+    <value>Lời mời tham gia đội ngũ — {0}</value>
+  </data>
+  <data name="Email_StaffInviteIntro" xml:space="preserve">
+    <value>Bạn được mời làm nhân viên. Vui lòng bấm vào liên kết sau để đặt mật khẩu và kích hoạt tài khoản</value>
+  </data>
+  <data name="Email_StaffInviteButton" xml:space="preserve">
+    <value>Đặt mật khẩu</value>
   </data>
 
   <!-- ===== Payment / Refund descriptions ===== -->

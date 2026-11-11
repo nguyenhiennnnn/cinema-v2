@@ -4,6 +4,8 @@ namespace Cinema.Domain.Entities;
 
 public class User
 {
+    public const string PendingPasswordHash = "";
+
     public int UserId { get; set; }
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;

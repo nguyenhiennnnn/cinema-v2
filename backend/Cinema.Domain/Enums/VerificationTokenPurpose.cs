@@ -4,4 +4,5 @@ public enum VerificationTokenPurpose
 {
     EmailConfirmation,
     PasswordReset,
+    StaffInvite,
 }

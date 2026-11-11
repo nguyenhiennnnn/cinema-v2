@@ -21,6 +21,7 @@ public class LoyaltyPointEntryConfiguration : IEntityTypeConfiguration<LoyaltyPo
         );
         builder.HasKey(x => x.EntryId);
         builder.Property(x => x.RevokedPoints).HasDefaultValue(0);
+        builder.Property(x => x.EarnedAt).HasColumnType("timestamp without time zone");
 
         builder
             .HasOne(x => x.User)
@@ -33,7 +34,6 @@ public class LoyaltyPointEntryConfiguration : IEntityTypeConfiguration<LoyaltyPo
             .HasForeignKey(x => x.BookingId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Mỗi booking chỉ sinh 1 dòng điểm (chống cộng đôi khi webhook gọi lại).
         builder
             .HasIndex(x => x.BookingId)
             .IsUnique()

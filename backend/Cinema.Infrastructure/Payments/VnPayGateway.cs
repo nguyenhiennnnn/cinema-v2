@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Web;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Cinema.Application.Utils;
 using Cinema.Shared.Constants;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,8 @@ namespace Cinema.Infrastructure.Payments;
 public class VnPayGateway(
     IOptions<VnPayOptions> options,
     HttpClient httpClient,
-    ILogger<VnPayGateway> logger
+    ILogger<VnPayGateway> logger,
+    TimeProvider? timeProvider = null
 ) : IPaymentGateway
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -21,6 +23,7 @@ public class VnPayGateway(
     };
 
     private readonly VnPayOptions _options = options.Value;
+    private readonly TimeProvider _time = timeProvider ?? TimeProvider.System;
 
     public string MethodName => PaymentMethodNames.VnPay;
 
@@ -30,32 +33,11 @@ public class VnPayGateway(
     private const string DefaultIpAddress = "127.0.0.1";
     private const decimal AmountScale = 100m;
 
-    private static readonly TimeZoneInfo VnPayZone = ResolveVnPayZone();
-
-    private static TimeZoneInfo ResolveVnPayZone()
-    {
-        foreach (var id in new[] { "Asia/Ho_Chi_Minh", "SE Asia Standard Time" })
-        {
-            try
-            {
-                return TimeZoneInfo.FindSystemTimeZoneById(id);
-            }
-            catch (TimeZoneNotFoundException) { }
-            catch (InvalidTimeZoneException) { }
-        }
-        return TimeZoneInfo.CreateCustomTimeZone(
-            "VnPay-ICT",
-            TimeSpan.FromHours(7),
-            "Indochina Time",
-            "Indochina Time"
-        );
-    }
-
     private static string FormatVnPayDate(DateTime utc) =>
         TimeZoneInfo
             .ConvertTimeFromUtc(
                 utc.Kind == DateTimeKind.Utc ? utc : DateTime.SpecifyKind(utc, DateTimeKind.Utc),
-                VnPayZone
+                VietnamTime.FixedGmt7
             )
             .ToString(DateFormat);
 
@@ -81,7 +63,7 @@ public class VnPayGateway(
             ["vnp_Locale"] = "vn",
             ["vnp_ReturnUrl"] = returnUrl,
             ["vnp_IpAddr"] = DefaultIpAddress,
-            ["vnp_CreateDate"] = FormatVnPayDate(DateTime.UtcNow),
+            ["vnp_CreateDate"] = FormatVnPayDate(_time.GetUtcNow().UtcDateTime),
         };
 
         var signData = BuildSignData(vnpParams);
@@ -146,7 +128,7 @@ public class VnPayGateway(
     )
     {
         var requestId = Guid.NewGuid().ToString("N")[..16];
-        var createDate = FormatVnPayDate(DateTime.UtcNow);
+        var createDate = FormatVnPayDate(_time.GetUtcNow().UtcDateTime);
         var vnpTxnRef = request.OriginalTransactionId;
         var vnpAmount = ToVnpAmount(request.Amount);
         var vnpTransactionDate = FormatVnPayDate(request.OriginalPaymentDate);

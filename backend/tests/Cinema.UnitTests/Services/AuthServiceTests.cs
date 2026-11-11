@@ -640,3 +640,99 @@ public class AuthServicePasswordTests : AuthServiceTestBase
         ).ShouldBe(0);
     }
 }
+
+public class AuthServiceStaffInviteTests : AuthServiceTestBase
+{
+    private static readonly TimeSpan InviteValidity = TimeSpan.FromHours(72);
+
+    [Fact]
+    public async Task SendStaffInviteAsync_IssuesStaffInviteTokenValidFor72HoursAndQueuesEmail()
+    {
+        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
+        var sut = CreateSut();
+
+        await sut.SendStaffInviteAsync(user, CancellationToken.None);
+
+        var token = await Db.UserVerificationTokens.SingleAsync(t => t.UserId == user.UserId);
+        token.Purpose.ShouldBe(VerificationTokenPurpose.StaffInvite);
+        token.Used.ShouldBeFalse();
+        (token.ExpiresAt - DateTime.UtcNow).ShouldBeInRange(
+            InviteValidity - TimeSpan.FromMinutes(1),
+            InviteValidity
+        );
+        BackgroundJobClientMock.Verify(
+            c => c.Create(It.IsAny<Job>(), It.IsAny<IState>()),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task SendStaffInviteAsync_Resend_InvalidatesPreviousInviteTokens()
+    {
+        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
+
+        await CreateSut().SendStaffInviteAsync(user, CancellationToken.None);
+        await CreateSut().SendStaffInviteAsync(user, CancellationToken.None);
+
+        var tokens = await Db.UserVerificationTokens.Where(t => t.UserId == user.UserId).ToListAsync();
+        tokens.Count.ShouldBe(2);
+        tokens.Count(t => !t.Used).ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task ResetPasswordAsync_StaffInviteToken_SetsPasswordAndConsumesToken()
+    {
+        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
+        user.PasswordHash = User.PendingPasswordHash;
+        TokenServiceMock.Setup(t => t.HashOpaqueToken("invite-raw")).Returns("hashed-invite");
+        Db.UserVerificationTokens.Add(
+            new UserVerificationToken
+            {
+                UserId = user.UserId,
+                TokenHash = "hashed-invite",
+                Purpose = VerificationTokenPurpose.StaffInvite,
+                ExpiresAt = DateTime.UtcNow.AddHours(10),
+                CreatedAt = DateTime.UtcNow,
+            }
+        );
+        await Db.SaveChangesAsync();
+        PasswordHasherMock
+            .Setup(h => h.HashPassword(It.IsAny<User>(), "NewStr0ngPass"))
+            .Returns("invite-hash");
+
+        await CreateSut().ResetPasswordAsync(
+            new ResetPasswordRequest("invite-raw", "NewStr0ngPass"),
+            CancellationToken.None
+        );
+
+        (await Db.Users.AsNoTracking().SingleAsync(u => u.UserId == user.UserId))
+            .PasswordHash.ShouldBe("invite-hash");
+        (await Db.UserVerificationTokens.AsNoTracking().SingleAsync(t => t.TokenHash == "hashed-invite"))
+            .Used.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ResetPasswordAsync_ExpiredStaffInviteToken_Throws()
+    {
+        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
+        TokenServiceMock.Setup(t => t.HashOpaqueToken("old-raw")).Returns("hashed-old");
+        Db.UserVerificationTokens.Add(
+            new UserVerificationToken
+            {
+                UserId = user.UserId,
+                TokenHash = "hashed-old",
+                Purpose = VerificationTokenPurpose.StaffInvite,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(-1),
+                CreatedAt = DateTime.UtcNow.AddHours(-73),
+            }
+        );
+        await Db.SaveChangesAsync();
+
+        await Should.ThrowAsync<ValidationAppException>(() =>
+            CreateSut().ResetPasswordAsync(
+                new ResetPasswordRequest("old-raw", "NewStr0ngPass"),
+                CancellationToken.None
+            )
+        );
+    }
+}

@@ -39,13 +39,15 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
     public async Task<IActionResult> GetAdminUsers(
         [FromQuery] string? search,
         [FromQuery] bool availableOnly = true,
+        [FromQuery] bool includeCustomers = false,
         CancellationToken cancellationToken = default
     ) =>
         Ok(
             await employeeService.GetAdminUsersForSelectAsync(
                 search,
                 availableOnly,
-                cancellationToken
+                cancellationToken,
+                includeCustomers
             )
         );
 

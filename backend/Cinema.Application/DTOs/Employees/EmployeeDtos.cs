@@ -37,9 +37,23 @@ public record AdminEmployeeDto(
     int? PositionId,
     string? PositionName,
     DateOnly? HireDate,
-    bool IsActive
+    bool IsActive,
+    bool IsPendingActivation = false
 );
 
-public record CreateEmployeeRequest(int UserId, int? PositionId, DateOnly? HireDate);
+public record CreateEmployeeRequest(
+    int UserId,
+    int? PositionId,
+    DateOnly? HireDate,
+    bool PromoteCustomer = false
+);
+
+public record InviteEmployeeRequest(
+    string FullName,
+    string Email,
+    string? Phone,
+    int? PositionId,
+    DateOnly? JoiningDate
+);
 
 public record UpdateEmployeeRequest(int? PositionId, DateOnly? HireDate, bool IsActive);
