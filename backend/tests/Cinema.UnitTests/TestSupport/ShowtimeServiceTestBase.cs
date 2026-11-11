@@ -21,7 +21,7 @@ public abstract class ShowtimeServiceTestBase : IDisposable
     protected AppDbContext Db => _handle.Db;
     protected int RoomBufferMinutes { get; set; } = 15;
     protected Mock<IBackgroundJobClient> BackgroundJobClientMock { get; } = new();
-    protected Mock<IBookingService> BookingServiceMock { get; } = new();
+    protected Mock<IBookingFulfillmentService> BookingServiceMock { get; } = new();
     protected List<Mock<IPaymentGateway>> PaymentGatewayMocks { get; } = [];
 
     protected Mock<IPaymentGateway> AddPaymentGateway(string methodName)

@@ -20,7 +20,7 @@ public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
         var seatId = (
             await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
         ).ShowtimeSeatId;
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId,
@@ -49,7 +49,7 @@ public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
         var seatId = (
             await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
         ).ShowtimeSeatId;
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId,
@@ -65,7 +65,7 @@ public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
     {
         TestDataSeeder.SetCinemaSettings(Db);
         var bookingId = await SeedCounterPendingBookingAsync(basePrice: 100_000m);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var result = await sut.CounterCheckoutAsync(
             bookingId,
@@ -88,7 +88,7 @@ public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
     public async Task CounterCheckoutAsync_AmountReceivedLessThanTotal_ThrowsBusinessRuleExceptionAndDoesNotCreatePayment()
     {
         var bookingId = await SeedCounterPendingBookingAsync(basePrice: 100_000m);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CounterCheckoutAsync(
@@ -110,7 +110,7 @@ public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
         var booking = await Db.Bookings.SingleAsync(b => b.BookingId == bookingId);
         booking.ExpiresAt = DateTime.UtcNow.AddMinutes(-1);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CounterCheckoutAsync(
@@ -124,7 +124,7 @@ public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
     [Fact]
     public async Task CounterCheckoutAsync_UnknownBookingId_ThrowsNotFound()
     {
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<NotFoundException>(() =>
             sut.CounterCheckoutAsync(
@@ -158,13 +158,13 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
             await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
         ).ShowtimeSeatId;
 
-        var holdSut = CreateSut();
+        var holdSut = CreateHoldSut();
         var hold = await holdSut.HoldSeatsAsync(
             customer.UserId,
             new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], null),
             CancellationToken.None
         );
-        var confirmSut = CreateSut();
+        var confirmSut = CreateFulfillmentSut();
         await confirmSut.ConfirmBookingAndGenerateTicketsAsync(
             hold.BookingId,
             CancellationToken.None
@@ -180,7 +180,7 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
         var (qrCode, bookingId) = await SeedConfirmedTicketAsync(
             startTime: DateTime.UtcNow.AddMinutes(10)
         );
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var result = await sut.CheckinAsync(new CheckinRequest(qrCode), CancellationToken.None);
 
@@ -193,7 +193,7 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
     [Fact]
     public async Task CheckinAsync_UnknownQrCode_ThrowsNotFound()
     {
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<NotFoundException>(() =>
             sut.CheckinAsync(new CheckinRequest("INVALID-QR"), CancellationToken.None)
@@ -204,9 +204,9 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
     public async Task CheckinAsync_TicketAlreadyCheckedIn_ThrowsConflict()
     {
         var (qrCode, _) = await SeedConfirmedTicketAsync(startTime: DateTime.UtcNow.AddMinutes(10));
-        var firstSut = CreateSut();
+        var firstSut = CreateCounterSut();
         await firstSut.CheckinAsync(new CheckinRequest(qrCode), CancellationToken.None);
-        var secondSut = CreateSut();
+        var secondSut = CreateCounterSut();
 
         await Should.ThrowAsync<ConflictAppException>(() =>
             secondSut.CheckinAsync(new CheckinRequest(qrCode), CancellationToken.None)
@@ -217,7 +217,7 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
     public async Task CheckinAsync_MoreThan30MinutesBeforeShowtime_ThrowsBusinessRuleException()
     {
         var (qrCode, _) = await SeedConfirmedTicketAsync(startTime: DateTime.UtcNow.AddHours(2));
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CheckinAsync(new CheckinRequest(qrCode), CancellationToken.None)
@@ -235,7 +235,7 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
         booking.Showtime.EndTime = DateTime.UtcNow.AddHours(-3);
         await Db.SaveChangesAsync();
 
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CheckinAsync(new CheckinRequest(qrCode), CancellationToken.None)
@@ -256,7 +256,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 500_000m);
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 50, DateTime.UtcNow);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateFulfillmentSut();
 
         await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
@@ -277,7 +277,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 20_000m);
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 2, DateTime.UtcNow);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateFulfillmentSut();
 
         await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
@@ -292,7 +292,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
     {
         TestDataSeeder.SetCinemaSettings(Db);
         var (employeeUser, _) = TestDataSeeder.AddEmployee(Db);
-        var sut = CreateSut();
+        var sut = CreateFulfillmentSut();
 
         await Should.NotThrowAsync(() =>
             sut.ReverseLoyaltyAsync(employeeUser.UserId, 0, 100_000m, CancellationToken.None)
@@ -310,7 +310,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
         var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<NotFoundException>(() =>
             sut.CounterHoldSeatsAsync(
@@ -329,7 +329,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
         var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CounterHoldSeatsAsync(
@@ -347,7 +347,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
         var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         // employeeUser has AdminRoleId, not CustomerRoleId
         await Should.ThrowAsync<BusinessRuleException>(() =>
@@ -370,7 +370,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
         var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId, employeeUser.UserId,
@@ -392,7 +392,7 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
         var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId, employeeUser.UserId,

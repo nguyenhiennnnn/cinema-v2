@@ -2,7 +2,6 @@ using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
-using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,12 @@ namespace Cinema.Api.Controllers.Client;
 [ApiController]
 [Route("api/v1/bookings")]
 [Authorize]
-public class BookingsController(IBookingService bookingService) : AppControllerBase
+public class BookingsController(
+    IBookingHoldService bookingHoldService,
+    IBookingQueryService bookingQueryService,
+    IBookingCheckoutService bookingCheckoutService,
+    IBookingCancellationService bookingCancellationService
+) : AppControllerBase
 {
     [HttpPost("hold")]
     [EnableRateLimiting("booking-hold")]
@@ -22,7 +26,7 @@ public class BookingsController(IBookingService bookingService) : AppControllerB
         CancellationToken cancellationToken
     )
     {
-        var result = await bookingService.HoldSeatsAsync(CurrentUserId, request, cancellationToken);
+        var result = await bookingHoldService.HoldSeatsAsync(CurrentUserId, request, cancellationToken);
         return StatusCode(StatusCodes.Status201Created, result);
     }
 
@@ -34,7 +38,7 @@ public class BookingsController(IBookingService bookingService) : AppControllerB
         CancellationToken cancellationToken = default
     )
     {
-        var result = await bookingService.GetMyBookingsAsync(
+        var result = await bookingQueryService.GetMyBookingsAsync(
             CurrentUserId,
             status,
             cursor,
@@ -50,7 +54,7 @@ public class BookingsController(IBookingService bookingService) : AppControllerB
         CancellationToken cancellationToken
     )
     {
-        var result = await bookingService.GetBookingDetailAsync(
+        var result = await bookingQueryService.GetBookingDetailAsync(
             CurrentUserId,
             bookingId,
             cancellationToken
@@ -65,7 +69,7 @@ public class BookingsController(IBookingService bookingService) : AppControllerB
         CancellationToken cancellationToken
     )
     {
-        var result = await bookingService.CheckoutAsync(
+        var result = await bookingCheckoutService.CheckoutAsync(
             CurrentUserId,
             bookingId,
             request,
@@ -81,7 +85,7 @@ public class BookingsController(IBookingService bookingService) : AppControllerB
         CancellationToken cancellationToken
     )
     {
-        var result = await bookingService.CancelBookingAsync(
+        var result = await bookingCancellationService.CancelBookingAsync(
             CurrentUserId,
             bookingId,
             cancellationToken

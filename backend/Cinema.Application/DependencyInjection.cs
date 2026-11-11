@@ -34,7 +34,15 @@ public static class DependencyInjection
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<ISeatExpirationService, SeatExpirationService>();
         services.AddScoped<IShowtimeService, ShowtimeService>();
-        services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<BookingSeatReleaser>();
+        services.AddScoped<IBookingHoldPolicy, OnlineHoldPolicy>();
+        services.AddScoped<IBookingHoldPolicy, CounterHoldPolicy>();
+        services.AddScoped<IBookingQueryService, BookingQueryService>();
+        services.AddScoped<IBookingFulfillmentService, BookingFulfillmentService>();
+        services.AddScoped<IBookingCancellationService, BookingCancellationService>();
+        services.AddScoped<IBookingHoldService, BookingHoldService>();
+        services.AddScoped<IBookingCheckoutService, BookingCheckoutService>();
+        services.AddScoped<ICounterBookingService, CounterBookingService>();
         services.AddScoped<LoyaltyExpiryService>();
         services.AddScoped<IComboService, ComboService>();
         services.AddScoped<IPaymentService, PaymentService>();

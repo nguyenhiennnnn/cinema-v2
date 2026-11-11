@@ -38,7 +38,7 @@ public class BookingServiceLoyaltyTests : BookingServiceTestBase
         var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 1_500_000m);
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 150, DateTime.UtcNow);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateFulfillmentSut();
 
         await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 600_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
@@ -60,7 +60,7 @@ public class BookingServiceLoyaltyTests : BookingServiceTestBase
         var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 1_500_000m);
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 150, DateTime.UtcNow);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateFulfillmentSut();
 
         await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
@@ -92,12 +92,12 @@ public class BookingServiceLoyaltyTests : BookingServiceTestBase
             startTime: DateTime.UtcNow.AddDays(2)
         );
         var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
-        var hold = await CreateSut().HoldSeatsAsync(
+        var hold = await CreateHoldSut().HoldSeatsAsync(
             customer.UserId,
             new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], null),
             CancellationToken.None
         );
-        await CreateSut().ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
+        await CreateFulfillmentSut().ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
         var booking = await Db.Bookings.AsNoTracking().SingleAsync(b => b.BookingId == hold.BookingId);
         Db.Payments.Add(
             new Payment
@@ -118,7 +118,7 @@ public class BookingServiceLoyaltyTests : BookingServiceTestBase
             .Setup(g => g.RefundAsync(It.IsAny<RefundRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RefundResult(true, "REFUND-P", null));
 
-        await CreateSut().CancelBookingAsync(customer.UserId, booking.BookingId, CancellationToken.None);
+        await CreateCancellationSut().CancelBookingAsync(customer.UserId, booking.BookingId, CancellationToken.None);
 
         var refunded = booking.FinalAmount / 2m;
         var revokedPoints = (int)Math.Floor(refunded / 10_000m);
@@ -141,13 +141,13 @@ public class BookingServiceConfirmEmailTests : BookingServiceTestBase
         var movie = TestDataSeeder.AddMovie(Db, title: "Phim Kiem Tra Email");
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
         var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
-        var hold = await CreateSut().HoldSeatsAsync(
+        var hold = await CreateHoldSut().HoldSeatsAsync(
             customer.UserId,
             new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], null),
             CancellationToken.None
         );
 
-        await CreateSut().ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
+        await CreateFulfillmentSut().ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
 
         BackgroundJobClientMock.Verify(
             c =>

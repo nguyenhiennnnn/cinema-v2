@@ -14,7 +14,7 @@ namespace Cinema.Application.Services.Payments;
 
 public class PaymentService(
     IAppDbContext db,
-    IBookingService bookingService,
+    IBookingFulfillmentService bookingFulfillmentService,
     IEnumerable<IPaymentGateway> paymentGateways,
     INotificationService notificationService,
     ILogger<PaymentService> logger,
@@ -264,7 +264,7 @@ public class PaymentService(
         if (!isSuccess)
         {
             await transaction.CommitAsync(cancellationToken);
-            await bookingService.ProcessPaymentFailureAsync(payment.BookingId, cancellationToken);
+            await bookingFulfillmentService.ProcessPaymentFailureAsync(payment.BookingId, cancellationToken);
             logger.LogInformation(
                 "PaymentFailed PaymentId {PaymentId} BookingId {BookingId}",
                 payment.PaymentId,
@@ -275,7 +275,7 @@ public class PaymentService(
 
         try
         {
-            await bookingService.ConfirmBookingAndGenerateTicketsAsync(
+            await bookingFulfillmentService.ConfirmBookingAndGenerateTicketsAsync(
                 payment.BookingId,
                 cancellationToken
             );

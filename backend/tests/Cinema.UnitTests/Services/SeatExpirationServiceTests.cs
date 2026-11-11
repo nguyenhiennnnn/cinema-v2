@@ -34,6 +34,7 @@ public class SeatExpirationServiceTests : IDisposable
         return new SeatExpirationService(
             Db,
             _realtimeNotifierMock.Object,
+            new BookingSeatReleaser(Db, _realtimeNotifierMock.Object),
             NullLogger<SeatExpirationService>.Instance
         );
     }

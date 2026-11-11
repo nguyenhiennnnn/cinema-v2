@@ -10,6 +10,7 @@ namespace Cinema.Application.Services.Bookings;
 public class SeatExpirationService(
     IAppDbContext db,
     IRealtimeNotifier realtimeNotifier,
+    BookingSeatReleaser seatReleaser,
     ILogger<SeatExpirationService> logger
 ) : ISeatExpirationService
 {
@@ -55,24 +56,7 @@ public class SeatExpirationService(
 
         foreach (var booking in expirationBookings)
         {
-            var holderUserId = await BookingSeatHold.ResolveHolderUserIdAsync(
-                db,
-                booking,
-                cancellationToken
-            );
-
-            var seats = await db
-                .ShowtimeSeats.HeldFor(booking, holderUserId)
-                .ToListAsync(cancellationToken);
-
-            var seatIds = seats.Select(s => s.ShowtimeSeatId).ToList();
-            foreach (var seat in seats)
-            {
-                seat.Status = ShowtimeSeatStatus.Available;
-                seat.HeldByUserId = null;
-                seat.HeldByBookingId = null;
-                seat.HeldUntil = null;
-            }
+            var seatIds = await seatReleaser.ReleaseBookingSeatsAsync(booking, cancellationToken);
 
             booking.Status = BookingStatus.Expired;
 

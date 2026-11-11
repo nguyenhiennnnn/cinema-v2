@@ -75,7 +75,7 @@ public abstract class BookingServiceTestBase : IDisposable
         return mock;
     }
 
-    protected BookingService CreateSut()
+    private void PrepareContext()
     {
         var settings = Db.CinemaSettings.FirstOrDefault(s => s.Id == 1);
         if (settings is not null && settings.HoldDurationMinutes != HoldDurationMinutes)
@@ -85,15 +85,78 @@ public abstract class BookingServiceTestBase : IDisposable
         }
 
         Db.ChangeTracker.Clear();
+    }
 
-        return new(
+    private BookingSeatReleaser CreateReleaser() => new(Db, RealtimeNotifierMock.Object);
+
+    private BookingFulfillmentService CreateFulfillment() =>
+        new(
             Db,
             Options.Create(new BookingOptions()),
             RealtimeNotifierMock.Object,
+            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            CreateReleaser(),
+            NullLogger<BookingFulfillmentService>.Instance
+        );
+
+    protected BookingQueryService CreateQuerySut()
+    {
+        PrepareContext();
+        return new(Db, Options.Create(new BookingOptions()));
+    }
+
+    protected BookingHoldService CreateHoldSut()
+    {
+        PrepareContext();
+        return new(
+            Db,
+            RealtimeNotifierMock.Object,
+            [new OnlineHoldPolicy(Db), new CounterHoldPolicy(Db)],
+            CreateFulfillment(),
+            NullLogger<BookingHoldService>.Instance
+        );
+    }
+
+    protected BookingCheckoutService CreateCheckoutSut()
+    {
+        PrepareContext();
+        return new(
+            Db,
+            PaymentGatewayMocks.Select(m => m.Object),
+            NullLogger<BookingCheckoutService>.Instance
+        );
+    }
+
+    protected CounterBookingService CreateCounterSut()
+    {
+        PrepareContext();
+        return new(
+            Db,
+            CreateHoldSut(),
+            CreateFulfillment(),
+            CreateReleaser(),
+            NullLogger<CounterBookingService>.Instance
+        );
+    }
+
+    protected BookingCancellationService CreateCancellationSut()
+    {
+        PrepareContext();
+        return new(
+            Db,
+            RealtimeNotifierMock.Object,
             PaymentGatewayMocks.Select(m => m.Object),
             new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
-            NullLogger<BookingService>.Instance
+            CreateFulfillment(),
+            CreateReleaser(),
+            NullLogger<BookingCancellationService>.Instance
         );
+    }
+
+    protected BookingFulfillmentService CreateFulfillmentSut()
+    {
+        PrepareContext();
+        return CreateFulfillment();
     }
 
     public void Dispose() => _handle.Dispose();

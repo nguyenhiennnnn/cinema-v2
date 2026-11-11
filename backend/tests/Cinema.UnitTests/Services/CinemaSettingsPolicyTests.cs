@@ -28,7 +28,7 @@ public class BookingLimitsFromSettingsTests : BookingServiceTestBase
         await SetLimitsAsync(maxSeats: 1, maxCombo: 10);
 
         var ex = await Should.ThrowAsync<ValidationAppException>(() =>
-            CreateSut()
+            CreateHoldSut()
                 .HoldSeatsAsync(
                     userId: 1,
                     new HoldSeatsRequest(1, "Nguyen Van A", null, [1, 2], null),
@@ -45,7 +45,7 @@ public class BookingLimitsFromSettingsTests : BookingServiceTestBase
         await SetLimitsAsync(maxSeats: 10, maxCombo: 2);
 
         var ex = await Should.ThrowAsync<ValidationAppException>(() =>
-            CreateSut()
+            CreateHoldSut()
                 .HoldSeatsAsync(
                     userId: 1,
                     new HoldSeatsRequest(

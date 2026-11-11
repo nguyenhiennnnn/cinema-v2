@@ -1,19 +1,14 @@
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
-import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
-import { useActiveCombos } from "@/features/client/combos/hooks/use-combos";
 
 import { useCounterFlow } from "../hooks/use-counter-flow";
 import { CounterShowtimePicker } from "../components/counter-showtime-picker";
-import { CounterSeatPanel } from "../components/counter-seat-panel";
-import { CounterCustomerForm } from "../components/counter-customer-form";
-import { CounterPriceSummary } from "../components/counter-price-summary";
-import { CounterCheckoutPanel } from "../components/counter-checkout-panel";
+import { CounterSeatsStep } from "../components/counter-seats-step";
+import { CounterCheckoutStep } from "../components/counter-checkout-step";
 import { CounterTicketResult } from "../components/counter-ticket-result";
 
 const AdminCounterPage = () => {
   const flow = useCounterFlow();
-  const activeCombos = useActiveCombos();
 
   return (
     <div className="flex flex-col gap-6">
@@ -37,71 +32,9 @@ const AdminCounterPage = () => {
         />
       )}
 
-      {flow.step === "seats" && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <CounterSeatPanel
-              isLoading={flow.showtimeSeats.isLoading}
-              data={flow.showtimeSeats.data}
-              statusMap={flow.seatStatusMap}
-              selectedIds={flow.selectedSeatIds}
-              onToggleSeat={flow.toggleSeat}
-            />
-          </div>
+      {flow.step === "seats" && <CounterSeatsStep flow={flow} />}
 
-          <div className="flex flex-col gap-4">
-            <div className="bg-card p-4">
-              <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Combo</h3>
-              <ComboPicker
-                combos={activeCombos.data}
-                isLoading={activeCombos.isLoading}
-                quantities={flow.comboQuantities}
-                onChange={flow.setComboQuantity}
-              />
-            </div>
-
-            <div className="bg-card p-4">
-              <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Thông tin khách</h3>
-              <CounterCustomerForm
-                customerName={flow.customerName}
-                onCustomerNameChange={flow.setCustomerName}
-                customerPhone={flow.customerPhone}
-                onCustomerPhoneChange={flow.setCustomerPhone}
-                userId={flow.userId}
-                onUserIdChange={flow.setUserId}
-              />
-            </div>
-
-            <CounterPriceSummary
-              seats={flow.selectedSeatsInfo}
-              combos={activeCombos.data}
-              comboQuantities={flow.comboQuantities}
-            />
-
-            <Button disabled={!flow.canHold || flow.isHolding} onClick={flow.holdSeats}>
-              {flow.isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục"}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {flow.step === "checkout" && flow.holdResult && (
-        <div className="mx-auto flex w-full max-w-md flex-col gap-4">
-          <CounterPriceSummary
-            seats={flow.selectedSeatsInfo}
-            combos={activeCombos.data}
-            comboQuantities={flow.comboQuantities}
-            finalAmount={flow.holdResult.finalAmount}
-          />
-          <CounterCheckoutPanel
-            hold={flow.holdResult}
-            onConfirm={flow.confirmCheckout}
-            onChangeSeats={flow.backToSeats}
-            onCancelOrder={flow.resetFlow}
-            isSubmitting={flow.isCheckingOut || flow.isCancelling}
-          />
-        </div>
-      )}
+      {flow.step === "checkout" && <CounterCheckoutStep flow={flow} />}
 
       {flow.step === "done" && flow.checkoutResult && (
         <CounterTicketResult

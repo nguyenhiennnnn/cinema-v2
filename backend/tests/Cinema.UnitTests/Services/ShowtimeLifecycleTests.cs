@@ -70,7 +70,7 @@ public class BookingServiceStopSellingTests : BookingServiceTestBase
         var settings = TestDataSeeder.SetCinemaSettings(Db);
         settings.StopSellingMinutesBefore = 30;
         Db.SaveChanges();
-        var sut = CreateSut();
+        var sut = CreateHoldSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.HoldSeatsAsync(

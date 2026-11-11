@@ -19,7 +19,7 @@ namespace Cinema.UnitTests.Services;
 public class PaymentServiceVnPayTests : IDisposable
 {
     private readonly SqliteAppDbContextHandle _handle = new();
-    private readonly Mock<IBookingService> _bookingServiceMock = new();
+    private readonly Mock<IBookingFulfillmentService> _bookingServiceMock = new();
     private readonly Mock<IPaymentGateway> _gatewayMock = new();
     private readonly Mock<IBackgroundJobClient> backgroundJobClientMock = new();
 

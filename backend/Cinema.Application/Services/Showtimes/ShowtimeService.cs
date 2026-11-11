@@ -23,7 +23,7 @@ public class ShowtimeService(
     IEnumerable<IPaymentGateway> paymentGateways,
     IBackgroundJobClient backgroundJobClient,
     INotificationService notificationService,
-    IBookingService bookingService,
+    IBookingFulfillmentService bookingFulfillmentService,
     ILogger<ShowtimeService> logger,
     IOptions<SchedulerOptions>? schedulerOptions = null
 ) : IShowtimeService
@@ -379,7 +379,7 @@ public class ShowtimeService(
                         pending.Status = PaymentStatus.Failed;
 
                 if (wasConfirmed && booking.UserId is not null)
-                    await bookingService.ReverseLoyaltyAsync(
+                    await bookingFulfillmentService.ReverseLoyaltyAsync(
                         booking.UserId.Value,
                         booking.BookingId,
                         booking.FinalAmount,

@@ -35,7 +35,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     {
         var start = DateTime.UtcNow.AddMinutes(5);
         var (user, employee, showtime, seats) = SeedCounter(1, start);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId,
@@ -55,7 +55,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     public async Task CounterHoldSeatsAsync_BindsHeldSeatsToCreatedBooking()
     {
         var (user, employee, showtime, seats) = SeedCounter(2);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId,
@@ -77,7 +77,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
         seat.HeldByUserId = user.UserId;
         seat.HeldUntil = DateTime.UtcNow.AddMinutes(-1);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId,
@@ -102,7 +102,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
         seat.HeldByUserId = other.UserId;
         seat.HeldUntil = DateTime.UtcNow.AddMinutes(-1);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<SeatConflictException>(() =>
             sut.CounterHoldSeatsAsync(
@@ -124,7 +124,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
         TestDataSeeder.SetCinemaSettings(Db);
         var member = TestDataSeeder.AddCustomer(Db, email: "member@test.local");
         var (user, employee, showtime, seats) = SeedCounter(1);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         var hold = await sut.CounterHoldSeatsAsync(
             employee.EmployeeId,
             user.UserId,
@@ -138,7 +138,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
             await Db.SaveChangesAsync();
         }
 
-        sut = CreateSut();
+        sut = CreateCounterSut();
         var result = await sut.CounterCheckoutAsync(
             hold.BookingId,
             new CounterCheckoutRequest(1_000_000m),
@@ -169,7 +169,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
         };
         Db.Bookings.Add(booking);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CounterCheckoutAsync(booking.BookingId, new CounterCheckoutRequest(100_000m), CancellationToken.None)
@@ -184,7 +184,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     public async Task CounterHoldSeatsAsync_SecondHoldOnSameShowtimeBySameEmployee_Succeeds()
     {
         var (user, employee, showtime, seats) = SeedCounter(2);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[0]), CancellationToken.None);
 
         var second = await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[1]), CancellationToken.None);
@@ -198,7 +198,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     public async Task CounterHoldSeatsAsync_SixthPendingCounterBookingOfSameEmployee_ThrowsConflict()
     {
         var (user, employee, showtime, seats) = SeedCounter(6);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         for (var i = 0; i < 5; i++)
             await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[i]), CancellationToken.None);
 
@@ -215,7 +215,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     public async Task CounterHoldSeatsAsync_CancellingOnePendingFreesSlotUnderLimit()
     {
         var (user, employee, showtime, seats) = SeedCounter(6);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         var first = await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[0]), CancellationToken.None);
         for (var i = 1; i < 5; i++)
             await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[i]), CancellationToken.None);
@@ -230,7 +230,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     public async Task CounterCancelAsync_PendingCounterBooking_CancelsAndReleasesSeats()
     {
         var (user, employee, showtime, seats) = SeedCounter(1);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         var hold = await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[0]), CancellationToken.None);
         var (_, otherEmployee) = TestDataSeeder.AddEmployee(Db, email: "other-employee@test.local");
 
@@ -255,7 +255,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     public async Task CounterCancelAsync_AlreadyCancelled_IsIdempotent()
     {
         var (user, employee, showtime, seats) = SeedCounter(1);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         var hold = await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[0]), CancellationToken.None);
         await sut.CounterCancelAsync(hold.BookingId, employee.EmployeeId, CancellationToken.None);
 
@@ -273,7 +273,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     {
         TestDataSeeder.SetCinemaSettings(Db);
         var (user, employee, showtime, seats) = SeedCounter(1);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         var hold = await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[0]), CancellationToken.None);
         await sut.CounterCheckoutAsync(hold.BookingId, new CounterCheckoutRequest(1_000_000m), CancellationToken.None);
 
@@ -306,7 +306,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
         };
         Db.Bookings.Add(booking);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CounterCancelAsync(booking.BookingId, employee.EmployeeId, CancellationToken.None)
@@ -321,7 +321,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     public async Task CounterCancelAsync_UnknownBooking_ThrowsNotFound()
     {
         var (_, employee, _, _) = SeedCounter(1);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
 
         await Should.ThrowAsync<NotFoundException>(() =>
             sut.CounterCancelAsync(999_999, employee.EmployeeId, CancellationToken.None)
@@ -333,7 +333,7 @@ public class BookingServiceSeatHoldTests : BookingServiceTestBase
     {
         TestDataSeeder.SetCinemaSettings(Db);
         var (user, employee, showtime, seats) = SeedCounter(1);
-        var sut = CreateSut();
+        var sut = CreateCounterSut();
         var hold = await sut.CounterHoldSeatsAsync(employee.EmployeeId, user.UserId, HoldRequest(showtime, seats[0]), CancellationToken.None);
         await sut.CounterCancelAsync(hold.BookingId, employee.EmployeeId, CancellationToken.None);
 

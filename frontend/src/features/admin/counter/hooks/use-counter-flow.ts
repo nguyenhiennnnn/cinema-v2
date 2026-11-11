@@ -1,215 +1,102 @@
-import { useMemo, useState } from "react";
-import { toast } from "@/components/ui/toast";
-import { getBusinessToday } from "@/lib/business-time";
-import { ShowtimeSeatStatus } from "@/types/enum";
-import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
-import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";
-import { useActiveCombos } from "@/features/client/combos/hooks/use-combos";
+import { useReducer } from "react";
 import {
-  useCounterHold,
-  useCounterCheckout,
-  useCounterCancel,
-  useAdminBookingDetail,
-} from "@/features/admin/bookings/hooks/use-admin-booking";
-import type {
-  CounterHoldResponse,
-  CounterCheckoutResponse,
-} from "@/features/admin/bookings/types";
+  counterFlowReducer,
+  initialCounterStep,
+  type CounterStep,
+} from "./counter-flow-reducer";
+import { useCounterSelection } from "./use-counter-selection";
+import { useCounterHoldFlow } from "./use-counter-hold";
+import { useCounterCheckoutFlow } from "./use-counter-checkout";
 
-export type CounterStep = "showtime" | "seats" | "checkout" | "done";
+export type { CounterStep };
 
 export function useCounterFlow() {
-  const [step, setStep] = useState<CounterStep>("showtime");
-  const [selectedDate, setSelectedDate] = useState(() => getBusinessToday());
-  const [showtimeId, setShowtimeId] = useState<number | null>(null);
-  const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(
-    new Set(),
-  );
-  const [comboQuantities, setComboQuantities] = useState<
-    Record<number, number>
-  >({});
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [userId, setUserId] = useState<number | null>(null);
-  const [holdResult, setHoldResult] = useState<CounterHoldResponse | null>(
-    null,
-  );
-  const [checkoutResult, setCheckoutResult] =
-    useState<CounterCheckoutResponse | null>(null);
+  const [step, dispatch] = useReducer(counterFlowReducer, initialCounterStep);
 
-  const showtimeSeats = useShowtimeSeats(showtimeId ?? 0);
-  const seatStatusMap = useRealtimeSeatMap({
-    showtimeId,
-    initialSeats: showtimeSeats.data?.seats,
-    ownBookingId: holdResult?.bookingId ?? null,
-    onHoldExpired: () => {
-      toast.add({ title: "Thời gian giữ ghế đã hết hạn.", type: "warning" });
-      resetLocalFlow();
-    },
+  const selection = useCounterSelection();
+  const hold = useCounterHoldFlow({
+    showtimeId: selection.showtimeId,
+    initialSeats: selection.showtimeSeats.data?.seats,
+    onHoldExpired: () => resetLocalFlow(),
   });
+  const checkout = useCounterCheckoutFlow(hold.holdResult);
 
-  const bookingDetail = useAdminBookingDetail(holdResult?.bookingId ?? 0);
-
-  const counterHold = useCounterHold();
-  const counterCheckout = useCounterCheckout();
-  const counterCancel = useCounterCancel();
-  const activeCombos = useActiveCombos();
-
-  const combosPayload = useMemo(
-    () =>
-      Object.entries(comboQuantities)
-        .filter(([, qty]) => qty > 0)
-        .map(([comboId, quantity]) => ({ comboId: Number(comboId), quantity })),
-    [comboQuantities],
-  );
-
-  const selectedSeatsInfo = useMemo(
-    () =>
-      (showtimeSeats.data?.seats ?? []).filter((s) =>
-        selectedSeatIds.has(s.showtimeSeatId),
-      ),
-    [showtimeSeats.data, selectedSeatIds],
-  );
-
-  const estimatedTotal = useMemo(() => {
-    const seatsTotal = selectedSeatsInfo.reduce((sum, s) => sum + s.price, 0);
-    const combosTotal = combosPayload.reduce((sum, item) => {
-      const combo = activeCombos.data?.find((c) => c.comboId === item.comboId);
-      return sum + (combo?.price ?? 0) * item.quantity;
-    }, 0);
-    return seatsTotal + combosTotal;
-  }, [selectedSeatsInfo, combosPayload, activeCombos.data]);
-
-  const cancelHold = async () => {
-    if (!holdResult) return true;
-    try {
-      await counterCancel.mutateAsync(holdResult.bookingId);
-    } catch {
-      return false;
-    }
-    setHoldResult(null);
-    return true;
-  };
+  const setStep = (next: CounterStep) =>
+    dispatch({ type: "SET_STEP", step: next });
 
   const pickShowtime = async (id: number) => {
-    if (id !== showtimeId && !(await cancelHold())) return;
-    setShowtimeId(id);
-    setSelectedSeatIds(new Set());
-    setStep("seats");
+    if (id !== selection.showtimeId && !(await hold.cancelHold())) return;
+    selection.selectShowtime(id);
+    dispatch({ type: "SHOWTIME_PICKED" });
   };
 
-  const toggleSeat = (showtimeSeatId: number) => {
-    const status = seatStatusMap.get(showtimeSeatId);
-    if (status && status !== ShowtimeSeatStatus.Available) return;
-
-    setSelectedSeatIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(showtimeSeatId)) next.delete(showtimeSeatId);
-      else next.add(showtimeSeatId);
-      return next;
-    });
-  };
-
-  const setComboQuantity = (comboId: number, quantity: number) => {
-    setComboQuantities((prev) => ({ ...prev, [comboId]: quantity }));
-  };
-
-  const canHold =
-    showtimeId != null &&
-    selectedSeatIds.size > 0 &&
-    (userId != null || customerName.trim().length > 0);
+  const toggleSeat = (showtimeSeatId: number) =>
+    selection.toggleSeat(showtimeSeatId, hold.seatStatusMap.get(showtimeSeatId));
 
   const holdSeats = async () => {
-    if (!showtimeId) return;
-    await counterHold.mutateAsync(
-      {
-        showtimeId,
-        seatIds: Array.from(selectedSeatIds),
-        combos: combosPayload.length > 0 ? combosPayload : undefined,
-        userId: userId ?? undefined,
-        customerName: customerName.trim(),
-        customerPhone: customerPhone.trim() || undefined,
-      },
-      {
-        onSuccess: (res) => {
-          setHoldResult(res.data);
-          setStep("checkout");
-        },
-      },
-    );
+    const request = selection.buildHoldRequest();
+    if (!request) return;
+    await hold.holdSeats(request, () => dispatch({ type: "HOLD_SUCCEEDED" }));
   };
 
   const confirmCheckout = async (amountReceived: number) => {
-    if (!holdResult) return;
-    await counterCheckout.mutateAsync(
-      {
-        bookingId: holdResult.bookingId,
-        body: { amountReceived },
-      },
-      {
-        onSuccess: (res) => {
-          setCheckoutResult(res.data);
-          setStep("done");
-        },
-      },
+    await checkout.confirmCheckout(amountReceived, () =>
+      dispatch({ type: "CHECKOUT_SUCCEEDED" }),
     );
   };
 
   const backToSeats = async () => {
-    if (!(await cancelHold())) return;
-    setStep("seats");
+    if (!(await hold.cancelHold())) return;
+    dispatch({ type: "BACK_TO_SEATS" });
   };
 
   const resetLocalFlow = () => {
-    setStep("showtime");
-    setShowtimeId(null);
-    setSelectedSeatIds(new Set());
-    setComboQuantities({});
-    setCustomerName("");
-    setCustomerPhone("");
-    setUserId(null);
-    setHoldResult(null);
-    setCheckoutResult(null);
+    dispatch({ type: "RESET" });
+    selection.resetSelection();
+    hold.clearHold();
+    checkout.clearCheckout();
   };
 
   const resetFlow = async () => {
-    if (!(await cancelHold())) return;
+    if (!(await hold.cancelHold())) return;
     resetLocalFlow();
   };
 
   return {
     step,
     setStep,
-    selectedDate,
-    setSelectedDate,
-    showtimeId,
-    showtimeSeats,
-    seatStatusMap,
-    selectedSeatIds,
-    selectedSeatsInfo,
+    selectedDate: selection.selectedDate,
+    setSelectedDate: selection.setSelectedDate,
+    showtimeId: selection.showtimeId,
+    showtimeSeats: selection.showtimeSeats,
+    seatStatusMap: hold.seatStatusMap,
+    selectedSeatIds: selection.selectedSeatIds,
+    selectedSeatsInfo: selection.selectedSeatsInfo,
     toggleSeat,
-    comboQuantities,
-    setComboQuantity,
-    combosPayload,
-    customerName,
-    setCustomerName,
-    customerPhone,
-    setCustomerPhone,
-    userId,
-    setUserId,
-    estimatedTotal,
-    canHold,
+    comboQuantities: selection.comboQuantities,
+    setComboQuantity: selection.setComboQuantity,
+    combosPayload: selection.combosPayload,
+    customerName: selection.customerName,
+    setCustomerName: selection.setCustomerName,
+    customerPhone: selection.customerPhone,
+    setCustomerPhone: selection.setCustomerPhone,
+    userId: selection.userId,
+    setUserId: selection.setUserId,
+    estimatedTotal: selection.estimatedTotal,
+    canHold: selection.canHold,
     holdSeats,
-    isHolding: counterHold.isPending,
-    holdResult,
+    isHolding: hold.isHolding,
+    holdResult: hold.holdResult,
     confirmCheckout,
-    isCheckingOut: counterCheckout.isPending,
-    isCancelling: counterCancel.isPending,
-    checkoutResult,
-    bookingDetail,
+    isCheckingOut: checkout.isCheckingOut,
+    isCancelling: hold.isCancelling,
+    checkoutResult: checkout.checkoutResult,
+    bookingDetail: checkout.bookingDetail,
     pickShowtime,
-    cancelHold,
+    cancelHold: hold.cancelHold,
     backToSeats,
     resetFlow,
   };
 }
+
+export type CounterFlow = ReturnType<typeof useCounterFlow>;
