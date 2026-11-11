@@ -118,7 +118,7 @@ export const BookingSelectionStep = ({
         />
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
         <BookingPriceSummary seats={selectedSeats} combos={activeCombos.data} comboQuantities={comboQuantities} />
         <Button className="max-lg:hidden" disabled={!canHold || isHolding} onClick={onContinue}>
           {isHolding ? "Đang giữ ghế..." : "Giữ ghế & tiếp tục thanh toán"}
