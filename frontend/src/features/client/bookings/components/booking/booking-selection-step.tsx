@@ -3,10 +3,10 @@ import { AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SelectableSeatMap } from "@/components/common/seat-map/selectable-seat-map";
+import { formatSeatCodes } from "@/components/common/seat-map/seat-map-utils";
 import { ComboPicker } from "@/components/common/combo-picker/combo-picker";
 import { useActiveCombos, useComboSuggestions } from "@/features/client/combos/hooks/use-combos";
 import { formatCurrency } from "@/lib/formatters";
-import { cn } from "@/lib/utils";
 import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { ShowtimeSeatStatus } from "@/types/enum";
 import type { ShowtimeSeatsResponseDto } from "@/features/client/showtimes/types";
@@ -65,6 +65,7 @@ export const BookingSelectionStep = ({
 
   const selectedSeats = data.seats.filter((s) => selectedIds.has(s.showtimeSeatId));
   const { total } = calcBookingEstimate(selectedSeats, activeCombos.data, comboQuantities);
+  const seatCodes = formatSeatCodes(selectedSeats);
   const suggestions = comboSuggestions.data ?? [];
   const comboRank = new Map(suggestions.map((s, i) => [s.comboId, i]));
   const comboLabels = Object.fromEntries(suggestions.map((s) => [s.comboId, s.label]));
@@ -138,18 +139,36 @@ export const BookingSelectionStep = ({
         )}
       </div>
 
-      <div className="sticky bottom-0 z-30 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background py-3 pr-20 pl-4 lg:hidden">
-        <div className="min-w-0">
-          <p className={cn("truncate text-xs text-muted-foreground", loneSeats.length > 0 && "text-warning")}>
-            {loneSeats.length > 0
-              ? `Không để trống ghế lẻ ${loneSeats.join(", ")}`
-              : `${selectedSeats.length} ghế đã chọn${holdDurationMinutes != null ? ` · giữ ghế ${holdDurationMinutes} phút` : ""}`}
+      <div className="sticky bottom-0 z-30 -mx-4 border-t border-border bg-background/95 pt-3 pr-20 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pl-4 backdrop-blur lg:hidden">
+        {loneSeats.length > 0 && (
+          <p className="mb-2 flex items-center gap-1.5 text-xs text-warning">
+            <AlertTriangle className="size-3.5 shrink-0" />
+            <span className="truncate">Không để trống ghế lẻ {loneSeats.join(", ")}</span>
           </p>
-          <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(total)}</p>
+        )}
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs text-muted-foreground" title={seatCodes.join(", ")}>
+              {seatCodes.length > 0 ? (
+                <>
+                  {seatCodes.length} ghế:{" "}
+                  <span className="t-code text-[13px] text-foreground">{seatCodes.join(", ")}</span>
+                </>
+              ) : (
+                "Chưa chọn ghế"
+              )}
+            </p>
+            <p className="flex items-baseline gap-2">
+              <span className="text-lg font-bold tabular-nums text-primary">{formatCurrency(total)}</span>
+              {holdDurationMinutes != null && seatCodes.length > 0 && (
+                <span className="text-[11px] text-muted-foreground">giữ ghế {holdDurationMinutes} phút</span>
+              )}
+            </p>
+          </div>
+          <Button disabled={!canHold || isHolding} onClick={onContinue}>
+            {isHolding ? "Đang giữ ghế..." : "Giữ ghế"}
+          </Button>
         </div>
-        <Button disabled={!canHold || isHolding} onClick={onContinue}>
-          {isHolding ? "Đang giữ ghế..." : "Giữ ghế"}
-        </Button>
       </div>
     </div>
   );

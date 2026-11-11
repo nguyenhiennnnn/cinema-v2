@@ -14,7 +14,10 @@ interface SeatGridProps {
   rowLabelTitle?: (rowLabel: string) => string | undefined;
   fitWidth?: boolean;
   compactAisles?: boolean;
+  curve?: number;
 }
+
+const MAX_TILT_DEG = 2.5;
 
 const ROW_LABEL = "t-code w-6 shrink-0 text-center text-[13px] text-muted-foreground";
 
@@ -29,7 +32,19 @@ export const SeatGrid = ({
   rowLabelTitle,
   fitWidth = false,
   compactAisles = false,
+  curve = 6,
 }: SeatGridProps) => {
+  const curveDepth = cols >= 6 ? curve : 0;
+  const mid = (cols + 1) / 2;
+  const half = Math.max(1, (cols - 1) / 2);
+  const curveTransform = (col: number, span: number) => {
+    if (curveDepth === 0) return undefined;
+    const norm = (col + (span - 1) / 2 - mid) / half;
+    const y = Math.round((1 - norm * norm) * curveDepth * 10) / 10;
+    const rotate = Math.round(-norm * MAX_TILT_DEG * 10) / 10;
+    return `translateY(${y}px) rotate(${rotate}deg)`;
+  };
+
   const aisleCols = new Set<number>();
   if (compactAisles && rowLabels.length > 0) {
     for (let col = 1; col <= cols; col++) {
@@ -52,18 +67,22 @@ export const SeatGrid = ({
       <div
         className={cn(
           "mx-auto flex w-max flex-col gap-1.5",
+          curveDepth > 0 && "pb-(--curve)",
           fitWidth &&
-            "[--fit-gap:0.25rem] @xl:[--fit-gap:0.375rem] [&_.seat]:[--seat-size:min(2.25rem,var(--fit))] [&_.seat]:text-[clamp(7px,calc(var(--fit)*0.45),13px)]",
+          "[--fit-gap:0.25rem] @xl:[--fit-gap:0.375rem] [&_.seat]:[--seat-size:min(2.25rem,var(--fit))] [&_.seat]:text-[clamp(7px,calc(var(--fit)*0.45),13px)]",
         )}
         style={
-          fitWidth
-            ? ({
+          {
+            "--curve": `${curveDepth}px`,
+            ...(fitWidth
+              ? {
                 "--fit": `max(1.75rem, min(2.5rem, calc((100cqw - 4rem - ${cols - 1} * var(--fit-gap)) / ${effectiveCols})))`,
-              } as CSSProperties)
-            : undefined
+              }
+              : {}),
+          } as CSSProperties
         }
       >
-        <CinemaScreen className="mx-8 mb-8" />
+        <CinemaScreen className="mx-8 mb-4" />
 
         {rowLabels.map((rowLabel) => (
           <div key={rowLabel} role="group" aria-label={`Hàng ${rowLabel}`} className="flex items-center gap-2">
@@ -92,7 +111,14 @@ export const SeatGrid = ({
                 if (cell?.isCoupleSecondary) return null;
                 const span = cell?.coupleSpan ?? 1;
                 return (
-                  <div key={col} style={{ gridColumn: `${col} / span ${span}` }} className="w-full">
+                  <div
+                    key={col}
+                    style={{
+                      gridColumn: `${col} / span ${span}`,
+                      transform: curveTransform(col, span),
+                    }}
+                    className="w-full"
+                  >
                     {renderCell(cell, rowLabel, col)}
                   </div>
                 );

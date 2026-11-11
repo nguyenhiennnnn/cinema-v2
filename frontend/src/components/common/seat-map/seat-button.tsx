@@ -55,7 +55,8 @@ export const SeatButton = ({
         className,
       )}
     >
-      {state === "booked" ? "" : label}
+      <span className="seat__head" aria-hidden />
+      <span className="seat__label">{state === "booked" ? "" : label}</span>
     </button>
   );
 };

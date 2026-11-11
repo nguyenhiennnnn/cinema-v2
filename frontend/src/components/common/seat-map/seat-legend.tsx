@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { cn } from "@/lib/utils";
 import type { SeatCellState, SeatVisualKind } from "./seat-map-types";
 
 export interface SeatLegendItem {
@@ -9,61 +9,67 @@ export interface SeatLegendItem {
   group?: string;
 }
 
-const LEGEND_STD = 24;
+const LEGEND_STD = 20;
 const LEGEND_GAP = 4;
 const LEGEND_COUPLE_W = LEGEND_STD * 2 + LEGEND_GAP;
 
-export const SeatLegend = ({ items }: { items: SeatLegendItem[] }) => {
+export const SeatLegend = ({ items, className }: { items: SeatLegendItem[]; className?: string }) => {
   return (
-    <ul className="grid grid-cols-2 gap-x-4 gap-y-3 @min-[420px]:grid-cols-3 @min-[600px]:flex @min-[600px]:flex-wrap @min-[600px]:items-center">
-      {items.map((item, i) => {
-        const startsNewGroup = i > 0 && item.group !== items[i - 1].group;
-        return (
-          <Fragment key={item.label}>
-            {startsNewGroup && (
-              <li aria-hidden className="mx-1 hidden h-5 w-px bg-border @min-[600px]:block" />
+    <ul className={cn("flex flex-wrap items-center gap-x-5 gap-y-2.5", className)}>
+      {items.map((item) => (
+        <li key={item.label} className="flex items-center gap-2">
+          <span
+            className="seat pointer-events-none shrink-0"
+            data-state={item.state ?? "available"}
+            data-type={item.type ?? "standard"}
+            style={{
+              width: item.type === "couple" ? LEGEND_COUPLE_W : LEGEND_STD,
+              height: LEGEND_STD,
+              fontSize: 10,
+            }}
+            aria-hidden
+          >
+            <span className="seat__head" />
+            <span className="seat__label">{item.state === "inactive" ? "1" : null}</span>
+          </span>
+          <span className="flex flex-col leading-tight">
+            <span className="whitespace-nowrap text-[13px] text-foreground/90">{item.label}</span>
+            {item.hint && (
+              <span className="t-code whitespace-nowrap text-[11px] text-muted-foreground">{item.hint}</span>
             )}
-            <li className="flex items-center gap-2">
-              <span
-                className="seat pointer-events-none shrink-0"
-                data-state={item.state ?? "available"}
-                data-type={item.type ?? "standard"}
-                style={{
-                  width: item.type === "couple" ? LEGEND_COUPLE_W : LEGEND_STD,
-                  height: LEGEND_STD,
-                }}
-                aria-hidden
-              >
-                {item.state === "inactive" ? "1" : null}
-              </span>
-              <span className="flex flex-col leading-tight @min-[600px]:flex-row @min-[600px]:items-baseline @min-[600px]:gap-1.5">
-                <span className="whitespace-nowrap text-[13px] text-muted-foreground">{item.label}</span>
-                {item.hint && (
-                  <span className="t-code whitespace-nowrap text-[12px] text-foreground">{item.hint}</span>
-                )}
-              </span>
-            </li>
-          </Fragment>
-        );
-      })}
+          </span>
+        </li>
+      ))}
     </ul>
   );
 };
 
 export const CinemaScreen = ({ className }: { className?: string }) => {
   return (
-    <div className={className}>
-      <div className="relative">
-        <div className="h-1.5 w-full bg-foreground cut-xs" />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-[4%] top-1.5 h-12 bg-linear-to-b from-foreground/20 to-transparent"
-          style={{ clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)" }}
+    <div className={cn("relative h-14 text-foreground", className)} aria-hidden>
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 100 40"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="seat-screen-glow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="currentColor" stopOpacity="0.28" />
+            <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M0 6 Q50 0 100 6 L93 40 L7 40 Z" fill="url(#seat-screen-glow)" />
+        <path
+          d="M0 6 Q50 0 100 6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          vectorEffect="non-scaling-stroke"
         />
-        <p className="relative mt-2 text-center text-[13px] uppercase tracking-[0.2em] text-muted-foreground">
-          Màn hình
-        </p>
-      </div>
+      </svg>
+      <p className="absolute inset-x-0 top-[40%] text-center text-[12px] uppercase tracking-[0.35em] text-muted-foreground">
+        Màn hình
+      </p>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { SeatGapRuleMode, ShowtimeSeatStatus } from "@/types/enum";
 import type { ShowtimeSeatItemDto } from "@/features/client/showtimes/types";
-import type { SeatCellState } from "./seat-map-types";
+import { rowLabelToIndex, type SeatCellState } from "./seat-map-types";
 
 export function toCellState(status: ShowtimeSeatStatus, isSelected: boolean): SeatCellState {
   if (isSelected) return "selected";
@@ -55,4 +55,24 @@ export function findLoneSeats(
     });
   }
   return result;
+}
+
+export function formatSeatCodes(
+  seats: { seatRow: string; seatNumber: number; coupleId?: string | null }[],
+): string[] {
+  const sorted = [...seats].sort(
+    (a, b) => rowLabelToIndex(a.seatRow) - rowLabelToIndex(b.seatRow) || a.seatNumber - b.seatNumber,
+  );
+  const codes: string[] = [];
+  for (let i = 0; i < sorted.length; i++) {
+    const seat = sorted[i];
+    const next = sorted[i + 1];
+    if (seat.coupleId && next && next.coupleId === seat.coupleId && next.seatRow === seat.seatRow) {
+      codes.push(`${seat.seatRow}${seat.seatNumber}-${next.seatNumber}`);
+      i++;
+    } else {
+      codes.push(`${seat.seatRow}${seat.seatNumber}`);
+    }
+  }
+  return codes;
 }
