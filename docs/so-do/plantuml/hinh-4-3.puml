@@ -1,0 +1,23 @@
+@startsalt
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+{
+{T
++ frontend/src
+++ app : providers, routes, modals
+++ features
++++ client (12)
+++++ api · hooks · components · pages · types (· schemas · utils)
++++ admin (17)
+++++ api · hooks · components · pages · types (· schemas · utils)
++++ auth
+++++ api · hooks · components · pages · types (· schemas · utils)
+++ components : ui, common
+++ layouts : client, admin
+++ stores : auth, dialog, alert-dialog, sheet
+++ api : axios, query-client, query-keys, query-invalidation
+++ hooks, lib, config, types, pages
+}
+}
+@endsalt

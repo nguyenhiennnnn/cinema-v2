@@ -33,10 +33,18 @@ public class PaymentsController(IPaymentService paymentService) : ControllerBase
     public async Task<IActionResult> StripeWebhook(CancellationToken cancellationToken)
     {
         Request.Body.Seek(0, SeekOrigin.Begin);
-        using var reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8, leaveOpen: true);
+        using var reader = new StreamReader(
+            Request.Body,
+            System.Text.Encoding.UTF8,
+            leaveOpen: true
+        );
         var json = await reader.ReadToEndAsync(cancellationToken);
         var signature = Request.Headers["Stripe-Signature"].ToString();
-        var result = await paymentService.ProcessStripeWebhookAsync(json, signature, cancellationToken);
+        var result = await paymentService.ProcessStripeWebhookAsync(
+            json,
+            signature,
+            cancellationToken
+        );
 
         if (!result.Success && result.Message == "Invalid signature")
             return BadRequest(new { message = result.Message });

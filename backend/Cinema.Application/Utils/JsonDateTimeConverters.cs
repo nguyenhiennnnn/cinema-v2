@@ -8,16 +8,36 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 {
     private const string Format = "yyyy-MM-dd";
 
-    public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override DateOnly Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
     {
         var value = reader.GetString();
         if (string.IsNullOrWhiteSpace(value))
             return default;
 
-        if (DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+        if (
+            DateOnly.TryParseExact(
+                value,
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var date
+            )
+        )
             return date;
 
-        if (DateOnly.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+        if (
+            DateOnly.TryParseExact(
+                value,
+                "dd/MM/yyyy",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out date
+            )
+        )
             return date;
 
         if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
@@ -34,7 +54,11 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 
 public class DateTimeJsonConverter : JsonConverter<DateTime>
 {
-    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override DateTime Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
     {
         var value = reader.GetString();
         if (string.IsNullOrWhiteSpace(value))
@@ -42,16 +66,47 @@ public class DateTimeJsonConverter : JsonConverter<DateTime>
 
         DateTime dt;
 
-        if (DateTime.TryParseExact(value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+        if (
+            DateTime.TryParseExact(
+                value,
+                "dd/MM/yyyy HH:mm:ss",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out dt
+            )
+        )
             return BusinessTime.ToUtc(dt);
 
-        if (DateTime.TryParseExact(value, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+        if (
+            DateTime.TryParseExact(
+                value,
+                "dd/MM/yyyy HH:mm",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out dt
+            )
+        )
             return BusinessTime.ToUtc(dt);
 
-        if (DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+        if (
+            DateTime.TryParseExact(
+                value,
+                "dd/MM/yyyy",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out dt
+            )
+        )
             return BusinessTime.ToUtc(dt);
 
-        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out dt))
+        if (
+            DateTime.TryParse(
+                value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind,
+                out dt
+            )
+        )
             return BusinessTime.ToUtc(dt);
 
         if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
@@ -68,6 +123,8 @@ public class DateTimeJsonConverter : JsonConverter<DateTime>
             DateTimeKind.Local => value.ToUniversalTime(),
             _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
         };
-        writer.WriteStringValue(utc.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture));
+        writer.WriteStringValue(
+            utc.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture)
+        );
     }
 }

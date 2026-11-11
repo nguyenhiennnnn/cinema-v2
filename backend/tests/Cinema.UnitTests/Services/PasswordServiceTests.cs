@@ -139,15 +139,20 @@ public class PasswordServiceTests : AuthServiceTestBase
             .Setup(h => h.HashPassword(It.IsAny<User>(), "NewStr0ngPass"))
             .Returns("invite-hash");
 
-        await CreatePasswordService().ResetPasswordAsync(
-            new ResetPasswordRequest("invite-raw", "NewStr0ngPass"),
-            CancellationToken.None
-        );
+        await CreatePasswordService()
+            .ResetPasswordAsync(
+                new ResetPasswordRequest("invite-raw", "NewStr0ngPass"),
+                CancellationToken.None
+            );
 
-        (await Db.Users.AsNoTracking().SingleAsync(u => u.UserId == user.UserId))
-            .PasswordHash.ShouldBe("invite-hash");
-        (await Db.UserVerificationTokens.AsNoTracking().SingleAsync(t => t.TokenHash == "hashed-invite"))
-            .Used.ShouldBeTrue();
+        (
+            await Db.Users.AsNoTracking().SingleAsync(u => u.UserId == user.UserId)
+        ).PasswordHash.ShouldBe("invite-hash");
+        (
+            await Db
+                .UserVerificationTokens.AsNoTracking()
+                .SingleAsync(t => t.TokenHash == "hashed-invite")
+        ).Used.ShouldBeTrue();
     }
 
     [Fact]
@@ -168,10 +173,11 @@ public class PasswordServiceTests : AuthServiceTestBase
         await Db.SaveChangesAsync();
 
         await Should.ThrowAsync<ValidationAppException>(() =>
-            CreatePasswordService().ResetPasswordAsync(
-                new ResetPasswordRequest("old-raw", "NewStr0ngPass"),
-                CancellationToken.None
-            )
+            CreatePasswordService()
+                .ResetPasswordAsync(
+                    new ResetPasswordRequest("old-raw", "NewStr0ngPass"),
+                    CancellationToken.None
+                )
         );
     }
 }

@@ -123,7 +123,9 @@ internal static class BookingScenarioSeeder
             BuildRandomOccupancy(contexts, specialIds);
 
             // Xử lý theo thứ tự thời gian để giảm giá/hạng thành viên khớp thời điểm đặt.
-            foreach (var plan in _plans.OrderBy(p => p.CreatedAt).ThenBy(p => p.St.Showtime.StartTime))
+            foreach (
+                var plan in _plans.OrderBy(p => p.CreatedAt).ThenBy(p => p.St.Showtime.StartTime)
+            )
                 Apply(plan);
 
             await db.SaveChangesAsync(cancellationToken);
@@ -153,11 +155,16 @@ internal static class BookingScenarioSeeder
             }
             _settings = settings;
 
-            _tiersDesc = await db.MembershipTiers.OrderByDescending(t => t.MinPoints).ToListAsync(ct);
+            _tiersDesc = await db
+                .MembershipTiers.OrderByDescending(t => t.MinPoints)
+                .ToListAsync(ct);
             _tiersById = _tiersDesc.ToDictionary(t => t.TierId);
             _combos = await db.Combos.OrderBy(c => c.ComboId).ToListAsync(ct);
             _nowShowingMovieIds = (
-                await db.Movies.Where(m => m.Status == MovieStatus.NowShowing).Select(m => m.MovieId).ToListAsync(ct)
+                await db
+                    .Movies.Where(m => m.Status == MovieStatus.NowShowing)
+                    .Select(m => m.MovieId)
+                    .ToListAsync(ct)
             ).ToHashSet();
 
             var emails = new[]
@@ -168,7 +175,9 @@ internal static class BookingScenarioSeeder
                 SeedEmails.Customer4,
                 SeedEmails.CustomerGoogle,
             };
-            _users = await db.Users.Where(u => emails.Contains(u.Email)).ToDictionaryAsync(u => u.Email, ct);
+            _users = await db
+                .Users.Where(u => emails.Contains(u.Email))
+                .ToDictionaryAsync(u => u.Email, ct);
             _pool = emails.Where(_users.ContainsKey).Select(e => _users[e]).ToList();
 
             var poolIds = _pool.Select(u => u.UserId).ToList();
@@ -176,12 +185,17 @@ internal static class BookingScenarioSeeder
                 .CustomerProfiles.Where(p => poolIds.Contains(p.UserId))
                 .ToDictionaryAsync(p => p.UserId, ct);
 
-            _employees = await db.Employees.Include(e => e.User).OrderBy(e => e.EmployeeId).ToListAsync(ct);
+            _employees = await db
+                .Employees.Include(e => e.User)
+                .OrderBy(e => e.EmployeeId)
+                .ToListAsync(ct);
             _activeEmployees = _employees.Where(e => e.IsActive && e.User.IsActive).ToList();
 
             if (_pool.Count < 4 || _activeEmployees.Count == 0 || _combos.Count == 0)
             {
-                logger.LogWarning("Skip booking scenarios: thiếu khách hàng / nhân viên / combo seed.");
+                logger.LogWarning(
+                    "Skip booking scenarios: thiếu khách hàng / nhân viên / combo seed."
+                );
                 return false;
             }
 
@@ -201,8 +215,11 @@ internal static class BookingScenarioSeeder
                 .Showtimes.Include(s => s.ShowtimeSeats)
                     .ThenInclude(ss => ss.Seat)
                 .Where(s =>
-                    (s.StartTime >= from && s.StartTime < to && s.Status != ShowtimeStatus.Cancelled)
-                    || specialIds.Contains(s.ShowtimeId)
+                    (
+                        s.StartTime >= from
+                        && s.StartTime < to
+                        && s.Status != ShowtimeStatus.Cancelled
+                    ) || specialIds.Contains(s.ShowtimeId)
                 )
                 .AsSplitQuery()
                 .ToListAsync(ct);
@@ -240,30 +257,101 @@ internal static class BookingScenarioSeeder
             if (TryCtx(specials, contexts, ShowtimeSeeder.SpecialOngoing, out var ongoing))
             {
                 var start = ongoing.Showtime.StartTime;
-                Online(ongoing, c4, Pick(ongoing, 2, 2), BookingStatus.Confirmed, start.AddHours(-3), PaymentMethod.Stripe,
-                    checkIn: CheckIn.First, combos: [(3, 1)]);
-                Counter(ongoing, staff, null, Pick(ongoing, 2, 1), BookingStatus.Confirmed, start.AddMinutes(-15));
-                Online(ongoing, c1, PickCouple(ongoing), BookingStatus.Confirmed, start.AddDays(-1), PaymentMethod.VNPay,
-                    checkIn: CheckIn.All);
-                Online(ongoing, c2, Pick(ongoing, 1, 1), BookingStatus.Confirmed, start.AddHours(-1), PaymentMethod.Momo);
+                Online(
+                    ongoing,
+                    c4,
+                    Pick(ongoing, 2, 2),
+                    BookingStatus.Confirmed,
+                    start.AddHours(-3),
+                    PaymentMethod.Stripe,
+                    checkIn: CheckIn.First,
+                    combos: [(3, 1)]
+                );
+                Counter(
+                    ongoing,
+                    staff,
+                    null,
+                    Pick(ongoing, 2, 1),
+                    BookingStatus.Confirmed,
+                    start.AddMinutes(-15)
+                );
+                Online(
+                    ongoing,
+                    c1,
+                    PickCouple(ongoing),
+                    BookingStatus.Confirmed,
+                    start.AddDays(-1),
+                    PaymentMethod.VNPay,
+                    checkIn: CheckIn.All
+                );
+                Online(
+                    ongoing,
+                    c2,
+                    Pick(ongoing, 1, 1),
+                    BookingStatus.Confirmed,
+                    start.AddHours(-1),
+                    PaymentMethod.Momo
+                );
                 FillRandom(ongoing, 0.30, past: false);
             }
 
             // 2) SẮP CHIẾU (20 phút nữa) — check-in mở, đã quá hạn hoàn tiền, 1 booking Pending đang giữ ghế.
             if (TryCtx(specials, contexts, ShowtimeSeeder.SpecialStartingSoon, out var soon))
             {
-                Online(soon, c3, Pick(soon, 2, 1), BookingStatus.Confirmed, now.AddDays(-1), PaymentMethod.Momo);
-                Counter(soon, staff, null, Pick(soon, 3, 1), BookingStatus.Confirmed, now.AddMinutes(-30));
-                Online(soon, c2, Pick(soon, 2, 1), BookingStatus.Pending, now.AddMinutes(-7), PaymentMethod.VNPay);
+                Online(
+                    soon,
+                    c3,
+                    Pick(soon, 2, 1),
+                    BookingStatus.Confirmed,
+                    now.AddDays(-1),
+                    PaymentMethod.Momo
+                );
+                Counter(
+                    soon,
+                    staff,
+                    null,
+                    Pick(soon, 3, 1),
+                    BookingStatus.Confirmed,
+                    now.AddMinutes(-30)
+                );
+                Online(
+                    soon,
+                    c2,
+                    Pick(soon, 2, 1),
+                    BookingStatus.Pending,
+                    now.AddMinutes(-7),
+                    PaymentMethod.VNPay
+                );
                 FillRandom(soon, 0.25, past: false);
             }
 
             // 3) 90 PHÚT NỮA — trong ngưỡng CancelDeadlineHours nên không được hoàn tiền; có hold của quầy.
             if (TryCtx(specials, contexts, ShowtimeSeeder.SpecialRefundClosed, out var closed))
             {
-                Online(closed, c1, Pick(closed, 2, 1), BookingStatus.Confirmed, now.AddDays(-2), PaymentMethod.Stripe);
-                Counter(closed, manager, null, Pick(closed, 4, 1), BookingStatus.Confirmed, now.AddHours(-2));
-                Counter(closed, shiftLead, null, Pick(closed, 2, 1), BookingStatus.Pending, now.AddMinutes(-3));
+                Online(
+                    closed,
+                    c1,
+                    Pick(closed, 2, 1),
+                    BookingStatus.Confirmed,
+                    now.AddDays(-2),
+                    PaymentMethod.Stripe
+                );
+                Counter(
+                    closed,
+                    manager,
+                    null,
+                    Pick(closed, 4, 1),
+                    BookingStatus.Confirmed,
+                    now.AddHours(-2)
+                );
+                Counter(
+                    closed,
+                    shiftLead,
+                    null,
+                    Pick(closed, 2, 1),
+                    BookingStatus.Pending,
+                    now.AddMinutes(-3)
+                );
                 FillRandom(closed, 0.30, past: false);
             }
 
@@ -301,20 +389,52 @@ internal static class BookingScenarioSeeder
             // 5) SUẤT BỊ HỦY BỞI RẠP — booking bị hủy: hoàn tự động (cổng), hoàn thủ công (Cash), hold bị hủy.
             if (TryCtx(specials, contexts, ShowtimeSeeder.SpecialCancelled, out var cancelled))
             {
-                Online(cancelled, c3, Pick(cancelled, 2, null), BookingStatus.Cancelled, now.AddDays(-3), PaymentMethod.Stripe,
-                    cancel: CancelKind.ShowtimeCancelledRefunded);
-                Online(cancelled, c2, Pick(cancelled, 2, null), BookingStatus.Cancelled, now.AddDays(-2), PaymentMethod.VNPay,
-                    cancel: CancelKind.ShowtimeCancelledRefunded);
-                Counter(cancelled, staff, null, Pick(cancelled, 2, null), BookingStatus.Cancelled, now.AddDays(-1),
-                    cancel: CancelKind.ShowtimeCancelledManual);
-                Online(cancelled, c1, Pick(cancelled, 1, null), BookingStatus.Cancelled, now.AddHours(-5), PaymentMethod.Momo,
-                    cancel: CancelKind.FromPending, paymentRecord: false);
+                Online(
+                    cancelled,
+                    c3,
+                    Pick(cancelled, 2, null),
+                    BookingStatus.Cancelled,
+                    now.AddDays(-3),
+                    PaymentMethod.Stripe,
+                    cancel: CancelKind.ShowtimeCancelledRefunded
+                );
+                Online(
+                    cancelled,
+                    c2,
+                    Pick(cancelled, 2, null),
+                    BookingStatus.Cancelled,
+                    now.AddDays(-2),
+                    PaymentMethod.VNPay,
+                    cancel: CancelKind.ShowtimeCancelledRefunded
+                );
+                Counter(
+                    cancelled,
+                    staff,
+                    null,
+                    Pick(cancelled, 2, null),
+                    BookingStatus.Cancelled,
+                    now.AddDays(-1),
+                    cancel: CancelKind.ShowtimeCancelledManual
+                );
+                Online(
+                    cancelled,
+                    c1,
+                    Pick(cancelled, 1, null),
+                    BookingStatus.Cancelled,
+                    now.AddHours(-5),
+                    PaymentMethod.Momo,
+                    cancel: CancelKind.FromPending,
+                    paymentRecord: false
+                );
             }
         }
 
         // ───────────────────────── Kịch bản: suất tương lai thường ─────────────────────────
 
-        private void BuildUpcomingScenarios(Dictionary<int, ShowtimeCtx> contexts, HashSet<int> specialIds)
+        private void BuildUpcomingScenarios(
+            Dictionary<int, ShowtimeCtx> contexts,
+            HashSet<int> specialIds
+        )
         {
             var upcoming = contexts
                 .Values.Where(c =>
@@ -337,35 +457,119 @@ internal static class BookingScenarioSeeder
 
             // u0: các booking Confirmed của khách theo từng hạng (giảm 5% / 10% / 15%) + 1 Pending đang giữ ghế (Stripe).
             var u0 = upcoming[0];
-            Online(u0, c2, Pick(u0, 2, 2), BookingStatus.Confirmed, now.AddHours(-5), PaymentMethod.VNPay, combos: [(1, 2)]);
-            Online(u0, c3, Pick(u0, 2, 1), BookingStatus.Confirmed, now.AddDays(-1), PaymentMethod.Stripe);
-            Online(u0, c4, PickCouple(u0), BookingStatus.Confirmed, now.AddDays(-2), PaymentMethod.Momo,
-                combos: [(4, 1), (5, 1)]);
-            Online(u0, c1, Pick(u0, 2, 1), BookingStatus.Pending, now.AddMinutes(-6), PaymentMethod.Stripe);
+            Online(
+                u0,
+                c2,
+                Pick(u0, 2, 2),
+                BookingStatus.Confirmed,
+                now.AddHours(-5),
+                PaymentMethod.VNPay,
+                combos: [(1, 2)]
+            );
+            Online(
+                u0,
+                c3,
+                Pick(u0, 2, 1),
+                BookingStatus.Confirmed,
+                now.AddDays(-1),
+                PaymentMethod.Stripe
+            );
+            Online(
+                u0,
+                c4,
+                PickCouple(u0),
+                BookingStatus.Confirmed,
+                now.AddDays(-2),
+                PaymentMethod.Momo,
+                combos: [(4, 1), (5, 1)]
+            );
+            Online(
+                u0,
+                c1,
+                Pick(u0, 2, 1),
+                BookingStatus.Pending,
+                now.AddMinutes(-6),
+                PaymentMethod.Stripe
+            );
 
             // u1: Pending quầy, Confirmed quầy cho thành viên (có giảm giá), huỷ khi Pending, hết hạn, thanh toán thất bại.
             var u1 = upcoming[Math.Min(3, upcoming.Count - 1)];
             Counter(u1, shiftLead, null, Pick(u1, 3, 1), BookingStatus.Pending, now.AddMinutes(-4));
-            Counter(u1, manager, c2, Pick(u1, 2, 2), BookingStatus.Confirmed, now.AddHours(-3), combos: [(2, 1)]);
-            Online(u1, c1, Pick(u1, 2, 1), BookingStatus.Cancelled, now.AddHours(-2), PaymentMethod.VNPay,
-                cancel: CancelKind.FromPending, failCode: "24");
-            Online(u1, c4, Pick(u1, 2, 1), BookingStatus.Expired, now.AddHours(-3), PaymentMethod.Momo);
-            Online(u1, c3, Pick(u1, 1, 1), BookingStatus.Cancelled, now.AddMinutes(-90), PaymentMethod.Stripe,
-                cancel: CancelKind.FromPending, paymentRecord: false);
+            Counter(
+                u1,
+                manager,
+                c2,
+                Pick(u1, 2, 2),
+                BookingStatus.Confirmed,
+                now.AddHours(-3),
+                combos: [(2, 1)]
+            );
+            Online(
+                u1,
+                c1,
+                Pick(u1, 2, 1),
+                BookingStatus.Cancelled,
+                now.AddHours(-2),
+                PaymentMethod.VNPay,
+                cancel: CancelKind.FromPending,
+                failCode: "24"
+            );
+            Online(
+                u1,
+                c4,
+                Pick(u1, 2, 1),
+                BookingStatus.Expired,
+                now.AddHours(-3),
+                PaymentMethod.Momo
+            );
+            Online(
+                u1,
+                c3,
+                Pick(u1, 1, 1),
+                BookingStatus.Cancelled,
+                now.AddMinutes(-90),
+                PaymentMethod.Stripe,
+                cancel: CancelKind.FromPending,
+                paymentRecord: false
+            );
 
             // u2: huỷ sau thanh toán (hoàn tiền Stripe / Momo) và thanh toán xong nhưng ghế đã hết hạn giữ (tự hoàn).
             var u2 = upcoming[Math.Min(6, upcoming.Count - 1)];
-            Online(u2, c3, Pick(u2, 2, 1), BookingStatus.Cancelled, now.AddDays(-1), PaymentMethod.Stripe,
-                cancel: CancelKind.RefundedByUser);
-            Online(u2, c4, Pick(u2, 2, 2), BookingStatus.Cancelled, now.AddDays(-2), PaymentMethod.Momo,
-                cancel: CancelKind.RefundedByUser);
-            Online(u2, c2, Pick(u2, 2, 1), BookingStatus.Cancelled, now.AddHours(-4), PaymentMethod.VNPay,
-                cancel: CancelKind.LatePaymentRefund);
+            Online(
+                u2,
+                c3,
+                Pick(u2, 2, 1),
+                BookingStatus.Cancelled,
+                now.AddDays(-1),
+                PaymentMethod.Stripe,
+                cancel: CancelKind.RefundedByUser
+            );
+            Online(
+                u2,
+                c4,
+                Pick(u2, 2, 2),
+                BookingStatus.Cancelled,
+                now.AddDays(-2),
+                PaymentMethod.Momo,
+                cancel: CancelKind.RefundedByUser
+            );
+            Online(
+                u2,
+                c2,
+                Pick(u2, 2, 1),
+                BookingStatus.Cancelled,
+                now.AddHours(-4),
+                PaymentMethod.VNPay,
+                cancel: CancelKind.LatePaymentRefund
+            );
         }
 
         // ───────────────────────── Kịch bản: khách đã xem, chưa review ─────────────────────────
 
-        private void BuildReviewReadyScenarios(Dictionary<int, ShowtimeCtx> contexts, HashSet<int> specialIds)
+        private void BuildReviewReadyScenarios(
+            Dictionary<int, ShowtimeCtx> contexts,
+            HashSet<int> specialIds
+        )
         {
             var moviesWithPastShows = contexts
                 .Values.Where(c =>
@@ -397,8 +601,15 @@ internal static class BookingScenarioSeeder
                             continue;
 
                         var createdAt = st.Showtime.StartTime.AddHours(-_rng.Next(2, 48));
-                        Online(st, user, seats, BookingStatus.Confirmed, createdAt,
-                            OnlineMethods[(k + assigned) % OnlineMethods.Length], checkIn: CheckIn.All);
+                        Online(
+                            st,
+                            user,
+                            seats,
+                            BookingStatus.Confirmed,
+                            createdAt,
+                            OnlineMethods[(k + assigned) % OnlineMethods.Length],
+                            checkIn: CheckIn.All
+                        );
 
                         _reviewReady.Add((user.UserId, movie.Key));
                         assigned++;
@@ -410,9 +621,16 @@ internal static class BookingScenarioSeeder
 
         // ───────────────────────── Kịch bản: lấp ghế ngẫu nhiên ─────────────────────────
 
-        private void BuildRandomOccupancy(Dictionary<int, ShowtimeCtx> contexts, HashSet<int> specialIds)
+        private void BuildRandomOccupancy(
+            Dictionary<int, ShowtimeCtx> contexts,
+            HashSet<int> specialIds
+        )
         {
-            foreach (var ctx in contexts.Values.OrderBy(c => c.Showtime.StartTime).ThenBy(c => c.Showtime.RoomId))
+            foreach (
+                var ctx in contexts
+                    .Values.OrderBy(c => c.Showtime.StartTime)
+                    .ThenBy(c => c.Showtime.RoomId)
+            )
             {
                 var showtime = ctx.Showtime;
                 if (specialIds.Contains(showtime.ShowtimeId))
@@ -473,7 +691,9 @@ internal static class BookingScenarioSeeder
             if (past)
             {
                 createdAt = online
-                    ? showtime.StartTime.AddMinutes(-(_rng.NextDouble() < 0.25 ? _rng.Next(20, 180) : _rng.Next(180, 60 * 72)))
+                    ? showtime.StartTime.AddMinutes(
+                        -(_rng.NextDouble() < 0.25 ? _rng.Next(20, 180) : _rng.Next(180, 60 * 72))
+                    )
                     : showtime.StartTime.AddMinutes(-_rng.Next(5, 120));
             }
             else
@@ -521,22 +741,47 @@ internal static class BookingScenarioSeeder
                 checkIn = _rng.NextDouble() < 0.88 ? CheckIn.All : CheckIn.None; // ~12% no-show
 
             // Khách thành viên: online luôn có user; quầy 15% gắn thành viên.
-            var user =
-                online || _rng.NextDouble() < 0.15 ? _pool[_rng.Next(_pool.Count)] : null;
+            var user = online || _rng.NextDouble() < 0.15 ? _pool[_rng.Next(_pool.Count)] : null;
 
             Plan plan;
             if (online)
             {
                 var method = OnlineMethods[_rng.Next(OnlineMethods.Length)];
-                plan = NewPlan(st, BookingChannel.Online, user, null, seats, status, createdAt, method,
-                    checkIn, cancel, combos, paymentRecord, failCode);
+                plan = NewPlan(
+                    st,
+                    BookingChannel.Online,
+                    user,
+                    null,
+                    seats,
+                    status,
+                    createdAt,
+                    method,
+                    checkIn,
+                    cancel,
+                    combos,
+                    paymentRecord,
+                    failCode
+                );
             }
             else
             {
                 var pool = past ? _employees : _activeEmployees;
                 var emp = pool[_rng.Next(pool.Count)];
-                plan = NewPlan(st, BookingChannel.Counter, user, emp, seats, status, createdAt,
-                    PaymentMethod.Cash, checkIn, cancel, combos, paymentRecord: false, failCode);
+                plan = NewPlan(
+                    st,
+                    BookingChannel.Counter,
+                    user,
+                    emp,
+                    seats,
+                    status,
+                    createdAt,
+                    PaymentMethod.Cash,
+                    checkIn,
+                    cancel,
+                    combos,
+                    paymentRecord: false,
+                    failCode
+                );
             }
 
             Register(plan);
@@ -588,8 +833,21 @@ internal static class BookingScenarioSeeder
                 return;
 
             Register(
-                NewPlan(st, BookingChannel.Online, user, null, seats, status, createdAt, method,
-                    checkIn, cancel, combos ?? [], paymentRecord, failCode)
+                NewPlan(
+                    st,
+                    BookingChannel.Online,
+                    user,
+                    null,
+                    seats,
+                    status,
+                    createdAt,
+                    method,
+                    checkIn,
+                    cancel,
+                    combos ?? [],
+                    paymentRecord,
+                    failCode
+                )
             );
         }
 
@@ -609,8 +867,21 @@ internal static class BookingScenarioSeeder
                 return;
 
             Register(
-                NewPlan(st, BookingChannel.Counter, member, employee, seats, status, createdAt,
-                    PaymentMethod.Cash, checkIn, cancel, combos ?? [], paymentRecord: false, failCode: null)
+                NewPlan(
+                    st,
+                    BookingChannel.Counter,
+                    member,
+                    employee,
+                    seats,
+                    status,
+                    createdAt,
+                    PaymentMethod.Cash,
+                    checkIn,
+                    cancel,
+                    combos ?? [],
+                    paymentRecord: false,
+                    failCode: null
+                )
             );
         }
 
@@ -807,7 +1078,15 @@ internal static class BookingScenarioSeeder
                     break;
                 case BookingStatus.Expired:
                     if (p.PaymentRecord && p.Method is { } m && m != PaymentMethod.Cash)
-                        AddPayment(booking, m, final, PaymentStatus.Failed, p.CreatedAt.AddMinutes(1), null, TimeoutCode(m));
+                        AddPayment(
+                            booking,
+                            m,
+                            final,
+                            PaymentStatus.Failed,
+                            p.CreatedAt.AddMinutes(1),
+                            null,
+                            TimeoutCode(m)
+                        );
                     break;
                 case BookingStatus.Cancelled:
                     ApplyCancelled(p, booking, final);
@@ -815,13 +1094,26 @@ internal static class BookingScenarioSeeder
             }
         }
 
-        private void ApplyConfirmed(Plan p, Booking booking, decimal final, CustomerProfile? profile)
+        private void ApplyConfirmed(
+            Plan p,
+            Booking booking,
+            decimal final,
+            CustomerProfile? profile
+        )
         {
             IssueTickets(p, booking);
 
             var method = p.Method ?? PaymentMethod.Cash;
             var paidAt = p.CreatedAt.AddMinutes(method == PaymentMethod.Cash ? 1 : 2);
-            AddPayment(booking, method, final, PaymentStatus.Success, p.CreatedAt.AddMinutes(1), paidAt, SuccessCode(method));
+            AddPayment(
+                booking,
+                method,
+                final,
+                PaymentStatus.Success,
+                p.CreatedAt.AddMinutes(1),
+                paidAt,
+                SuccessCode(method)
+            );
 
             // Cộng điểm / tổng chi tiêu / nâng hạng (giống ApplyLoyaltyAsync).
             if (profile is not null)
@@ -839,7 +1131,13 @@ internal static class BookingScenarioSeeder
                     );
 
                 // Chỉ điểm còn trong cửa sổ điểm thưởng (mặc định 12 tháng) mới tính vào Points hiện tại.
-                if (paidAt > Cinema.Application.Utils.LoyaltyWindow.Cutoff(now, _settings.LoyaltyWindowMonths))
+                if (
+                    paidAt
+                    > Cinema.Application.Utils.LoyaltyWindow.Cutoff(
+                        now,
+                        _settings.LoyaltyWindowMonths
+                    )
+                )
                     profile.Points += earned;
                 profile.TotalSpent += final;
                 var eligible = _tiersDesc.FirstOrDefault(t => t.MinPoints <= profile.Points);
@@ -861,7 +1159,15 @@ internal static class BookingScenarioSeeder
             }
 
             if (p.PaymentRecord && p.Method is { } m && m != PaymentMethod.Cash)
-                AddPayment(booking, m, final, PaymentStatus.Pending, p.CreatedAt.AddMinutes(1), null, null);
+                AddPayment(
+                    booking,
+                    m,
+                    final,
+                    PaymentStatus.Pending,
+                    p.CreatedAt.AddMinutes(1),
+                    null,
+                    null
+                );
         }
 
         private void ApplyCancelled(Plan p, Booking booking, decimal final)
@@ -876,14 +1182,32 @@ internal static class BookingScenarioSeeder
                 case CancelKind.FromPending:
                     // Hủy khi còn Pending / thanh toán thất bại: ghế đã trả về, payment Pending -> Failed.
                     if (p.PaymentRecord && method != PaymentMethod.Cash)
-                        AddPayment(booking, method, final, PaymentStatus.Failed, created, null, p.FailCode ?? UserCancelCode(method));
+                        AddPayment(
+                            booking,
+                            method,
+                            final,
+                            PaymentStatus.Failed,
+                            created,
+                            null,
+                            p.FailCode ?? UserCancelCode(method)
+                        );
                     break;
 
                 case CancelKind.RefundedByUser:
                 {
                     // Khách hủy sau khi thanh toán, còn trước hạn hoàn tiền (CancelDeadlineHours).
-                    var payment = AddPayment(booking, method, final, PaymentStatus.Refunded, created, paidAt, SuccessCode(method));
-                    var latest = showtime.StartTime.AddHours(-_settings.CancelDeadlineHours).AddMinutes(-1);
+                    var payment = AddPayment(
+                        booking,
+                        method,
+                        final,
+                        PaymentStatus.Refunded,
+                        created,
+                        paidAt,
+                        SuccessCode(method)
+                    );
+                    var latest = showtime
+                        .StartTime.AddHours(-_settings.CancelDeadlineHours)
+                        .AddMinutes(-1);
                     var spanMinutes = Math.Max(6, (int)(latest - p.CreatedAt).TotalMinutes);
                     var refundedAt = p.CreatedAt.AddMinutes(_rng.Next(5, spanMinutes));
                     if (refundedAt > now)
@@ -902,7 +1226,15 @@ internal static class BookingScenarioSeeder
                 case CancelKind.LatePaymentRefund:
                 {
                     // Thanh toán thành công nhưng ghế đã hết hạn giữ: booking Cancelled + hoàn toàn bộ tự động.
-                    var payment = AddPayment(booking, method, final, PaymentStatus.Refunded, created, paidAt, SuccessCode(method));
+                    var payment = AddPayment(
+                        booking,
+                        method,
+                        final,
+                        PaymentStatus.Refunded,
+                        created,
+                        paidAt,
+                        SuccessCode(method)
+                    );
                     payment.RefundedAmount = final;
                     payment.RefundedAt = paidAt.AddMinutes(1);
                     payment.RefundTransactionId = RefundTxn(method);
@@ -913,7 +1245,15 @@ internal static class BookingScenarioSeeder
                 {
                     // Rạp hủy suất: ghế Booked/vé giữ nguyên (giống ShowtimeService), cổng đã hoàn tiền tự động.
                     IssueTickets(p, booking);
-                    var payment = AddPayment(booking, method, final, PaymentStatus.Refunded, created, paidAt, SuccessCode(method));
+                    var payment = AddPayment(
+                        booking,
+                        method,
+                        final,
+                        PaymentStatus.Refunded,
+                        created,
+                        paidAt,
+                        SuccessCode(method)
+                    );
                     payment.RefundedAmount = final;
                     payment.RefundedAt = now.AddHours(-_rng.Next(1, 24));
                     payment.RefundTransactionId = RefundTxn(method);
@@ -923,7 +1263,15 @@ internal static class BookingScenarioSeeder
                 case CancelKind.ShowtimeCancelledManual:
                     // Thanh toán Cash: giữ Success, rạp phải hoàn tiền thủ công.
                     IssueTickets(p, booking);
-                    AddPayment(booking, PaymentMethod.Cash, final, PaymentStatus.Success, created, paidAt, null);
+                    AddPayment(
+                        booking,
+                        PaymentMethod.Cash,
+                        final,
+                        PaymentStatus.Success,
+                        created,
+                        paidAt,
+                        null
+                    );
                     break;
             }
         }
@@ -1056,7 +1404,10 @@ internal static class BookingScenarioSeeder
                     .Select(r => (decimal?)r.Rating)
                     .AverageAsync(cancellationToken);
 
-                var movie = await db.Movies.FirstAsync(m => m.MovieId == movieId, cancellationToken);
+                var movie = await db.Movies.FirstAsync(
+                    m => m.MovieId == movieId,
+                    cancellationToken
+                );
                 movie.AverageRating = Math.Round(average ?? 0m, 2);
             }
 
@@ -1172,17 +1523,48 @@ internal static class BookingScenarioSeeder
 
         private static readonly string[] LastNames =
         [
-            "Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Võ", "Đặng", "Bùi", "Đỗ",
+            "Nguyễn",
+            "Trần",
+            "Lê",
+            "Phạm",
+            "Hoàng",
+            "Huỳnh",
+            "Phan",
+            "Vũ",
+            "Võ",
+            "Đặng",
+            "Bùi",
+            "Đỗ",
         ];
 
         private static readonly string[] MiddleNames =
         [
-            "Văn", "Thị", "Minh", "Quốc", "Ngọc", "Thanh", "Hữu", "Gia",
+            "Văn",
+            "Thị",
+            "Minh",
+            "Quốc",
+            "Ngọc",
+            "Thanh",
+            "Hữu",
+            "Gia",
         ];
 
         private static readonly string[] FirstNames =
         [
-            "An", "Bình", "Châu", "Dũng", "Hà", "Khoa", "Lan", "Mai", "Nam", "Phúc", "Quân", "Trang", "Uyên", "Vy",
+            "An",
+            "Bình",
+            "Châu",
+            "Dũng",
+            "Hà",
+            "Khoa",
+            "Lan",
+            "Mai",
+            "Nam",
+            "Phúc",
+            "Quân",
+            "Trang",
+            "Uyên",
+            "Vy",
         ];
 
         private string RandomName() =>

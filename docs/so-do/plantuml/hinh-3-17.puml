@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Package Quản lý suất chiếu (QS) — 9 use case" as PK {
+  usecase "UC-QS-01\nXem danh sách suất chiếu" as UC_QS_01
+  usecase "UC-QS-02\nXem lịch suất chiếu dạng lịch" as UC_QS_02
+  usecase "UC-QS-03\nTạo suất chiếu" as UC_QS_03
+  usecase "UC-QS-04\nSửa suất chiếu" as UC_QS_04
+  usecase "UC-QS-05\nHủy suất chiếu" as UC_QS_05
+  usecase "UC-QS-06\nTạo suất chiếu hàng loạt" as UC_QS_06
+  usecase "UC-QS-07\nTự động xếp lịch chiếu" as UC_QS_07
+  usecase "UC-QS-08\nNhân bản lịch chiếu" as UC_QS_08
+  usecase "UC-QS-09\nXóa nhiều suất chiếu" as UC_QS_09
+}
+usecase "UC-HT-04\nHoàn tiền khi hủy suất chiếu" as UC_HT_04 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-HT-03\nGửi email" as UC_HT_03 #E5E5E5;line:808080;text:606060;line.dashed
+actor "Dịch vụ email" <<Hệ thống>> as A_MAIL
+A_NV -- UC_QS_01
+A_NV -- UC_QS_02
+A_QTV -- UC_QS_01
+A_QTV -- UC_QS_02
+A_QTV -- UC_QS_03
+A_QTV -- UC_QS_04
+A_QTV -- UC_QS_05
+A_QTV -- UC_QS_06
+A_QTV -- UC_QS_07
+A_QTV -- UC_QS_08
+A_QTV -- UC_QS_09
+UC_QS_05 -- A_MAIL
+UC_QS_05 ..> UC_HT_04 : <<include>>
+UC_QS_05 ..> UC_HT_03 : <<include>>
+UC_QS_09 ..> UC_QS_05 : <<include>>
+@enduml

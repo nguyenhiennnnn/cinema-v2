@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.HttpOverrides;
 using Cinema.Application.Options;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Cinema.Api.Extensions;
 
@@ -12,7 +12,8 @@ public static class ApiOptionsExtensions
     {
         services.Configure<ForwardedHeadersOptions>(options =>
         {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
         });
@@ -32,6 +33,7 @@ public static class ApiOptionsExtensions
             .AddSection<SchedulerOptions>(configuration, SchedulerOptions.SectionName)
             .AddSection<BackgroundJobOptions>(configuration, BackgroundJobOptions.SectionName);
     }
+
     public static T BindSection<T>(this IConfiguration configuration, string sectionName)
         where T : new() => configuration.GetSection(sectionName).Get<T>() ?? new T();
 

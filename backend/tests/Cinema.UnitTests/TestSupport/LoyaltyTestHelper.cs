@@ -7,13 +7,30 @@ namespace Cinema.UnitTests.TestSupport;
 
 public static class LoyaltyTestHelper
 {
-    public static async Task<(int BronzeId, int SilverId, int GoldId)> ReplaceTiersAsync(AppDbContext db)
+    public static async Task<(int BronzeId, int SilverId, int GoldId)> ReplaceTiersAsync(
+        AppDbContext db
+    )
     {
         db.MembershipTiers.RemoveRange(await db.MembershipTiers.ToListAsync());
         await db.SaveChangesAsync();
-        var bronze = new MembershipTier { TierName = "Bronze", MinPoints = 0, DiscountPercent = 0m };
-        var silver = new MembershipTier { TierName = "Silver", MinPoints = 100, DiscountPercent = 5m };
-        var gold = new MembershipTier { TierName = "Gold", MinPoints = 200, DiscountPercent = 10m };
+        var bronze = new MembershipTier
+        {
+            TierName = "Bronze",
+            MinPoints = 0,
+            DiscountPercent = 0m,
+        };
+        var silver = new MembershipTier
+        {
+            TierName = "Silver",
+            MinPoints = 100,
+            DiscountPercent = 5m,
+        };
+        var gold = new MembershipTier
+        {
+            TierName = "Gold",
+            MinPoints = 200,
+            DiscountPercent = 10m,
+        };
         db.MembershipTiers.AddRange(bronze, silver, gold);
         await db.SaveChangesAsync();
         return (bronze.TierId, silver.TierId, gold.TierId);

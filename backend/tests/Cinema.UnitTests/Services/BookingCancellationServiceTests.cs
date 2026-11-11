@@ -112,7 +112,7 @@ public class BookingCancellationServiceTests : BookingServiceTestBase
         reloadedPayment.Status.ShouldBe(PaymentStatus.Refunded);
 
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
-        profile.Points.ShouldBe(0); 
+        profile.Points.ShouldBe(0);
         profile.TotalSpent.ShouldBe(0m);
     }
 

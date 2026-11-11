@@ -57,7 +57,15 @@ public static class ShowtimeRules
         CancellationToken cancellationToken
     )
     {
-        if (await db.HasOverlapAsync(roomId, startTime, endTime, excludeShowtimeId, cancellationToken))
+        if (
+            await db.HasOverlapAsync(
+                roomId,
+                startTime,
+                endTime,
+                excludeShowtimeId,
+                cancellationToken
+            )
+        )
             throw new ConflictAppException(Messages.Conflict_ShowtimeOverlapInRoom);
     }
 
@@ -113,4 +121,3 @@ public static class ShowtimeRules
         return activeSeats.Count;
     }
 }
-

@@ -256,91 +256,106 @@ public static class SeedData
                 {
                     DirectorId = 1,
                     FullName = "Christopher Nolan",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Christopher+Nolan&background=1a1a2e&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Christopher+Nolan&background=1a1a2e&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 2,
                     FullName = "Denis Villeneuve",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Denis+Villeneuve&background=c19a49&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Denis+Villeneuve&background=c19a49&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 3,
                     FullName = "Trấn Thành",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Tran+Thanh&background=b83b5e&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Tran+Thanh&background=b83b5e&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 4,
                     FullName = "Victor Vũ",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Victor+Vu&background=1b1b2f&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Victor+Vu&background=1b1b2f&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 5,
                     FullName = "Lý Hải",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Ly+Hai&background=d35400&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Ly+Hai&background=d35400&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 6,
                     FullName = "James Cameron",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=James+Cameron&background=0f4c75&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=James+Cameron&background=0f4c75&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 7,
                     FullName = "Bong Joon-ho",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Bong+Joon+Ho&background=2d3436&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Bong+Joon+Ho&background=2d3436&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 8,
                     FullName = "Phan Gia Nhật Linh",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Phan+Gia+Nhat+Linh&background=6c5b7b&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Phan+Gia+Nhat+Linh&background=6c5b7b&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 9,
                     FullName = "Shawn Levy",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Shawn+Levy&background=8b0000&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Shawn+Levy&background=8b0000&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 10,
                     FullName = "Kelsey Mann",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Kelsey+Mann&background=f39c12&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Kelsey+Mann&background=f39c12&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 11,
                     FullName = "Anthony & Joe Russo",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Russo+Brothers&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Russo+Brothers&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 12,
                     FullName = "Jang Jae-hyun",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Jang+Jae+Hyun&background=2c3e50&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Jang+Jae+Hyun&background=2c3e50&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 13,
                     FullName = "Joaquim Dos Santos",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Joaquim+Dos+Santos&background=e74c3c&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Joaquim+Dos+Santos&background=e74c3c&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 14,
                     FullName = "Mike Mitchell",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Mike+Mitchell&background=27ae60&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Mike+Mitchell&background=27ae60&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Director
                 {
                     DirectorId = 15,
                     FullName = "Makoto Shinkai",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Makoto+Shinkai&background=16a085&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Makoto+Shinkai&background=16a085&color=fff&size=500&bold=true&font-size=0.4",
                 }
             );
 
@@ -351,229 +366,267 @@ public static class SeedData
                 {
                     ActorId = 1,
                     FullName = "Cillian Murphy",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Cillian+Murphy&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Cillian+Murphy&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 2,
                     FullName = "Robert Downey Jr.",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Robert+Downey+Jr&background=8b0000&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Robert+Downey+Jr&background=8b0000&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 3,
                     FullName = "Timothée Chalamet",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Timothee+Chalamet&background=c19a49&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Timothee+Chalamet&background=c19a49&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 4,
                     FullName = "Zendaya",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Zendaya&background=9b59b6&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Zendaya&background=9b59b6&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 5,
                     FullName = "Trấn Thành",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Tran+Thanh&background=b83b5e&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Tran+Thanh&background=b83b5e&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 6,
                     FullName = "Tuấn Trần",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Tuan+Tran&background=2980b9&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Tuan+Tran&background=2980b9&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 7,
                     FullName = "Uyển Ân",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Uyen+An&background=e67e22&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Uyen+An&background=e67e22&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 8,
                     FullName = "Phương Anh Đào",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Phuong+Anh+Dao&background=d63384&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Phuong+Anh+Dao&background=d63384&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 9,
                     FullName = "Song Kang-ho",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Song+Kang+Ho&background=2d3436&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Song+Kang+Ho&background=2d3436&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 10,
                     FullName = "Choi Woo-shik",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Choi+Woo+Shik&background=16a085&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Choi+Woo+Shik&background=16a085&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 11,
                     FullName = "Sam Worthington",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Sam+Worthington&background=0f4c75&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Sam+Worthington&background=0f4c75&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 12,
                     FullName = "Zoe Saldana",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Zoe+Saldana&background=1abc9c&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Zoe+Saldana&background=1abc9c&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 13,
                     FullName = "Ryan Reynolds",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Ryan+Reynolds&background=8b0000&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Ryan+Reynolds&background=8b0000&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 14,
                     FullName = "Hugh Jackman",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Hugh+Jackman&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Hugh+Jackman&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 15,
                     FullName = "Thái Hòa",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Thai+Hoa&background=d35400&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Thai+Hoa&background=d35400&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 16,
                     FullName = "Kaity Nguyễn",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Kaity+Nguyen&background=e84393&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Kaity+Nguyen&background=e84393&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 17,
                     FullName = "Ninh Dương Lan Ngọc",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Ninh+Duong+Lan+Ngoc&background=6c5b7b&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Ninh+Duong+Lan+Ngoc&background=6c5b7b&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 18,
                     FullName = "Quách Ngọc Ngoan",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Quach+Ngoc+Ngoan&background=1b1b2f&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Quach+Ngoc+Ngoan&background=1b1b2f&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 19,
                     FullName = "Avin Lu",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Avin+Lu&background=3498db&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Avin+Lu&background=3498db&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 20,
                     FullName = "Hoàng Hà",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Hoang+Ha&background=e67e22&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Hoang+Ha&background=e67e22&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 21,
                     FullName = "Amy Poehler",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Amy+Poehler&background=f39c12&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Amy+Poehler&background=f39c12&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 22,
                     FullName = "Maya Hawke",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Maya+Hawke&background=9b59b6&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Maya+Hawke&background=9b59b6&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 23,
                     FullName = "Matthew McConaughey",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Matthew+McConaughey&background=2c3e50&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Matthew+McConaughey&background=2c3e50&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 24,
                     FullName = "Anne Hathaway",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Anne+Hathaway&background=8e44ad&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Anne+Hathaway&background=8e44ad&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 25,
                     FullName = "Trần Nghĩa",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Tran+Nghia&background=16a085&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Tran+Nghia&background=16a085&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 26,
                     FullName = "Trúc Anh",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Truc+Anh&background=e91e63&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Truc+Anh&background=e91e63&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 27,
                     FullName = "Choi Min-sik",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Choi+Min+Sik&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Choi+Min+Sik&background=34495e&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 28,
                     FullName = "Kim Go-eun",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Kim+Go+Eun&background=9c27b0&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Kim+Go+Eun&background=9c27b0&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 29,
                     FullName = "Lee Do-hyun",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Lee+Do+Hyun&background=3f51b5&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Lee+Do+Hyun&background=3f51b5&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 30,
                     FullName = "Shameik Moore",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Shameik+Moore&background=d32f2f&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Shameik+Moore&background=d32f2f&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 31,
                     FullName = "Hailee Steinfeld",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Hailee+Steinfeld&background=0288d1&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Hailee+Steinfeld&background=0288d1&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 32,
                     FullName = "Chris Evans",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Chris+Evans&background=1976d2&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Chris+Evans&background=1976d2&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 33,
                     FullName = "Scarlett Johansson",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Scarlett+Johansson&background=c2185b&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Scarlett+Johansson&background=c2185b&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 34,
                     FullName = "Jack Black",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Jack+Black&background=f57c00&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Jack+Black&background=f57c00&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 35,
                     FullName = "Song Luân",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Song+Luan&background=00796b&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Song+Luan&background=00796b&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 36,
                     FullName = "Lê Giang",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Le+Giang&background=7b1fa2&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Le+Giang&background=7b1fa2&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 37,
                     FullName = "Nanoka Hara",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Nanoka+Hara&background=0097a7&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Nanoka+Hara&background=0097a7&color=fff&size=500&bold=true&font-size=0.4",
                 },
                 new Actor
                 {
                     ActorId = 38,
                     FullName = "Hokuto Matsumura",
-                    AvatarUrl = "https://ui-avatars.com/api/?name=Hokuto+Matsumura&background=455a64&color=fff&size=500&bold=true&font-size=0.4",
+                    AvatarUrl =
+                        "https://ui-avatars.com/api/?name=Hokuto+Matsumura&background=455a64&color=fff&size=500&bold=true&font-size=0.4",
                 }
             );
 
@@ -632,7 +685,9 @@ public static class SeedData
                 return null;
 
             int pairIndex = (seatNumber + 1) / 2; // num 1-2 => pair 1, 3-4 => pair 2, 5-6 => pair 3, v.v.
-            return Guid.Parse($"c0000000-0000-0000-{roomId:D4}-{((rowIdx + 1) * 1000 + pairIndex):D12}");
+            return Guid.Parse(
+                $"c0000000-0000-0000-{roomId:D4}-{((rowIdx + 1) * 1000 + pairIndex):D12}"
+            );
         }
 
         // Seed Seats for Room 1 (50 seats: A1-A10 Standard, B1-B10 Standard, C1-C10 VIP, D1-D10 VIP, E1-E10 Couple)
@@ -643,21 +698,23 @@ public static class SeedData
             {
                 0 or 1 => 1, // Standard
                 2 or 3 => 2, // VIP
-                _ => 3,      // Couple
+                _ => 3, // Couple
             };
 
             for (int num = 1; num <= 10; num++)
             {
-                seats.Add(new Seat
-                {
-                    SeatId = seatIdCounter++,
-                    RoomId = 1,
-                    SeatRow = row,
-                    SeatNumber = num,
-                    SeatTypeId = seatTypeId,
-                    CoupleId = GetCoupleId(1, rowIdx, num, seatTypeId),
-                    IsActive = true,
-                });
+                seats.Add(
+                    new Seat
+                    {
+                        SeatId = seatIdCounter++,
+                        RoomId = 1,
+                        SeatRow = row,
+                        SeatNumber = num,
+                        SeatTypeId = seatTypeId,
+                        CoupleId = GetCoupleId(1, rowIdx, num, seatTypeId),
+                        IsActive = true,
+                    }
+                );
             }
         }
 
@@ -674,16 +731,18 @@ public static class SeedData
 
             for (int num = 1; num <= 10; num++)
             {
-                seats.Add(new Seat
-                {
-                    SeatId = seatIdCounter++,
-                    RoomId = 2,
-                    SeatRow = row,
-                    SeatNumber = num,
-                    SeatTypeId = seatTypeId,
-                    CoupleId = GetCoupleId(2, rowIdx, num, seatTypeId),
-                    IsActive = true,
-                });
+                seats.Add(
+                    new Seat
+                    {
+                        SeatId = seatIdCounter++,
+                        RoomId = 2,
+                        SeatRow = row,
+                        SeatNumber = num,
+                        SeatTypeId = seatTypeId,
+                        CoupleId = GetCoupleId(2, rowIdx, num, seatTypeId),
+                        IsActive = true,
+                    }
+                );
             }
         }
 
@@ -693,23 +752,25 @@ public static class SeedData
             string row = ((char)('A' + rowIdx)).ToString();
             int seatTypeId = rowIdx switch
             {
-                0 => 1,      // Standard
+                0 => 1, // Standard
                 1 or 2 => 2, // VIP
-                _ => 3,      // Couple
+                _ => 3, // Couple
             };
 
             for (int num = 1; num <= 10; num++)
             {
-                seats.Add(new Seat
-                {
-                    SeatId = seatIdCounter++,
-                    RoomId = 3,
-                    SeatRow = row,
-                    SeatNumber = num,
-                    SeatTypeId = seatTypeId,
-                    CoupleId = GetCoupleId(3, rowIdx, num, seatTypeId),
-                    IsActive = true,
-                });
+                seats.Add(
+                    new Seat
+                    {
+                        SeatId = seatIdCounter++,
+                        RoomId = 3,
+                        SeatRow = row,
+                        SeatNumber = num,
+                        SeatTypeId = seatTypeId,
+                        CoupleId = GetCoupleId(3, rowIdx, num, seatTypeId),
+                        IsActive = true,
+                    }
+                );
             }
         }
 
@@ -721,21 +782,23 @@ public static class SeedData
             {
                 0 or 1 => 1, // Standard
                 2 or 3 or 4 => 2, // VIP
-                _ => 3,      // Couple
+                _ => 3, // Couple
             };
 
             for (int num = 1; num <= 10; num++)
             {
-                seats.Add(new Seat
-                {
-                    SeatId = seatIdCounter++,
-                    RoomId = 4,
-                    SeatRow = row,
-                    SeatNumber = num,
-                    SeatTypeId = seatTypeId,
-                    CoupleId = GetCoupleId(4, rowIdx, num, seatTypeId),
-                    IsActive = true,
-                });
+                seats.Add(
+                    new Seat
+                    {
+                        SeatId = seatIdCounter++,
+                        RoomId = 4,
+                        SeatRow = row,
+                        SeatNumber = num,
+                        SeatTypeId = seatTypeId,
+                        CoupleId = GetCoupleId(4, rowIdx, num, seatTypeId),
+                        IsActive = true,
+                    }
+                );
             }
         }
 
@@ -757,7 +820,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 5, // T18
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/4/4a/Oppenheimer_%28film%29.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/4/4a/Oppenheimer_%28film%29.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=keydELfWuMQ",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.8m,
@@ -776,7 +840,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 4, // T16
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/5/52/Dune_Part_Two_poster.jpeg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/5/52/Dune_Part_Two_poster.jpeg",
                     TrailerUrl = "https://www.youtube.com/watch?v=Way9Dexny3w",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.7m,
@@ -795,7 +860,8 @@ public static class SeedData
                     LanguageId = 1, // Tiếng Việt
                     Subtitle = "Tiếng Anh",
                     AgeRatingId = 5, // T18
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/vi/3/36/Mai_2024_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/vi/3/36/Mai_2024_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=EX6clvId19s",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.5m,
@@ -814,7 +880,8 @@ public static class SeedData
                     LanguageId = 3, // Tiếng Hàn
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 5, // T18
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/5/53/Parasite_%282019_film%29.png",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/5/53/Parasite_%282019_film%29.png",
                     TrailerUrl = "https://www.youtube.com/watch?v=isOGD_7hNIY",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.9m,
@@ -833,7 +900,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 3, // T13
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/5/54/Avatar_The_Way_of_Water_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/5/54/Avatar_The_Way_of_Water_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=6AvFHlKS6OE",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.6m,
@@ -852,7 +920,8 @@ public static class SeedData
                     LanguageId = 1, // Tiếng Việt
                     Subtitle = "Tiếng Anh",
                     AgeRatingId = 2, // K
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/vi/d/d4/%C3%81p_ph%C3%ADch_ch%C3%ADnh_th%E1%BB%A9c_L%E1%BA%ADt_m%E1%BA%B7t_7.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/vi/d/d4/%C3%81p_ph%C3%ADch_ch%C3%ADnh_th%E1%BB%A9c_L%E1%BA%ADt_m%E1%BA%B7t_7.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=d1ZHdosjNX8",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.4m,
@@ -871,7 +940,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 5, // T18
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/vi/4/4c/Deadpool_%26_Wolverine_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/vi/4/4c/Deadpool_%26_Wolverine_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=73_1biulkYk",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.7m,
@@ -890,7 +960,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Lồng tiếng & Phụ đề",
                     AgeRatingId = 1, // P
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/f/f7/Inside_Out_2_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/f/f7/Inside_Out_2_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=8rjvKzYeSp0",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.8m,
@@ -909,7 +980,8 @@ public static class SeedData
                     LanguageId = 1, // Tiếng Việt
                     Subtitle = "Tiếng Anh",
                     AgeRatingId = 3, // T13
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/vi/b/b3/Poster_gioi_thieu_phim_Em_va_Trinh.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/vi/b/b3/Poster_gioi_thieu_phim_Em_va_Trinh.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=zzik4JB9D1Q",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.2m,
@@ -928,7 +1000,8 @@ public static class SeedData
                     LanguageId = 1, // Tiếng Việt
                     Subtitle = "Tiếng Anh",
                     AgeRatingId = 5, // T18
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/b/b9/The_Immortal_%282018_film%29_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/b/b9/The_Immortal_%282018_film%29_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=6VEVPtFDN_U",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.1m,
@@ -947,7 +1020,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 3, // T13
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=zSWdZVtXT7E",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.9m,
@@ -966,7 +1040,8 @@ public static class SeedData
                     LanguageId = 1, // Tiếng Việt
                     Subtitle = "Tiếng Anh",
                     AgeRatingId = 3, // T13
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/vi/4/42/%C3%81p_ph%C3%ADch_phim_M%E1%BA%AFt_bi%E1%BA%BFc.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/vi/4/42/%C3%81p_ph%C3%ADch_phim_M%E1%BA%AFt_bi%E1%BA%BFc.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=ITlQ0oU7tDA",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.5m,
@@ -985,7 +1060,8 @@ public static class SeedData
                     LanguageId = 1, // Tiếng Việt
                     Subtitle = "Tiếng Anh",
                     AgeRatingId = 2, // K
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/vi/7/72/Bo_gia_2021_ap_phich.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/vi/7/72/Bo_gia_2021_ap_phich.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=jluSu8Rw6YE",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.4m,
@@ -1004,7 +1080,8 @@ public static class SeedData
                     LanguageId = 3, // Tiếng Hàn
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 5, // T18
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/1/13/Exhuma_film_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/1/13/Exhuma_film_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=nO3_h3fJ3-s",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.6m,
@@ -1023,7 +1100,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 2, // K
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/b/b4/Spider-Man-_Across_the_Spider-Verse_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/b/b4/Spider-Man-_Across_the_Spider-Verse_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=cqGjhVJWtEg",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.9m,
@@ -1042,7 +1120,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 3, // T13
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=TcMBFSGVi1c",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.9m,
@@ -1061,7 +1140,8 @@ public static class SeedData
                     LanguageId = 2, // Tiếng Anh
                     Subtitle = "Lồng tiếng & Phụ đề",
                     AgeRatingId = 1, // P
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/7/7f/Kung_Fu_Panda_4_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/7/7f/Kung_Fu_Panda_4_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=_inKs4eeHiI",
                     Status = MovieStatus.NowShowing,
                     AverageRating = 4.3m,
@@ -1080,7 +1160,8 @@ public static class SeedData
                     LanguageId = 1, // Tiếng Việt
                     Subtitle = "Tiếng Anh",
                     AgeRatingId = 4, // T16
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/vi/6/6f/%C3%81p_ph%C3%ADch_phim_Nh%C3%A0_b%C3%A0_N%E1%BB%AF.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/vi/6/6f/%C3%81p_ph%C3%ADch_phim_Nh%C3%A0_b%C3%A0_N%E1%BB%AF.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=684y48YgqjA",
                     Status = MovieStatus.Ended,
                     AverageRating = 4.3m,
@@ -1099,7 +1180,8 @@ public static class SeedData
                     LanguageId = 4, // Tiếng Nhật
                     Subtitle = "Tiếng Việt",
                     AgeRatingId = 2, // K
-                    PosterUrl = "https://upload.wikimedia.org/wikipedia/en/7/7f/Suzume_no_Tojimari_poster.jpg",
+                    PosterUrl =
+                        "https://upload.wikimedia.org/wikipedia/en/7/7f/Suzume_no_Tojimari_poster.jpg",
                     TrailerUrl = "https://www.youtube.com/watch?v=5pY4qVz9rEQ",
                     Status = MovieStatus.ComingSoon,
                     AverageRating = 4.7m,
@@ -1113,87 +1195,69 @@ public static class SeedData
                 // Oppenheimer: Chính kịch (3), Tâm lý (8)
                 new MovieGenre { MovieId = 1, GenreId = 3 },
                 new MovieGenre { MovieId = 1, GenreId = 8 },
-
                 // Dune 2: Hành động (1), Khoa học viễn tưởng (5), Chính kịch (3)
                 new MovieGenre { MovieId = 2, GenreId = 1 },
                 new MovieGenre { MovieId = 2, GenreId = 5 },
                 new MovieGenre { MovieId = 2, GenreId = 3 },
-
                 // Mai: Chính kịch (3), Lãng mạn (7), Tâm lý (8)
                 new MovieGenre { MovieId = 3, GenreId = 3 },
                 new MovieGenre { MovieId = 3, GenreId = 7 },
                 new MovieGenre { MovieId = 3, GenreId = 8 },
-
                 // Parasite: Chính kịch (3), Kinh dị (4), Tâm lý (8)
                 new MovieGenre { MovieId = 4, GenreId = 3 },
                 new MovieGenre { MovieId = 4, GenreId = 4 },
                 new MovieGenre { MovieId = 4, GenreId = 8 },
-
                 // Avatar 2: Hành động (1), Khoa học viễn tưởng (5)
                 new MovieGenre { MovieId = 5, GenreId = 1 },
                 new MovieGenre { MovieId = 5, GenreId = 5 },
-
                 // Lật Mặt 7: Chính kịch (3), Hài (2)
                 new MovieGenre { MovieId = 6, GenreId = 3 },
                 new MovieGenre { MovieId = 6, GenreId = 2 },
-
                 // Deadpool & Wolverine: Hành động (1), Hài (2), Khoa học viễn tưởng (5)
                 new MovieGenre { MovieId = 7, GenreId = 1 },
                 new MovieGenre { MovieId = 7, GenreId = 2 },
                 new MovieGenre { MovieId = 7, GenreId = 5 },
-
                 // Inside Out 2: Hoạt hình (6), Hài (2), Tâm lý (8)
                 new MovieGenre { MovieId = 8, GenreId = 6 },
                 new MovieGenre { MovieId = 8, GenreId = 2 },
                 new MovieGenre { MovieId = 8, GenreId = 8 },
-
                 // Em Và Trịnh: Chính kịch (3), Lãng mạn (7)
                 new MovieGenre { MovieId = 9, GenreId = 3 },
                 new MovieGenre { MovieId = 9, GenreId = 7 },
-
                 // Người Bất Tử: Kinh dị (4), Tâm lý (8)
                 new MovieGenre { MovieId = 10, GenreId = 4 },
                 new MovieGenre { MovieId = 10, GenreId = 8 },
-
                 // Interstellar: Khoa học viễn tưởng (5), Phiêu lưu (9), Chính kịch (3)
                 new MovieGenre { MovieId = 11, GenreId = 5 },
                 new MovieGenre { MovieId = 11, GenreId = 9 },
                 new MovieGenre { MovieId = 11, GenreId = 3 },
-
                 // Mắt Biếc: Lãng mạn (7), Chính kịch (3)
                 new MovieGenre { MovieId = 12, GenreId = 7 },
                 new MovieGenre { MovieId = 12, GenreId = 3 },
-
                 // Bố Già: Hài (2), Chính kịch (3), Tâm lý (8)
                 new MovieGenre { MovieId = 13, GenreId = 2 },
                 new MovieGenre { MovieId = 13, GenreId = 3 },
                 new MovieGenre { MovieId = 13, GenreId = 8 },
-
                 // Quật Mộ Trùng Ma: Kinh dị (4), Bí ẩn (10), Tâm lý (8)
                 new MovieGenre { MovieId = 14, GenreId = 4 },
                 new MovieGenre { MovieId = 14, GenreId = 10 },
                 new MovieGenre { MovieId = 14, GenreId = 8 },
-
                 // Spider-Man Across the Spider-Verse: Hoạt hình (6), Hành động (1), Khoa học viễn tưởng (5)
                 new MovieGenre { MovieId = 15, GenreId = 6 },
                 new MovieGenre { MovieId = 15, GenreId = 1 },
                 new MovieGenre { MovieId = 15, GenreId = 5 },
-
                 // Avengers: Endgame: Hành động (1), Khoa học viễn tưởng (5), Phiêu lưu (9)
                 new MovieGenre { MovieId = 16, GenreId = 1 },
                 new MovieGenre { MovieId = 16, GenreId = 5 },
                 new MovieGenre { MovieId = 16, GenreId = 9 },
-
                 // Kung Fu Panda 4: Hoạt hình (6), Hành động (1), Hài (2)
                 new MovieGenre { MovieId = 17, GenreId = 6 },
                 new MovieGenre { MovieId = 17, GenreId = 1 },
                 new MovieGenre { MovieId = 17, GenreId = 2 },
-
                 // Nhà Bà Nữ: Hài (2), Chính kịch (3), Tâm lý (8)
                 new MovieGenre { MovieId = 18, GenreId = 2 },
                 new MovieGenre { MovieId = 18, GenreId = 3 },
                 new MovieGenre { MovieId = 18, GenreId = 8 },
-
                 // Suzume: Hoạt hình (6), Phiêu lưu (9), Bí ẩn (10)
                 new MovieGenre { MovieId = 19, GenreId = 6 },
                 new MovieGenre { MovieId = 19, GenreId = 9 },
@@ -1216,7 +1280,6 @@ public static class SeedData
                     ActorId = 2, // Robert Downey Jr.
                     CharacterName = "Lewis Strauss",
                 },
-
                 // Dune 2 (2)
                 new MovieCast
                 {
@@ -1230,7 +1293,6 @@ public static class SeedData
                     ActorId = 4, // Zendaya
                     CharacterName = "Chani",
                 },
-
                 // Mai (3)
                 new MovieCast
                 {
@@ -1256,7 +1318,6 @@ public static class SeedData
                     ActorId = 7, // Uyển Ân
                     CharacterName = "Bình Minh",
                 },
-
                 // Parasite (4)
                 new MovieCast
                 {
@@ -1270,7 +1331,6 @@ public static class SeedData
                     ActorId = 10, // Choi Woo-shik
                     CharacterName = "Kim Ki-woo",
                 },
-
                 // Avatar 2 (5)
                 new MovieCast
                 {
@@ -1284,7 +1344,6 @@ public static class SeedData
                     ActorId = 12, // Zoe Saldana
                     CharacterName = "Neytiri",
                 },
-
                 // Lật Mặt 7 (6)
                 new MovieCast
                 {
@@ -1298,7 +1357,6 @@ public static class SeedData
                     ActorId = 18, // Quách Ngọc Ngoan
                     CharacterName = "Tư Hậu",
                 },
-
                 // Deadpool & Wolverine (7)
                 new MovieCast
                 {
@@ -1312,7 +1370,6 @@ public static class SeedData
                     ActorId = 14, // Hugh Jackman
                     CharacterName = "Logan / Wolverine",
                 },
-
                 // Inside Out 2 (8)
                 new MovieCast
                 {
@@ -1326,7 +1383,6 @@ public static class SeedData
                     ActorId = 22, // Maya Hawke
                     CharacterName = "Anxiety (Lo Âu)",
                 },
-
                 // Em Và Trịnh (9)
                 new MovieCast
                 {
@@ -1340,7 +1396,6 @@ public static class SeedData
                     ActorId = 20, // Hoàng Hà
                     CharacterName = "Dao Ánh",
                 },
-
                 // Người Bất Tử (10)
                 new MovieCast
                 {
@@ -1354,7 +1409,6 @@ public static class SeedData
                     ActorId = 17, // Ninh Dương Lan Ngọc
                     CharacterName = "Liên",
                 },
-
                 // Interstellar (11)
                 new MovieCast
                 {
@@ -1368,7 +1422,6 @@ public static class SeedData
                     ActorId = 24, // Anne Hathaway
                     CharacterName = "Dr. Amelia Brand",
                 },
-
                 // Mắt Biếc (12)
                 new MovieCast
                 {
@@ -1382,7 +1435,6 @@ public static class SeedData
                     ActorId = 26, // Trúc Anh
                     CharacterName = "Hà Lan",
                 },
-
                 // Bố Già (13)
                 new MovieCast
                 {
@@ -1402,7 +1454,6 @@ public static class SeedData
                     ActorId = 36, // Lê Giang
                     CharacterName = "Cẩm Lệ",
                 },
-
                 // Quật Mộ Trùng Ma (14)
                 new MovieCast
                 {
@@ -1422,7 +1473,6 @@ public static class SeedData
                     ActorId = 29, // Lee Do-hyun
                     CharacterName = "Yoon Bong-gil",
                 },
-
                 // Spider-Man: Across the Spider-Verse (15)
                 new MovieCast
                 {
@@ -1436,7 +1486,6 @@ public static class SeedData
                     ActorId = 31, // Hailee Steinfeld
                     CharacterName = "Gwen Stacy / Spider-Woman",
                 },
-
                 // Avengers: Endgame (16)
                 new MovieCast
                 {
@@ -1456,7 +1505,6 @@ public static class SeedData
                     ActorId = 33, // Scarlett Johansson
                     CharacterName = "Natasha Romanoff / Black Widow",
                 },
-
                 // Kung Fu Panda 4 (17)
                 new MovieCast
                 {
@@ -1464,7 +1512,6 @@ public static class SeedData
                     ActorId = 34, // Jack Black
                     CharacterName = "Po",
                 },
-
                 // Nhà Bà Nữ (18)
                 new MovieCast
                 {
@@ -1490,7 +1537,6 @@ public static class SeedData
                     ActorId = 5, // Trấn Thành
                     CharacterName = "Phú Nhuận",
                 },
-
                 // Suzume (19)
                 new MovieCast
                 {

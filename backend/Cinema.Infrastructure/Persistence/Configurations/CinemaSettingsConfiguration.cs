@@ -37,13 +37,27 @@ public class CinemaSettingsConfiguration : IEntityTypeConfiguration<CinemaSettin
             .HasMaxLength(20)
             .HasDefaultValue(Domain.Enums.SeatGapRuleMode.Strict);
 
-        builder.Property(x => x.RoomBufferMinutes).HasDefaultValue(CinemaSettings.DefaultRoomBufferMinutes);
-        builder.Property(x => x.MaxSeatsPerBooking).HasDefaultValue(CinemaSettings.DefaultMaxSeatsPerBooking);
-        builder.Property(x => x.MaxComboQuantity).HasDefaultValue(CinemaSettings.DefaultMaxComboQuantity);
-        builder.Property(x => x.LoyaltyWindowMonths).HasDefaultValue(CinemaSettings.DefaultLoyaltyWindowMonths);
-        builder.Property(x => x.MovieEndGraceDays).HasDefaultValue(CinemaSettings.DefaultMovieEndGraceDays);
-        builder.Property(x => x.ShowtimeLookaheadDays).HasDefaultValue(CinemaSettings.DefaultShowtimeLookaheadDays);
-        builder.Property(x => x.SchedulerStepMinutes).HasDefaultValue(CinemaSettings.DefaultSchedulerStepMinutes);
+        builder
+            .Property(x => x.RoomBufferMinutes)
+            .HasDefaultValue(CinemaSettings.DefaultRoomBufferMinutes);
+        builder
+            .Property(x => x.MaxSeatsPerBooking)
+            .HasDefaultValue(CinemaSettings.DefaultMaxSeatsPerBooking);
+        builder
+            .Property(x => x.MaxComboQuantity)
+            .HasDefaultValue(CinemaSettings.DefaultMaxComboQuantity);
+        builder
+            .Property(x => x.LoyaltyWindowMonths)
+            .HasDefaultValue(CinemaSettings.DefaultLoyaltyWindowMonths);
+        builder
+            .Property(x => x.MovieEndGraceDays)
+            .HasDefaultValue(CinemaSettings.DefaultMovieEndGraceDays);
+        builder
+            .Property(x => x.ShowtimeLookaheadDays)
+            .HasDefaultValue(CinemaSettings.DefaultShowtimeLookaheadDays);
+        builder
+            .Property(x => x.SchedulerStepMinutes)
+            .HasDefaultValue(CinemaSettings.DefaultSchedulerStepMinutes);
         builder
             .Property(x => x.SchedulerMinSameMovieGapMinutes)
             .HasDefaultValue(CinemaSettings.DefaultSchedulerMinSameMovieGapMinutes);
@@ -56,6 +70,8 @@ public class CinemaSettingsConfiguration : IEntityTypeConfiguration<CinemaSettin
         builder
             .Property(x => x.SchedulerHeatRatingWeight)
             .HasDefaultValue(CinemaSettings.DefaultSchedulerHeatRatingWeight);
-        builder.Property(x => x.SchedulerMaxRating).HasDefaultValue(CinemaSettings.DefaultSchedulerMaxRating);
+        builder
+            .Property(x => x.SchedulerMaxRating)
+            .HasDefaultValue(CinemaSettings.DefaultSchedulerMaxRating);
     }
 }

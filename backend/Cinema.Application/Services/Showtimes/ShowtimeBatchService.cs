@@ -32,7 +32,10 @@ public class ShowtimeBatchService(
             )
             ?? throw new ValidationAppException(
                 Messages.Invalid_MovieIdNotFound,
-                new Dictionary<string, string[]> { ["movieId"] = [Messages.Invalid_MovieIdNotFound] }
+                new Dictionary<string, string[]>
+                {
+                    ["movieId"] = [Messages.Invalid_MovieIdNotFound],
+                }
             );
         var room =
             await db.CinemaRooms.FirstOrDefaultAsync(
@@ -45,9 +48,7 @@ public class ShowtimeBatchService(
             );
 
         if (movie.Status == MovieStatus.Ended)
-            throw new BusinessRuleException(
-                Messages.Rule_MovieEndedCannotCreateShowtime
-            );
+            throw new BusinessRuleException(Messages.Rule_MovieEndedCannotCreateShowtime);
         if (!room.IsActive)
             throw new BusinessRuleException(Messages.Rule_RoomInactive);
 
@@ -129,17 +130,16 @@ public class ShowtimeBatchService(
         {
             try
             {
-                await showtimeCancellationService.DeleteShowtimeAsync(showtimeId, cancellationToken);
+                await showtimeCancellationService.DeleteShowtimeAsync(
+                    showtimeId,
+                    cancellationToken
+                );
                 results.Add(new BulkDeleteShowtimesResultItem(showtimeId, true, null));
             }
             catch (NotFoundException)
             {
                 results.Add(
-                    new BulkDeleteShowtimesResultItem(
-                        showtimeId,
-                        false,
-                        Messages.NotFound_Showtime
-                    )
+                    new BulkDeleteShowtimesResultItem(showtimeId, false, Messages.NotFound_Showtime)
                 );
             }
             catch (AppException ex)
@@ -154,11 +154,7 @@ public class ShowtimeBatchService(
                     showtimeId
                 );
                 results.Add(
-                    new BulkDeleteShowtimesResultItem(
-                        showtimeId,
-                        false,
-                        Messages.Bulk_UnknownError
-                    )
+                    new BulkDeleteShowtimesResultItem(showtimeId, false, Messages.Bulk_UnknownError)
                 );
             }
         }
@@ -201,9 +197,7 @@ public class ShowtimeBatchService(
             .ToListAsync(cancellationToken);
 
         if (sources.Count == 0)
-            throw new BusinessRuleException(
-                Messages.Rule_NoShowtimesToClone
-            );
+            throw new BusinessRuleException(Messages.Rule_NoShowtimesToClone);
         if (sources.Count > MaxBatchSize)
             throw new BusinessRuleException(
                 string.Format(Messages.Rule_CloneBatchTooLarge, MaxBatchSize)
@@ -434,4 +428,3 @@ public class ShowtimeBatchService(
         return result;
     }
 }
-

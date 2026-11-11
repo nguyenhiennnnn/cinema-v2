@@ -60,7 +60,8 @@ public class CinemaSettings
 
     public int SchedulerStepMinutes { get; set; } = DefaultSchedulerStepMinutes;
 
-    public int SchedulerMinSameMovieGapMinutes { get; set; } = DefaultSchedulerMinSameMovieGapMinutes;
+    public int SchedulerMinSameMovieGapMinutes { get; set; } =
+        DefaultSchedulerMinSameMovieGapMinutes;
 
     public int SchedulerHeatLookbackDays { get; set; } = DefaultSchedulerHeatLookbackDays;
 

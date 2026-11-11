@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 
 namespace Cinema.UnitTests.Services;
+
 public class CatalogServiceQuickCreateTests : IDisposable
 {
     private readonly SqliteAppDbContextHandle _handle = new();
@@ -111,9 +112,7 @@ public class CatalogServiceQuickCreateTests : IDisposable
         );
 
         result.DirectorId.ShouldBe(1);
-        (
-            await _handle.Db.Directors.CountAsync(d => d.FullName == "Christopher Nolan")
-        ).ShouldBe(1);
+        (await _handle.Db.Directors.CountAsync(d => d.FullName == "Christopher Nolan")).ShouldBe(1);
     }
 
     [Fact]

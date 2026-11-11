@@ -2,10 +2,7 @@ namespace Cinema.Application.DTOs.Ai;
 
 public record ChatMessageDto(string Role, string Content);
 
-public record AiChatRequest(
-    string Message,
-    List<ChatMessageDto>? History
-);
+public record AiChatRequest(string Message, List<ChatMessageDto>? History);
 
 public record AiCardDto(
     string Type,
@@ -16,11 +13,7 @@ public record AiCardDto(
     string Link
 );
 
-public record AiChatResponse(
-    string Reply,
-    DateTime Timestamp,
-    List<AiCardDto>? Cards = null
-)
+public record AiChatResponse(string Reply, DateTime Timestamp, List<AiCardDto>? Cards = null)
 {
     public List<AiCardDto> Cards { get; init; } = Cards ?? [];
 }

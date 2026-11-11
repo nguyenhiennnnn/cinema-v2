@@ -1,0 +1,18 @@
+flowchart TD
+  A(["Cổng gọi IPN / webhook"]) --> B{"Tìm được cổng?"}
+  B -- Không --> X1["Trả mã 99 / Gateway not configured"]
+  B -- Có --> C{"Chữ ký hợp lệ?<br/>VerifyCallback / VerifyWebhook"}
+  C -- Không --> X2["Trả mã 97 / Invalid signature"]
+  C -- Có --> D["Tìm Payment theo TransactionId"]
+  D --> E{"Tìm thấy?"}
+  E -- Không --> X3["Trả mã 01 / 1 / Payment not found"]
+  E -- Có --> F{"IsAlreadyProcessed?<br/>Success, Refunded, hoặc Failed + callback thất bại"}
+  F -- Có --> X4["Trả thành công 00 / 0 / Payment already processed<br/>(không tác dụng phụ)"]
+  F -- Không --> G{"|Amount − callback.Amount| ≤ 0,01?<br/>(Stripe: thêm kiểm tra tiền tệ)"}
+  G -- Không --> X5["Trả mã 04 / 4 / Invalid amount"]
+  G -- Có --> H["ApplyPaymentResultAsync"]
+  H --> I{"Kết quả cổng"}
+  I -- Thành công --> J["Payment = Success; ConfirmBookingAndGenerateTicketsAsync"]
+  I -- Thất bại --> K["Payment = Failed; ProcessPaymentFailureAsync"]
+  J --> L(["Trả phản hồi theo định dạng của cổng"])
+  K --> L

@@ -1,0 +1,60 @@
+// Hình 4.31. ERD module Suất chiếu
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table Showtimes {
+  ShowtimeId int [pk]
+  BasePrice decimal [not null]
+  CreatedAt timestamp [not null]
+  EndTime timestamp [not null]
+  MovieId int [not null]
+  RoomId int [not null]
+  StartTime timestamp [not null]
+  Status varchar [not null, note: 'enum ShowtimeStatus']
+}
+
+Table ShowtimeSeats {
+  ShowtimeSeatId int [pk]
+  HeldByBookingId int
+  HeldByUserId int
+  HeldUntil timestamp
+  Price decimal [not null]
+  SeatId int [not null]
+  ShowtimeId int [not null]
+  Status varchar [not null, note: 'enum ShowtimeSeatStatus']
+  indexes {
+    (SeatId, ShowtimeId) [unique]
+  }
+}
+
+Table Movies {
+  MovieId int [pk]
+}
+
+Table CinemaRooms {
+  RoomId int [pk]
+}
+
+Table Seats {
+  SeatId int [pk]
+}
+
+Table Users {
+  UserId int [pk]
+}
+
+Table Bookings {
+  BookingId int [pk]
+}
+
+Table BookingTickets {
+  TicketId int [pk]
+  ShowtimeSeatId int
+}
+
+Ref: Showtimes.MovieId > Movies.MovieId
+Ref: Showtimes.RoomId > CinemaRooms.RoomId
+Ref: ShowtimeSeats.ShowtimeId > Showtimes.ShowtimeId
+Ref: ShowtimeSeats.SeatId > Seats.SeatId
+Ref: ShowtimeSeats.HeldByUserId > Users.UserId
+Ref: ShowtimeSeats.HeldByBookingId > Bookings.BookingId
+Ref: BookingTickets.ShowtimeSeatId - ShowtimeSeats.ShowtimeSeatId

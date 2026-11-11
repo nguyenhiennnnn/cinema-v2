@@ -131,7 +131,11 @@ public class GeminiAiModelClient(
 
     private static JsonObject ToFunctionDeclaration(AiToolDefinition tool)
     {
-        var declaration = new JsonObject { ["name"] = tool.Name, ["description"] = tool.Description };
+        var declaration = new JsonObject
+        {
+            ["name"] = tool.Name,
+            ["description"] = tool.Description,
+        };
 
         // Gemini không chấp nhận "parameters" rỗng, nên chỉ khai báo khi có tham số.
         if (tool.Parameters.Count == 0)
@@ -146,13 +150,18 @@ public class GeminiAiModelClient(
                 ["description"] = p.Description,
             };
             if (p.AllowedValues is { Count: > 0 })
-                property["enum"] = new JsonArray(p.AllowedValues.Select(v => (JsonNode?)v).ToArray());
+                property["enum"] = new JsonArray(
+                    p.AllowedValues.Select(v => (JsonNode?)v).ToArray()
+                );
             properties[p.Name] = property;
         }
 
         var parameters = new JsonObject { ["type"] = "OBJECT", ["properties"] = properties };
 
-        var required = tool.Parameters.Where(p => p.Required).Select(p => (JsonNode?)p.Name).ToArray();
+        var required = tool
+            .Parameters.Where(p => p.Required)
+            .Select(p => (JsonNode?)p.Name)
+            .ToArray();
         if (required.Length > 0)
             parameters["required"] = new JsonArray(required);
 
@@ -176,7 +185,10 @@ public class GeminiAiModelClient(
         if (root?["candidates"] is JsonArray { Count: > 0 } candidates)
         {
             if (candidates[0]?["content"] is JsonObject content)
-                return new AiMessage(AiMessageRole.Model, ParseParts(content["parts"] as JsonArray));
+                return new AiMessage(
+                    AiMessageRole.Model,
+                    ParseParts(content["parts"] as JsonArray)
+                );
 
             logger.LogWarning(
                 "Gemini returned no content. FinishReason: {Reason}",

@@ -58,6 +58,8 @@ public class DateTimeJsonConverterTests
     {
         var utc = new DateTime(2026, 7, 1, 23, 59, 59, DateTimeKind.Utc);
 
-        JsonSerializer.Serialize(utc.ToLocalTime(), Options).ShouldBe(JsonSerializer.Serialize(utc, Options));
+        JsonSerializer
+            .Serialize(utc.ToLocalTime(), Options)
+            .ShouldBe(JsonSerializer.Serialize(utc, Options));
     }
 }

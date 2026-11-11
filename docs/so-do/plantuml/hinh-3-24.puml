@@ -1,0 +1,62 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách vãng lai" as A_KVL
+actor "Quản trị viên" as A_QTV
+rectangle "Package Vận hành hệ thống (HT) — 8 use case" as PK {
+  usecase "UC-HT-01\nGiải phóng ghế hết hạn" as UC_HT_01
+  usecase "UC-HT-02\nCập nhật vòng đời suất chiếu" as UC_HT_02
+  usecase "UC-HT-03\nGửi email" as UC_HT_03
+  usecase "UC-HT-04\nHoàn tiền khi hủy suất chiếu" as UC_HT_04
+  usecase "UC-HT-05\nKhởi tạo dữ liệu khi khởi động" as UC_HT_05
+  usecase "UC-HT-06\nXem bảng điều khiển Hangfire" as UC_HT_06
+  usecase "UC-HT-07\nKiểm tra sức khỏe hệ thống" as UC_HT_07
+  usecase "UC-HT-08\nĐồng bộ điểm thành viên hết hạn" as UC_HT_08
+}
+usecase "UC-XT-01\nĐăng ký tài khoản" as UC_XT_01 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-XT-03\nGửi lại email xác nhận" as UC_XT_03 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-XT-07\nKhôi phục mật khẩu" as UC_XT_07 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-DV-08\nHủy đơn đặt vé" as UC_DV_08 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-TT-05\nPhát hành vé sau thanh toán" as UC_TT_05 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-TT-06\nHoàn tiền" as UC_TT_06 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-QS-05\nHủy suất chiếu" as UC_QS_05 #E5E5E5;line:808080;text:606060;line.dashed
+actor "Hệ thống tác vụ nền" <<Hệ thống>> as A_NEN
+actor "Cổng VNPay" <<Hệ thống>> as A_VNP
+actor "Cổng MoMo" <<Hệ thống>> as A_MOMO
+actor "Cổng Stripe" <<Hệ thống>> as A_STR
+actor "Dịch vụ email" <<Hệ thống>> as A_MAIL
+A_KVL -- UC_HT_07
+A_QTV -- UC_HT_06
+UC_HT_01 -- A_NEN
+UC_HT_02 -- A_NEN
+UC_HT_03 -- A_NEN
+UC_HT_04 -- A_NEN
+UC_HT_05 -- A_NEN
+UC_HT_08 -- A_NEN
+UC_HT_04 -- A_VNP
+UC_HT_04 -- A_MOMO
+UC_HT_04 -- A_STR
+UC_HT_03 -- A_MAIL
+UC_HT_04 -- A_MAIL
+UC_XT_01 ..> UC_HT_03 : <<include>>
+UC_XT_03 ..> UC_HT_03 : <<include>>
+UC_XT_07 ..> UC_HT_03 : <<include>>
+UC_DV_08 ..> UC_HT_03 : <<include>>
+UC_TT_05 ..> UC_HT_03 : <<include>>
+UC_TT_06 ..> UC_HT_03 : <<include>>
+UC_QS_05 ..> UC_HT_03 : <<include>>
+UC_QS_05 ..> UC_HT_04 : <<include>>
+UC_HT_04 ..> UC_TT_06 : <<include>>
+UC_HT_04 ..> UC_HT_03 : <<include>>
+@enduml

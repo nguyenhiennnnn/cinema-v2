@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminBookingsController <<Controller>> {
+  +Checkin(request : CheckinRequest) : ActionResult<CheckinResponse>
+}
+interface IBookingService {
+  +CheckinAsync(request : CheckinRequest) : CheckinResponse
+}
+class BookingService <<Service>>
+class CheckinRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class BookingTicket <<Entity>>
+class Booking <<Entity>>
+class Showtime <<Entity>>
+class CinemaSettings <<Entity>>
+class CheckinRequest <<DTO>>
+class CheckinResponse <<DTO>>
+AdminBookingsController ..> IBookingService
+BookingService ..|> IBookingService
+BookingService ..> BookingTicket
+BookingService ..> Booking
+BookingService ..> Showtime
+BookingService ..> CinemaSettings
+BookingService ..> CheckinRequest
+BookingService ..> CheckinResponse
+CheckinRequestValidator ..> CheckinRequest
+BookingService ..> IAppDbContext
+@enduml

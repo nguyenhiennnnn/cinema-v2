@@ -57,7 +57,15 @@ public static class ShowtimeScheduler
         var remaining = queue.ToDictionary(m => m.MovieId, m => m.Shows);
         var ideals = queue.ToDictionary(
             m => m.MovieId,
-            m => Ideals(open, windowEnd, m.Shows, m.DurationMinutes, allowAfterHours, cfg.StepMinutes)
+            m =>
+                Ideals(
+                    open,
+                    windowEnd,
+                    m.Shows,
+                    m.DurationMinutes,
+                    allowAfterHours,
+                    cfg.StepMinutes
+                )
         );
 
         while (remaining.Values.Any(v => v > 0))
@@ -68,19 +76,46 @@ public static class ShowtimeScheduler
                 var targets = ideals[movie.MovieId];
                 var options = rooms
                     .SelectMany(room =>
-                        Candidates(open, close, movie.DurationMinutes, block, targets, occupied[room.RoomId], cfg.StepMinutes)
+                        Candidates(
+                                open,
+                                close,
+                                movie.DurationMinutes,
+                                block,
+                                targets,
+                                occupied[room.RoomId],
+                                cfg.StepMinutes
+                            )
                             .Where(c =>
-                                IsFree(c, block, movie.DurationMinutes, open, close, allowAfterHours, occupied[room.RoomId])
+                                IsFree(
+                                    c,
+                                    block,
+                                    movie.DurationMinutes,
+                                    open,
+                                    close,
+                                    allowAfterHours,
+                                    occupied[room.RoomId]
+                                )
                                 && placed.All(p =>
                                     p.MovieId != movie.MovieId
-                                    || Math.Abs((c - p.Start).TotalMinutes) >= cfg.MinSameMovieGapMinutes
+                                    || Math.Abs((c - p.Start).TotalMinutes)
+                                        >= cfg.MinSameMovieGapMinutes
                                 )
                             )
-                            .Select(c => (
-                                Room: room,
-                                Start: c,
-                                Score: Score(c, targets, movie.Heat, room.Seats, maxSeats, occupied[room.RoomId].Count, cfg)
-                            ))
+                            .Select(c =>
+                                (
+                                    Room: room,
+                                    Start: c,
+                                    Score: Score(
+                                        c,
+                                        targets,
+                                        movie.Heat,
+                                        room.Seats,
+                                        maxSeats,
+                                        occupied[room.RoomId].Count,
+                                        cfg
+                                    )
+                                )
+                            )
                     )
                     .ToList();
 
@@ -119,7 +154,8 @@ public static class ShowtimeScheduler
         SchedulerOptions cfg
     )
     {
-        var distance = targets.Count == 0 ? 0 : targets.Min(t => Math.Abs((start - t).TotalMinutes));
+        var distance =
+            targets.Count == 0 ? 0 : targets.Min(t => Math.Abs((start - t).TotalMinutes));
         var fit = 1 - Math.Abs(heat - (double)seats / maxSeats);
         return -distance / cfg.SpreadMinutes + fit * cfg.FitWeight - load * cfg.LoadWeight;
     }
@@ -179,7 +215,10 @@ public static class ShowtimeScheduler
     {
         if (start < open)
             return false;
-        if (close is not null && (allowAfterHours ? start >= close : start.AddMinutes(duration) > close))
+        if (
+            close is not null
+            && (allowAfterHours ? start >= close : start.AddMinutes(duration) > close)
+        )
             return false;
 
         var end = start.AddMinutes(block);

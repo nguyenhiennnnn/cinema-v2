@@ -34,18 +34,22 @@ public static class ConnectionStringExtensions
             Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : null,
             Database = uri.AbsolutePath.TrimStart('/'),
         };
-        
+
         if (!string.IsNullOrEmpty(queryString))
         {
             var sslMode = queryString
                 .Split('&', StringSplitOptions.RemoveEmptyEntries)
                 .Select(p => p.Split('=', 2))
-                .Where(p => p.Length == 2 && p[0].Equals("sslmode", StringComparison.OrdinalIgnoreCase))
+                .Where(p =>
+                    p.Length == 2 && p[0].Equals("sslmode", StringComparison.OrdinalIgnoreCase)
+                )
                 .Select(p => Uri.UnescapeDataString(p[1]))
                 .FirstOrDefault();
 
-            if (!string.IsNullOrEmpty(sslMode) &&
-                Enum.TryParse<Npgsql.SslMode>(sslMode, ignoreCase: true, out var parsedSslMode))
+            if (
+                !string.IsNullOrEmpty(sslMode)
+                && Enum.TryParse<Npgsql.SslMode>(sslMode, ignoreCase: true, out var parsedSslMode)
+            )
             {
                 builder.SslMode = parsedSslMode;
             }

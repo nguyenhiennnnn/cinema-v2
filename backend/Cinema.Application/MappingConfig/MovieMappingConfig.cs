@@ -47,7 +47,9 @@ public class MovieMappingConfig : IRegister
         config
             .NewConfig<Showtime, UpcomingShowtimeDto>()
             .Map(dest => dest.RoomName, src => src.Room.RoomName)
-            .Map(dest => dest.ScreenType, src => src.Room.ScreenType != null ? src.Room.ScreenType.Name : null);
+            .Map(
+                dest => dest.ScreenType,
+                src => src.Room.ScreenType != null ? src.Room.ScreenType.Name : null
+            );
     }
 }
-

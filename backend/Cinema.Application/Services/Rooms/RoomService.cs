@@ -108,9 +108,7 @@ public class RoomService(IAppDbContext db) : IRoomService
         {
             var seatIdsInRoom = db.Seats.Where(s => s.RoomId == roomId).Select(s => s.SeatId);
             if (await HasLiveFutureSeatsAsync(seatIdsInRoom, cancellationToken))
-                throw new ConflictAppException(
-                    Messages.Conflict_RoomHasHeldSeatsCannotDeactivate
-                );
+                throw new ConflictAppException(Messages.Conflict_RoomHasHeldSeatsCannotDeactivate);
         }
 
         room.RoomName = request.RoomName;
@@ -261,9 +259,7 @@ public class RoomService(IAppDbContext db) : IRoomService
                 cancellationToken
             )
         )
-            throw new ConflictAppException(
-                Messages.Conflict_SeatsHeldOrBookedCannotChange
-            );
+            throw new ConflictAppException(Messages.Conflict_SeatsHeldOrBookedCannotChange);
         var idsWithHistory = (
             await db
                 .ShowtimeSeats.Where(ss => dropIds.Contains(ss.SeatId))
@@ -408,7 +404,9 @@ public class RoomService(IAppDbContext db) : IRoomService
             .SeatTypes.Where(st => seatTypeIds.Contains(st.SeatTypeId))
             .ToDictionaryAsync(st => st.SeatTypeId, st => st.PriceMultiplier, cancellationToken);
         var existing = await db
-            .ShowtimeSeats.Where(ss => showtimeIds.Contains(ss.ShowtimeId) && seatIds.Contains(ss.SeatId))
+            .ShowtimeSeats.Where(ss =>
+                showtimeIds.Contains(ss.ShowtimeId) && seatIds.Contains(ss.SeatId)
+            )
             .ToListAsync(cancellationToken);
         var existingMap = existing.ToDictionary(ss => (ss.ShowtimeId, ss.SeatId));
 
@@ -417,7 +415,8 @@ public class RoomService(IAppDbContext db) : IRoomService
         {
             var eligible = seat.IsActive && !seat.IsAisle;
             var multiplier =
-                seat.SeatTypeId is not null && multipliers.TryGetValue(seat.SeatTypeId.Value, out var m)
+                seat.SeatTypeId is not null
+                && multipliers.TryGetValue(seat.SeatTypeId.Value, out var m)
                     ? m
                     : 1.0m;
             if (existingMap.TryGetValue((showtime.ShowtimeId, seat.SeatId), out var showtimeSeat))
@@ -446,8 +445,6 @@ public class RoomService(IAppDbContext db) : IRoomService
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private Task<AdminRoomDto> LoadRoomDtoAsync(
-        int roomId,
-        CancellationToken cancellationToken
-    ) => GetRoomByIdAsync(roomId, cancellationToken);
+    private Task<AdminRoomDto> LoadRoomDtoAsync(int roomId, CancellationToken cancellationToken) =>
+        GetRoomByIdAsync(roomId, cancellationToken);
 }

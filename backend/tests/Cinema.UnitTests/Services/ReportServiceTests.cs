@@ -242,7 +242,13 @@ public class ReportServiceTests : IDisposable
     {
         var paidAt = DateTime.UtcNow.Date.AddHours(9);
         var booking = await SeedConfirmedBookingAsync(paidAt, ticketPrice: 100_000m);
-        await SetPaymentAsync(booking, BookingStatus.Cancelled, PaymentStatus.Refunded, 40_000m, paidAt);
+        await SetPaymentAsync(
+            booking,
+            BookingStatus.Cancelled,
+            PaymentStatus.Refunded,
+            40_000m,
+            paidAt
+        );
         var sut = CreateSut();
 
         var report = await sut.GetRevenueReportAsync(
@@ -262,7 +268,13 @@ public class ReportServiceTests : IDisposable
     {
         var paidAt = DateTime.UtcNow.Date.AddHours(9);
         var booking = await SeedConfirmedBookingAsync(paidAt, ticketPrice: 100_000m);
-        await SetPaymentAsync(booking, BookingStatus.Cancelled, PaymentStatus.Refunded, 100_000m, paidAt);
+        await SetPaymentAsync(
+            booking,
+            BookingStatus.Cancelled,
+            PaymentStatus.Refunded,
+            100_000m,
+            paidAt
+        );
         var sut = CreateSut();
 
         var report = await sut.GetRevenueReportAsync(
@@ -282,10 +294,21 @@ public class ReportServiceTests : IDisposable
         var day = DateOnly.FromDateTime(DateTime.UtcNow.Date);
         var paidAt = new DateTime(day.Year, day.Month, day.Day, 18, 0, 0, DateTimeKind.Utc);
         var booking = await SeedConfirmedBookingAsync(paidAt.AddDays(-3), ticketPrice: 100_000m);
-        await SetPaymentAsync(booking, BookingStatus.Confirmed, PaymentStatus.Success, null, paidAt);
+        await SetPaymentAsync(
+            booking,
+            BookingStatus.Confirmed,
+            PaymentStatus.Success,
+            null,
+            paidAt
+        );
         var sut = CreateSut();
 
-        var report = await sut.GetRevenueReportAsync(day.AddDays(1), day.AddDays(1), "day", CancellationToken.None);
+        var report = await sut.GetRevenueReportAsync(
+            day.AddDays(1),
+            day.AddDays(1),
+            "day",
+            CancellationToken.None
+        );
 
         report.Summary.TotalRevenue.ShouldBe(100_000m);
         report.Items.Single().Period.ShouldBe(day.AddDays(1).ToString("dd/MM/yyyy"));

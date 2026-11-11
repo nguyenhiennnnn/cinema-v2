@@ -1,6 +1,6 @@
-using Cinema.Application.Utils;
 using Cinema.Application.Services.Dashboard;
 using Cinema.Application.Services.Reports;
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.UnitTests.TestSupport;
@@ -76,8 +76,12 @@ public class DashboardServiceTests : IDisposable
             }
         );
 
-        var usedSeatIds = await _handle.Db.BookingTickets.Select(t => t.ShowtimeSeatId).ToListAsync();
-        var seat = await _handle.Db.ShowtimeSeats.FirstOrDefaultAsync(ss => ss.ShowtimeId == showtimeId && !usedSeatIds.Contains(ss.ShowtimeSeatId));
+        var usedSeatIds = await _handle
+            .Db.BookingTickets.Select(t => t.ShowtimeSeatId)
+            .ToListAsync();
+        var seat = await _handle.Db.ShowtimeSeats.FirstOrDefaultAsync(ss =>
+            ss.ShowtimeId == showtimeId && !usedSeatIds.Contains(ss.ShowtimeSeatId)
+        );
         if (seat != null)
         {
             _handle.Db.BookingTickets.Add(
@@ -117,14 +121,14 @@ public class DashboardServiceTests : IDisposable
         var now = DateTime.UtcNow;
         var (showtime, _) = await SeedShowtimeWithSeatsAsync(now.AddDays(3));
         await AddConfirmedBookingAsync(showtime.ShowtimeId, now, 200_000m);
-        await AddConfirmedBookingAsync(showtime.ShowtimeId, now.AddDays(-1), 100_000m); 
+        await AddConfirmedBookingAsync(showtime.ShowtimeId, now.AddDays(-1), 100_000m);
         var sut = CreateSut();
 
         var summary = await sut.GetSummaryAsync(CancellationToken.None);
 
         summary.TodayRevenue.ShouldBe(200_000m);
         summary.YesterdayRevenue.ShouldBe(100_000m);
-        summary.RevenueChangePercent.ShouldBe(100.0m); 
+        summary.RevenueChangePercent.ShouldBe(100.0m);
     }
 
     [Fact]
@@ -235,7 +239,11 @@ public class DashboardServiceTests : IDisposable
     public async Task GetSummaryAsync_PartiallyRefundedPaymentToday_CountsOnlyRetainedAmount()
     {
         var (showtime, _) = await SeedShowtimeWithSeatsAsync(DateTime.UtcNow.AddDays(3));
-        var booking = await AddConfirmedBookingAsync(showtime.ShowtimeId, DateTime.UtcNow, 100_000m);
+        var booking = await AddConfirmedBookingAsync(
+            showtime.ShowtimeId,
+            DateTime.UtcNow,
+            100_000m
+        );
         var payment = await _handle.Db.Payments.SingleAsync(p => p.BookingId == booking.BookingId);
         payment.Status = PaymentStatus.Refunded;
         payment.RefundedAmount = 30_000m;

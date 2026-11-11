@@ -1,0 +1,35 @@
+@startuml
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+left to right direction
+skinparam monochrome true
+skinparam ArrowColor Black
+
+node "Thiết bị người dùng" {
+  component "Trình duyệt\n(SPA React; nạp thư viện Google\ntừ accounts.google.com)" as BR
+}
+node "Lưu trữ tệp tĩnh\n(Render Static Site cinema-web)" {
+  artifact "Giao diện React đã dựng sẵn\nVITE_API_BASE_URL, VITE_SIGNALR_HUB_URL" as WEB
+}
+node "Render — Docker, vùng Singapore, gói free" {
+  component "cinema-api (.NET, cổng 8080)\nREST /api/v1/*, SignalR /hubs/showtimes, Hangfire" as API
+}
+database "PostgreSQL đám mây Neon\n(dữ liệu ứng dụng + kho Hangfire)" as DB
+cloud "Dịch vụ ngoài" {
+  component "Cloudinary" as CLD
+  component "Resend / SMTP" as MAIL
+  component "VNPay / MoMo / Stripe" as PAY
+  component "Google" as GG
+  component "Gemini" as GEM
+}
+BR --> WEB : HTTPS tải giao diện
+BR --> API : HTTPS REST + WebSocket SignalR
+API --> DB : Npgsql
+API --> CLD
+API --> MAIL
+API --> PAY
+API --> GG
+API --> GEM
+PAY --> API : IPN / webhook\n/api/v1/payments/...
+@enduml

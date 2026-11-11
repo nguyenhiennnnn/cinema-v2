@@ -1,12 +1,12 @@
 using Cinema.Application.DTOs.Common;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Cinema.Application.DTOs.Reviews;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Cinema.Application.Services.Reviews;
 
@@ -20,6 +20,7 @@ public class ReviewService : IReviewService
         this.db = db;
         this.logger = logger ?? NullLogger<ReviewService>.Instance;
     }
+
     public async Task<CursorPageResult<ReviewDto>> GetMovieReviewsAsync(
         int movieId,
         string? cursor,
@@ -253,7 +254,6 @@ public class ReviewService : IReviewService
         return new DeleteReviewResponse(reviewId, true);
     }
 
-
     public async Task<BulkDeleteReviewsResponse> BulkDeleteReviewsAsync(
         BulkDeleteReviewsRequest request,
         CancellationToken cancellationToken
@@ -265,10 +265,11 @@ public class ReviewService : IReviewService
         {
             try
             {
-                var review = await db.Reviews.FirstOrDefaultAsync(
-                    r => r.ReviewId == reviewId,
-                    cancellationToken
-                ) ?? throw new NotFoundException(Messages.NotFound_Review);
+                var review =
+                    await db.Reviews.FirstOrDefaultAsync(
+                        r => r.ReviewId == reviewId,
+                        cancellationToken
+                    ) ?? throw new NotFoundException(Messages.NotFound_Review);
                 affectedMovieIds.Add(review.MovieId);
                 db.Reviews.Remove(review);
                 await db.SaveChangesAsync(cancellationToken);
@@ -276,7 +277,13 @@ public class ReviewService : IReviewService
             }
             catch (NotFoundException)
             {
-                results.Add(new BulkDeleteReviewsResultItem(reviewId, false, "Kh\u00f4ng t\u00ecm th\u1ea5y \u0111\u00e1nh gi\u00e1."));
+                results.Add(
+                    new BulkDeleteReviewsResultItem(
+                        reviewId,
+                        false,
+                        "Kh\u00f4ng t\u00ecm th\u1ea5y \u0111\u00e1nh gi\u00e1."
+                    )
+                );
             }
             catch (AppException ex)
             {
@@ -284,8 +291,18 @@ public class ReviewService : IReviewService
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                logger.LogWarning(ex, "BulkDeleteReview th\u1ea5t b\u1ea1i ReviewId {ReviewId}", reviewId);
-                results.Add(new BulkDeleteReviewsResultItem(reviewId, false, "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."));
+                logger.LogWarning(
+                    ex,
+                    "BulkDeleteReview th\u1ea5t b\u1ea1i ReviewId {ReviewId}",
+                    reviewId
+                );
+                results.Add(
+                    new BulkDeleteReviewsResultItem(
+                        reviewId,
+                        false,
+                        "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."
+                    )
+                );
             }
         }
         foreach (var movieId in affectedMovieIds)
@@ -293,6 +310,7 @@ public class ReviewService : IReviewService
         var successCount = results.Count(r => r.Success);
         return new BulkDeleteReviewsResponse(results, successCount, results.Count - successCount);
     }
+
     private async Task RecalculateMovieAverageRatingAsync(
         int movieId,
         CancellationToken cancellationToken

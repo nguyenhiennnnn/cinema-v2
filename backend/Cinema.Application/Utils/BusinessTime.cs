@@ -2,8 +2,7 @@ namespace Cinema.Application.Utils;
 
 public static class BusinessTime
 {
-    private static TimeZoneInfo _zone =
-        ResolveZone("Asia/Ho_Chi_Minh") ?? TimeZoneInfo.Utc;
+    private static TimeZoneInfo _zone = ResolveZone("Asia/Ho_Chi_Minh") ?? TimeZoneInfo.Utc;
     private static string _ianaId = ToIanaId(_zone);
 
     public static TimeZoneInfo Zone => _zone;

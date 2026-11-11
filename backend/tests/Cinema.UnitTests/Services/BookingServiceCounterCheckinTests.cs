@@ -230,7 +230,9 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
         var (qrCode, bookingId) = await SeedConfirmedTicketAsync(
             startTime: DateTime.UtcNow.AddMinutes(10)
         );
-        var booking = await Db.Bookings.Include(b => b.Showtime).SingleAsync(b => b.BookingId == bookingId);
+        var booking = await Db
+            .Bookings.Include(b => b.Showtime)
+            .SingleAsync(b => b.BookingId == bookingId);
         booking.Showtime.StartTime = DateTime.UtcNow.AddHours(-5);
         booking.Showtime.EndTime = DateTime.UtcNow.AddHours(-3);
         await Db.SaveChangesAsync();
@@ -253,12 +255,21 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
         profile.Points = 50;
         profile.TotalSpent = 500_000m;
-        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 500_000m);
+        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(
+            Db,
+            customer.UserId,
+            500_000m
+        );
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 50, DateTime.UtcNow);
         await Db.SaveChangesAsync();
         var sut = CreateFulfillmentSut();
 
-        await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
+        await sut.ReverseLoyaltyAsync(
+            customer.UserId,
+            booking.BookingId,
+            100_000m,
+            CancellationToken.None
+        );
         await Db.SaveChangesAsync();
 
         var reloaded = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
@@ -274,12 +285,21 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
         profile.Points = 2;
         profile.TotalSpent = 5_000m;
-        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 20_000m);
+        var booking = await LoyaltyTestHelper.AddConfirmedBookingAsync(
+            Db,
+            customer.UserId,
+            20_000m
+        );
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, booking.BookingId, 2, DateTime.UtcNow);
         await Db.SaveChangesAsync();
         var sut = CreateFulfillmentSut();
 
-        await sut.ReverseLoyaltyAsync(customer.UserId, booking.BookingId, 100_000m, CancellationToken.None);
+        await sut.ReverseLoyaltyAsync(
+            customer.UserId,
+            booking.BookingId,
+            100_000m,
+            CancellationToken.None
+        );
         await Db.SaveChangesAsync();
 
         var reloaded = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
@@ -309,33 +329,54 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
-        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var seatId = (
+            await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
+        ).ShowtimeSeatId;
         var sut = CreateCounterSut();
 
         await Should.ThrowAsync<NotFoundException>(() =>
             sut.CounterHoldSeatsAsync(
-                employee.EmployeeId, employeeUser.UserId,
+                employee.EmployeeId,
+                employeeUser.UserId,
                 new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, 99999, "ignored", null),
-                CancellationToken.None));
+                CancellationToken.None
+            )
+        );
     }
 
     [Fact]
     public async Task CounterHoldSeatsAsync_WithUserId_UserInactive_ThrowsBusinessRuleException()
     {
         var (employeeUser, employee) = TestDataSeeder.AddEmployee(Db);
-        var customer = TestDataSeeder.AddCustomer(Db, email: "inactive@test.local", isActive: false);
+        var customer = TestDataSeeder.AddCustomer(
+            Db,
+            email: "inactive@test.local",
+            isActive: false
+        );
         var room = TestDataSeeder.AddRoom(Db);
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
-        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var seatId = (
+            await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
+        ).ShowtimeSeatId;
         var sut = CreateCounterSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CounterHoldSeatsAsync(
-                employee.EmployeeId, employeeUser.UserId,
-                new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, customer.UserId, "ignored", null),
-                CancellationToken.None));
+                employee.EmployeeId,
+                employeeUser.UserId,
+                new CounterHoldRequest(
+                    showtime.ShowtimeId,
+                    [seatId],
+                    null,
+                    customer.UserId,
+                    "ignored",
+                    null
+                ),
+                CancellationToken.None
+            )
+        );
     }
 
     [Fact]
@@ -346,15 +387,27 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
-        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var seatId = (
+            await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
+        ).ShowtimeSeatId;
         var sut = CreateCounterSut();
 
         // employeeUser has AdminRoleId, not CustomerRoleId
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CounterHoldSeatsAsync(
-                employee.EmployeeId, employeeUser.UserId,
-                new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, employeeUser.UserId, "ignored", null),
-                CancellationToken.None));
+                employee.EmployeeId,
+                employeeUser.UserId,
+                new CounterHoldRequest(
+                    showtime.ShowtimeId,
+                    [seatId],
+                    null,
+                    employeeUser.UserId,
+                    "ignored",
+                    null
+                ),
+                CancellationToken.None
+            )
+        );
     }
 
     [Fact]
@@ -369,13 +422,24 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
-        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var seatId = (
+            await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
+        ).ShowtimeSeatId;
         var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
-            employee.EmployeeId, employeeUser.UserId,
-            new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, customer.UserId, "ignored-name", "ignored-phone"),
-            CancellationToken.None);
+            employee.EmployeeId,
+            employeeUser.UserId,
+            new CounterHoldRequest(
+                showtime.ShowtimeId,
+                [seatId],
+                null,
+                customer.UserId,
+                "ignored-name",
+                "ignored-phone"
+            ),
+            CancellationToken.None
+        );
 
         var booking = await Db.Bookings.SingleAsync(b => b.BookingId == response.BookingId);
         booking.CustomerName.ShouldBe("Nguyen Thi B");
@@ -391,13 +455,24 @@ public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
-        var seatId = (await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)).ShowtimeSeatId;
+        var seatId = (
+            await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
+        ).ShowtimeSeatId;
         var sut = CreateCounterSut();
 
         var response = await sut.CounterHoldSeatsAsync(
-            employee.EmployeeId, employeeUser.UserId,
-            new CounterHoldRequest(showtime.ShowtimeId, [seatId], null, null, "Khach Le", "0900000001"),
-            CancellationToken.None);
+            employee.EmployeeId,
+            employeeUser.UserId,
+            new CounterHoldRequest(
+                showtime.ShowtimeId,
+                [seatId],
+                null,
+                null,
+                "Khach Le",
+                "0900000001"
+            ),
+            CancellationToken.None
+        );
 
         var booking = await Db.Bookings.SingleAsync(b => b.BookingId == response.BookingId);
         booking.CustomerName.ShouldBe("Khach Le");

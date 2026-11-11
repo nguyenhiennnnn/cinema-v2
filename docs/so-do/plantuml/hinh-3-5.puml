@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Người dùng đã đăng nhập" as A_NDN
+rectangle "Package Hồ sơ cá nhân (HS) — 4 use case" as PK {
+  usecase "UC-HS-01\nXem hồ sơ cá nhân" as UC_HS_01
+  usecase "UC-HS-02\nCập nhật hồ sơ cá nhân" as UC_HS_02
+  usecase "UC-HS-03\nĐổi mật khẩu" as UC_HS_03
+  usecase "UC-HS-04\nXem đánh giá của tôi" as UC_HS_04
+}
+A_NDN -- UC_HS_01
+A_NDN -- UC_HS_02
+A_NDN -- UC_HS_03
+A_NDN -- UC_HS_04
+@enduml

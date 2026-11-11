@@ -6,8 +6,7 @@ namespace Cinema.Api.Controllers;
 
 public abstract class AppControllerBase : ControllerBase
 {
-    protected int CurrentUserId =>
-        int.Parse(User.FindFirstValue(AppClaimTypes.UserId)!);
+    protected int CurrentUserId => int.Parse(User.FindFirstValue(AppClaimTypes.UserId)!);
 
     protected int? CurrentUserIdOrNull
     {

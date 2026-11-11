@@ -1,0 +1,60 @@
+flowchart TB
+  subgraph a["Chọn {3,4}: không để lại ghế lẻ (chấp nhận ở mọi chế độ)"]
+    direction LR
+    a1["1"]:::free
+    a2["2"]:::free
+    a3["3"]:::sel
+    a4["4"]:::sel
+    a5["5"]:::free
+    a6["6"]:::free
+    a7["7"]:::free
+    a8["8"]:::free
+    a9["9"]:::free
+    a10["10"]:::free
+    a1 ~~~ a2 ~~~ a3 ~~~ a4 ~~~ a5 ~~~ a6 ~~~ a7 ~~~ a8 ~~~ a9 ~~~ a10
+  end
+  subgraph b["Chọn {2,3}: ghế 1 lẻ ở mép hàng (Strict từ chối, AllowEdge chấp nhận, Off chấp nhận)"]
+    direction LR
+    b1["1"]:::free
+    b2["2"]:::sel
+    b3["3"]:::sel
+    b4["4"]:::free
+    b5["5"]:::free
+    b6["6"]:::free
+    b7["7"]:::free
+    b8["8"]:::free
+    b9["9"]:::free
+    b10["10"]:::free
+    b1 ~~~ b2 ~~~ b3 ~~~ b4 ~~~ b5 ~~~ b6 ~~~ b7 ~~~ b8 ~~~ b9 ~~~ b10
+  end
+  subgraph c["Chọn {5,7}: ghế 6 lẻ ở giữa (Strict từ chối, AllowEdge từ chối, Off chấp nhận)"]
+    direction LR
+    c1["1"]:::free
+    c2["2"]:::free
+    c3["3"]:::free
+    c4["4"]:::free
+    c5["5"]:::sel
+    c6["6"]:::free
+    c7["7"]:::sel
+    c8["8"]:::free
+    c9["9"]:::free
+    c10["10"]:::free
+    c1 ~~~ c2 ~~~ c3 ~~~ c4 ~~~ c5 ~~~ c6 ~~~ c7 ~~~ c8 ~~~ c9 ~~~ c10
+  end
+  subgraph d["Chọn {1,2} khi ghế 4 đã bán: ghế 3 bị kẹp (Strict từ chối, AllowEdge từ chối, Off chấp nhận)"]
+    direction LR
+    d1["1"]:::sel
+    d2["2"]:::sel
+    d3["3"]:::free
+    d4["4"]:::sold
+    d5["5"]:::free
+    d6["6"]:::free
+    d7["7"]:::free
+    d8["8"]:::free
+    d9["9"]:::free
+    d10["10"]:::free
+    d1 ~~~ d2 ~~~ d3 ~~~ d4 ~~~ d5 ~~~ d6 ~~~ d7 ~~~ d8 ~~~ d9 ~~~ d10
+  end
+  classDef free fill:#fff,stroke:#333;
+  classDef sel fill:#9ad,stroke:#036;
+  classDef sold fill:#bbb,stroke:#666,color:#555;

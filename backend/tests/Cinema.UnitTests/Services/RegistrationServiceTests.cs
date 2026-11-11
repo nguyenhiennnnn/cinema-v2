@@ -120,7 +120,7 @@ public class RegistrationServiceRegisterAndConfirmTests : AuthServiceTestBase
                 TokenHash = "hashed-token",
                 Purpose = VerificationTokenPurpose.EmailConfirmation,
                 ExpiresAt = DateTime.UtcNow.AddHours(1),
-                Used = true, 
+                Used = true,
                 CreatedAt = DateTime.UtcNow,
             }
         );
@@ -166,7 +166,9 @@ public class RegistrationServiceStaffInviteTests : AuthServiceTestBase
         await CreateRegistrationService().SendStaffInviteAsync(user, CancellationToken.None);
         await CreateRegistrationService().SendStaffInviteAsync(user, CancellationToken.None);
 
-        var tokens = await Db.UserVerificationTokens.Where(t => t.UserId == user.UserId).ToListAsync();
+        var tokens = await Db
+            .UserVerificationTokens.Where(t => t.UserId == user.UserId)
+            .ToListAsync();
         tokens.Count.ShouldBe(2);
         tokens.Count(t => !t.Used).ShouldBe(1);
     }

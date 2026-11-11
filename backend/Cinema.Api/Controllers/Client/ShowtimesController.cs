@@ -33,7 +33,10 @@ public class ShowtimesController(IShowtimeQueryService showtimeQueryService) : C
     [HttpGet("{showtimeId:int}/seats")]
     public async Task<IActionResult> GetSeats(int showtimeId, CancellationToken cancellationToken)
     {
-        var result = await showtimeQueryService.GetShowtimeSeatsAsync(showtimeId, cancellationToken);
+        var result = await showtimeQueryService.GetShowtimeSeatsAsync(
+            showtimeId,
+            cancellationToken
+        );
         return Ok(result);
     }
 

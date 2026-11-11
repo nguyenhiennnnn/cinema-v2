@@ -1,0 +1,38 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách vãng lai" as A_KVL
+rectangle "Package Duyệt phim (DP) — 8 use case" as PK {
+  usecase "UC-DP-01\nXem danh sách phim" as UC_DP_01
+  usecase "UC-DP-02\nXem chi tiết phim" as UC_DP_02
+  usecase "UC-DP-03\nXem đánh giá của phim" as UC_DP_03
+  usecase "UC-DP-04\nXem lịch chiếu theo ngày" as UC_DP_04
+  usecase "UC-DP-05\nXem danh mục lọc" as UC_DP_05
+  usecase "UC-DP-06\nXem các hạng thành viên" as UC_DP_06
+  usecase "UC-DP-07\nXem thông tin rạp" as UC_DP_07
+  usecase "UC-DP-08\nXem danh sách combo" as UC_DP_08
+}
+usecase "UC-DV-01\nĐặt vé trực tuyến" as UC_DV_01 #E5E5E5;line:808080;text:606060;line.dashed
+A_KVL -- UC_DP_01
+A_KVL -- UC_DP_02
+A_KVL -- UC_DP_03
+A_KVL -- UC_DP_04
+A_KVL -- UC_DP_05
+A_KVL -- UC_DP_06
+A_KVL -- UC_DP_07
+A_KVL -- UC_DP_08
+UC_DP_02 ..> UC_DP_03 : <<include>>
+UC_DV_01 ..> UC_DP_02 : <<extend>>
+UC_DV_01 ..> UC_DP_04 : <<extend>>
+@enduml

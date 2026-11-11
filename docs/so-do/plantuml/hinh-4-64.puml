@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Trình duyệt A" as A
+actor "Trình duyệt B" as B
+participant "AuthController / BookingsController" as API
+participant "ShowtimeHub (/hubs/showtimes)" as Hub
+participant "BookingService" as S
+participant "SignalRRealtimeNotifier" as N
+A -> API : POST /api/v1/auth/socket-token
+API --> A : socket token (hạn 300 giây)
+B -> API : POST /api/v1/auth/socket-token
+API --> B : socket token
+A -> Hub : kết nối /hubs/showtimes?access_token=...
+A -> Hub : JoinShowtime(showtimeId)
+B -> Hub : kết nối và JoinShowtime(showtimeId)
+A -> API : POST /api/v1/bookings/hold
+API -> S : HoldSeatsAsync
+S -> S : ghi CSDL, hoàn tất giao dịch
+S -> N : NotifySeatHeldAsync(showtimeId, seatIds, userId)
+N -> Hub : Clients.Group(showtime-{id}).SendAsync("seat.held")
+Hub --> B : seat.held
+B -> B : đổi trạng thái các ghế trên sơ đồ
+Hub --> A : seat.held
+note over A, B : các sự kiện khác: seat.booked, seat.released, hold.expired. Rời trang gọi LeaveShowtime
+@enduml

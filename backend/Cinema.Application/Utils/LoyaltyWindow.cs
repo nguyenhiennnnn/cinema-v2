@@ -15,7 +15,8 @@ public static class LoyaltyWindow
         await db
             .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
             .Select(s => (int?)s.LoyaltyWindowMonths)
-            .FirstOrDefaultAsync(ct) ?? DefaultMonths;
+            .FirstOrDefaultAsync(ct)
+        ?? DefaultMonths;
 
     public static int PointsFor(decimal finalAmount, decimal pointsPerAmount) =>
         (int)Math.Floor(finalAmount / pointsPerAmount);

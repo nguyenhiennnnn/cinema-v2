@@ -33,9 +33,7 @@ public class PasswordService(
             ?? throw new NotFoundException(Messages.NotFound_User);
 
         if (!user.EmailConfirmed)
-            throw new ForbiddenAppException(
-                Messages.Forbidden_EmailNotVerifiedCheckInbox
-            );
+            throw new ForbiddenAppException(Messages.Forbidden_EmailNotVerifiedCheckInbox);
 
         var verifyResult = passwordHasher.VerifyHashedPassword(
             user,

@@ -28,8 +28,12 @@ public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> bran
         var cinemaName = settings?.Name ?? _brand.Name;
         var address = settings?.Address ?? Messages.Ai_Prompt_NotUpdated;
         var phone = settings?.Phone ?? Messages.Ai_Prompt_NotUpdated;
-        var opening = settings?.OpeningTime?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? FallbackOpeningTime;
-        var closing = settings?.ClosingTime?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? FallbackClosingTime;
+        var opening =
+            settings?.OpeningTime?.ToString("HH:mm", CultureInfo.InvariantCulture)
+            ?? FallbackOpeningTime;
+        var closing =
+            settings?.ClosingTime?.ToString("HH:mm", CultureInfo.InvariantCulture)
+            ?? FallbackClosingTime;
 
         var now = DateTime.UtcNow;
 

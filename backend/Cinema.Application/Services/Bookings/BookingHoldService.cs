@@ -32,9 +32,7 @@ public class BookingHoldService(
         );
         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
         var gapRuleMode = await db.LoadSeatGapRuleModeAsync(cancellationToken);
-        if (
-            SeatLayoutRules.ValidateSelection(slots, request.SeatIds, gapRuleMode) is { } seatError
-        )
+        if (SeatLayoutRules.ValidateSelection(slots, request.SeatIds, gapRuleMode) is { } seatError)
             throw new BusinessRuleException(seatError);
 
         var booking = await CreateHoldBookingAsync(
@@ -72,13 +70,9 @@ public class BookingHoldService(
                 cancellationToken
             ) ?? throw new NotFoundException(Messages.NotFound_Showtime);
         if (showtime.Status != ShowtimeStatus.Scheduled)
-            throw new BusinessRuleException(
-                Messages.Rule_ShowtimeUnavailableForBooking
-            );
+            throw new BusinessRuleException(Messages.Rule_ShowtimeUnavailableForBooking);
         if (showtime.StartTime <= DateTime.UtcNow)
-            throw new BusinessRuleException(
-                Messages.Rule_ShowtimeStartedOrEnded
-            );
+            throw new BusinessRuleException(Messages.Rule_ShowtimeStartedOrEnded);
 
         var holdSettings = await db
             .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
@@ -152,10 +146,7 @@ public class BookingHoldService(
             var conflictSeatIds = distinctSeatIds.Except(heldSeatIds).ToList();
 
             await transaction.RollbackAsync(cancellationToken);
-            throw new SeatConflictException(
-                Messages.Conflict_SeatsAlreadyTaken,
-                conflictSeatIds
-            );
+            throw new SeatConflictException(Messages.Conflict_SeatsAlreadyTaken, conflictSeatIds);
         }
 
         var heldSeats = await db
@@ -180,7 +171,9 @@ public class BookingHoldService(
         {
             UserId = bookingUserId,
             ShowtimeId = showtimeId,
-            BookingCode = await fulfillmentService.GenerateUniqueBookingCodeAsync(cancellationToken),
+            BookingCode = await fulfillmentService.GenerateUniqueBookingCodeAsync(
+                cancellationToken
+            ),
             Channel = channel,
             CreatedByEmployeeId = createdByEmployeeId,
             CustomerName = customerName,

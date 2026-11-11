@@ -16,9 +16,7 @@ public class AdminCounterController(ICounterBookingService counterBookingService
 {
     private int GetCurrentEmployeeId() =>
         CurrentEmployeeIdOrNull
-        ?? throw new BusinessRuleException(
-            Messages.Rule_NoEmployeeProfileForCounterBooking
-        );
+        ?? throw new BusinessRuleException(Messages.Rule_NoEmployeeProfileForCounterBooking);
 
     [HttpPost("counter-hold")]
     [Authorize(Policy = Policies.StaffOnly)]

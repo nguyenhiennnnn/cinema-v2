@@ -36,7 +36,10 @@ public class PaymentServiceMomoTests : IDisposable
             _handle.Db,
             _bookingServiceMock.Object,
             gateways,
-            new NotificationService(_backgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            new NotificationService(
+                _backgroundJobClientMock.Object,
+                Options.Create(new BrandOptions())
+            ),
             NullLogger<PaymentService>.Instance
         );
     }

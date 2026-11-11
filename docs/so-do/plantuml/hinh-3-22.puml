@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Quản trị viên" as A_QTV
+rectangle "Package Cấu hình rạp (CH) — 2 use case" as PK {
+  usecase "UC-CH-01\nXem cấu hình rạp" as UC_CH_01
+  usecase "UC-CH-02\nCập nhật cấu hình rạp" as UC_CH_02
+}
+usecase "UC-TP-01\nTải ảnh lên" as UC_TP_01 #E5E5E5;line:808080;text:606060;line.dashed
+actor "Cloudinary" <<Hệ thống>> as A_CLD
+A_QTV -- UC_CH_01
+A_QTV -- UC_CH_02
+UC_CH_02 -- A_CLD
+UC_TP_01 ..> UC_CH_02 : <<extend>>
+@enduml

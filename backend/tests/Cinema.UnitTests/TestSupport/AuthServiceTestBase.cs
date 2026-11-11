@@ -95,7 +95,10 @@ public abstract class AuthServiceTestBase : IDisposable
             Db,
             TokenServiceMock.Object,
             Options.Create(new AppUrlOptions()),
-            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            new NotificationService(
+                BackgroundJobClientMock.Object,
+                Options.Create(new BrandOptions())
+            ),
             NullLogger<VerificationTokenSender>.Instance
         );
 

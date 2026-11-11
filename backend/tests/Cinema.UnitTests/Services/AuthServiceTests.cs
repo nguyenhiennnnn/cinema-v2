@@ -338,7 +338,9 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
             sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
         );
 
-        var reloadedThird = await Db.RefreshTokens.AsNoTracking().SingleAsync(rt => rt.RefreshTokenId == third.RefreshTokenId);
+        var reloadedThird = await Db
+            .RefreshTokens.AsNoTracking()
+            .SingleAsync(rt => rt.RefreshTokenId == third.RefreshTokenId);
         reloadedThird.IsRevoked.ShouldBeTrue();
         reloadedThird.RevokedAt.ShouldNotBeNull();
     }
@@ -363,8 +365,11 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
             sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
         );
 
-        (await Db.RefreshTokens.AsNoTracking().SingleAsync(rt => rt.RefreshTokenId == other.RefreshTokenId))
-            .IsRevoked.ShouldBeFalse();
+        (
+            await Db
+                .RefreshTokens.AsNoTracking()
+                .SingleAsync(rt => rt.RefreshTokenId == other.RefreshTokenId)
+        ).IsRevoked.ShouldBeFalse();
     }
 
     [Fact]

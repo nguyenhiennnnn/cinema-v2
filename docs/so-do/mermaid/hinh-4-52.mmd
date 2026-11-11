@@ -1,0 +1,15 @@
+flowchart TD
+  A(["ApplyPaymentResultAsync bắt SeatsNoLongerHeldException"]) --> B["Xác nhận giao dịch: Payment vẫn Success"]
+  B --> C["HandleSeatsExpiredAfterPaymentAsync<br/>ghi log SeatsExpiredAfterPayment"]
+  C --> D["RefundAsync toàn bộ payment.Amount qua cổng đã dùng"]
+  D --> E{"Hoàn tiền thành công?"}
+  E -- Có --> F["Payment = Refunded<br/>RefundedAmount, RefundedAt, RefundTransactionId"]
+  E -- "Không / ngoại lệ" --> G["Ghi log AutoRefundFailed<br/>Payment giữ Success, rạp hoàn tiền thủ công"]
+  F --> H{"CinemaSettings.Email có giá trị?"}
+  G --> H
+  H -- Có --> I["Xếp SendEmailJob cho rạp<br/>Đã tự động hoàn tiền / CẦN HOÀN TIỀN THỦ CÔNG"]
+  H -- Không --> J{"Booking có người dùng và email?"}
+  I --> J
+  J -- Có --> K["Xếp SendEmailJob cho khách<br/>Đã hoàn tiền / Chờ hoàn tiền"]
+  J -- Không --> L(["Kết thúc"])
+  K --> L

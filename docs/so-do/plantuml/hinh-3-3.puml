@@ -1,0 +1,102 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách vãng lai" as A_KVL
+actor "Người dùng đã đăng nhập" as A_NDN
+actor "Khách hàng" as A_KH
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Hệ thống Perfo — 21 package use case (103 use case)" as SYS {
+  rectangle "XT, Xác thực\n(11 use case)" as P_XT
+  rectangle "HS, Hồ sơ cá nhân\n(4 use case)" as P_HS
+  rectangle "DP, Duyệt phim\n(8 use case)" as P_DP
+  rectangle "DG, Đánh giá phim\n(4 use case)" as P_DG
+  rectangle "DV, Đặt vé trực tuyến\n(9 use case)" as P_DV
+  rectangle "TT, Thanh toán trực tuyến\n(6 use case)" as P_TT
+  rectangle "AI, Trợ lý AI\n(1 use case)" as P_AI
+  rectangle "BQ, Bán vé tại quầy\n(1 use case)" as P_BQ
+  rectangle "SV, Soát vé\n(1 use case)" as P_SV
+  rectangle "QB, Quản lý booking\n(2 use case)" as P_QB
+  rectangle "QP, Quản lý phim\n(5 use case)" as P_QP
+  rectangle "QD, Quản lý danh mục\n(10 use case)" as P_QD
+  rectangle "QR, Quản lý phòng chiếu\n(3 use case)" as P_QR
+  rectangle "QS, Quản lý suất chiếu\n(9 use case)" as P_QS
+  rectangle "QN, Quản lý người dùng\n(7 use case)" as P_QN
+  rectangle "QV, Quản lý đánh giá\n(3 use case)" as P_QV
+  rectangle "QT, Quản lý thanh toán\n(2 use case)" as P_QT
+  rectangle "BC, Báo cáo thống kê\n(5 use case)" as P_BC
+  rectangle "CH, Cấu hình rạp\n(2 use case)" as P_CH
+  rectangle "TP, Tải tệp\n(2 use case)" as P_TP
+  rectangle "HT, Vận hành hệ thống\n(8 use case)" as P_HT
+}
+actor "Hệ thống tác vụ nền" <<Hệ thống>> as A_NEN
+actor "Cổng VNPay" <<Hệ thống>> as A_VNP
+actor "Cổng MoMo" <<Hệ thống>> as A_MOMO
+actor "Cổng Stripe" <<Hệ thống>> as A_STR
+actor "Google" <<Hệ thống>> as A_GG
+actor "Gemini" <<Hệ thống>> as A_GEM
+actor "Dịch vụ email" <<Hệ thống>> as A_MAIL
+actor "Cloudinary" <<Hệ thống>> as A_CLD
+A_KVL -- P_XT
+A_KVL -- P_DP
+A_KVL -- P_DV
+A_KVL -- P_AI
+A_KVL -- P_HT
+A_NDN -- P_XT
+A_NDN -- P_HS
+A_KH -- P_DG
+A_KH -- P_DV
+A_KH -- P_TT
+A_KH -- P_AI
+A_NV -- P_XT
+A_NV -- P_BQ
+A_NV -- P_SV
+A_NV -- P_QB
+A_NV -- P_QP
+A_NV -- P_QS
+A_NV -- P_QN
+A_QTV -- P_XT
+A_QTV -- P_BQ
+A_QTV -- P_SV
+A_QTV -- P_QB
+A_QTV -- P_QP
+A_QTV -- P_QD
+A_QTV -- P_QR
+A_QTV -- P_QS
+A_QTV -- P_QN
+A_QTV -- P_QV
+A_QTV -- P_QT
+A_QTV -- P_BC
+A_QTV -- P_CH
+A_QTV -- P_TP
+A_QTV -- P_HT
+P_TT -- A_NEN
+P_HT -- A_NEN
+P_TT -- A_VNP
+P_HT -- A_VNP
+P_TT -- A_MOMO
+P_HT -- A_MOMO
+P_TT -- A_STR
+P_HT -- A_STR
+P_XT -- A_GG
+P_AI -- A_GEM
+P_XT -- A_MAIL
+P_TT -- A_MAIL
+P_QS -- A_MAIL
+P_HT -- A_MAIL
+P_QP -- A_CLD
+P_QD -- A_CLD
+P_CH -- A_CLD
+P_TP -- A_CLD
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Quản trị viên" as A_QTV
+rectangle "Package Quản lý phòng chiếu (QR) — 3 use case" as PK {
+  usecase "UC-QR-01\nQuản lý phòng chiếu" as UC_QR_01
+  usecase "UC-QR-02\nXem sơ đồ ghế của phòng" as UC_QR_02
+  usecase "UC-QR-03\nSoạn sơ đồ ghế" as UC_QR_03
+}
+A_QTV -- UC_QR_01
+A_QTV -- UC_QR_02
+A_QTV -- UC_QR_03
+@enduml

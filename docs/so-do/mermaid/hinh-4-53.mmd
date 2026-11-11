@@ -1,0 +1,15 @@
+flowchart TD
+  A(["ReleaseExpiredSeatsJob (cron mỗi phút)"]) --> B["ISeatExpirationService.ExpireDueBookingsAsync"]
+  B --> C["Lấy các Booking Pending có ExpiresAt nhỏ hơn hiện tại"]
+  C --> D{"Còn booking?"}
+  D -- Có --> E["Tải các ghế Held của đơn → Available<br/>xóa HeldByUserId, HeldByBookingId, HeldUntil"]
+  E --> F["Booking = Expired; các Payment Pending → Failed; SaveChanges"]
+  F --> G{"Có ghế được trả?"}
+  G -- Có --> H["NotifyHoldExpiredAsync(showtimeId, bookingId, seatIds) và log BookingExpired"]
+  G -- Không --> D
+  H --> D
+  D -- Hết --> I["ReleaseStaleHeldSeatsAsync(null)<br/>ExecuteUpdateAsync: ShowtimeSeat Held có HeldUntil đã qua → Available"]
+  I --> J{"Số ghế giải phóng > 0?"}
+  J -- Có --> K["Ghi log số ghế (không phát sự kiện thời gian thực)"]
+  J -- Không --> L(["Kết thúc"])
+  K --> L

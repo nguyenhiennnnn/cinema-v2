@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Khách hàng" as K
+participant "BookingsController" as C
+participant "BookingService" as S
+participant "IAppDbContext" as DB
+participant "IPaymentGateway (VNPay, MoMo, Stripe)" as G
+K -> C : POST /api/v1/bookings/{bookingId}/checkout (PaymentMethod)
+C -> S : CheckoutAsync(userId, bookingId, request)
+S -> DB : tìm Booking
+alt không thấy
+S --> K : 404 NotFound_Booking
+else không phải chủ đơn
+S --> K : 403 Forbidden_NotBookingOwner
+else không Pending hoặc đã quá ExpiresAt
+S --> K : 422 Rule_BookingNotPendingOrExpired
+end
+S -> S : FindByMethod(MethodName)
+alt chưa cấu hình cổng
+S --> K : Rule_PaymentGatewayNotConfigured
+end
+S -> DB : các Payment Pending cũ của đơn → Failed
+S -> S : GeneratePaymentTransactionId(bookingCode)
+S -> G : CreatePaymentAsync(BookingId, FinalAmount, mô tả, TransactionId)
+G --> S : PaymentUrl
+S -> DB : thêm Payment (Pending, Amount=FinalAmount, TransactionId)
+S --> C : CheckoutResponse (PaymentUrl, PaymentId)
+C --> K : chuyển hướng tới PaymentUrl
+@enduml

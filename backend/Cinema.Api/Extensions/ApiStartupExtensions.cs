@@ -1,6 +1,7 @@
+using Cinema.Api.Filters;
 using Cinema.Application.MappingConfig;
 using Cinema.Application.Options;
-using Cinema.Api.Filters;
+using Cinema.Infrastructure.Persistence;
 using Cinema.Infrastructure.Persistence.Seed;
 using Cinema.Shared.Resources;
 using Cinema.Shared.Results;
@@ -8,7 +9,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Cinema.Infrastructure.Persistence;
 
 namespace Cinema.Api.Extensions;
 
@@ -69,7 +69,9 @@ public static class ApiStartupExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder ValidateProductionOptions(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ValidateProductionOptions(
+        this WebApplicationBuilder builder
+    )
     {
         if (!builder.Environment.IsProduction())
             return builder;

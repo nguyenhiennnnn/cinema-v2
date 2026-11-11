@@ -35,7 +35,9 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
 
     private async Task<HttpClient> LoginAsEmployeeAsync()
     {
-        var (_, _, email, password) = await IntegrationTestDataSeeder.CreateEmployeeAsync(Factory.Services);
+        var (_, _, email, password) = await IntegrationTestDataSeeder.CreateEmployeeAsync(
+            Factory.Services
+        );
         var token = await LoginAsync(email, password, admin: true);
         return CreateAuthenticatedClient(token);
     }
@@ -44,7 +46,8 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterHold_WalkInCustomerNoAccount_CreatesPendingCounterBookingWithoutUserId()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
 
         var response = await staffClient.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
@@ -72,7 +75,9 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     {
         var (accessToken, _) = await RegisterConfirmedCustomerAndLoginAsync();
         using var client = CreateAuthenticatedClient(accessToken);
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
 
         var response = await client.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
@@ -93,10 +98,13 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     [Fact]
     public async Task CounterHold_CallerWithoutEmployeeRecord_Returns422()
     {
-        var (_, email, password) = await IntegrationTestDataSeeder.CreateAdminUserWithoutEmployeeAsync(Factory.Services);
+        var (_, email, password) =
+            await IntegrationTestDataSeeder.CreateAdminUserWithoutEmployeeAsync(Factory.Services);
         var token = await LoginAsync(email, password, admin: true);
         using var client = CreateAuthenticatedClient(token);
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
 
         var response = await client.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
@@ -118,7 +126,8 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterCheckout_CashAmountAboveTotal_ConfirmsBookingAndReturnsCorrectChange()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
         var holdResponse = await staffClient.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
             new
@@ -153,7 +162,8 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterCheckout_InsufficientCashReceived_Returns422AndLeavesBookingPending()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
         var holdResponse = await staffClient.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
             new
@@ -183,10 +193,11 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task Checkin_ValidUncheckedTicketWithinWindow_MarksItCheckedIn()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
-            Factory.Services,
-            startTime: DateTime.UtcNow.AddMinutes(5)
-        );
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+                Factory.Services,
+                startTime: DateTime.UtcNow.AddMinutes(5)
+            );
         var holdResponse = await staffClient.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
             new
@@ -200,10 +211,16 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
             }
         );
         var hold = await ReadDataAsync<CounterHoldResponseDto>(holdResponse);
-        await staffClient.PostAsJsonAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout", new { amountReceived = seatPrice });
+        await staffClient.PostAsJsonAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout",
+            new { amountReceived = seatPrice }
+        );
         var qrCode = await GetFirstTicketQrCodeAsync(hold.BookingId);
 
-        var response = await staffClient.PostAsJsonAsync("/api/v1/admin/bookings/checkin", new { qrCode });
+        var response = await staffClient.PostAsJsonAsync(
+            "/api/v1/admin/bookings/checkin",
+            new { qrCode }
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var checkin = await ReadDataAsync<CheckinResponseDto>(response);
@@ -214,10 +231,11 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task Checkin_AlreadyCheckedInTicket_Returns409()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
-            Factory.Services,
-            startTime: DateTime.UtcNow.AddMinutes(5)
-        );
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+                Factory.Services,
+                startTime: DateTime.UtcNow.AddMinutes(5)
+            );
         var holdResponse = await staffClient.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
             new
@@ -231,11 +249,17 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
             }
         );
         var hold = await ReadDataAsync<CounterHoldResponseDto>(holdResponse);
-        await staffClient.PostAsJsonAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout", new { amountReceived = seatPrice });
+        await staffClient.PostAsJsonAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout",
+            new { amountReceived = seatPrice }
+        );
         var qrCode = await GetFirstTicketQrCodeAsync(hold.BookingId);
         await staffClient.PostAsJsonAsync("/api/v1/admin/bookings/checkin", new { qrCode });
 
-        var response = await staffClient.PostAsJsonAsync("/api/v1/admin/bookings/checkin", new { qrCode });
+        var response = await staffClient.PostAsJsonAsync(
+            "/api/v1/admin/bookings/checkin",
+            new { qrCode }
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
     }
@@ -245,7 +269,10 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     {
         using var staffClient = await LoginAsEmployeeAsync();
 
-        var response = await staffClient.PostAsJsonAsync("/api/v1/admin/bookings/checkin", new { qrCode = "does-not-exist" });
+        var response = await staffClient.PostAsJsonAsync(
+            "/api/v1/admin/bookings/checkin",
+            new { qrCode = "does-not-exist" }
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
@@ -254,7 +281,8 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task Checkin_TicketForShowtimeMoreThan30MinutesAway_Returns422()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
         var holdResponse = await staffClient.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
             new
@@ -268,15 +296,25 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
             }
         );
         var hold = await ReadDataAsync<CounterHoldResponseDto>(holdResponse);
-        await staffClient.PostAsJsonAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout", new { amountReceived = seatPrice });
+        await staffClient.PostAsJsonAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout",
+            new { amountReceived = seatPrice }
+        );
         var qrCode = await GetFirstTicketQrCodeAsync(hold.BookingId);
 
-        var response = await staffClient.PostAsJsonAsync("/api/v1/admin/bookings/checkin", new { qrCode });
+        var response = await staffClient.PostAsJsonAsync(
+            "/api/v1/admin/bookings/checkin",
+            new { qrCode }
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
     }
 
-    private async Task<CounterHoldResponseDto> HoldOneSeatAsync(HttpClient client, int showtimeId, int seatId)
+    private async Task<CounterHoldResponseDto> HoldOneSeatAsync(
+        HttpClient client,
+        int showtimeId,
+        int seatId
+    )
     {
         var response = await client.PostAsJsonAsync(
             "/api/v1/admin/bookings/counter-hold",
@@ -298,7 +336,9 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterHold_SecondHoldOnSameShowtime_Returns201()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
 
         await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
         var second = await HoldOneSeatAsync(staffClient, showtimeId, seatIds[1]);
@@ -310,13 +350,20 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterCancel_PendingCounterBooking_Returns200AndSeatIsAvailableAgain()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
         var hold = await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
 
-        var response = await staffClient.PostAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel", null);
+        var response = await staffClient.PostAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel",
+            null
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var detail = await ReadEnvelopeAsync(await staffClient.GetAsync($"/api/v1/admin/bookings/{hold.BookingId}"));
+        var detail = await ReadEnvelopeAsync(
+            await staffClient.GetAsync($"/api/v1/admin/bookings/{hold.BookingId}")
+        );
         detail.GetProperty("data").GetProperty("status").GetString().ShouldBe("Cancelled");
         await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
     }
@@ -325,11 +372,19 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterCancel_CalledTwice_IsIdempotent()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
         var hold = await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
-        await staffClient.PostAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel", null);
+        await staffClient.PostAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel",
+            null
+        );
 
-        var response = await staffClient.PostAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel", null);
+        var response = await staffClient.PostAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel",
+            null
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
@@ -338,11 +393,18 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterCancel_ConfirmedBooking_Returns422()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
         var hold = await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
-        await staffClient.PostAsJsonAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout", new { amountReceived = seatPrice });
+        await staffClient.PostAsJsonAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout",
+            new { amountReceived = seatPrice }
+        );
 
-        var response = await staffClient.PostAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel", null);
+        var response = await staffClient.PostAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel",
+            null
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
     }
@@ -351,9 +413,13 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterCancel_CheckoutAfterCancel_Returns422()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, seatPrice) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, seatPrice) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
         var hold = await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
-        await staffClient.PostAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel", null);
+        await staffClient.PostAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel",
+            null
+        );
 
         var response = await staffClient.PostAsJsonAsync(
             $"/api/v1/admin/bookings/{hold.BookingId}/counter-checkout",
@@ -367,12 +433,17 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterCancel_CustomerCaller_Returns403Forbidden()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
         var hold = await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
         var (accessToken, _) = await RegisterConfirmedCustomerAndLoginAsync();
         using var customerClient = CreateAuthenticatedClient(accessToken);
 
-        var response = await customerClient.PostAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel", null);
+        var response = await customerClient.PostAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel",
+            null
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
@@ -382,10 +453,15 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     {
         using var staffClient = await LoginAsEmployeeAsync();
         using var otherStaffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
         var hold = await HoldOneSeatAsync(staffClient, showtimeId, seatIds[0]);
 
-        var response = await otherStaffClient.PostAsync($"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel", null);
+        var response = await otherStaffClient.PostAsync(
+            $"/api/v1/admin/bookings/{hold.BookingId}/counter-cancel",
+            null
+        );
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
@@ -394,8 +470,11 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     public async Task CounterHold_SixthPendingBookingOfSameEmployee_Returns409()
     {
         using var staffClient = await LoginAsEmployeeAsync();
-        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
-        var (otherShowtimeId, otherSeatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
+        var (showtimeId, seatIds, _) = await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(
+            Factory.Services
+        );
+        var (otherShowtimeId, otherSeatIds, _) =
+            await IntegrationTestDataSeeder.CreateScheduledShowtimeAsync(Factory.Services);
         for (var i = 0; i < 4; i++)
             await HoldOneSeatAsync(staffClient, showtimeId, seatIds[i]);
         await HoldOneSeatAsync(staffClient, otherShowtimeId, otherSeatIds[0]);
@@ -419,11 +498,11 @@ public class AdminBookingsEndpointsTests(CinemaApiFactory factory) : Integration
     private async Task<string> GetFirstTicketQrCodeAsync(int bookingId)
     {
         using var scope = Factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<Cinema.Infrastructure.Persistence.AppDbContext>();
+        var db =
+            scope.ServiceProvider.GetRequiredService<Cinema.Infrastructure.Persistence.AppDbContext>();
         return await db
             .BookingTickets.Where(t => t.BookingId == bookingId)
             .Select(t => t.QrCode!)
             .FirstAsync();
     }
 }
-

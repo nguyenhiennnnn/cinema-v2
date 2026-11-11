@@ -1,0 +1,23 @@
+@startuml
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+skinparam monochrome true
+skinparam ArrowColor Black
+
+component "Cinema.Api" as API
+component "Cinema.Infrastructure" as INF
+component "Cinema.Application" as APP
+component "Cinema.Domain" as DOM
+component "Cinema.Shared" as SHR
+API ..> INF
+API ..> APP
+API ..> DOM
+API ..> SHR
+INF ..> APP
+INF ..> DOM
+INF ..> SHR
+APP ..> DOM
+APP ..> SHR
+DOM ..> SHR
+@enduml

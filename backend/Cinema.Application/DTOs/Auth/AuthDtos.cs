@@ -12,7 +12,16 @@ public record LoginRequest(string Email, string Password);
 
 public record GoogleLoginRequest(string IdToken);
 
-public record LoginUserDto(int UserId, string FullName, string Email, string Role, string? Avatar, string? MembershipTierName, int? Points, bool IsEmailConfirmed);
+public record LoginUserDto(
+    int UserId,
+    string FullName,
+    string Email,
+    string Role,
+    string? Avatar,
+    string? MembershipTierName,
+    int? Points,
+    bool IsEmailConfirmed
+);
 
 public record LoginResponse(
     string AccessToken,

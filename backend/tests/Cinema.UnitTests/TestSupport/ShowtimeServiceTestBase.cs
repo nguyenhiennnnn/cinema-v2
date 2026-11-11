@@ -62,7 +62,10 @@ public abstract class ShowtimeServiceTestBase : IDisposable
         new(
             Db,
             BookingServiceMock.Object,
-            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            new NotificationService(
+                BackgroundJobClientMock.Object,
+                Options.Create(new BrandOptions())
+            ),
             BackgroundJobClientMock.Object,
             NullLogger<ShowtimeCancellationService>.Instance
         );

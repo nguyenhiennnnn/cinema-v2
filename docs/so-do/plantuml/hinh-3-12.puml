@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Package Soát vé (SV) — 1 use case" as PK {
+  usecase "UC-SV-01\nSoát vé" as UC_SV_01
+}
+A_NV -- UC_SV_01
+A_QTV -- UC_SV_01
+@enduml

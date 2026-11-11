@@ -1,0 +1,26 @@
+flowchart TB
+  subgraph r["Hàng 8 ghế, ghế 4 đã bán, count = 2: tách thành đoạn {1,2,3} và {5,6,7,8}"]
+    direction LR
+    r1["1"]:::free
+    r2["2"]:::free
+    r3["3"]:::free
+    r4["4"]:::sold
+    r5["5"]:::free
+    r6["6"]:::free
+    r7["7"]:::free
+    r8["8"]:::free
+    r1 ~~~ r2 ~~~ r3 ~~~ r4 ~~~ r5 ~~~ r6 ~~~ r7 ~~~ r8
+  end
+  subgraph W["Cửa sổ 2 ghế"]
+    direction TB
+    w1["{1,2}: loại (để lại ghế 3 lẻ ở cuối đoạn)"]:::bad
+    w2["{2,3}: loại (i = 1, để lại ghế 1 lẻ ở đầu đoạn)"]:::bad
+    w3["{5,6}: giữ"]:::ok
+    w4["{6,7}: loại (i = 1 và để lại ghế 8 lẻ ở cuối)"]:::bad
+    w5["{7,8}: giữ"]:::ok
+  end
+  r8 ~~~ W
+  classDef free fill:#fff,stroke:#333;
+  classDef sold fill:#bbb,stroke:#666,color:#555;
+  classDef ok fill:#d8f3dc,stroke:#2d6a4f;
+  classDef bad fill:#fad9d9,stroke:#a33;

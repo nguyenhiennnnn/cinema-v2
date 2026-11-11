@@ -1,0 +1,53 @@
+// Hình 4.30. ERD module Phòng chiếu
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table CinemaRooms {
+  RoomId int [pk]
+  Cols int [not null]
+  IsActive boolean [not null]
+  RoomName varchar [not null, unique]
+  Rows int [not null]
+  ScreenTypeId int
+  TotalSeats int [not null]
+}
+
+Table Seats {
+  SeatId int [pk]
+  CoupleId uuid
+  IsActive boolean [not null]
+  IsAisle boolean [not null]
+  RoomId int [not null]
+  SeatNumber int [not null]
+  SeatRow varchar [not null]
+  SeatTypeId int
+  indexes {
+    (RoomId, SeatNumber, SeatRow) [unique]
+  }
+}
+
+Table ScreenTypes {
+  ScreenTypeId int [pk]
+  Name varchar [not null, unique]
+}
+
+Table SeatTypes {
+  SeatTypeId int [pk]
+  Name varchar [not null, unique]
+  PriceMultiplier decimal [not null]
+}
+
+Table Showtimes {
+  ShowtimeId int [pk]
+  RoomId int
+}
+
+Table ShowtimeSeats {
+  ShowtimeSeatId int [pk]
+  SeatId int
+}
+
+Ref: CinemaRooms.ScreenTypeId > ScreenTypes.ScreenTypeId
+Ref: Seats.RoomId > CinemaRooms.RoomId
+Ref: Seats.SeatTypeId > SeatTypes.SeatTypeId
+Ref: Showtimes.RoomId > CinemaRooms.RoomId
+Ref: ShowtimeSeats.SeatId > Seats.SeatId

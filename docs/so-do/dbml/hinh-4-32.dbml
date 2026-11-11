@@ -1,0 +1,76 @@
+// Hình 4.32. ERD module Đặt vé
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table Bookings {
+  BookingId int [pk]
+  BookingCode varchar [not null, unique]
+  Channel varchar [not null, note: 'enum BookingChannel']
+  CreatedAt timestamp [not null]
+  CreatedByEmployeeId int
+  CustomerName varchar [not null]
+  CustomerPhone varchar
+  DiscountAmount decimal [not null]
+  ExpiresAt timestamp
+  FinalAmount decimal [not null]
+  ShowtimeId int [not null]
+  Status varchar [not null, note: 'enum BookingStatus']
+  TotalAmount decimal [not null]
+  UserId int
+}
+
+Table BookingTickets {
+  TicketId int [pk]
+  BookingId int [not null]
+  CheckedInAt timestamp
+  IsCheckedIn boolean [not null]
+  Price decimal [not null]
+  QrCode varchar
+  ShowtimeSeatId int [not null, unique]
+}
+
+Table BookingCombos {
+  BookingComboId int [pk]
+  BookingId int [not null]
+  ComboId int [not null]
+  Quantity int [not null]
+  UnitPrice decimal [not null]
+}
+
+Table Combos {
+  ComboId int [pk]
+  Description varchar
+  ImageUrl varchar
+  IsActive boolean [not null]
+  Name varchar [not null]
+  Price decimal [not null]
+}
+
+Table Users {
+  UserId int [pk]
+}
+
+Table Employees {
+  EmployeeId int [pk]
+}
+
+Table Showtimes {
+  ShowtimeId int [pk]
+}
+
+Table ShowtimeSeats {
+  ShowtimeSeatId int [pk]
+}
+
+Table Payments {
+  PaymentId int [pk]
+  BookingId int
+}
+
+Ref: Bookings.UserId > Users.UserId
+Ref: Bookings.CreatedByEmployeeId > Employees.EmployeeId
+Ref: Bookings.ShowtimeId > Showtimes.ShowtimeId
+Ref: BookingTickets.BookingId > Bookings.BookingId
+Ref: BookingCombos.BookingId > Bookings.BookingId
+Ref: BookingTickets.ShowtimeSeatId - ShowtimeSeats.ShowtimeSeatId
+Ref: BookingCombos.ComboId > Combos.ComboId
+Ref: Payments.BookingId > Bookings.BookingId

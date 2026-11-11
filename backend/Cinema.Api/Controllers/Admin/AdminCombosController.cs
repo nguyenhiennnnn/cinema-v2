@@ -52,7 +52,9 @@ public class AdminCombosController(IComboService comboService) : ControllerBase
         return Ok(
             ApiResponse.SuccessResponse(
                 result,
-                result.IsActive ? Messages.Success_ComboActivated : Messages.Success_ComboDeactivated
+                result.IsActive
+                    ? Messages.Success_ComboActivated
+                    : Messages.Success_ComboDeactivated
             )
         );
     }

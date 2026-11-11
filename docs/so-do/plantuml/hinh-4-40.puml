@@ -1,0 +1,17 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam dpi 150
+skinparam maxMessageSize 220
+hide empty description
+  [*] --> ComingSoon : giá trị mặc định
+  ComingSoon --> NowShowing : quản trị viên cập nhật phim (không có cơ chế tự động)
+  NowShowing --> Ended : không còn suất Scheduled sau mốc MovieEndCutoff (EndMoviesWithoutUpcomingShowtimesAsync)
+  NowShowing --> Ended : xóa mềm phim đã có suất chiếu (DeleteMovieAsync)
+  note right of Ended
+    Không phải trạng thái cuối tuyệt đối:
+    quản trị viên vẫn có thể cập nhật lại trạng thái.
+    Phim Ended không thể xếp suất mới.
+  end note
+@enduml

@@ -79,12 +79,8 @@ public class AdminEmployeesController(IEmployeeService employeeService) : AppCon
         int id,
         [FromBody] UpdateEmployeeRequest request,
         CancellationToken cancellationToken
-    ) => Ok(
-            await employeeService.UpdateEmployeeAsync(
-                id,
-                request,
-                CurrentUserId,
-                cancellationToken
-            )
+    ) =>
+        Ok(
+            await employeeService.UpdateEmployeeAsync(id, request, CurrentUserId, cancellationToken)
         );
 }

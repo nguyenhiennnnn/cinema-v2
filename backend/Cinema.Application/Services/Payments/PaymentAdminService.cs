@@ -21,13 +21,9 @@ public class PaymentAdminService(IAppDbContext db) : IPaymentAdminService
     {
         var query = db.Payments.Include(p => p.Booking).AsQueryable();
 
-        if (
-            EnumConverters.TryParseEnum<PaymentStatus>(filter.Status, out var status)
-        )
+        if (EnumConverters.TryParseEnum<PaymentStatus>(filter.Status, out var status))
             query = query.Where(p => p.Status == status);
-        if (
-            EnumConverters.TryParseEnum<PaymentMethod>(filter.PaymentMethod, out var method)
-        )
+        if (EnumConverters.TryParseEnum<PaymentMethod>(filter.PaymentMethod, out var method))
             query = query.Where(p => p.PaymentMethod == method);
         if (filter.NeedsRefund == true)
             query = query.Where(p =>

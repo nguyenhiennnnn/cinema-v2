@@ -35,10 +35,14 @@ public class VnPayGatewayTests
             CancellationToken cancellationToken
         )
         {
-            Body = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
+            Body = request.Content is null
+                ? null
+                : await request.Content.ReadAsStringAsync(cancellationToken);
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent("{\"vnp_ResponseCode\":\"00\",\"vnp_TransactionNo\":\"123\"}"),
+                Content = new StringContent(
+                    "{\"vnp_ResponseCode\":\"00\",\"vnp_TransactionNo\":\"123\"}"
+                ),
             };
         }
     }
@@ -75,8 +79,9 @@ public class VnPayGatewayTests
 
     [Fact]
     public async Task CreatePayment_CreateDate_RollsOverToNextDay() =>
-        (await CreateDateAsync(new DateTime(2026, 12, 31, 20, 30, 15, DateTimeKind.Utc)))
-            .ShouldBe("20270101033015");
+        (await CreateDateAsync(new DateTime(2026, 12, 31, 20, 30, 15, DateTimeKind.Utc))).ShouldBe(
+            "20270101033015"
+        );
 
     [Theory]
     [InlineData("America/New_York")]
@@ -113,8 +118,11 @@ public class VnPayGatewayTests
         var second = await CreateSut(FixedUtcNow.AddHours(1))
             .CreatePaymentAsync(new CreatePaymentRequest(1, 100_000m, "info", "TXN1"));
 
-        HttpUtility.ParseQueryString(new Uri(first.PaymentUrl).Query)["vnp_SecureHash"]
-            .ShouldNotBe(HttpUtility.ParseQueryString(new Uri(second.PaymentUrl).Query)["vnp_SecureHash"]);
+        HttpUtility
+            .ParseQueryString(new Uri(first.PaymentUrl).Query)["vnp_SecureHash"]
+            .ShouldNotBe(
+                HttpUtility.ParseQueryString(new Uri(second.PaymentUrl).Query)["vnp_SecureHash"]
+            );
     }
 
     [Fact]

@@ -52,18 +52,26 @@ public class EmployeeServiceInviteTests : IDisposable
     {
         var result = await CreateSut().InviteEmployeeAsync(Invite(), CancellationToken.None);
 
-        var user = await _handle.Db.Users.AsNoTracking().SingleAsync(u => u.Email == "new.staff@test.local");
+        var user = await _handle
+            .Db.Users.AsNoTracking()
+            .SingleAsync(u => u.Email == "new.staff@test.local");
         user.RoleId.ShouldBe(EmployeeRoleId);
         user.EmailConfirmed.ShouldBeTrue();
         user.IsActive.ShouldBeTrue();
         user.PasswordHash.ShouldBe(User.PendingPasswordHash);
         user.Phone.ShouldBe("0901234567");
-        var employee = await _handle.Db.Employees.AsNoTracking().SingleAsync(e => e.UserId == user.UserId);
+        var employee = await _handle
+            .Db.Employees.AsNoTracking()
+            .SingleAsync(e => e.UserId == user.UserId);
         employee.HireDate.ShouldBe(new DateOnly(2026, 11, 1));
         result.EmployeeId.ShouldBe(employee.EmployeeId);
         result.IsPendingActivation.ShouldBeTrue();
         _registrationMock.Verify(
-            a => a.SendStaffInviteAsync(It.Is<User>(u => u.UserId == user.UserId), It.IsAny<CancellationToken>()),
+            a =>
+                a.SendStaffInviteAsync(
+                    It.Is<User>(u => u.UserId == user.UserId),
+                    It.IsAny<CancellationToken>()
+                ),
             Times.Once
         );
     }
@@ -121,7 +129,11 @@ public class EmployeeServiceInviteTests : IDisposable
         await CreateSut().ResendEmployeeInviteAsync(created.EmployeeId, CancellationToken.None);
 
         _registrationMock.Verify(
-            a => a.SendStaffInviteAsync(It.Is<User>(u => u.UserId == created.UserId), It.IsAny<CancellationToken>()),
+            a =>
+                a.SendStaffInviteAsync(
+                    It.Is<User>(u => u.UserId == created.UserId),
+                    It.IsAny<CancellationToken>()
+                ),
             Times.Once
         );
     }
@@ -164,19 +176,27 @@ public class EmployeeServiceInviteTests : IDisposable
         );
         await _handle.Db.SaveChangesAsync();
 
-        var result = await CreateSut().CreateEmployeeAsync(
-            new CreateEmployeeRequest(customer.UserId, null, null, PromoteCustomer: true),
-            caller.UserId,
-            CancellationToken.None
-        );
+        var result = await CreateSut()
+            .CreateEmployeeAsync(
+                new CreateEmployeeRequest(customer.UserId, null, null, PromoteCustomer: true),
+                caller.UserId,
+                CancellationToken.None
+            );
 
         result.UserId.ShouldBe(customer.UserId);
-        (await _handle.Db.Users.AsNoTracking().SingleAsync(u => u.UserId == customer.UserId))
-            .RoleId.ShouldBe(EmployeeRoleId);
+        (
+            await _handle.Db.Users.AsNoTracking().SingleAsync(u => u.UserId == customer.UserId)
+        ).RoleId.ShouldBe(EmployeeRoleId);
         (await _handle.Db.Employees.AnyAsync(e => e.UserId == customer.UserId)).ShouldBeTrue();
-        (await _handle.Db.RefreshTokens.AsNoTracking().Where(t => t.UserId == customer.UserId).ToListAsync())
-            .ShouldAllBe(t => t.IsRevoked);
-        (await _handle.Db.CustomerProfiles.AnyAsync(p => p.UserId == customer.UserId)).ShouldBeTrue();
+        (
+            await _handle
+                .Db.RefreshTokens.AsNoTracking()
+                .Where(t => t.UserId == customer.UserId)
+                .ToListAsync()
+        ).ShouldAllBe(t => t.IsRevoked);
+        (
+            await _handle.Db.CustomerProfiles.AnyAsync(p => p.UserId == customer.UserId)
+        ).ShouldBeTrue();
     }
 
     [Fact]
@@ -185,16 +205,18 @@ public class EmployeeServiceInviteTests : IDisposable
         var customer = TestDataSeeder.AddCustomer(_handle.Db, "cust@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateSut().CreateEmployeeAsync(
-                new CreateEmployeeRequest(customer.UserId, null, null),
-                currentUserId: 0,
-                CancellationToken.None
-            )
+            CreateSut()
+                .CreateEmployeeAsync(
+                    new CreateEmployeeRequest(customer.UserId, null, null),
+                    currentUserId: 0,
+                    CancellationToken.None
+                )
         );
 
         ex.Message.ShouldBe(Messages.Rule_UserMustBeStaffRole);
-        (await _handle.Db.Users.AsNoTracking().SingleAsync(u => u.UserId == customer.UserId))
-            .RoleId.ShouldBe(TestDataSeeder.CustomerRoleId);
+        (
+            await _handle.Db.Users.AsNoTracking().SingleAsync(u => u.UserId == customer.UserId)
+        ).RoleId.ShouldBe(TestDataSeeder.CustomerRoleId);
     }
 
     [Fact]
@@ -203,11 +225,12 @@ public class EmployeeServiceInviteTests : IDisposable
         var customer = TestDataSeeder.AddCustomer(_handle.Db, "cust@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateSut().CreateEmployeeAsync(
-                new CreateEmployeeRequest(customer.UserId, null, null, PromoteCustomer: true),
-                customer.UserId,
-                CancellationToken.None
-            )
+            CreateSut()
+                .CreateEmployeeAsync(
+                    new CreateEmployeeRequest(customer.UserId, null, null, PromoteCustomer: true),
+                    customer.UserId,
+                    CancellationToken.None
+                )
         );
 
         ex.Message.ShouldBe(Messages.Rule_CannotChangeOwnRole);
@@ -221,14 +244,16 @@ public class EmployeeServiceInviteTests : IDisposable
         _handle.Db.Employees.RemoveRange(_handle.Db.Employees.Where(e => e.UserId == admin.UserId));
         await _handle.Db.SaveChangesAsync();
 
-        await CreateSut().CreateEmployeeAsync(
-            new CreateEmployeeRequest(admin.UserId, null, null, PromoteCustomer: true),
-            caller.UserId,
-            CancellationToken.None
-        );
+        await CreateSut()
+            .CreateEmployeeAsync(
+                new CreateEmployeeRequest(admin.UserId, null, null, PromoteCustomer: true),
+                caller.UserId,
+                CancellationToken.None
+            );
 
-        (await _handle.Db.Users.AsNoTracking().SingleAsync(u => u.UserId == admin.UserId))
-            .RoleId.ShouldBe(TestDataSeeder.AdminRoleId);
+        (
+            await _handle.Db.Users.AsNoTracking().SingleAsync(u => u.UserId == admin.UserId)
+        ).RoleId.ShouldBe(TestDataSeeder.AdminRoleId);
     }
 
     [Fact]
@@ -237,16 +262,20 @@ public class EmployeeServiceInviteTests : IDisposable
         TestDataSeeder.AddCustomer(_handle.Db, "cust@test.local");
         TestDataSeeder.AddEmployee(_handle.Db, "staff@test.local");
 
-        var withoutCustomers = await CreateUserAdminSut().GetAdminUsersForSelectAsync(null, false, CancellationToken.None);
-        var withCustomers = await CreateUserAdminSut().GetAdminUsersForSelectAsync(
-            null,
-            false,
-            CancellationToken.None,
-            includeCustomers: true
-        );
+        var withoutCustomers = await CreateUserAdminSut()
+            .GetAdminUsersForSelectAsync(null, false, CancellationToken.None);
+        var withCustomers = await CreateUserAdminSut()
+            .GetAdminUsersForSelectAsync(
+                null,
+                false,
+                CancellationToken.None,
+                includeCustomers: true
+            );
 
         withoutCustomers.Select(u => u.Email).ShouldBe(["staff@test.local"]);
-        withCustomers.Select(u => u.Email).ShouldBe(["cust@test.local", "staff@test.local"], ignoreOrder: true);
+        withCustomers
+            .Select(u => u.Email)
+            .ShouldBe(["cust@test.local", "staff@test.local"], ignoreOrder: true);
     }
 
     public void Dispose() => _handle.Dispose();

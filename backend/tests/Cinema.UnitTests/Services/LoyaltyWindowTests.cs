@@ -23,11 +23,12 @@ public class LoyaltyDiscountTests : BookingServiceTestBase
         var seatId = (
             await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
         ).ShowtimeSeatId;
-        return await CreateHoldSut().HoldSeatsAsync(
-            userId,
-            new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], combos),
-            CancellationToken.None
-        );
+        return await CreateHoldSut()
+            .HoldSeatsAsync(
+                userId,
+                new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], combos),
+                CancellationToken.None
+            );
     }
 
     [Fact]
@@ -65,7 +66,12 @@ public class LoyaltyDiscountTests : BookingServiceTestBase
         await LoyaltyTestHelper.ReplaceTiersAsync(Db);
         var customer = TestDataSeeder.AddCustomer(Db);
         LoyaltyTestHelper.AddEntry(
-            Db, customer.UserId, null, 500, DateTime.UtcNow.AddMonths(-12).AddDays(-1));
+            Db,
+            customer.UserId,
+            null,
+            500,
+            DateTime.UtcNow.AddMonths(-12).AddDays(-1)
+        );
         await Db.SaveChangesAsync();
 
         var response = await HoldAsync(customer.UserId);
@@ -79,7 +85,12 @@ public class LoyaltyDiscountTests : BookingServiceTestBase
         await LoyaltyTestHelper.ReplaceTiersAsync(Db);
         var customer = TestDataSeeder.AddCustomer(Db);
         LoyaltyTestHelper.AddEntry(
-            Db, customer.UserId, null, 200, DateTime.UtcNow.AddMonths(-12).AddDays(1));
+            Db,
+            customer.UserId,
+            null,
+            200,
+            DateTime.UtcNow.AddMonths(-12).AddDays(1)
+        );
         await Db.SaveChangesAsync();
 
         var response = await HoldAsync(customer.UserId);
@@ -107,7 +118,12 @@ public class LoyaltyDiscountTests : BookingServiceTestBase
         await LoyaltyTestHelper.ReplaceTiersAsync(Db);
         var customer = TestDataSeeder.AddCustomer(Db);
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, null, 200, DateTime.UtcNow);
-        var combo = new Combo { Name = "Bap nuoc", Price = 50_000m, IsActive = true };
+        var combo = new Combo
+        {
+            Name = "Bap nuoc",
+            Price = 50_000m,
+            IsActive = true,
+        };
         Db.Combos.Add(combo);
         await Db.SaveChangesAsync();
 
@@ -161,20 +177,25 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
         var seatId = (
             await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
         ).ShowtimeSeatId;
-        var hold = await CreateHoldSut().HoldSeatsAsync(
-            customer.UserId,
-            new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], null),
-            CancellationToken.None
-        );
+        var hold = await CreateHoldSut()
+            .HoldSeatsAsync(
+                customer.UserId,
+                new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], null),
+                CancellationToken.None
+            );
 
-        await CreateFulfillmentSut().ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
+        await CreateFulfillmentSut()
+            .ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
 
         var entry = await Db.LoyaltyPointEntries.AsNoTracking().SingleAsync();
         entry.UserId.ShouldBe(customer.UserId);
         entry.BookingId.ShouldBe(hold.BookingId);
         entry.Points.ShouldBe(10);
         entry.RevokedPoints.ShouldBe(0);
-        entry.EarnedAt.ShouldBeInRange(DateTime.UtcNow.AddMinutes(-1), DateTime.UtcNow.AddMinutes(1));
+        entry.EarnedAt.ShouldBeInRange(
+            DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddMinutes(1)
+        );
         var profile = await Db.CustomerProfiles.AsNoTracking().SingleAsync();
         profile.Points.ShouldBe(10);
     }
@@ -186,7 +207,13 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
         var (bronzeId, silverId, _) = await LoyaltyTestHelper.ReplaceTiersAsync(Db);
         var customer = TestDataSeeder.AddCustomer(Db);
         var old = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId);
-        LoyaltyTestHelper.AddEntry(Db, customer.UserId, old.BookingId, 100, DateTime.UtcNow.AddMonths(-14));
+        LoyaltyTestHelper.AddEntry(
+            Db,
+            customer.UserId,
+            old.BookingId,
+            100,
+            DateTime.UtcNow.AddMonths(-14)
+        );
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
         profile.Points = 100; // job chưa kịp chạy
         profile.TierId = silverId;
@@ -199,16 +226,20 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
         var seatId = (
             await Db.ShowtimeSeats.FirstAsync(ss => ss.ShowtimeId == showtime.ShowtimeId)
         ).ShowtimeSeatId;
-        var hold = await CreateHoldSut().HoldSeatsAsync(
-            customer.UserId,
-            new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], null),
-            CancellationToken.None
-        );
+        var hold = await CreateHoldSut()
+            .HoldSeatsAsync(
+                customer.UserId,
+                new HoldSeatsRequest(showtime.ShowtimeId, "Nguyen Van A", null, [seatId], null),
+                CancellationToken.None
+            );
         hold.DiscountAmount.ShouldBe(0m); // điểm cũ đã hết hạn nên không còn giảm giá
 
-        await CreateFulfillmentSut().ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
+        await CreateFulfillmentSut()
+            .ConfirmBookingAndGenerateTicketsAsync(hold.BookingId, CancellationToken.None);
 
-        var reloaded = await Db.CustomerProfiles.AsNoTracking().SingleAsync(p => p.UserId == customer.UserId);
+        var reloaded = await Db
+            .CustomerProfiles.AsNoTracking()
+            .SingleAsync(p => p.UserId == customer.UserId);
         reloaded.Points.ShouldBe(10);
         reloaded.TierId.ShouldBe(bronzeId);
     }
@@ -219,23 +250,50 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
         TestDataSeeder.SetCinemaSettings(Db, pointsPerAmount: 10_000m);
         await LoyaltyTestHelper.ReplaceTiersAsync(Db);
         var customer = TestDataSeeder.AddCustomer(Db);
-        var oldBooking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 500_000m);
-        var freshBooking = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 300_000m);
+        var oldBooking = await LoyaltyTestHelper.AddConfirmedBookingAsync(
+            Db,
+            customer.UserId,
+            500_000m
+        );
+        var freshBooking = await LoyaltyTestHelper.AddConfirmedBookingAsync(
+            Db,
+            customer.UserId,
+            300_000m
+        );
         var oldEntry = LoyaltyTestHelper.AddEntry(
-            Db, customer.UserId, oldBooking.BookingId, 50, DateTime.UtcNow.AddMonths(-13));
-        LoyaltyTestHelper.AddEntry(Db, customer.UserId, freshBooking.BookingId, 30, DateTime.UtcNow);
+            Db,
+            customer.UserId,
+            oldBooking.BookingId,
+            50,
+            DateTime.UtcNow.AddMonths(-13)
+        );
+        LoyaltyTestHelper.AddEntry(
+            Db,
+            customer.UserId,
+            freshBooking.BookingId,
+            30,
+            DateTime.UtcNow
+        );
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
         profile.Points = 30;
         profile.TotalSpent = 800_000m;
         await Db.SaveChangesAsync();
 
-        await CreateFulfillmentSut().ReverseLoyaltyAsync(
-            customer.UserId, oldBooking.BookingId, 500_000m, CancellationToken.None);
+        await CreateFulfillmentSut()
+            .ReverseLoyaltyAsync(
+                customer.UserId,
+                oldBooking.BookingId,
+                500_000m,
+                CancellationToken.None
+            );
         await Db.SaveChangesAsync();
 
         (await Db.CustomerProfiles.AsNoTracking().SingleAsync()).Points.ShouldBe(30);
-        (await Db.LoyaltyPointEntries.AsNoTracking().SingleAsync(e => e.EntryId == oldEntry.EntryId))
-            .RevokedPoints.ShouldBe(50);
+        (
+            await Db
+                .LoyaltyPointEntries.AsNoTracking()
+                .SingleAsync(e => e.EntryId == oldEntry.EntryId)
+        ).RevokedPoints.ShouldBe(50);
     }
 
     [Fact]
@@ -246,18 +304,36 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
         var customer = TestDataSeeder.AddCustomer(Db);
         var a = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 500_000m);
         var b = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 300_000m);
-        var entryA = LoyaltyTestHelper.AddEntry(Db, customer.UserId, a.BookingId, 50, DateTime.UtcNow);
-        var entryB = LoyaltyTestHelper.AddEntry(Db, customer.UserId, b.BookingId, 30, DateTime.UtcNow);
+        var entryA = LoyaltyTestHelper.AddEntry(
+            Db,
+            customer.UserId,
+            a.BookingId,
+            50,
+            DateTime.UtcNow
+        );
+        var entryB = LoyaltyTestHelper.AddEntry(
+            Db,
+            customer.UserId,
+            b.BookingId,
+            30,
+            DateTime.UtcNow
+        );
         await Db.SaveChangesAsync();
 
-        await CreateFulfillmentSut().ReverseLoyaltyAsync(
-            customer.UserId, a.BookingId, 200_000m, CancellationToken.None);
+        await CreateFulfillmentSut()
+            .ReverseLoyaltyAsync(customer.UserId, a.BookingId, 200_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
 
-        (await Db.LoyaltyPointEntries.AsNoTracking().SingleAsync(e => e.EntryId == entryA.EntryId))
-            .RevokedPoints.ShouldBe(20);
-        (await Db.LoyaltyPointEntries.AsNoTracking().SingleAsync(e => e.EntryId == entryB.EntryId))
-            .RevokedPoints.ShouldBe(0);
+        (
+            await Db
+                .LoyaltyPointEntries.AsNoTracking()
+                .SingleAsync(e => e.EntryId == entryA.EntryId)
+        ).RevokedPoints.ShouldBe(20);
+        (
+            await Db
+                .LoyaltyPointEntries.AsNoTracking()
+                .SingleAsync(e => e.EntryId == entryB.EntryId)
+        ).RevokedPoints.ShouldBe(0);
         (await Db.CustomerProfiles.AsNoTracking().SingleAsync()).Points.ShouldBe(60);
     }
 
@@ -269,16 +345,25 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
         var customer = TestDataSeeder.AddCustomer(Db);
         var a = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 50_000m);
         var b = await LoyaltyTestHelper.AddConfirmedBookingAsync(Db, customer.UserId, 300_000m);
-        var entryA = LoyaltyTestHelper.AddEntry(Db, customer.UserId, a.BookingId, 5, DateTime.UtcNow);
+        var entryA = LoyaltyTestHelper.AddEntry(
+            Db,
+            customer.UserId,
+            a.BookingId,
+            5,
+            DateTime.UtcNow
+        );
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, b.BookingId, 30, DateTime.UtcNow);
         await Db.SaveChangesAsync();
 
-        await CreateFulfillmentSut().ReverseLoyaltyAsync(
-            customer.UserId, a.BookingId, 1_000_000m, CancellationToken.None);
+        await CreateFulfillmentSut()
+            .ReverseLoyaltyAsync(customer.UserId, a.BookingId, 1_000_000m, CancellationToken.None);
         await Db.SaveChangesAsync();
 
-        (await Db.LoyaltyPointEntries.AsNoTracking().SingleAsync(e => e.EntryId == entryA.EntryId))
-            .RevokedPoints.ShouldBe(5);
+        (
+            await Db
+                .LoyaltyPointEntries.AsNoTracking()
+                .SingleAsync(e => e.EntryId == entryA.EntryId)
+        ).RevokedPoints.ShouldBe(5);
         (await Db.CustomerProfiles.AsNoTracking().SingleAsync()).Points.ShouldBe(30);
     }
 
@@ -293,8 +378,8 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
 
         await Should.NotThrowAsync(async () =>
         {
-            await CreateFulfillmentSut().ReverseLoyaltyAsync(
-                customer.UserId, 9999, 100_000m, CancellationToken.None);
+            await CreateFulfillmentSut()
+                .ReverseLoyaltyAsync(customer.UserId, 9999, 100_000m, CancellationToken.None);
             await Db.SaveChangesAsync();
         });
 

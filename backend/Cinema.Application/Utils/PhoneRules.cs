@@ -19,6 +19,5 @@ public static class PhoneRules
         _pattern = Build(phoneRegex);
     }
 
-    private static Regex Build(string phoneRegex) =>
-        new(phoneRegex, RegexOptions.CultureInvariant);
+    private static Regex Build(string phoneRegex) => new(phoneRegex, RegexOptions.CultureInvariant);
 }

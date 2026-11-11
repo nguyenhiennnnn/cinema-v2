@@ -43,12 +43,21 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         var sut = CreateAutoScheduleService();
         var showtimeSut = CreateShowtimeService();
         var existing = await showtimeSut.CreateShowtimeAsync(
-            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, BusinessTime.ToUtc(TargetDay, new TimeOnly(18, 0)), 90_000m),
+            new UpsertShowtimeRequest(
+                movie.MovieId,
+                room.RoomId,
+                BusinessTime.ToUtc(TargetDay, new TimeOnly(18, 0)),
+                90_000m
+            ),
             CancellationToken.None
         );
 
         var result = await sut.PreviewAutoScheduleAsync(
-            new AutoScheduleRequest(TargetDay, [new AutoScheduleMovieRequest(movie.MovieId, 3)], 90_000m),
+            new AutoScheduleRequest(
+                TargetDay,
+                [new AutoScheduleMovieRequest(movie.MovieId, 3)],
+                90_000m
+            ),
             CancellationToken.None
         );
 
@@ -69,7 +78,11 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.PreviewAutoScheduleAsync(
-                new AutoScheduleRequest(TargetDay, [new AutoScheduleMovieRequest(movie.MovieId, 1)], 90_000m),
+                new AutoScheduleRequest(
+                    TargetDay,
+                    [new AutoScheduleMovieRequest(movie.MovieId, 1)],
+                    90_000m
+                ),
                 CancellationToken.None
             )
         );
@@ -85,13 +98,11 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         var first = BusinessTime.ToUtc(TargetDay, new TimeOnly(14, 0));
 
         var result = await sut.ApplyAutoScheduleAsync(
-            new ApplyAutoScheduleRequest(
-                [
-                    new UpsertShowtimeRequest(movie.MovieId, room.RoomId, first, 90_000m),
-                    new UpsertShowtimeRequest(movie.MovieId, room.RoomId, first.AddHours(1), 90_000m),
-                    new UpsertShowtimeRequest(movie.MovieId, room.RoomId, first.AddHours(4), 90_000m),
-                ]
-            ),
+            new ApplyAutoScheduleRequest([
+                new UpsertShowtimeRequest(movie.MovieId, room.RoomId, first, 90_000m),
+                new UpsertShowtimeRequest(movie.MovieId, room.RoomId, first.AddHours(1), 90_000m),
+                new UpsertShowtimeRequest(movie.MovieId, room.RoomId, first.AddHours(4), 90_000m),
+            ]),
             CancellationToken.None
         );
 

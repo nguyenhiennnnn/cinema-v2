@@ -53,9 +53,13 @@ public class CounterBookingServiceCancelTests : BookingServiceTestBase
             sut.CounterCancelAsync(booking.BookingId, employee.EmployeeId, CancellationToken.None)
         );
 
-        (await Db.Bookings.AsNoTracking().SingleAsync(b => b.BookingId == booking.BookingId))
-            .Status.ShouldBe(BookingStatus.Pending);
-        (await Db.ShowtimeSeats.AsNoTracking().SingleAsync(ss => ss.ShowtimeId == booking.ShowtimeId))
-            .Status.ShouldBe(ShowtimeSeatStatus.Held);
+        (
+            await Db.Bookings.AsNoTracking().SingleAsync(b => b.BookingId == booking.BookingId)
+        ).Status.ShouldBe(BookingStatus.Pending);
+        (
+            await Db
+                .ShowtimeSeats.AsNoTracking()
+                .SingleAsync(ss => ss.ShowtimeId == booking.ShowtimeId)
+        ).Status.ShouldBe(ShowtimeSeatStatus.Held);
     }
 }

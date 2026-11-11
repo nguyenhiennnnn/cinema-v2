@@ -1,0 +1,48 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class MoviesController <<Controller>> {
+  +GetCanReviewStatus(movieId : int) : ActionResult<CanReviewResponse>
+  +CreateReview(movieId : int, request : CreateReviewRequest) : IActionResult
+  +UpdateReview(movieId : int, id : int, request : CreateReviewRequest) : IActionResult
+  +DeleteReview(movieId : int, id : int) : IActionResult
+}
+interface IReviewService {
+  +GetUserMovieReviewStatusAsync(userId : int, movieId : int) : CanReviewResponse
+  +CreateReviewAsync(userId : int, movieId : int, request : CreateReviewRequest) : ReviewDto
+  +UpdateReviewAsync(userId : int, movieId : int, reviewId : int, request : CreateReviewRequest) : ReviewDto
+  +DeleteMyReviewAsync(userId : int, movieId : int, reviewId : int) : DeleteReviewResponse
+}
+class ReviewService <<Service>>
+class CreateReviewRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Review <<Entity>>
+class Movie <<Entity>>
+class BookingTicket <<Entity>>
+class CanReviewResponse <<DTO>>
+class CreateReviewRequest <<DTO>>
+class ReviewDto <<DTO>>
+class DeleteReviewResponse <<DTO>>
+MoviesController ..> IReviewService
+ReviewService ..|> IReviewService
+ReviewService ..> Review
+ReviewService ..> Movie
+ReviewService ..> BookingTicket
+ReviewService ..> CanReviewResponse
+ReviewService ..> CreateReviewRequest
+ReviewService ..> ReviewDto
+ReviewService ..> DeleteReviewResponse
+CreateReviewRequestValidator ..> CreateReviewRequest
+ReviewService ..> IAppDbContext
+@enduml

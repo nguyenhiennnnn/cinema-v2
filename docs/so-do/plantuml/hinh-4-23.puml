@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminSettingsController <<Controller>> {
+  +Get() : IActionResult
+  +Update(request : UpdateSettingsRequest) : IActionResult
+}
+class SettingsController <<Controller>> {
+  +GetSettings() : ActionResult<CinemaSettingsDto>
+}
+interface ISettingsService {
+  +GetSettingsAsync() : CinemaSettingsDto
+  +UpdateSettingsAsync(request : UpdateSettingsRequest) : CinemaSettingsDto
+}
+class SettingsService <<Service>>
+class UpdateSettingsRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class CinemaSettings <<Entity>>
+class CinemaSettingsDto <<DTO>>
+class UpdateSettingsRequest <<DTO>>
+enum SeatGapRuleMode
+AdminSettingsController ..> ISettingsService
+SettingsController ..> ISettingsService
+SettingsService ..|> ISettingsService
+SettingsService ..> CinemaSettings
+SettingsService ..> CinemaSettingsDto
+SettingsService ..> UpdateSettingsRequest
+CinemaSettings ..> SeatGapRuleMode
+UpdateSettingsRequestValidator ..> UpdateSettingsRequest
+SettingsService ..> IAppDbContext
+@enduml

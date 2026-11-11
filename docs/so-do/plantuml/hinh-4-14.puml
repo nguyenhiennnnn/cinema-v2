@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminBookingsController <<Controller>> {
+  +GetBookings(filter : AdminBookingListFilter, page : int, pageSize : int) : ActionResult<OffsetPageResultOfAdminBookingListItemDto>
+  +GetBookingDetail(bookingId : int) : ActionResult<AdminBookingDetailDto>
+}
+interface IBookingService {
+  +GetBookingsAdminAsync(filter : AdminBookingListFilter, page : int, pageSize : int) : OffsetPageResult<AdminBookingListItemDto>
+  +GetBookingDetailAdminAsync(bookingId : int) : AdminBookingDetailDto
+  .. rút gọn 2/14 phương thức ..
+}
+class BookingService <<Service>>
+class AdminBookingListFilter <<record>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Booking <<Entity>>
+class BookingTicket <<Entity>>
+class BookingCombo <<Entity>>
+class Payment <<Entity>>
+class AdminBookingListItemDto <<DTO>>
+class AdminBookingDetailDto <<DTO>>
+AdminBookingsController ..> IBookingService
+BookingService ..|> IBookingService
+BookingService ..> AdminBookingListFilter
+BookingService ..> Booking
+BookingService ..> BookingTicket
+BookingService ..> BookingCombo
+BookingService ..> Payment
+BookingService ..> AdminBookingListItemDto
+BookingService ..> AdminBookingDetailDto
+BookingService ..> IAppDbContext
+@enduml

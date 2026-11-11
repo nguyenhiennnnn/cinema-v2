@@ -1,0 +1,41 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Khách vãng lai" as K
+participant "AuthController" as C
+participant "PasswordService" as S
+participant "VerificationTokenSender" as V
+participant "IAppDbContext" as DB
+participant "NotificationService" as N
+participant "Hangfire" as H
+K -> C : POST /api/v1/auth/forgot-password (email)
+C -> S : IPasswordService.ForgotPasswordAsync
+S -> DB : tìm User theo email
+alt không có tài khoản
+S --> K : Success_PasswordResetEmailSent (không phát hành mã)
+else có tài khoản
+S -> DB : các mã PasswordReset còn hiệu lực → Used=true
+S -> V : IssueAndSendAsync(user, PasswordReset)
+V -> DB : lưu mã băm SHA-256 (Purpose=PasswordReset, hạn 30 phút)
+V -> N : gửi thư đặt lại mật khẩu (liên kết /reset-password?token=...)
+N -> H : Enqueue SendEmailJob
+S --> K : Success_PasswordResetEmailSent
+end
+K -> C : POST /api/v1/auth/reset-password (token, mật khẩu mới)
+C -> S : IPasswordService.ResetPasswordAsync
+S -> DB : băm mã, tìm UserVerificationToken Purpose=PasswordReset
+alt không có, đã dùng hoặc hết hạn
+S --> K : ValidationAppException Invalid_TokenExpiredOrUsed
+else hợp lệ
+S -> DB : Used=true, PasswordHash mới, UpdatedAt
+S -> DB : RevokeActiveTokensAsync (thu hồi mọi refresh token)
+S -> DB : SaveChangesAsync
+S --> K : Success_PasswordReset
+end
+@enduml

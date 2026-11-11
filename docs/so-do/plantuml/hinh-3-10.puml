@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách vãng lai" as A_KVL
+actor "Khách hàng" as A_KH
+rectangle "Package Trợ lý AI (AI) — 1 use case" as PK {
+  usecase "UC-AI-01\nTrò chuyện với trợ lý AI" as UC_AI_01
+}
+actor "Gemini" <<Hệ thống>> as A_GEM
+A_KVL -- UC_AI_01
+A_KH -- UC_AI_01
+UC_AI_01 -- A_GEM
+@enduml

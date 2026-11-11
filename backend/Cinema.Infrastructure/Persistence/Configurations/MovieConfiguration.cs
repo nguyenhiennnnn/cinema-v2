@@ -17,7 +17,10 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
                     "CK_Movies_Status",
                     "\"Status\" IN ('ComingSoon','NowShowing','Ended')"
                 );
-                t.HasCheckConstraint("CK_Movies_AverageRating", "\"AverageRating\" BETWEEN 0 AND 5");
+                t.HasCheckConstraint(
+                    "CK_Movies_AverageRating",
+                    "\"AverageRating\" BETWEEN 0 AND 5"
+                );
             }
         );
         builder.HasKey(x => x.MovieId);

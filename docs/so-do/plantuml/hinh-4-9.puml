@@ -1,0 +1,112 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class BookingsController <<Controller>> {
+  +HoldSeats(request : HoldSeatsRequest) : ActionResult<HoldBookingResponse>
+  +GetMyBookings(status : string?, cursor : string?, limit : int?) : ActionResult<CursorPageResultOfBookingListItemDto>
+  +GetBookingDetail(bookingId : int) : ActionResult<BookingDetailDto>
+  +CancelBooking(bookingId : int) : ActionResult<CancelBookingResponse>
+}
+class ShowtimesController <<Controller>> {
+  +GetSeats(showtimeId : int) : IActionResult
+  +GetSeatSuggestions(showtimeId : int, count : int) : IActionResult
+}
+class CombosController <<Controller>> {
+  +GetCombos() : IActionResult
+  +GetSuggestions(showtimeId : int, seatCount : int) : IActionResult
+}
+interface IBookingService {
+  +HoldSeatsAsync(userId : int, request : HoldSeatsRequest) : HoldBookingResponse
+  +GetMyBookingsAsync(userId : int, status : string?, cursor : string?, limit : int) : CursorPageResult<BookingListItemDto>
+  +GetBookingDetailAsync(userId : int, bookingId : int) : BookingDetailDto
+  +CancelBookingAsync(userId : int, bookingId : int) : CancelBookingResponse
+  +CalculateRefundEligibilityAsync(showtimeStartTime : DateTime, paidAmount : decimal) : RefundEligibility
+  +ReverseLoyaltyAsync(userId : int, bookingId : int, finalAmount : decimal) : void
+}
+interface IShowtimeQueryService {
+  +GetShowtimeSeatsAsync(showtimeId : int) : ShowtimeSeatsResponseDto
+  +GetSeatSuggestionsAsync(showtimeId : int, count : int) : List<SeatSuggestionDto>
+}
+interface IComboService {
+  +GetActiveCombosAsync() : List<ComboDto>
+  +GetComboSuggestionsAsync(showtimeId : int, seatCount : int) : List<ComboSuggestionDto>
+}
+interface IRealtimeNotifier {
+  +NotifySeatHeldAsync(showtimeId : int, seatIds : List<int>, heldByUserId : int, heldUntil : DateTime) : void
+  +NotifySeatReleasedAsync(showtimeId : int, seatIds : List<int>) : void
+  +NotifySeatBookedAsync(showtimeId : int, seatIds : List<int>) : void
+  +NotifyHoldExpiredAsync(showtimeId : int, bookingId : int, seatIds : List<int>) : void
+}
+class BookingService <<Service>>
+class ShowtimeQueryService <<Service>>
+class ComboService <<Service>>
+class SignalRRealtimeNotifier <<Service>>
+class ShowtimeHub <<Hub>> {
+  +JoinShowtime(showtimeId : int) : void
+  +LeaveShowtime(showtimeId : int) : void
+}
+class SeatLayoutRules <<Utility>> {
+  +LoadSeatSlotsAsync(db : IAppDbContext, showtimeId : int) : List<SeatSlot>
+  +LoadSeatGapRuleModeAsync(db : IAppDbContext) : SeatGapRuleMode
+  +Suggest(seats : IReadOnlyList<SeatSlot>, cols : int, count : int, top : int) : List<SeatSuggestionDto>
+  +ValidateSelection(seats : IReadOnlyList<SeatSlot>, selectedSeatIds : ICollection<int>, gapRuleMode : SeatGapRuleMode) : string?
+}
+class SeatSlot <<record>>
+class LoyaltyWindow <<Utility>> {
+  +SumActiveAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : int
+  +ResolveTierAsync(db : IAppDbContext, points : int) : MembershipTier?
+  +PointsFor(finalAmount : decimal, pointsPerAmount : decimal) : int
+  +ResyncProfileAsync(db : IAppDbContext, profile : CustomerProfile, pendingNewPoints : int, utcNow : DateTime) : void
+}
+class SeatConflictException <<Exception>>
+class BookingOptions <<Options>>
+class HoldSeatsRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Booking <<Entity>>
+class BookingTicket <<Entity>>
+class BookingCombo <<Entity>>
+class ShowtimeSeat <<Entity>>
+class Combo <<Entity>>
+class HoldSeatsRequest <<DTO>>
+class ShowtimeSeatsResponseDto <<DTO>>
+class SeatSuggestionDto <<DTO>>
+class ComboSuggestionDto <<DTO>>
+BookingsController ..> IBookingService
+ShowtimesController ..> IShowtimeQueryService
+CombosController ..> IComboService
+BookingService ..|> IBookingService
+ShowtimeQueryService ..|> IShowtimeQueryService
+ComboService ..|> IComboService
+SignalRRealtimeNotifier ..|> IRealtimeNotifier
+BookingService ..> IRealtimeNotifier
+BookingService ..> SeatLayoutRules
+BookingService ..> SeatConflictException
+BookingService ..> BookingOptions
+BookingService ..> Booking
+BookingService ..> BookingTicket
+BookingService ..> BookingCombo
+BookingService ..> ShowtimeSeat
+BookingService ..> LoyaltyWindow
+ShowtimeQueryService ..> SeatLayoutRules
+ShowtimeQueryService ..> ShowtimeSeatsResponseDto
+ShowtimeQueryService ..> SeatSuggestionDto
+ComboService ..> Combo
+ComboService ..> ComboSuggestionDto
+SignalRRealtimeNotifier ..> ShowtimeHub
+HoldSeatsRequestValidator ..> HoldSeatsRequest
+SeatLayoutRules ..> SeatSlot
+BookingService ..> IAppDbContext
+ShowtimeQueryService ..> IAppDbContext
+ComboService ..> IAppDbContext
+@enduml

@@ -29,8 +29,9 @@ public class ShowtimeLifecycleService(IAppDbContext db, ILogger<ShowtimeLifecycl
     )
     {
         var now = DateTime.UtcNow;
-        var graceDays = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
-            .MovieEndGraceDays;
+        var graceDays = (
+            await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken)
+        ).MovieEndGraceDays;
         var cutoff = ShowtimeLifecycle.MovieEndCutoff(now, graceDays);
         var count = await db
             .Movies.Where(m =>
@@ -48,4 +49,3 @@ public class ShowtimeLifecycleService(IAppDbContext db, ILogger<ShowtimeLifecycl
         return count;
     }
 }
-

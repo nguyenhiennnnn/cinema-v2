@@ -1,0 +1,13 @@
+flowchart TD
+  A(["RefreshAsync nhận refresh token"]) --> B["Băm SHA-256 và tìm RefreshToken"]
+  B --> C{"Tìm thấy?"}
+  C -- Không --> X1["401 Unauthorized_RefreshTokenInvalid"]
+  C -- Có --> D{"IsRevoked?"}
+  D -- Không --> E["Kiểm tra hạn, tài khoản, email rồi xoay vòng token"]
+  D -- Có --> F{"ReplacedByTokenId khác null?"}
+  F -- Có --> G["RevokeTokenChainAsync(ReplacedByTokenId)"]
+  G --> H["Duyệt chuỗi: token chưa thu hồi → IsRevoked=true, RevokedAt<br/>chuyển sang ReplacedByTokenId; dùng tập visited tránh vòng lặp"]
+  H --> I["SaveChanges một lần và ghi log cảnh báo RefreshTokenReuseDetected"]
+  F -- Không --> J["Không có chuỗi để thu hồi"]
+  I --> K["401 Unauthorized_RefreshTokenExpiredOrRevoked"]
+  J --> K

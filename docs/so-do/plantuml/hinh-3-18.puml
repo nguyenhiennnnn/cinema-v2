@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Package Quản lý người dùng (QN) — 7 use case" as PK {
+  usecase "UC-QN-01\nXem danh sách người dùng" as UC_QN_01
+  usecase "UC-QN-02\nXem danh sách tài khoản quản trị" as UC_QN_02
+  usecase "UC-QN-03\nTìm kiếm khách hàng" as UC_QN_03
+  usecase "UC-QN-04\nKhóa hoặc mở khóa tài khoản" as UC_QN_04
+  usecase "UC-QN-05\nĐổi vai trò tài khoản" as UC_QN_05
+  usecase "UC-QN-06\nCập nhật trạng thái nhiều tài khoản" as UC_QN_06
+  usecase "UC-QN-07\nQuản lý nhân viên" as UC_QN_07
+}
+usecase "UC-BQ-01\nBán vé tại quầy" as UC_BQ_01 #E5E5E5;line:808080;text:606060;line.dashed
+A_NV -- UC_QN_03
+A_QTV -- UC_QN_01
+A_QTV -- UC_QN_02
+A_QTV -- UC_QN_03
+A_QTV -- UC_QN_04
+A_QTV -- UC_QN_05
+A_QTV -- UC_QN_06
+A_QTV -- UC_QN_07
+UC_QN_03 ..> UC_BQ_01 : <<extend>>
+@enduml

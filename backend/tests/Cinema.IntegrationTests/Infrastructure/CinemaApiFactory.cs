@@ -1,16 +1,16 @@
 using Cinema.Application.Interfaces;
+using Cinema.Infrastructure.Persistence;
 using Cinema.IntegrationTests.Fakes;
 using Cinema.Shared.Constants;
 using Hangfire;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Npgsql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Cinema.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Respawn;
 using Testcontainers.PostgreSql;
 
@@ -53,10 +53,7 @@ public class CinemaApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             "ConnectionStrings:DefaultConnection",
             _pgContainer.GetConnectionString()
         );
-        builder.UseSetting(
-            "Jwt:Secret",
-            "integration-test-signing-key-do-not-use-in-prod-32"
-        );
+        builder.UseSetting("Jwt:Secret", "integration-test-signing-key-do-not-use-in-prod-32");
         builder.UseSetting("RateLimit:GlobalPermitLimit", "100000");
         builder.UseSetting("RateLimit:AuthPermitLimit", "100000");
         builder.UseSetting("RateLimit:BookingHoldPermitLimit", "100000");

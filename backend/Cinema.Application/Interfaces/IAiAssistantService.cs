@@ -4,5 +4,9 @@ namespace Cinema.Application.Interfaces;
 
 public interface IAiAssistantService
 {
-    Task<AiChatResponse> ChatAsync(int? userId, AiChatRequest request, CancellationToken cancellationToken);
+    Task<AiChatResponse> ChatAsync(
+        int? userId,
+        AiChatRequest request,
+        CancellationToken cancellationToken
+    );
 }

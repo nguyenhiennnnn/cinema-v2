@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Cinema.Infrastructure.Persistence.Seed;
 
-
 internal static class ShowtimeSeeder
 {
     internal const int PastDays = 7;
@@ -20,7 +19,7 @@ internal static class ShowtimeSeeder
 
     private const int MaxShowsPerRoomDay = 4;
     private const int MinShowsPerRoomDay = 3;
-    private const int BufferMinutes = 15; 
+    private const int BufferMinutes = 15;
     private const double SafetyBufferHours = 0.5;
 
     internal static DateTime LocalDayStartUtc(DateTime now, int offsetDays = 0) =>
@@ -53,10 +52,7 @@ internal static class ShowtimeSeeder
     )
     {
         var ctx = await LoadContextAsync(db, now, cancellationToken);
-        if (
-            ctx.NowShowing.Count == 0
-            || ctx.Rooms.Count == 0
-        )
+        if (ctx.NowShowing.Count == 0 || ctx.Rooms.Count == 0)
         {
             logger.LogWarning(
                 "Skip seeding future showtimes: không có phim NowShowing hoặc phòng active có ghế."
@@ -135,7 +131,13 @@ internal static class ShowtimeSeeder
         var today = LocalDay(now);
 
         // (key, movieId ưu tiên, giờ bắt đầu, phòng ưu tiên, status)
-        var specs = new (string Key, int MovieId, DateTime Start, int PreferredRoomId, ShowtimeStatus Status)[]
+        var specs = new (
+            string Key,
+            int MovieId,
+            DateTime Start,
+            int PreferredRoomId,
+            ShowtimeStatus Status
+        )[]
         {
             // Đang chiếu: cửa sổ check-in đang mở, có vé đã/chưa check-in.
             (SpecialOngoing, 8, nowMinute.AddMinutes(-20), 1, ShowtimeStatus.Scheduled),
@@ -144,9 +146,21 @@ internal static class ShowtimeSeeder
             // 90 phút nữa: < CancelDeadlineHours (2h) nên không được hoàn tiền, nhưng chưa mở check-in.
             (SpecialRefundClosed, 6, nowMinute.AddMinutes(90), 4, ShowtimeStatus.Scheduled),
             // Hết vé 100%: ngày mai 19:00, phòng nhỏ nhất.
-            (SpecialSoldOut, 3, BusinessTime.ToUtc(today.AddDays(1), new TimeOnly(19, 0)), 3, ShowtimeStatus.Scheduled),
+            (
+                SpecialSoldOut,
+                3,
+                BusinessTime.ToUtc(today.AddDays(1), new TimeOnly(19, 0)),
+                3,
+                ShowtimeStatus.Scheduled
+            ),
             // Suất bị hủy bởi rạp: có booking bị hủy + hoàn tiền (tự động & thủ công).
-            (SpecialCancelled, 14, BusinessTime.ToUtc(today.AddDays(2), new TimeOnly(15, 0)), 4, ShowtimeStatus.Cancelled),
+            (
+                SpecialCancelled,
+                14,
+                BusinessTime.ToUtc(today.AddDays(2), new TimeOnly(15, 0)),
+                4,
+                ShowtimeStatus.Cancelled
+            ),
         };
 
         var created = new List<Showtime>();
@@ -203,7 +217,9 @@ internal static class ShowtimeSeeder
 
         foreach (var room in ordered)
         {
-            var clash = ctx.Busy.Any(b => b.RoomId == room.RoomId && b.Start < end && b.End > start);
+            var clash = ctx.Busy.Any(b =>
+                b.RoomId == room.RoomId && b.Start < end && b.End > start
+            );
             if (!clash)
                 return room;
         }
@@ -292,7 +308,9 @@ internal static class ShowtimeSeeder
         {
             var room = ctx.Rooms[roomIndex];
             var roomId = room.RoomId;
-            var existing = ctx.Busy.Count(b => b.RoomId == roomId && b.Start >= dayStart && b.Start < dayEnd);
+            var existing = ctx.Busy.Count(b =>
+                b.RoomId == roomId && b.Start >= dayStart && b.Start < dayEnd
+            );
             if (existing >= MinShowsPerRoomDay)
                 continue;
 

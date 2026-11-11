@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Quản trị viên" as A_QTV
+rectangle "Package Tải tệp (TP) — 2 use case" as PK {
+  usecase "UC-TP-01\nTải ảnh lên" as UC_TP_01
+  usecase "UC-TP-02\nTải video lên" as UC_TP_02
+}
+usecase "UC-QP-02\nThêm phim" as UC_QP_02 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-QP-03\nSửa phim" as UC_QP_03 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-QD-04\nQuản lý diễn viên" as UC_QD_04 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-QD-05\nQuản lý đạo diễn" as UC_QD_05 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-QD-10\nQuản lý combo" as UC_QD_10 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-CH-02\nCập nhật cấu hình rạp" as UC_CH_02 #E5E5E5;line:808080;text:606060;line.dashed
+actor "Cloudinary" <<Hệ thống>> as A_CLD
+A_QTV -- UC_TP_01
+A_QTV -- UC_TP_02
+UC_TP_01 -- A_CLD
+UC_TP_02 -- A_CLD
+UC_TP_01 ..> UC_QP_02 : <<extend>>
+UC_TP_01 ..> UC_QP_03 : <<extend>>
+UC_TP_01 ..> UC_QD_04 : <<extend>>
+UC_TP_01 ..> UC_QD_05 : <<extend>>
+UC_TP_01 ..> UC_QD_10 : <<extend>>
+UC_TP_01 ..> UC_CH_02 : <<extend>>
+UC_TP_02 ..> UC_QP_02 : <<extend>>
+UC_TP_02 ..> UC_QP_03 : <<extend>>
+@enduml

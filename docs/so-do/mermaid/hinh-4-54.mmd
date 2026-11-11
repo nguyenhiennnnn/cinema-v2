@@ -1,0 +1,24 @@
+flowchart TD
+  A(["CancelBookingAsync"]) --> B{"Chủ đơn?"}
+  B -- Không --> X1["403 Forbidden_NotBookingOwner"]
+  B -- Có --> C{"Trạng thái đơn"}
+  C -- Pending --> D["ReleaseAndCancelBookingAsync: trả ghế, Booking = Cancelled, Payment Pending → Failed"]
+  C -- Confirmed --> E{"Đủ điều kiện hoàn tiền?<br/>chưa soát vé; có Payment Success không phải Cash;<br/>CancelRefundPercent > 0; trước giờ chiếu ít nhất CancelDeadlineHours;<br/>cổng đã cấu hình"}
+  C -- "Khác" --> X2["Từ chối"]
+  E -- Không --> X3["Từ chối kèm lý do"]
+  E -- Có --> F["BeginTransaction; ExecuteUpdateAsync Status Confirmed → Cancelled"]
+  F --> G{"Số dòng ảnh hưởng > 0?"}
+  G -- Không --> X4["409 Conflict_BookingBeingProcessedOrCancelled"]
+  G -- Có --> H["gateway.RefundAsync (số tiền theo CancelRefundPercent)"]
+  H --> I{"Hoàn tiền thành công?"}
+  I -- Không --> X5["Log RefundFailed, ném Rule_RefundFailed<br/>giao dịch không xác nhận, đơn trở lại Confirmed"]
+  I -- Có --> J["Trả ghế Booked → Available; Booking = Cancelled; Payment = Refunded"]
+  J --> K{"Đơn có UserId?"}
+  K -- Có --> L["ReverseLoyaltyAsync(userId, bookingId, amountToReverse):<br/>amountToReverse = round(FinalAmount × RefundAmount / payment.Amount)<br/>thu hồi điểm vào đúng dòng sổ điểm của booking (RevokedPoints),<br/>TotalSpent, tính lại điểm và hạng (ResyncProfileAsync)"]
+  K -- Không --> M["Lưu thay đổi và xác nhận giao dịch (CommitAsync)"]
+  L --> M
+  M --> M2{"Lưu hoặc xác nhận thành công?"}
+  M2 -- Không --> X6["Log RefundCommitFailed (đã hoàn tiền ở cổng nhưng CSDL chưa ghi nhận)<br/>ném lại ngoại lệ"]
+  M2 -- Có --> M3["NotifySeatReleasedAsync; xếp SendEmailJob (BookingCancelledRefunded)"]
+  M3 --> N(["Trả CancelBookingResponse (Cancelled, RefundAmount, Refunded)"])
+  D --> N

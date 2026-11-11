@@ -1,0 +1,45 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminReviewsController <<Controller>> {
+  +GetReviews(movieId : int?, rating : int?, page : int, pageSize : int) : IActionResult
+  +Delete(id : int) : IActionResult
+  +BulkDelete(request : BulkDeleteReviewsRequest) : IActionResult
+}
+interface IReviewService {
+  +GetReviewsAdminAsync(movieId : int?, rating : int?, page : int, pageSize : int) : OffsetPageResult<AdminReviewDto>
+  +DeleteReviewAsync(reviewId : int) : DeleteReviewResponse
+  +BulkDeleteReviewsAsync(request : BulkDeleteReviewsRequest) : BulkDeleteReviewsResponse
+  .. rút gọn 3/9 phương thức ..
+}
+class ReviewService <<Service>>
+class BookingOptions <<Options>>
+class BulkDeleteReviewsRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Review <<Entity>>
+class Movie <<Entity>>
+class AdminReviewDto <<DTO>>
+class DeleteReviewResponse <<DTO>>
+class BulkDeleteReviewsRequest <<DTO>>
+AdminReviewsController ..> IReviewService
+ReviewService ..|> IReviewService
+ReviewService ..> Review
+ReviewService ..> Movie
+ReviewService ..> AdminReviewDto
+ReviewService ..> DeleteReviewResponse
+ReviewService ..> BulkDeleteReviewsRequest
+BulkDeleteReviewsRequestValidator ..> BulkDeleteReviewsRequest
+BulkDeleteReviewsRequestValidator ..> BookingOptions
+ReviewService ..> IAppDbContext
+@enduml

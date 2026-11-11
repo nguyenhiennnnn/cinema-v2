@@ -66,7 +66,7 @@ public class BookingFulfillmentServiceTests : BookingServiceTestBase
         bookedSeat.Status.ShouldBe(ShowtimeSeatStatus.Booked);
 
         var profile = await Db.CustomerProfiles.SingleAsync(p => p.UserId == customer.UserId);
-        profile.Points.ShouldBe(10); 
+        profile.Points.ShouldBe(10);
         profile.TotalSpent.ShouldBe(100_000m);
     }
 

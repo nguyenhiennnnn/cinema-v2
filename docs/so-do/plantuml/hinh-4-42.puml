@@ -1,0 +1,41 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Người dùng" as K
+participant "AuthController" as C
+participant "AuthService" as S
+participant "IAppDbContext" as DB
+participant "JwtTokenService" as T
+K -> C : POST /auth/login (adminOnly=false) hoặc /auth/admin-login (adminOnly=true)
+C -> S : IAuthService.LoginAsync(request, adminOnly)
+S -> DB : tìm User theo email kèm Role, Employee, CustomerProfile, Tier
+alt không thấy User hoặc sai mật khẩu
+S --> K : 401 Unauthorized_InvalidCredentials
+end
+alt IsActive = false
+S --> K : 403 Forbidden_AccountLocked
+end
+alt EmailConfirmed = false
+S --> K : 403 Forbidden_EmailNotVerifiedCheckInbox
+end
+alt cổng khách hàng mà không phải Customer
+S --> K : 403 Forbidden_UseAdminPortal
+else cổng quản trị mà không phải Admin hoặc Employee
+S --> K : 403 Forbidden_CustomerCannotUseAdminPortal
+else Employee có hồ sơ bị vô hiệu hóa hoặc không tồn tại
+S --> K : 403 Forbidden_AccountLocked
+end
+opt kết quả băm là SuccessRehashNeeded
+S -> DB : băm lại và lưu mật khẩu
+end
+S -> T : GenerateAccessToken(user)
+S -> DB : IssueRefreshTokenAsync (lưu SHA-256, ExpiresAt = now + 30 ngày)
+S -> S : ToLoginUserDtoAsync (LoyaltyWindow.GetStandingAsync)
+S --> K : LoginResponse (accessToken, refreshToken, expiresIn, user)
+@enduml

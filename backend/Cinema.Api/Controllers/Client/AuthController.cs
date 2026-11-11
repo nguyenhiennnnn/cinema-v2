@@ -121,7 +121,10 @@ public class AuthController(
         CancellationToken cancellationToken
     )
     {
-        var result = await registrationService.ResendConfirmationEmailAsync(request, cancellationToken);
+        var result = await registrationService.ResendConfirmationEmailAsync(
+            request,
+            cancellationToken
+        );
         return Ok(result);
     }
 

@@ -1,0 +1,67 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AiController <<Controller>> {
+  +Chat(request : AiChatRequest) : ActionResult<AiChatResponse>
+}
+interface IAiAssistantService {
+  +ChatAsync(userId : int?, request : AiChatRequest) : AiChatResponse
+}
+class GeminiAiAssistantService <<Service>>
+class AiToolExecutor <<Service>> {
+  +BuildFunctionDeclarations(isAuthenticated : bool) : JsonArray
+  +ExecuteAsync(name : string, args : JsonObject?, userId : int?) : ToolResult
+  +SearchShowtimes
+  +GetSeatAvailability
+  +GetMyBookings
+}
+class ToolResult <<record>>
+class GeminiOptions <<Options>>
+class BrandOptions <<Options>>
+class AiChatRequestValidator <<Validator>>
+class ChatMessageDtoValidator <<Validator>>
+class LoyaltyWindow <<Utility>> {
+  +GetStandingAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : Tuple
+}
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Movie <<Entity>>
+class Combo <<Entity>>
+class CinemaSettings <<Entity>>
+class Showtime <<Entity>>
+class ShowtimeSeat <<Entity>>
+class Booking <<Entity>>
+class AiChatRequest <<DTO>>
+class AiChatResponse <<DTO>>
+class ChatMessageDto <<DTO>>
+class AiCardDto <<DTO>>
+AiController ..> IAiAssistantService
+GeminiAiAssistantService ..|> IAiAssistantService
+GeminiAiAssistantService ..> AiToolExecutor
+GeminiAiAssistantService ..> GeminiOptions
+GeminiAiAssistantService ..> BrandOptions
+GeminiAiAssistantService ..> Movie
+GeminiAiAssistantService ..> Combo
+GeminiAiAssistantService ..> CinemaSettings
+GeminiAiAssistantService ..> LoyaltyWindow
+AiToolExecutor ..> Showtime
+AiToolExecutor ..> ShowtimeSeat
+AiToolExecutor ..> Booking
+AiToolExecutor --> ToolResult
+ToolResult ..> AiCardDto
+AiChatRequestValidator ..> AiChatRequest
+ChatMessageDtoValidator ..> ChatMessageDto
+IAiAssistantService ..> AiChatResponse
+GeminiAiAssistantService ..> IAppDbContext
+AiToolExecutor ..> IAppDbContext
+@enduml

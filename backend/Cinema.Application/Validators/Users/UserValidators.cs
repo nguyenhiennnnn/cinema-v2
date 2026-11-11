@@ -1,6 +1,6 @@
 using Cinema.Application.DTOs.Users;
-using Cinema.Domain.Enums;
 using Cinema.Application.Utils;
+using Cinema.Domain.Enums;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
@@ -22,6 +22,11 @@ public class UpdateProfileRequestValidator : AbstractValidator<UpdateProfileRequ
         RuleFor(x => x.Gender)
             .Must(g => ValidGenders.Contains(g))
             .When(x => x.Gender is not null)
-            .WithMessage(string.Format(Messages.Validation_Gender_AllowedValues, string.Join(", ", ValidGenders)));
+            .WithMessage(
+                string.Format(
+                    Messages.Validation_Gender_AllowedValues,
+                    string.Join(", ", ValidGenders)
+                )
+            );
     }
 }

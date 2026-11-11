@@ -1,0 +1,41 @@
+@startuml
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+left to right direction
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam ArrowColor Black
+skinparam maxMessageSize 200
+
+actor "Khách vãng lai" as KVL
+actor "Khách hàng" as KH
+actor "Nhân viên /\nQuản trị viên" as NV
+
+rectangle "Hệ thống Perfo\n(React SPA + Cinema.Api + Application\n+ Infrastructure + PostgreSQL)" as SYS
+
+rectangle "Cổng VNPay / MoMo / Stripe" <<Hệ thống ngoài>> as PAY
+rectangle "Google" <<Hệ thống ngoài>> as GG
+rectangle "Gemini" <<Hệ thống ngoài>> as GEM
+rectangle "Dịch vụ email\n(Resend / SMTP)" <<Hệ thống ngoài>> as MAIL
+rectangle "Cloudinary" <<Hệ thống ngoài>> as CLD
+
+KVL --> SYS : HTTP /api/v1/...\n(xem dữ liệu công khai, xác thực)
+KH --> SYS : giữ ghế, thanh toán, hủy đơn, đánh giá;\nSignalR /hubs/showtimes
+NV --> SYS : HTTP /api/v1/admin/...\n(quản trị, bán vé tại quầy, soát vé)
+SYS --> KVL : JSON
+SYS --> KH : JSON; sự kiện seat.held, seat.released,\nseat.booked, hold.expired
+SYS --> NV : JSON
+
+SYS --> PAY : yêu cầu tạo liên kết thanh toán,\nyêu cầu hoàn tiền
+PAY --> SYS : IPN / webhook\n/api/v1/payments/...
+SYS --> GG : ID token
+GG --> SYS : GoogleUserInfo
+SYS --> GEM : lịch sử hội thoại, system prompt,\nkhai báo hàm
+GEM --> SYS : câu trả lời hoặc\nyêu cầu gọi hàm
+SYS --> MAIL : IEmailService.SendAsync
+SYS --> CLD : tệp ảnh / video
+CLD --> SYS : URL, PublicId
+@enduml

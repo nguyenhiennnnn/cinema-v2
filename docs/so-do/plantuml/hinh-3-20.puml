@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Quản trị viên" as A_QTV
+rectangle "Package Quản lý thanh toán (QT) — 2 use case" as PK {
+  usecase "UC-QT-01\nXem danh sách thanh toán" as UC_QT_01
+  usecase "UC-QT-02\nXem chi tiết thanh toán" as UC_QT_02
+}
+A_QTV -- UC_QT_01
+A_QTV -- UC_QT_02
+@enduml

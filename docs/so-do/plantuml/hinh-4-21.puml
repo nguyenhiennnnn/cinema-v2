@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminPaymentsController <<Controller>> {
+  +GetPayments(filter : AdminPaymentListFilter, page : int, pageSize : int) : IActionResult
+  +GetDetail(id : int) : IActionResult
+}
+interface IPaymentAdminService {
+  +GetPaymentsAsync(filter : AdminPaymentListFilter, page : int, pageSize : int) : OffsetPageResult<AdminPaymentListItemDto>
+  +GetPaymentDetailAsync(paymentId : int) : AdminPaymentDetailDto
+}
+class PaymentAdminService <<Service>>
+class AdminPaymentListFilter <<record>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Payment <<Entity>>
+class Booking <<Entity>>
+class AdminPaymentListItemDto <<DTO>>
+class AdminPaymentDetailDto <<DTO>>
+class AdminPaymentBookingBriefDto <<DTO>>
+AdminPaymentsController ..> IPaymentAdminService
+PaymentAdminService ..|> IPaymentAdminService
+PaymentAdminService ..> AdminPaymentListFilter
+PaymentAdminService ..> Payment
+PaymentAdminService ..> Booking
+PaymentAdminService ..> AdminPaymentListItemDto
+PaymentAdminService ..> AdminPaymentDetailDto
+AdminPaymentDetailDto --> AdminPaymentBookingBriefDto
+PaymentAdminService ..> IAppDbContext
+@enduml

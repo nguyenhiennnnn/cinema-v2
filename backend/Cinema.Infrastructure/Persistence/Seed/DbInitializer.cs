@@ -251,7 +251,9 @@ public static class DbInitializer
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            logger.LogInformation("Seeding demo scenarios (showtimes, bookings, payments, reviews)...");
+            logger.LogInformation(
+                "Seeding demo scenarios (showtimes, bookings, payments, reviews)..."
+            );
 
             // Thứ tự quan trọng: suất đặc biệt trước (giữ chỗ phòng/giờ), rồi mới lấp suất thường xung quanh.
             var specials = await ShowtimeSeeder.CreateSpecialsAsync(
@@ -408,8 +410,9 @@ public static class DbInitializer
             CreatedAt = DateTime.UtcNow,
         };
         // Tài khoản Google: mật khẩu ngẫu nhiên (giống AuthService khi đăng nhập Google lần đầu).
-        var password =
-            seed.GoogleId is null ? seed.Password : Guid.NewGuid().ToString("N") + "Aa1!";
+        var password = seed.GoogleId is null
+            ? seed.Password
+            : Guid.NewGuid().ToString("N") + "Aa1!";
         user.PasswordHash = hasher.HashPassword(user, password);
 
         db.Users.Add(user);
@@ -494,7 +497,12 @@ public static class DbInitializer
         foreach (var t in tokens)
         {
             var hash = HashToken(t.Raw);
-            if (await db.UserVerificationTokens.AnyAsync(x => x.TokenHash == hash, cancellationToken))
+            if (
+                await db.UserVerificationTokens.AnyAsync(
+                    x => x.TokenHash == hash,
+                    cancellationToken
+                )
+            )
                 continue;
 
             var userId = await db
@@ -571,7 +579,10 @@ public static class DbInitializer
 
         // Phòng đang bảo trì (IsActive = false) — không được xếp suất chiếu.
         if (
-            !await db.CinemaRooms.AnyAsync(r => r.RoomName == MaintenanceRoomName, cancellationToken)
+            !await db.CinemaRooms.AnyAsync(
+                r => r.RoomName == MaintenanceRoomName,
+                cancellationToken
+            )
         )
         {
             var room = new CinemaRoom
@@ -683,7 +694,8 @@ public static class DbInitializer
                         SeatRow = row,
                         SeatNumber = col,
                         SeatTypeId = seatTypeId,
-                        CoupleId = seatTypeId == 3 ? CoupleGuid(roomId, rowIdx, (col + 1) / 2) : null,
+                        CoupleId =
+                            seatTypeId == 3 ? CoupleGuid(roomId, rowIdx, (col + 1) / 2) : null,
                         IsActive = true,
                         IsAisle = false,
                     }

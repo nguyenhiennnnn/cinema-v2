@@ -1,0 +1,137 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminGenresController <<Controller>> {
+  +GetAll(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertGenreRequest) : IActionResult
+  +Update(id : int, request : UpsertGenreRequest) : IActionResult
+  .. rút gọn 3/4 phương thức ..
+}
+class AdminLanguagesController <<Controller>> {
+  +GetAll(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertLanguageRequest) : IActionResult
+  +Update(id : int, request : UpsertLanguageRequest) : IActionResult
+  .. rút gọn 3/4 phương thức ..
+}
+class AdminAgeRatingsController <<Controller>> {
+  +GetAll(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertAgeRatingRequest) : IActionResult
+  +Update(id : int, request : UpsertAgeRatingRequest) : IActionResult
+  .. rút gọn 3/4 phương thức ..
+}
+class AdminActorsController <<Controller>> {
+  +GetAll(search : string?, page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertPersonRequest) : IActionResult
+  +Update(id : int, request : UpsertPersonRequest) : IActionResult
+  .. rút gọn 3/5 phương thức ..
+}
+class AdminDirectorsController <<Controller>> {
+  +GetAll(search : string?, page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertPersonRequest) : IActionResult
+  +Update(id : int, request : UpsertPersonRequest) : IActionResult
+  .. rút gọn 3/5 phương thức ..
+}
+class AdminScreenTypesController <<Controller>> {
+  +GetAll(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertScreenTypeRequest) : IActionResult
+  +Update(id : int, request : UpsertScreenTypeRequest) : IActionResult
+  .. rút gọn 3/4 phương thức ..
+}
+class AdminSeatTypesController <<Controller>> {
+  +GetAll(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertSeatTypeRequest) : IActionResult
+  +Update(id : int, request : UpsertSeatTypeRequest) : IActionResult
+  .. rút gọn 3/4 phương thức ..
+}
+class AdminPositionsController <<Controller>> {
+  +GetAll(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertPositionRequest) : IActionResult
+  +Update(id : int, request : UpsertPositionRequest) : IActionResult
+  .. rút gọn 3/4 phương thức ..
+}
+class AdminMembershipTiersController <<Controller>> {
+  +GetAll(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertMembershipTierRequest) : IActionResult
+  +Update(id : int, request : UpsertMembershipTierRequest) : IActionResult
+  .. rút gọn 3/4 phương thức ..
+}
+class AdminCombosController <<Controller>> {
+  +GetCombos(page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertComboRequest) : IActionResult
+  +Update(id : int, request : UpsertComboRequest) : IActionResult
+  .. rút gọn 3/5 phương thức ..
+}
+interface ICatalogService {
+  +GetGenresAsync() : List<GenreDto>
+  +GetLanguagesAsync() : List<LanguageDto>
+  +GetAgeRatingsAsync() : List<AgeRatingDto>
+  +GetMembershipTiersAsync() : List<MembershipTierDto>
+  +GetGenresAdminAsync(page : int, pageSize : int) : OffsetPageResult<GenreDto>
+  +CreateGenreAsync(request : UpsertGenreRequest) : GenreDto
+  +UpdateGenreAsync(id : int, request : UpsertGenreRequest) : GenreDto
+  +DeleteGenreAsync(id : int) : DeleteCategoryResponse
+  .. rút gọn 8/42 phương thức ..
+}
+interface IComboService {
+  +GetCombosAdminAsync(page : int, pageSize : int) : OffsetPageResult<AdminComboDto>
+  +CreateComboAsync(request : UpsertComboRequest) : AdminComboDto
+  +UpdateComboAsync(comboId : int, request : UpsertComboRequest) : AdminComboDto
+  +ToggleComboAsync(comboId : int) : ToggleComboResponse
+  +SetCombosActiveAsync(request : BulkStatusRequest) : BulkActionResponse
+  .. rút gọn 5/7 phương thức ..
+}
+class CatalogService <<Service>>
+class ComboService <<Service>>
+class BulkOperation <<Utility>> {
+  +RunAsync(ids : IEnumerable<int>, action : Func<int, Task>, onUnexpected : Action<int, Exception>?) : BulkActionResponse
+  +Build(results : List<BulkActionResultItem>) : BulkActionResponse
+}
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Genre <<Entity>>
+class Language <<Entity>>
+class AgeRating <<Entity>>
+class Actor <<Entity>>
+class Director <<Entity>>
+class ScreenType <<Entity>>
+class SeatType <<Entity>>
+class Position <<Entity>>
+class MembershipTier <<Entity>>
+class Combo <<Entity>>
+AdminGenresController ..> ICatalogService
+AdminLanguagesController ..> ICatalogService
+AdminAgeRatingsController ..> ICatalogService
+AdminActorsController ..> ICatalogService
+AdminDirectorsController ..> ICatalogService
+AdminScreenTypesController ..> ICatalogService
+AdminSeatTypesController ..> ICatalogService
+AdminPositionsController ..> ICatalogService
+AdminMembershipTiersController ..> ICatalogService
+AdminCombosController ..> IComboService
+CatalogService ..|> ICatalogService
+ComboService ..|> IComboService
+CatalogService ..> BulkOperation
+CatalogService ..> Genre
+CatalogService ..> Language
+CatalogService ..> AgeRating
+CatalogService ..> Actor
+CatalogService ..> Director
+CatalogService ..> ScreenType
+CatalogService ..> SeatType
+CatalogService ..> Position
+CatalogService ..> MembershipTier
+ComboService ..> BulkOperation
+ComboService ..> Combo
+CatalogService ..> IAppDbContext
+ComboService ..> IAppDbContext
+@enduml

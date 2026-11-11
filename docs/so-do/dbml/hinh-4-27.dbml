@@ -1,0 +1,104 @@
+// Hình 4.27. ERD module Tài khoản người dùng
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table Roles {
+  RoleId int [pk]
+  RoleName varchar [not null, unique]
+}
+
+Table Users {
+  UserId int [pk]
+  Avatar varchar
+  CreatedAt timestamp [not null]
+  DateOfBirth date
+  Email varchar [not null, unique]
+  EmailConfirmed boolean [not null]
+  FullName varchar [not null]
+  Gender varchar [note: 'enum Gender']
+  GoogleId varchar [unique, note: 'duy nhất khi khác NULL']
+  IsActive boolean [not null]
+  PasswordHash varchar [not null]
+  Phone varchar
+  RoleId int [not null]
+  UpdatedAt timestamp
+}
+
+Table CustomerProfiles {
+  UserId int [pk]
+  Points int [not null]
+  TierId int
+  TotalSpent decimal [not null]
+}
+
+Table Employees {
+  EmployeeId int [pk]
+  HireDate date
+  IsActive boolean [not null]
+  PositionId int
+  UserId int [not null, unique]
+}
+
+Table Positions {
+  PositionId int [pk]
+  Name varchar [not null, unique]
+}
+
+Table RefreshTokens {
+  RefreshTokenId int [pk]
+  CreatedAt timestamp [not null]
+  ExpiresAt timestamp [not null]
+  IsRevoked boolean [not null]
+  ReplacedByTokenId int
+  RevokedAt timestamp
+  TokenHash varchar [not null, unique]
+  UserId int [not null]
+}
+
+Table UserVerificationTokens {
+  TokenId int [pk]
+  CreatedAt timestamp [not null]
+  ExpiresAt timestamp [not null]
+  Purpose varchar [not null, note: 'enum VerificationTokenPurpose']
+  TokenHash varchar [not null, unique]
+  Used boolean [not null]
+  UserId int [not null]
+}
+
+Table MembershipTiers {
+  TierId int [pk]
+}
+
+Table Bookings {
+  BookingId int [pk]
+  UserId int
+  CreatedByEmployeeId int
+}
+
+Table LoyaltyPointEntries {
+  EntryId int [pk]
+  UserId int
+}
+
+Table Reviews {
+  ReviewId int [pk]
+  UserId int
+}
+
+Table ShowtimeSeats {
+  ShowtimeSeatId int [pk]
+  HeldByUserId int
+}
+
+Ref: Users.RoleId > Roles.RoleId
+Ref: CustomerProfiles.UserId - Users.UserId
+Ref: CustomerProfiles.TierId > MembershipTiers.TierId
+Ref: Employees.UserId - Users.UserId
+Ref: Employees.PositionId > Positions.PositionId
+Ref: RefreshTokens.UserId > Users.UserId
+Ref: RefreshTokens.ReplacedByTokenId > RefreshTokens.RefreshTokenId
+Ref: UserVerificationTokens.UserId > Users.UserId
+Ref: LoyaltyPointEntries.UserId > Users.UserId
+Ref: Bookings.UserId > Users.UserId
+Ref: Bookings.CreatedByEmployeeId > Employees.EmployeeId
+Ref: Reviews.UserId > Users.UserId
+Ref: ShowtimeSeats.HeldByUserId > Users.UserId

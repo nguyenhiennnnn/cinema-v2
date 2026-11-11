@@ -19,7 +19,7 @@ public class NameNormalizerTests
     [Fact]
     public void Normalize_ComposedAndDecomposedForms_AreEqual()
     {
-        var composed = "\u1EBE"; 
+        var composed = "\u1EBE";
         var decomposed = "E\u0302\u0301";
 
         NameNormalizer.Normalize(decomposed).ShouldBe(composed);

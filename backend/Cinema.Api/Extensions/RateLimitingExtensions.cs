@@ -21,17 +21,18 @@ public static class RateLimitingExtensions
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-                RateLimitPartition.GetSlidingWindowLimiter(
-                    partitionKey: ClientIp(httpContext),
-                    factory: _ => new SlidingWindowRateLimiterOptions
-                    {
-                        PermitLimit = rateLimitOptions.GlobalPermitLimit,
-                        Window = TimeSpan.FromSeconds(rateLimitOptions.GlobalWindowSeconds),
-                        SegmentsPerWindow = rateLimitOptions.GlobalSegmentsPerWindow,
-                        QueueLimit = 0,
-                    }
-                )
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(
+                httpContext =>
+                    RateLimitPartition.GetSlidingWindowLimiter(
+                        partitionKey: ClientIp(httpContext),
+                        factory: _ => new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = rateLimitOptions.GlobalPermitLimit,
+                            Window = TimeSpan.FromSeconds(rateLimitOptions.GlobalWindowSeconds),
+                            SegmentsPerWindow = rateLimitOptions.GlobalSegmentsPerWindow,
+                            QueueLimit = 0,
+                        }
+                    )
             );
 
             options.AddPolicy(

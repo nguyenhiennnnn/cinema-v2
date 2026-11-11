@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminUploadsController <<Controller>> {
+  +UploadImage(folder : string, file : IFormFile?) : IActionResult
+  +UploadVideo(folder : string, file : IFormFile?) : IActionResult
+}
+interface IFileStorage {
+  +UploadImageAsync(fileStream : Stream, fileName : string, contentType : string, folder : string) : FileUploadResult
+  +UploadVideoAsync(fileStream : Stream, fileName : string, contentType : string, folder : string) : FileUploadResult
+  +DeleteAsync(publicId : string, resourceType : string) : void
+}
+class CloudinaryFileStorage <<Service>>
+class CloudinaryOptions <<Options>>
+class FileUploadResult <<record>>
+class UploadImageResponse <<DTO>>
+AdminUploadsController ..> IFileStorage
+AdminUploadsController ..> UploadImageResponse
+CloudinaryFileStorage ..|> IFileStorage
+CloudinaryFileStorage ..> CloudinaryOptions
+IFileStorage ..> FileUploadResult
+@enduml

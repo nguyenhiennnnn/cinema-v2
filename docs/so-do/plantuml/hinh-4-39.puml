@@ -1,0 +1,13 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam dpi 150
+skinparam maxMessageSize 220
+hide empty description
+  [*] --> Scheduled : giá trị mặc định
+  Scheduled --> Completed : EndTime nhỏ hơn hiện tại (CompleteEndedShowtimesAsync, ShowtimeLifecycleJob)
+  Scheduled --> Cancelled : rạp hủy suất chưa bắt đầu (DeleteShowtimeAsync)
+  Completed --> [*]
+  Cancelled --> [*]
+@enduml

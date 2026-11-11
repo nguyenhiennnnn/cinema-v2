@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Khách hàng" as K
+participant "AiController" as C
+participant "GeminiAiAssistantService" as S
+participant "API Gemini" as G
+participant "AiToolExecutor" as T
+participant "IAppDbContext" as DB
+K -> C : POST /api/v1/ai/chat (AiChatRequest)
+C -> S : ChatAsync(userId?, request)
+S -> S : dựng system prompt (rạp, phim, combo, người dùng)
+loop round = 0..MaxToolRounds (4), round nhỏ hơn 4 mới gửi kèm tools
+S -> G : generateContent (system_instruction, contents, generationConfig, tools)
+G --> S : parts
+alt có functionCall và còn lượt (tối đa 8 lời gọi)
+S -> T : ExecuteAsync(name, args, userId)
+T -> DB : truy vấn search_showtimes / get_seat_availability / get_my_bookings
+DB --> T : dữ liệu
+T --> S : ToolResult (JSON, AiCardDto)
+S -> S : thêm functionResponse vào contents (role user)
+else văn bản
+S -> S : nối các phần text, kết thúc vòng lặp
+end
+end
+S -> S : gom thẻ, loại trùng Type|Link, tối đa MaxCards = 6
+S --> C : AiChatResponse (câu trả lời, Cards)
+C --> K : 200 OK
+@enduml

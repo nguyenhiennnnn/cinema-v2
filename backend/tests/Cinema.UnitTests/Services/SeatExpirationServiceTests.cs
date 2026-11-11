@@ -209,8 +209,18 @@ public class SeatExpirationServiceTests : IDisposable
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats);
-        var oldBooking = NewBooking(showtime.ShowtimeId, "BK-OLD-1", DateTime.UtcNow.AddMinutes(-5), customer.UserId);
-        var newBooking = NewBooking(showtime.ShowtimeId, "BK-NEW-1", DateTime.UtcNow.AddMinutes(10), customer.UserId);
+        var oldBooking = NewBooking(
+            showtime.ShowtimeId,
+            "BK-OLD-1",
+            DateTime.UtcNow.AddMinutes(-5),
+            customer.UserId
+        );
+        var newBooking = NewBooking(
+            showtime.ShowtimeId,
+            "BK-NEW-1",
+            DateTime.UtcNow.AddMinutes(10),
+            customer.UserId
+        );
         Db.Bookings.AddRange(oldBooking, newBooking);
         await Db.SaveChangesAsync();
         var seat = await Db.ShowtimeSeats.SingleAsync(ss => ss.ShowtimeId == showtime.ShowtimeId);
@@ -223,9 +233,12 @@ public class SeatExpirationServiceTests : IDisposable
 
         await sut.ExpireDueBookingsAsync(CancellationToken.None);
 
-        (await Db.Bookings.AsNoTracking().SingleAsync(b => b.BookingId == oldBooking.BookingId))
-            .Status.ShouldBe(BookingStatus.Expired);
-        var reloaded = await Db.ShowtimeSeats.AsNoTracking().SingleAsync(ss => ss.ShowtimeSeatId == seat.ShowtimeSeatId);
+        (
+            await Db.Bookings.AsNoTracking().SingleAsync(b => b.BookingId == oldBooking.BookingId)
+        ).Status.ShouldBe(BookingStatus.Expired);
+        var reloaded = await Db
+            .ShowtimeSeats.AsNoTracking()
+            .SingleAsync(ss => ss.ShowtimeSeatId == seat.ShowtimeSeatId);
         reloaded.Status.ShouldBe(ShowtimeSeatStatus.Held);
         reloaded.HeldByBookingId.ShouldBe(newBooking.BookingId);
     }
@@ -263,7 +276,9 @@ public class SeatExpirationServiceTests : IDisposable
 
         await sut.ExpireDueBookingsAsync(CancellationToken.None);
 
-        var reloaded = await Db.ShowtimeSeats.AsNoTracking().SingleAsync(ss => ss.ShowtimeSeatId == seat.ShowtimeSeatId);
+        var reloaded = await Db
+            .ShowtimeSeats.AsNoTracking()
+            .SingleAsync(ss => ss.ShowtimeSeatId == seat.ShowtimeSeatId);
         reloaded.Status.ShouldBe(ShowtimeSeatStatus.Available);
         reloaded.HeldByUserId.ShouldBeNull();
         reloaded.HeldByBookingId.ShouldBeNull();

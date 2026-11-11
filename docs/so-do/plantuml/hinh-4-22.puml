@@ -1,0 +1,67 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminDashboardController <<Controller>> {
+  +GetSummary() : IActionResult
+  +GetInsights(days : int) : IActionResult
+}
+class AdminReportsController <<Controller>> {
+  +GetRevenue(fromDate : DateOnly, toDate : DateOnly, groupBy : string) : IActionResult
+  +GetTopMovies(fromDate : DateOnly, toDate : DateOnly, limit : int?) : IActionResult
+  +GetEmployeePerformance(fromDate : DateOnly, toDate : DateOnly) : IActionResult
+}
+interface IDashboardService {
+  +GetSummaryAsync() : DashboardSummaryDto
+  +GetInsightsAsync(days : int) : DashboardInsightsDto
+}
+interface IReportService {
+  +GetRevenueReportAsync(fromDate : DateOnly, toDate : DateOnly, groupBy : string) : RevenueReportDto
+  +GetTopMoviesReportAsync(fromDate : DateOnly, toDate : DateOnly, limit : int) : List<TopMovieDto>
+  +GetEmployeePerformanceReportAsync(fromDate : DateOnly, toDate : DateOnly) : List<EmployeePerformanceDto>
+}
+class DashboardService <<Service>>
+class ReportService <<Service>>
+class DateTimeUtils <<Utility>> {
+  +ParseTimeOnly(value : string?, format : string) : TimeOnly?
+  +FormatDuration(span : TimeSpan) : string
+  +GetPeriodKey(createdAt : DateTime, groupBy : string) : string
+  +GetStartOfDay(date : DateOnly) : DateTime
+  +GetStartOfNextDay(date : DateOnly) : DateTime
+}
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Booking <<Entity>>
+class Payment <<Entity>>
+class Showtime <<Entity>>
+class Movie <<Entity>>
+class Employee <<Entity>>
+class BookingTicket <<Entity>>
+class DashboardSummaryDto <<DTO>>
+class DashboardInsightsDto <<DTO>>
+AdminDashboardController ..> IDashboardService
+AdminReportsController ..> IReportService
+DashboardService ..|> IDashboardService
+ReportService ..|> IReportService
+DashboardService ..> IReportService
+DashboardService ..> DashboardSummaryDto
+DashboardService ..> DashboardInsightsDto
+ReportService ..> DateTimeUtils
+ReportService ..> Booking
+ReportService ..> Payment
+ReportService ..> Showtime
+ReportService ..> Movie
+ReportService ..> Employee
+ReportService ..> BookingTicket
+DashboardService ..> IAppDbContext
+ReportService ..> IAppDbContext
+@enduml

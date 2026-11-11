@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam dpi 150
+skinparam maxMessageSize 220
+hide empty description
+  [*] --> Pending : CreateHoldBookingAsync (HoldSeatsAsync, CounterHoldSeatsAsync)
+  Pending --> Confirmed : ConfirmBookingAndGenerateTicketsAsync (thanh toán thành công, CounterCheckoutAsync)
+  Pending --> Expired : ExpireDueBookingsAsync (ExpiresAt nhỏ hơn hiện tại)
+  Pending --> Cancelled : khách hủy đơn Pending (CancelBookingAsync)
+  Pending --> Cancelled : thanh toán thất bại và quá hạn giữ ghế (ProcessPaymentFailureAsync)
+  Pending --> Cancelled : thanh toán thành công nhưng không còn ghế giữ (SeatsNoLongerHeldException)
+  Pending --> Cancelled : rạp hủy suất chiếu (DeleteShowtimeAsync)
+  Confirmed --> Cancelled : khách hủy theo điều kiện hoàn tiền (CancelBookingAsync)
+  Confirmed --> Cancelled : rạp hủy suất chiếu (DeleteShowtimeAsync)
+  Expired --> [*]
+  Cancelled --> [*]
+@enduml

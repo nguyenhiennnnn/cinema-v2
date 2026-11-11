@@ -32,7 +32,8 @@ public class ReviewValidatorsTests
     {
         var request = new CreateReviewRequest(rating, "Phim hay");
         var result = _validator.TestValidate(request);
-        result.ShouldHaveValidationErrorFor(x => x.Rating)
+        result
+            .ShouldHaveValidationErrorFor(x => x.Rating)
             .WithErrorMessage(Messages.Validation_Rating_Range1To5);
     }
 
@@ -41,7 +42,8 @@ public class ReviewValidatorsTests
     {
         var request = new CreateReviewRequest(5, new string('a', 1001));
         var result = _validator.TestValidate(request);
-        result.ShouldHaveValidationErrorFor(x => x.Comment)
+        result
+            .ShouldHaveValidationErrorFor(x => x.Comment)
             .WithErrorMessage(Messages.Validation_ReviewContent_MaxLength1000);
     }
 }

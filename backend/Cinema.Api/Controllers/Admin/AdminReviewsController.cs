@@ -37,6 +37,7 @@ public class AdminReviewsController(IReviewService reviewService) : ControllerBa
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken) =>
         Ok(await reviewService.DeleteReviewAsync(id, cancellationToken));
+
     [HttpDelete("bulk")]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> BulkDelete(

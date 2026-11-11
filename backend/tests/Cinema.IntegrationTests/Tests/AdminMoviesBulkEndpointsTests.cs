@@ -9,8 +9,7 @@ using Shouldly;
 
 namespace Cinema.IntegrationTests.Tests;
 
-public class AdminMoviesBulkEndpointsTests(CinemaApiFactory factory)
-    : IntegrationTestBase(factory)
+public class AdminMoviesBulkEndpointsTests(CinemaApiFactory factory) : IntegrationTestBase(factory)
 {
     private record BulkDeleteResultItemDto(int MovieId, bool Success, string? Reason);
 
@@ -79,7 +78,9 @@ public class AdminMoviesBulkEndpointsTests(CinemaApiFactory factory)
         var response = await client.SendAsync(
             new HttpRequestMessage(HttpMethod.Delete, "/api/v1/admin/movies/bulk")
             {
-                Content = JsonContent.Create(new { movieIds = new[] { existingId, nonExistentId } }),
+                Content = JsonContent.Create(
+                    new { movieIds = new[] { existingId, nonExistentId } }
+                ),
             }
         );
 

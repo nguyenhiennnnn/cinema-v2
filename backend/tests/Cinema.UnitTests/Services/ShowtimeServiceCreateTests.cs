@@ -1,5 +1,5 @@
-using Cinema.Application.Utils;
 using Cinema.Application.DTOs.Showtimes;
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;

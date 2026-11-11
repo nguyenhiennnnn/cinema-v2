@@ -1,0 +1,16 @@
+@startuml
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+actor "Khách vãng lai" as KVL
+actor "Người dùng đã đăng nhập" as NDN
+actor "Khách hàng" as KH
+actor "Nhân viên" as NV
+actor "Quản trị viên" as QTV
+KVL <|-- NDN
+NDN <|-- KH
+NDN <|-- NV
+NV <|-- QTV
+@enduml

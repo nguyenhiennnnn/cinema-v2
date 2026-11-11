@@ -1,6 +1,4 @@
 using Cinema.Application.DTOs.Common;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Cinema.Application.DTOs.Movies;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
@@ -11,6 +9,8 @@ using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Cinema.Application.Services.Movies;
 
@@ -24,6 +24,7 @@ public class MovieService : IMovieService
         this.db = db;
         this.logger = logger ?? NullLogger<MovieService>.Instance;
     }
+
     public async Task<CursorPageResult<MovieListItemDto>> GetMoviesAsync(
         MovieListFilter filter,
         string? cursor,
@@ -33,9 +34,7 @@ public class MovieService : IMovieService
     {
         var query = db.Movies.AsQueryable();
 
-        if (
-            EnumConverters.TryParseEnum<MovieStatus>(filter.Status, out var status)
-        )
+        if (EnumConverters.TryParseEnum<MovieStatus>(filter.Status, out var status))
             query = query.Where(m => m.Status == status);
         if (filter.GenreId is not null)
             query = query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId));
@@ -145,9 +144,7 @@ public class MovieService : IMovieService
     {
         var query = db.Movies.AsQueryable();
 
-        if (
-            EnumConverters.TryParseEnum<MovieStatus>(filter.Status, out var status)
-        )
+        if (EnumConverters.TryParseEnum<MovieStatus>(filter.Status, out var status))
             query = query.Where(m => m.Status == status);
         if (filter.GenreId is not null)
             query = query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId));
@@ -358,6 +355,7 @@ public class MovieService : IMovieService
         if (errors.Count > 0)
             throw new ValidationAppException(Messages.Invalid_ReferenceData, errors);
     }
+
     public async Task<BulkDeleteMoviesResponse> BulkDeleteMoviesAsync(
         BulkDeleteMoviesRequest request,
         CancellationToken cancellationToken
@@ -373,7 +371,13 @@ public class MovieService : IMovieService
             }
             catch (NotFoundException)
             {
-                results.Add(new BulkDeleteMoviesResultItem(movieId, false, "Kh\u00f4ng t\u00ecm th\u1ea5y phim."));
+                results.Add(
+                    new BulkDeleteMoviesResultItem(
+                        movieId,
+                        false,
+                        "Kh\u00f4ng t\u00ecm th\u1ea5y phim."
+                    )
+                );
             }
             catch (AppException ex)
             {
@@ -381,8 +385,18 @@ public class MovieService : IMovieService
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                logger.LogWarning(ex, "BulkDeleteMovie th\u1ea5t b\u1ea1i MovieId {MovieId}", movieId);
-                results.Add(new BulkDeleteMoviesResultItem(movieId, false, "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."));
+                logger.LogWarning(
+                    ex,
+                    "BulkDeleteMovie th\u1ea5t b\u1ea1i MovieId {MovieId}",
+                    movieId
+                );
+                results.Add(
+                    new BulkDeleteMoviesResultItem(
+                        movieId,
+                        false,
+                        "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."
+                    )
+                );
             }
         }
         var successCount = results.Count(r => r.Success);

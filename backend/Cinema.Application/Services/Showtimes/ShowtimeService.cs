@@ -73,9 +73,7 @@ public class ShowtimeService(IAppDbContext db, ILogger<ShowtimeService> logger) 
             );
 
         if (movie.Status == MovieStatus.Ended)
-            throw new BusinessRuleException(
-                Messages.Rule_MovieEndedCannotCreateShowtime
-            );
+            throw new BusinessRuleException(Messages.Rule_MovieEndedCannotCreateShowtime);
         if (!room.IsActive)
             throw new BusinessRuleException(Messages.Rule_RoomInactive);
 
@@ -88,8 +86,9 @@ public class ShowtimeService(IAppDbContext db, ILogger<ShowtimeService> logger) 
 
         ShowtimeRules.EnsureStartsInFuture(request.StartTime);
 
-        var bufferMinutes = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
-            .RoomBufferMinutes;
+        var bufferMinutes = (
+            await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken)
+        ).RoomBufferMinutes;
         var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
 
         await db.ValidateOperatingHoursAsync(
@@ -166,18 +165,14 @@ public class ShowtimeService(IAppDbContext db, ILogger<ShowtimeService> logger) 
         ShowtimeRules.EnsureScheduled(showtime, Messages.Common_ActionEdit);
 
         if (request.RoomId != showtime.RoomId)
-            throw new BusinessRuleException(
-                Messages.Rule_CannotChangeShowtimeRoom
-            );
+            throw new BusinessRuleException(Messages.Rule_CannotChangeShowtimeRoom);
 
         var hasConfirmedBooking = await db.Bookings.AnyAsync(
             b => b.ShowtimeId == showtimeId && b.Status == BookingStatus.Confirmed,
             cancellationToken
         );
         if (hasConfirmedBooking)
-            throw new ConflictAppException(
-                Messages.Conflict_ShowtimeHasConfirmedBookings
-            );
+            throw new ConflictAppException(Messages.Conflict_ShowtimeHasConfirmedBookings);
 
         var now = DateTime.UtcNow;
         var hasActiveCheckout =
@@ -201,9 +196,7 @@ public class ShowtimeService(IAppDbContext db, ILogger<ShowtimeService> logger) 
                 cancellationToken
             );
         if (hasActiveCheckout)
-            throw new ConflictAppException(
-                Messages.Conflict_ShowtimeHasPendingBookings
-            );
+            throw new ConflictAppException(Messages.Conflict_ShowtimeHasPendingBookings);
 
         var movie =
             await db.Movies.FirstOrDefaultAsync(
@@ -212,17 +205,19 @@ public class ShowtimeService(IAppDbContext db, ILogger<ShowtimeService> logger) 
             )
             ?? throw new ValidationAppException(
                 Messages.Invalid_MovieIdNotFound,
-                new Dictionary<string, string[]> { ["movieId"] = [Messages.Invalid_MovieIdNotFound] }
+                new Dictionary<string, string[]>
+                {
+                    ["movieId"] = [Messages.Invalid_MovieIdNotFound],
+                }
             );
         if (movie.Status == MovieStatus.Ended)
-            throw new BusinessRuleException(
-                Messages.Rule_MovieEndedCannotUpdateShowtime
-            );
+            throw new BusinessRuleException(Messages.Rule_MovieEndedCannotUpdateShowtime);
 
         ShowtimeRules.EnsureStartsInFuture(request.StartTime);
 
-        var bufferMinutes = (await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken))
-            .RoomBufferMinutes;
+        var bufferMinutes = (
+            await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken)
+        ).RoomBufferMinutes;
         var endTime = request.StartTime.AddMinutes(movie.DurationMinutes + bufferMinutes);
         if (
             showtime.StartTime != request.StartTime
@@ -279,4 +274,3 @@ public class ShowtimeService(IAppDbContext db, ILogger<ShowtimeService> logger) 
         return showtime.Adapt<AdminShowtimeDto>();
     }
 }
-

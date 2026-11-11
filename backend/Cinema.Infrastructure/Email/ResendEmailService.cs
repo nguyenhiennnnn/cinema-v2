@@ -28,8 +28,10 @@ public class ResendEmailService(
     )
     {
         var client = httpClientFactory.CreateClient("Resend");
-        client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _options.ResendApiKey);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            _options.ResendApiKey
+        );
 
         var payload = new
         {

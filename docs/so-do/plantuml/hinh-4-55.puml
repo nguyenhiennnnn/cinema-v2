@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Nhân viên / Quản trị viên" as NV
+participant "AdminBookingsController" as C
+participant "BookingService" as S
+participant "IAppDbContext" as DB
+participant "IRealtimeNotifier" as N
+NV -> C : POST /api/v1/admin/bookings/counter-hold (StaffOnly)
+alt tài khoản không có hồ sơ nhân viên
+C --> NV : Rule_NoEmployeeProfileForCounterBooking
+end
+C -> S : CounterHoldSeatsAsync(employeeId, employeeUserId, request)
+S -> DB : LoadSeatSlotsAsync, ValidateSelection (SeatGapRuleMode.Off)
+S -> DB : xác định khách (UserId khách thành viên hoặc tên, số điện thoại nhập tay)
+S -> S : CreateHoldBookingAsync (channel = Counter, holder = nhân viên)
+S -> DB : giữ ghế nguyên tử, tạo Booking Pending
+S -> N : NotifySeatHeldAsync
+S --> NV : CounterHoldResponse
+NV -> C : POST /api/v1/admin/bookings/{bookingId}/counter-checkout (AmountReceived)
+C -> S : CounterCheckoutAsync
+S -> DB : kiểm tra Booking kênh Counter, Pending, chưa hết hạn
+alt AmountReceived nhỏ hơn FinalAmount
+S --> NV : Rule_AmountReceivedInsufficient
+end
+S -> DB : BeginTransaction, thêm Payment (Cash, Success, AmountReceived, ChangeGiven)
+S -> S : ConfirmBookingAndGenerateTicketsAsync (phát vé, ghi sổ điểm nếu có tài khoản)
+S -> DB : Commit
+S -> N : thông báo ghế đã bán
+S --> NV : CounterCheckoutResponse (bookingId, Confirmed, change)
+@enduml

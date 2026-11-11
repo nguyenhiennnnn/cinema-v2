@@ -26,7 +26,9 @@ public class ReviewServiceTests : IDisposable
         var seats = TestDataSeeder.AddSeats(db, room.RoomId, count: 1);
         var movie = db.Movies.FirstOrDefault() ?? TestDataSeeder.AddMovie(db);
         var showtime = TestDataSeeder.AddShowtime(db, movie, room, seats);
-        var showtimeSeat = await db.ShowtimeSeats.SingleAsync(ss => ss.ShowtimeId == showtime.ShowtimeId);
+        var showtimeSeat = await db.ShowtimeSeats.SingleAsync(ss =>
+            ss.ShowtimeId == showtime.ShowtimeId
+        );
         var booking = new Booking
         {
             UserId = customer.UserId,
@@ -68,7 +70,9 @@ public class ReviewServiceTests : IDisposable
             CancellationToken.None
         );
 
-        var reloaded = await _handle.Db.Movies.AsNoTracking().SingleAsync(m => m.MovieId == movie.MovieId);
+        var reloaded = await _handle
+            .Db.Movies.AsNoTracking()
+            .SingleAsync(m => m.MovieId == movie.MovieId);
         reloaded.AverageRating.ShouldBe(4m);
     }
 
@@ -78,12 +82,24 @@ public class ReviewServiceTests : IDisposable
         var (first, movie) = await SeedCheckedInCustomerAsync("a@test.local");
         var (second, _) = await SeedCheckedInCustomerAsync("b@test.local");
         var sut = CreateSut();
-        await sut.CreateReviewAsync(first.UserId, movie.MovieId, new CreateReviewRequest(5, null), CancellationToken.None);
+        await sut.CreateReviewAsync(
+            first.UserId,
+            movie.MovieId,
+            new CreateReviewRequest(5, null),
+            CancellationToken.None
+        );
 
         sut = CreateSut();
-        await sut.CreateReviewAsync(second.UserId, movie.MovieId, new CreateReviewRequest(2, null), CancellationToken.None);
+        await sut.CreateReviewAsync(
+            second.UserId,
+            movie.MovieId,
+            new CreateReviewRequest(2, null),
+            CancellationToken.None
+        );
 
-        var reloaded = await _handle.Db.Movies.AsNoTracking().SingleAsync(m => m.MovieId == movie.MovieId);
+        var reloaded = await _handle
+            .Db.Movies.AsNoTracking()
+            .SingleAsync(m => m.MovieId == movie.MovieId);
         reloaded.AverageRating.ShouldBe(3.5m);
     }
 

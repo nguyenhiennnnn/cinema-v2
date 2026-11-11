@@ -20,8 +20,10 @@ public class SettingsService(IAppDbContext db, IOptions<BrandOptions> brandOptio
     public async Task<CinemaSettingsDto> GetSettingsAsync(CancellationToken cancellationToken)
     {
         var settings =
-            await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == AppDbContextExtensions.CinemaSettingsId, cancellationToken)
-            ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
+            await db.CinemaSettings.FirstOrDefaultAsync(
+                s => s.Id == AppDbContextExtensions.CinemaSettingsId,
+                cancellationToken
+            ) ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
 
         return ToDto(settings);
     }
@@ -32,8 +34,10 @@ public class SettingsService(IAppDbContext db, IOptions<BrandOptions> brandOptio
     )
     {
         var settings =
-            await db.CinemaSettings.FirstOrDefaultAsync(s => s.Id == AppDbContextExtensions.CinemaSettingsId, cancellationToken)
-            ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
+            await db.CinemaSettings.FirstOrDefaultAsync(
+                s => s.Id == AppDbContextExtensions.CinemaSettingsId,
+                cancellationToken
+            ) ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
 
         if (request.CancelRefundPercent is < 0 or > 100)
             throw new BusinessRuleException(Messages.Rule_CancelRefundPercentRange);

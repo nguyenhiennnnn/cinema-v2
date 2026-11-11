@@ -9,9 +9,7 @@ public class UpdateUserRoleRequestValidator : AbstractValidator<UpdateUserRoleRe
 {
     public UpdateUserRoleRequestValidator()
     {
-        RuleFor(x => x.RoleId)
-            .GreaterThan(0)
-            .WithMessage(Messages.Validation_RoleId_Positive);
+        RuleFor(x => x.RoleId).GreaterThan(0).WithMessage(Messages.Validation_RoleId_Positive);
     }
 }
 
@@ -19,9 +17,7 @@ public class CreateEmployeeRequestValidator : AbstractValidator<CreateEmployeeRe
 {
     public CreateEmployeeRequestValidator()
     {
-        RuleFor(x => x.UserId)
-            .GreaterThan(0)
-            .WithMessage(Messages.Validation_UserId_Positive);
+        RuleFor(x => x.UserId).GreaterThan(0).WithMessage(Messages.Validation_UserId_Positive);
 
         RuleFor(x => x.PositionId)
             .GreaterThan(0)

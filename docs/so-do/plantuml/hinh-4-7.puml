@@ -1,0 +1,116 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class MoviesController <<Controller>> {
+  +GetMovies(filter : MovieListFilter, cursor : string?, limit : int?) : IActionResult
+  +GetMovieDetail(movieId : int) : IActionResult
+  +GetReviews(movieId : int, cursor : string?, limit : int?) : IActionResult
+}
+class ShowtimesController <<Controller>> {
+  +GetSchedule(date : DateOnly?, screenType : string?) : IActionResult
+}
+class CatalogController <<Controller>> {
+  +GetGenres() : IActionResult
+  +GetLanguages() : IActionResult
+  +GetAgeRatings() : IActionResult
+  +GetMembershipTiers() : IActionResult
+}
+class SettingsController <<Controller>> {
+  +GetSettings() : ActionResult<CinemaSettingsDto>
+}
+class CombosController <<Controller>> {
+  +GetCombos() : IActionResult
+}
+interface IMovieService {
+  +GetMoviesAsync(filter : MovieListFilter, cursor : string?, limit : int) : CursorPageResult<MovieListItemDto>
+  +GetMovieDetailAsync(movieId : int) : MovieDetailDto
+}
+interface IReviewService {
+  +GetMovieReviewsAsync(movieId : int, cursor : string?, limit : int) : CursorPageResult<ReviewDto>
+}
+interface IShowtimeQueryService {
+  +GetWholeCinemaScheduleAsync(date : DateOnly, screenType : string?) : WholeCinemaScheduleDto
+}
+interface ICatalogService {
+  +GetGenresAsync() : List<GenreDto>
+  +GetLanguagesAsync() : List<LanguageDto>
+  +GetAgeRatingsAsync() : List<AgeRatingDto>
+  +GetMembershipTiersAsync() : List<MembershipTierDto>
+}
+interface ISettingsService {
+  +GetSettingsAsync() : CinemaSettingsDto
+}
+interface IComboService {
+  +GetActiveCombosAsync() : List<ComboDto>
+}
+class MovieService <<Service>>
+class ReviewService <<Service>>
+class ShowtimeQueryService <<Service>>
+class CatalogService <<Service>>
+class SettingsService <<Service>>
+class ComboService <<Service>>
+class MovieListFilter <<record>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Movie <<Entity>>
+class Showtime <<Entity>>
+class Review <<Entity>>
+class Genre <<Entity>>
+class Language <<Entity>>
+class AgeRating <<Entity>>
+class MembershipTier <<Entity>>
+class CinemaSettings <<Entity>>
+class Combo <<Entity>>
+class MovieListItemDto <<DTO>>
+class MovieDetailDto <<DTO>>
+class UpcomingShowtimeDto <<DTO>>
+class WholeCinemaScheduleDto <<DTO>>
+class ReviewDto <<DTO>>
+class CinemaSettingsDto <<DTO>>
+class ComboDto <<DTO>>
+MoviesController ..> IMovieService
+MoviesController ..> IReviewService
+ShowtimesController ..> IShowtimeQueryService
+CatalogController ..> ICatalogService
+SettingsController ..> ISettingsService
+CombosController ..> IComboService
+MovieService ..|> IMovieService
+ReviewService ..|> IReviewService
+ShowtimeQueryService ..|> IShowtimeQueryService
+CatalogService ..|> ICatalogService
+SettingsService ..|> ISettingsService
+ComboService ..|> IComboService
+MovieService ..> Movie
+MovieService ..> MovieListFilter
+MovieService ..> MovieListItemDto
+MovieService ..> MovieDetailDto
+MovieService ..> UpcomingShowtimeDto
+ReviewService ..> Review
+ReviewService ..> ReviewDto
+ShowtimeQueryService ..> Showtime
+ShowtimeQueryService ..> WholeCinemaScheduleDto
+CatalogService ..> Genre
+CatalogService ..> Language
+CatalogService ..> AgeRating
+CatalogService ..> MembershipTier
+SettingsService ..> CinemaSettings
+SettingsService ..> CinemaSettingsDto
+ComboService ..> Combo
+ComboService ..> ComboDto
+MovieService ..> IAppDbContext
+ReviewService ..> IAppDbContext
+ShowtimeQueryService ..> IAppDbContext
+CatalogService ..> IAppDbContext
+SettingsService ..> IAppDbContext
+ComboService ..> IAppDbContext
+@enduml

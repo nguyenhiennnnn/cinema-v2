@@ -1,0 +1,166 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminShowtimesController <<Controller>> {
+  +GetShowtimes(filter : AdminShowtimeListFilter, page : int, pageSize : int) : IActionResult
+  +GetCalendar(filter : AdminShowtimeCalendarFilter) : IActionResult
+  +Create(request : UpsertShowtimeRequest) : IActionResult
+  +Update(id : int, request : UpsertShowtimeRequest) : IActionResult
+  +Delete(id : int) : IActionResult
+  +BulkCreate(request : BulkCreateShowtimesRequest) : IActionResult
+  +PreviewAutoSchedule(request : AutoScheduleRequest) : IActionResult
+  +ApplyAutoSchedule(request : ApplyAutoScheduleRequest) : IActionResult
+  .. rút gọn 8/10 phương thức ..
+}
+interface IShowtimeQueryService {
+  +GetShowtimesAdminAsync(filter : AdminShowtimeListFilter, page : int, pageSize : int) : OffsetPageResult<AdminShowtimeDto>
+  +GetShowtimesCalendarAsync(filter : AdminShowtimeCalendarFilter) : ShowtimeCalendarResponseDto
+}
+interface IShowtimeBatchService {
+  +CreateShowtimeAsync(request : UpsertShowtimeRequest) : CreateShowtimeResponse
+  +UpdateShowtimeAsync(showtimeId : int, request : UpsertShowtimeRequest) : AdminShowtimeDto
+  +BulkCreateShowtimesAsync(request : BulkCreateShowtimesRequest) : BulkCreateShowtimesResponse
+  +CloneShowtimesAsync(request : CloneShowtimesRequest) : CloneShowtimesResponse
+}
+interface IShowtimeAutoScheduleService {
+  +PreviewAutoScheduleAsync(request : AutoScheduleRequest) : AutoScheduleResponseDto
+  +ApplyAutoScheduleAsync(request : ApplyAutoScheduleRequest) : ApplyAutoScheduleResponseDto
+}
+interface IShowtimeCancellationService {
+  +DeleteShowtimeAsync(showtimeId : int) : DeleteShowtimeResponse
+  +BulkDeleteShowtimesAsync(request : BulkDeleteShowtimesRequest) : BulkDeleteShowtimesResponse
+}
+interface IBookingService {
+  +HoldSeatsAsync(userId : int, request : HoldSeatsRequest) : HoldBookingResponse
+  +GetMyBookingsAsync(userId : int, status : string?, cursor : string?, limit : int) : CursorPageResult<BookingListItemDto>
+  +GetBookingDetailAsync(userId : int, bookingId : int) : BookingDetailDto
+  +CheckoutAsync(userId : int, bookingId : int, request : CheckoutRequest) : CheckoutResponse
+  +CancelBookingAsync(userId : int, bookingId : int) : CancelBookingResponse
+  +CounterHoldSeatsAsync(employeeId : int, employeeUserId : int, request : CounterHoldRequest) : CounterHoldResponse
+  +GetBookingsAdminAsync(filter : AdminBookingListFilter, page : int, pageSize : int) : OffsetPageResult<AdminBookingListItemDto>
+  +GetBookingDetailAdminAsync(bookingId : int) : AdminBookingDetailDto
+  .. rút gọn 8/14 phương thức ..
+}
+interface IPaymentGateway {
+  +CreatePaymentAsync(request : CreatePaymentRequest) : CreatePaymentResult
+  +VerifyCallback(queryOrFormParams : IReadOnlyDictionary<string, string>) : GatewayCallbackResult
+  +VerifyWebhook(rawBody : string, signatureHeader : string?) : GatewayCallbackResult
+  +RefundAsync(request : RefundRequest) : RefundResult
+}
+class ShowtimeQueryService <<Service>>
+class ShowtimeBatchService <<Service>>
+class ShowtimeAutoScheduleService <<Service>>
+class ShowtimeCancellationService <<Service>>
+class ShowtimeRules <<Utility>>
+class SendEmailJob <<Job>> {
+  +RunAsync(toEmail : string, subject : string, htmlbody : string) : void
+}
+class ShowtimeRefundJob <<Job>> {
+  +RunAsync(paymentId : int, context : PerformContext?) : void
+}
+class ShowtimeScheduler <<Utility>> {
+  +Heat(tickets : int, maxTickets : int, rating : decimal) : double
+  +Build(day : DateOnly, opening : TimeOnly?, closing : TimeOnly?, allowAfterHours : bool, bufferMinutes : int, rooms : IReadOnlyList<SchedulerRoom>, movies : IReadOnlyList<SchedulerMovie>, busy : IReadOnlyList<SchedulerBusy>, schedulerOptions : SchedulerOptions?) : List<SchedulerSlot>
+}
+class OperatingHours <<Utility>> {
+  +Window(day : DateOnly, opening : TimeOnly?, closing : TimeOnly?) : Tuple
+  +Violation(start : DateTime, end : DateTime, opening : TimeOnly?, closing : TimeOnly?, allowAfterHours : bool) : string?
+}
+class VietnamTime <<Utility>> {
+  +TimeZoneInfo : Zone
+  +Configure(timeZoneId : string) : void
+  +ToUtc(value : DateTime) : DateTime
+  +ToUtc(day : DateOnly, time : TimeOnly) : DateTime
+  +ToLocal(utc : DateTime) : DateTime
+  +LocalDate(utc : DateTime) : DateOnly
+  +Today(utcNow : DateTime?) : DateOnly
+  +StartOfDayUtc(localDay : DateOnly) : DateTime
+  .. rút gọn 8/9 phương thức ..
+}
+class EmailTemplates <<Utility>> {
+  +ShowtimeCancelledAutoRefunded(brand : BrandOptions, customerName : string, bookingCode : string, refundAmount : decimal) : string
+  +ShowtimeCancelledManualRefund(brand : BrandOptions, customerName : string, bookingCode : string, amountDue : decimal) : string
+}
+class BookingOptions <<Options>>
+class SchedulerOptions <<Options>>
+class UpsertShowtimeRequestValidator <<Validator>>
+class AdminShowtimeListFilter <<record>>
+class AdminShowtimeCalendarFilter <<record>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Showtime <<Entity>>
+class ShowtimeSeat <<Entity>>
+class CinemaRoom <<Entity>>
+class Movie <<Entity>>
+class Booking <<Entity>>
+class Payment <<Entity>>
+class AdminShowtimeDto <<DTO>>
+class UpsertShowtimeRequest <<DTO>>
+class CreateShowtimeResponse <<DTO>>
+class SchedulerRoom <<record>>
+class SchedulerMovie <<record>>
+class SchedulerBusy <<record>>
+class SchedulerSlot <<record>>
+AdminShowtimesController ..> IShowtimeQueryService
+AdminShowtimesController ..> IShowtimeBatchService
+AdminShowtimesController ..> IShowtimeAutoScheduleService
+AdminShowtimesController ..> IShowtimeCancellationService
+ShowtimeQueryService ..|> IShowtimeQueryService
+ShowtimeBatchService ..|> IShowtimeBatchService
+ShowtimeAutoScheduleService ..|> IShowtimeAutoScheduleService
+ShowtimeCancellationService ..|> IShowtimeCancellationService
+ShowtimeCancellationService ..> IBookingService
+ShowtimeCancellationService ..> IPaymentGateway
+ShowtimeCancellationService ..> BookingOptions
+ShowtimeBatchService ..> BookingOptions
+ShowtimeAutoScheduleService ..> SchedulerOptions
+ShowtimeCancellationService ..> SendEmailJob
+ShowtimeCancellationService ..> ShowtimeRefundJob
+ShowtimeCancellationService ..> EmailTemplates
+ShowtimeAutoScheduleService ..> ShowtimeScheduler
+ShowtimeBatchService ..> ShowtimeRules
+ShowtimeAutoScheduleService ..> ShowtimeRules
+ShowtimeBatchService ..> OperatingHours
+ShowtimeAutoScheduleService ..> OperatingHours
+ShowtimeBatchService ..> VietnamTime
+ShowtimeAutoScheduleService ..> VietnamTime
+ShowtimeCancellationService ..> VietnamTime
+ShowtimeQueryService ..> VietnamTime
+ShowtimeQueryService ..> Showtime
+ShowtimeBatchService ..> Showtime
+ShowtimeAutoScheduleService ..> Showtime
+ShowtimeCancellationService ..> Showtime
+ShowtimeBatchService ..> ShowtimeSeat
+ShowtimeCancellationService ..> ShowtimeSeat
+ShowtimeBatchService ..> CinemaRoom
+ShowtimeAutoScheduleService ..> CinemaRoom
+ShowtimeBatchService ..> Movie
+ShowtimeAutoScheduleService ..> Movie
+ShowtimeCancellationService ..> Booking
+ShowtimeCancellationService ..> Payment
+ShowtimeQueryService ..> AdminShowtimeDto
+ShowtimeBatchService ..> AdminShowtimeDto
+ShowtimeBatchService ..> UpsertShowtimeRequest
+ShowtimeBatchService ..> CreateShowtimeResponse
+ShowtimeQueryService ..> AdminShowtimeListFilter
+ShowtimeQueryService ..> AdminShowtimeCalendarFilter
+ShowtimeScheduler ..> SchedulerRoom
+ShowtimeScheduler ..> SchedulerMovie
+ShowtimeScheduler ..> SchedulerBusy
+ShowtimeScheduler ..> SchedulerSlot
+UpsertShowtimeRequestValidator ..> UpsertShowtimeRequest
+ShowtimeQueryService ..> IAppDbContext
+ShowtimeBatchService ..> IAppDbContext
+ShowtimeAutoScheduleService ..> IAppDbContext
+ShowtimeCancellationService ..> IAppDbContext
+@enduml

@@ -26,7 +26,11 @@ public class BookingsController(
         CancellationToken cancellationToken
     )
     {
-        var result = await bookingHoldService.HoldSeatsAsync(CurrentUserId, request, cancellationToken);
+        var result = await bookingHoldService.HoldSeatsAsync(
+            CurrentUserId,
+            request,
+            cancellationToken
+        );
         return StatusCode(StatusCodes.Status201Created, result);
     }
 

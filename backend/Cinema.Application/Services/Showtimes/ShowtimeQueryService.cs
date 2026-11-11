@@ -235,4 +235,3 @@ public class ShowtimeQueryService(IAppDbContext db) : IShowtimeQueryService
         );
     }
 }
-

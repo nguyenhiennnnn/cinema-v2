@@ -1,0 +1,114 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class HealthController <<Controller>> {
+  +Get() : IActionResult
+}
+interface ISeatExpirationService {
+  +ReleaseStaleHeldSeatsAsync(showtimeIds : List<int>?) : int
+  +ExpireDueBookingsAsync() : void
+}
+interface IShowtimeLifecycleService {
+  +CompleteEndedShowtimesAsync() : int
+  +EndMoviesWithoutUpcomingShowtimesAsync() : int
+}
+interface IRealtimeNotifier {
+  +NotifyHoldExpiredAsync(showtimeId : int, bookingId : int, seatIds : List<int>) : void
+  .. rút gọn 1/4 phương thức ..
+}
+interface IEmailService {
+  +SendAsync(toEmail : string, subject : string, htmlBody : string) : void
+}
+interface IPaymentGateway {
+  +RefundAsync(request : RefundRequest) : RefundResult
+  .. rút gọn 1/4 phương thức ..
+}
+class SeatExpirationService <<Service>>
+class ShowtimeLifecycleService <<Service>>
+class SignalRRealtimeNotifier <<Service>>
+class FallbackEmailService <<Service>>
+class ResendEmailService <<Service>>
+class MailKitEmailService <<Service>>
+class LoyaltyExpiryService <<Service>> {
+  +RecalculateAllAsync() : int
+}
+class ReleaseExpiredSeatsJob <<Job>> {
+  +RunAsync() : void
+}
+class ShowtimeLifecycleJob <<Job>> {
+  +RunAsync() : void
+}
+class ExpireLoyaltyPointsJob <<Job>> {
+  +RunAsync() : void
+}
+class SendEmailJob <<Job>> {
+  +RunAsync(toEmail : string, subject : string, htmlbody : string) : void
+}
+class ShowtimeRefundJob <<Job>> {
+  +RunAsync(paymentId : int, context : PerformContext?) : void
+}
+class RecurringJobIds <<Utility>> {
+  +ReleaseExpiredSeats
+  +UpdateShowtimeLifecycle
+  +ExpireLoyaltyPoints
+}
+class LoyaltyWindow <<Utility>> {
+  +Months
+  +Cutoff(utcNow : DateTime) : DateTime
+  +PointsFor(finalAmount : decimal, pointsPerAmount : decimal) : int
+  +SumActiveAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : int
+  +ResolveTierAsync(db : IAppDbContext, points : int) : MembershipTier?
+  +GetStandingAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : Tuple
+  +GetStandingsAsync(db : IAppDbContext, userIds : IReadOnlyCollection<int>, utcNow : DateTime) : Dictionary<int, Tuple>
+  +ResyncProfileAsync(db : IAppDbContext, profile : CustomerProfile, pendingNewPoints : int, utcNow : DateTime) : void
+}
+class HangfireAdminAuthorizationFilter <<Utility>> {
+  +Authorize(context : DashboardContext) : bool
+}
+class DbInitializer <<Utility>> {
+  +SeedAsync(db : AppDbContext, logger : ILogger, seedDemoScenarios : bool) : void
+}
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Booking <<Entity>>
+class ShowtimeSeat <<Entity>>
+class Payment <<Entity>>
+class Showtime <<Entity>>
+class Movie <<Entity>>
+class CustomerProfile <<Entity>>
+ReleaseExpiredSeatsJob ..> ISeatExpirationService
+ShowtimeLifecycleJob ..> IShowtimeLifecycleService
+ExpireLoyaltyPointsJob ..> LoyaltyExpiryService
+SeatExpirationService ..|> ISeatExpirationService
+ShowtimeLifecycleService ..|> IShowtimeLifecycleService
+SignalRRealtimeNotifier ..|> IRealtimeNotifier
+FallbackEmailService ..|> IEmailService
+ResendEmailService ..|> IEmailService
+MailKitEmailService ..|> IEmailService
+SeatExpirationService ..> IRealtimeNotifier
+LoyaltyExpiryService ..> LoyaltyWindow
+SendEmailJob ..> IEmailService
+FallbackEmailService ..> ResendEmailService
+FallbackEmailService ..> MailKitEmailService
+ShowtimeRefundJob ..> IPaymentGateway
+ShowtimeLifecycleService ..> Showtime
+ShowtimeLifecycleService ..> Movie
+SeatExpirationService ..> Booking
+SeatExpirationService ..> ShowtimeSeat
+SeatExpirationService ..> Payment
+LoyaltyExpiryService ..> CustomerProfile
+SeatExpirationService ..> IAppDbContext
+LoyaltyExpiryService ..> IAppDbContext
+ShowtimeLifecycleService ..> IAppDbContext
+ShowtimeRefundJob ..> IAppDbContext
+@enduml

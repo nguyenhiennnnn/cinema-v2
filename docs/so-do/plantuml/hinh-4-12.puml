@@ -1,0 +1,80 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminBookingsController <<Controller>> {
+  +CounterHoldSeats(request : CounterHoldRequest) : ActionResult<CounterHoldResponse>
+  +CounterCheckout(bookingId : int, request : CounterCheckoutRequest) : ActionResult<CounterCheckoutResponse>
+}
+class AdminUsersController <<Controller>> {
+  +SearchCustomers(q : string?) : IActionResult
+}
+interface IBookingService {
+  +CounterHoldSeatsAsync(employeeId : int, employeeUserId : int, request : CounterHoldRequest) : CounterHoldResponse
+  +CounterCheckoutAsync(bookingId : int, request : CounterCheckoutRequest) : CounterCheckoutResponse
+}
+interface IUserAdminService {
+  +SearchCustomersForCounterAsync(query : string?) : List<CustomerLookupItemDto>
+}
+class BookingService <<Service>>
+class UserAdminService <<Service>>
+class SeatLayoutRules <<Utility>> {
+  +LoadSeatSlotsAsync(db : IAppDbContext, showtimeId : int) : List<SeatSlot>
+  +ValidateSelection(seats : IReadOnlyList<SeatSlot>, selectedSeatIds : ICollection<int>, gapRuleMode : SeatGapRuleMode) : string?
+}
+class QrCodeHelper <<Utility>> {
+  +GenerateDataUri(content : string) : string
+}
+class CodeGenerator <<Utility>> {
+  +GenerateTicketQrPayload(bookingCode : string, seatRow : string, seatNumber : int) : string
+}
+class LoyaltyWindow <<Utility>> {
+  +GetStandingsAsync(db : IAppDbContext, userIds : IReadOnlyCollection<int>, utcNow : DateTime) : Dictionary<int, Tuple>
+}
+class BookingOptions <<Options>>
+class CounterHoldRequestValidator <<Validator>>
+class CounterCheckoutRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Booking <<Entity>>
+class BookingTicket <<Entity>>
+class Payment <<Entity>>
+class Employee <<Entity>>
+class User <<Entity>>
+class CounterHoldRequest <<DTO>>
+class CounterHoldResponse <<DTO>>
+class CounterCheckoutRequest <<DTO>>
+class CounterCheckoutResponse <<DTO>>
+class CustomerLookupItemDto <<DTO>>
+AdminBookingsController ..> IBookingService
+AdminUsersController ..> IUserAdminService
+BookingService ..|> IBookingService
+UserAdminService ..|> IUserAdminService
+BookingService ..> SeatLayoutRules
+BookingService ..> CodeGenerator
+BookingService ..> BookingOptions
+BookingService ..> Booking
+BookingService ..> BookingTicket
+BookingService ..> Payment
+BookingService ..> Employee
+BookingService ..> User
+UserAdminService ..> User
+UserAdminService ..> BookingOptions
+UserAdminService ..> LoyaltyWindow
+UserAdminService ..> CustomerLookupItemDto
+CounterHoldRequestValidator ..> CounterHoldRequest
+CounterCheckoutRequestValidator ..> CounterCheckoutRequest
+IBookingService ..> CounterHoldResponse
+IBookingService ..> CounterCheckoutResponse
+BookingService ..> IAppDbContext
+UserAdminService ..> IAppDbContext
+@enduml

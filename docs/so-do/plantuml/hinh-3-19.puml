@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Quản trị viên" as A_QTV
+rectangle "Package Quản lý đánh giá (QV) — 3 use case" as PK {
+  usecase "UC-QV-01\nXem danh sách đánh giá" as UC_QV_01
+  usecase "UC-QV-02\nXóa đánh giá" as UC_QV_02
+  usecase "UC-QV-03\nXóa nhiều đánh giá" as UC_QV_03
+}
+A_QTV -- UC_QV_01
+A_QTV -- UC_QV_02
+A_QTV -- UC_QV_03
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+participant "Cổng thanh toán (VNPay, MoMo, Stripe)" as G
+participant "PaymentsController" as C
+participant "PaymentService" as P
+participant "BookingService" as B
+participant "IAppDbContext" as DB
+participant "IRealtimeNotifier" as N
+participant "Hangfire (SendEmailJob)" as H
+G -> C : IPN / webhook (kết quả thanh toán thành công)
+C -> P : ProcessVnPayIpnAsync / ProcessMomoIpnAsync / ProcessStripeWebhookAsync
+P -> DB : ghi kết quả thanh toán (Payment = Success, PaidAt, GatewayTransactionId)
+P -> B : ConfirmBookingAndGenerateTicketsAsync(bookingId)
+B -> DB : tải Booking
+alt đã Confirmed
+B --> P : thoát (lũy đẳng)
+else Cancelled hoặc Expired
+B --> P : SeatsNoLongerHeldException
+end
+B -> DB : tải các ghế Held của đơn (HeldFor)
+alt không còn ghế giữ
+B -> DB : Booking = Cancelled
+B --> P : SeatsNoLongerHeldException
+end
+B -> DB : Booking = Confirmed, xóa vé cũ trỏ vào các ghế
+loop mỗi ghế
+B -> DB : ShowtimeSeat = Booked, xóa HeldByUserId, HeldByBookingId, HeldUntil
+B -> DB : thêm BookingTicket (Price, IsCheckedIn=false, QrCode theo BookingCode-HàngSố)
+end
+opt booking có UserId và CustomerProfile
+B -> DB : ghi LoyaltyPointEntry(BookingId, Points, EarnedAt) nếu Points > 0
+B -> DB : tính lại Points và TierId từ sổ điểm (ResyncProfileAsync), TotalSpent += FinalAmount
+end
+B -> DB : SaveChangesAsync, Commit
+B -> N : NotifySeatBookedAsync(showtimeId, seatIds)
+opt đơn gắn với người dùng
+B -> H : Enqueue SendEmailJob (EmailTemplates.BookingConfirmed)
+end
+B --> P : hoàn tất
+P --> C : kết quả xử lý IPN
+C --> G : phản hồi theo định dạng của cổng
+@enduml

@@ -1,0 +1,35 @@
+// Hình 4.35. ERD module Cấu hình rạp
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table CinemaSettings {
+  Id int [pk]
+  Name varchar [not null]
+  Address varchar [not null]
+  Phone varchar
+  Email varchar
+  TaxCode varchar
+  LogoUrl varchar
+  OpeningTime time
+  ClosingTime time
+  UpdatedAt timestamp
+  PointsPerAmount decimal [not null]
+  CancelRefundPercent decimal [not null]
+  CancelDeadlineHours int [not null]
+  StopSellingMinutesBefore int [not null]
+  HoldDurationMinutes int [not null]
+  CheckInOpenMinutes int [not null]
+  SeatGapRuleMode varchar [not null]
+  RoomBufferMinutes int [not null]
+  MaxSeatsPerBooking int [not null]
+  MaxComboQuantity int [not null]
+  LoyaltyWindowMonths int [not null]
+  MovieEndGraceDays int [not null]
+  ShowtimeLookaheadDays int [not null]
+  SchedulerStepMinutes int [not null]
+  SchedulerMinSameMovieGapMinutes int [not null]
+  SchedulerHeatLookbackDays int [not null]
+  SchedulerHeatSalesWeight double [not null]
+  SchedulerHeatRatingWeight double [not null]
+  SchedulerMaxRating double [not null]
+}
+

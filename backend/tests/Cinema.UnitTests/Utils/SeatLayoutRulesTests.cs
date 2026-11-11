@@ -100,13 +100,7 @@ public class SeatLayoutRulesTests
     public void ValidateSelection_OnlyChecksRowsContainingPickedSeats()
     {
         var seats = Row("A", 4);
-        seats.AddRange(
-            [
-                Seat("B", 1),
-                Seat("B", 2, ShowtimeSeatStatus.Booked),
-                Seat("B", 3),
-            ]
-        );
+        seats.AddRange([Seat("B", 1), Seat("B", 2, ShowtimeSeatStatus.Booked), Seat("B", 3)]);
 
         SeatLayoutRules.ValidateSelection(seats, Ids("A", 1)).ShouldBeNull();
     }
@@ -175,10 +169,7 @@ public class SeatLayoutRulesTests
     [Fact]
     public void Suggest_SumsPriceAndReturnsShowtimeSeatIds()
     {
-        var seats = Enumerable
-            .Range(1, 6)
-            .Select(n => Seat("A", n, price: 50_000m + n))
-            .ToList();
+        var seats = Enumerable.Range(1, 6).Select(n => Seat("A", n, price: 50_000m + n)).ToList();
 
         var result = SeatLayoutRules.Suggest(seats, cols: 6, count: 2);
 

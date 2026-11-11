@@ -1,0 +1,68 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminMoviesController <<Controller>> {
+  +GetMovies(filter : AdminMovieListFilter, page : int, pageSize : int) : IActionResult
+  +Create(request : UpsertMovieRequest) : IActionResult
+  +Update(id : int, request : UpsertMovieRequest) : IActionResult
+  +Delete(id : int) : IActionResult
+  +BulkDelete(request : BulkDeleteMoviesRequest) : IActionResult
+}
+interface IMovieService {
+  +GetMoviesAdminAsync(filter : AdminMovieListFilter, page : int, pageSize : int) : OffsetPageResult<AdminMovieListItemDto>
+  +CreateMovieAsync(request : UpsertMovieRequest) : MovieDetailDto
+  +UpdateMovieAsync(movieId : int, request : UpsertMovieRequest) : MovieDetailDto
+  +DeleteMovieAsync(movieId : int) : DeleteMovieResponse
+  +BulkDeleteMoviesAsync(request : BulkDeleteMoviesRequest) : BulkDeleteMoviesResponse
+  .. rút gọn 5/7 phương thức ..
+}
+class MovieService <<Service>>
+class BookingOptions <<Options>>
+class UpsertMovieRequestValidator <<Validator>>
+class BulkDeleteMoviesRequestValidator <<Validator>>
+class AdminMovieListFilter <<record>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class Movie <<Entity>>
+class MovieGenre <<Entity>>
+class MovieCast <<Entity>>
+class Director <<Entity>>
+class Language <<Entity>>
+class AgeRating <<Entity>>
+class Genre <<Entity>>
+class Actor <<Entity>>
+class AdminMovieListItemDto <<DTO>>
+class UpsertMovieRequest <<DTO>>
+class MovieDetailDto <<DTO>>
+class DeleteMovieResponse <<DTO>>
+class BulkDeleteMoviesResponse <<DTO>>
+AdminMoviesController ..> IMovieService
+MovieService ..|> IMovieService
+MovieService ..> AdminMovieListFilter
+MovieService ..> Movie
+MovieService ..> MovieGenre
+MovieService ..> MovieCast
+MovieService ..> Director
+MovieService ..> Language
+MovieService ..> AgeRating
+MovieService ..> Genre
+MovieService ..> Actor
+MovieService ..> AdminMovieListItemDto
+MovieService ..> UpsertMovieRequest
+MovieService ..> MovieDetailDto
+MovieService ..> DeleteMovieResponse
+MovieService ..> BulkDeleteMoviesResponse
+UpsertMovieRequestValidator ..> UpsertMovieRequest
+BulkDeleteMoviesRequestValidator ..> BookingOptions
+MovieService ..> IAppDbContext
+@enduml

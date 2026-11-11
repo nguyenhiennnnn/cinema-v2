@@ -78,27 +78,21 @@ public class BookingCancellationService(
         }
 
         if (booking.Status != BookingStatus.Confirmed)
-            throw new BusinessRuleException(
-                Messages.Rule_BookingNotCancellable
-            );
+            throw new BusinessRuleException(Messages.Rule_BookingNotCancellable);
 
         var hasCheckedInTicket = await db.BookingTickets.AnyAsync(
             t => t.BookingId == bookingId && t.IsCheckedIn,
             cancellationToken
         );
         if (hasCheckedInTicket)
-            throw new BusinessRuleException(
-                Messages.Rule_BookingHasCheckedInTicket
-            );
+            throw new BusinessRuleException(Messages.Rule_BookingHasCheckedInTicket);
 
         var payment = booking
             .Payments.Where(p => p.Status == PaymentStatus.Success)
             .OrderByDescending(p => p.PaymentId)
             .FirstOrDefault();
         if (payment is null || payment.PaymentMethod == PaymentMethod.Cash)
-            throw new BusinessRuleException(
-                Messages.Rule_BookingCancelAtCounter
-            );
+            throw new BusinessRuleException(Messages.Rule_BookingCancelAtCounter);
 
         var settings = await db.GetCinemaSettingsAsync(cancellationToken);
 

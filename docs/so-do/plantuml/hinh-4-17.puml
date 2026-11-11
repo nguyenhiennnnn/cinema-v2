@@ -1,0 +1,69 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AdminRoomsController <<Controller>> {
+  +GetRooms(page : int, pageSize : int) : IActionResult
+  +Create(request : CreateRoomRequest) : IActionResult
+  +GetById(id : int) : IActionResult
+  +Update(id : int, request : UpdateRoomRequest) : IActionResult
+  +Delete(id : int) : IActionResult
+  +GetSeats(id : int) : IActionResult
+  +UpdateSeatLayout(id : int, request : UpdateSeatLayoutRequest) : IActionResult
+}
+interface IRoomService {
+  +GetRoomsAsync(page : int, pageSize : int) : OffsetPageResult<AdminRoomDto>
+  +GetRoomByIdAsync(roomId : int) : AdminRoomDto
+  +CreateRoomAsync(request : CreateRoomRequest) : AdminRoomDto
+  +UpdateRoomAsync(roomId : int, request : UpdateRoomRequest) : AdminRoomDto
+  +DeleteRoomAsync(roomId : int) : DeleteRoomResponse
+  +GetRoomSeatsAsync(roomId : int) : List<SeatDto>
+  +UpdateSeatLayoutAsync(roomId : int, request : UpdateSeatLayoutRequest) : UpdateSeatLayoutResponse
+}
+class RoomService <<Service>>
+class UpdateSeatLayoutRequestValidator <<Validator>>
+class CreateRoomRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class CinemaRoom <<Entity>>
+class Seat <<Entity>>
+class SeatType <<Entity>>
+class ScreenType <<Entity>>
+class Showtime <<Entity>>
+class ShowtimeSeat <<Entity>>
+class AdminRoomDto <<DTO>>
+class CreateRoomRequest <<DTO>>
+class UpdateRoomRequest <<DTO>>
+class SeatDto <<DTO>>
+class SeatLayoutItem <<DTO>>
+class UpdateSeatLayoutRequest <<DTO>>
+class UpdateSeatLayoutResponse <<DTO>>
+class DeleteRoomResponse <<DTO>>
+AdminRoomsController ..> IRoomService
+RoomService ..|> IRoomService
+RoomService ..> CinemaRoom
+RoomService ..> Seat
+RoomService ..> SeatType
+RoomService ..> ScreenType
+RoomService ..> Showtime
+RoomService ..> ShowtimeSeat
+RoomService ..> AdminRoomDto
+RoomService ..> CreateRoomRequest
+RoomService ..> UpdateRoomRequest
+RoomService ..> SeatDto
+RoomService ..> UpdateSeatLayoutResponse
+RoomService ..> DeleteRoomResponse
+UpdateSeatLayoutRequest --> SeatLayoutItem
+UpdateSeatLayoutRequestValidator ..> UpdateSeatLayoutRequest
+CreateRoomRequestValidator ..> CreateRoomRequest
+RoomService ..> IAppDbContext
+@enduml

@@ -14,7 +14,9 @@ public class ChatMessageDtoValidator : AbstractValidator<ChatMessageDto>
             .NotEmpty()
             .WithMessage(Messages.Validation_Role_Required)
             .Must(r => ValidRoles.Contains(r.ToLowerInvariant()))
-            .WithMessage(string.Format(Messages.Validation_Role_AllowedValues, string.Join(", ", ValidRoles)));
+            .WithMessage(
+                string.Format(Messages.Validation_Role_AllowedValues, string.Join(", ", ValidRoles))
+            );
 
         RuleFor(x => x.Content)
             .NotEmpty()
@@ -34,7 +36,6 @@ public class AiChatRequestValidator : AbstractValidator<AiChatRequest>
             .MaximumLength(1000)
             .WithMessage(Messages.Validation_Message_MaxLength1000);
 
-        RuleForEach(x => x.History)
-            .SetValidator(new ChatMessageDtoValidator());
+        RuleForEach(x => x.History).SetValidator(new ChatMessageDtoValidator());
     }
 }

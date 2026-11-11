@@ -1,0 +1,35 @@
+// Hình 4.34. ERD module Thành viên
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table MembershipTiers {
+  TierId int [pk]
+  DiscountPercent decimal [not null]
+  MinPoints int [not null]
+  TierName varchar [not null, unique]
+}
+
+Table LoyaltyPointEntries {
+  EntryId int [pk]
+  UserId int [not null]
+  BookingId int [unique, note: 'duy nhất khi khác NULL']
+  Points int [not null]
+  RevokedPoints int [not null]
+  EarnedAt timestamp [not null]
+}
+
+Table Users {
+  UserId int [pk]
+}
+
+Table Bookings {
+  BookingId int [pk]
+}
+
+Table CustomerProfiles {
+  UserId int [pk]
+  TierId int
+}
+
+Ref: LoyaltyPointEntries.UserId > Users.UserId
+Ref: LoyaltyPointEntries.BookingId - Bookings.BookingId
+Ref: CustomerProfiles.TierId > MembershipTiers.TierId

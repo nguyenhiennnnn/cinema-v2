@@ -226,9 +226,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
 
         var isReferenced = await db.Movies.AnyAsync(m => m.AgeRatingId == id, cancellationToken);
         if (isReferenced)
-            throw new ConflictAppException(
-                Messages.Conflict_AgeRatingInUse
-            );
+            throw new ConflictAppException(Messages.Conflict_AgeRatingInUse);
 
         db.AgeRatings.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -412,9 +410,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
 
         var isReferenced = await db.MovieCast.AnyAsync(mc => mc.ActorId == id, cancellationToken);
         if (isReferenced)
-            throw new ConflictAppException(
-                Messages.Conflict_ActorInUse
-            );
+            throw new ConflictAppException(Messages.Conflict_ActorInUse);
 
         db.Actors.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -550,9 +546,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
             cancellationToken
         );
         if (isReferenced)
-            throw new ConflictAppException(
-                Messages.Conflict_ScreenTypeInUse
-            );
+            throw new ConflictAppException(Messages.Conflict_ScreenTypeInUse);
 
         db.ScreenTypes.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
@@ -696,9 +690,7 @@ public class CatalogService(IAppDbContext db) : ICatalogService
             cancellationToken
         );
         if (isReferenced)
-            throw new ConflictAppException(
-                Messages.Conflict_MembershipTierInUse
-            );
+            throw new ConflictAppException(Messages.Conflict_MembershipTierInUse);
 
         db.MembershipTiers.Remove(entity);
         await db.SaveChangesAsync(cancellationToken);

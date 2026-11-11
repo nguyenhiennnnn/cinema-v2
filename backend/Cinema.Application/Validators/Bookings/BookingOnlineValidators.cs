@@ -10,13 +10,9 @@ public class ComboSelectionRequestValidator : AbstractValidator<ComboSelectionRe
     // Mức tối đa của số lượng combo đọc từ CinemaSettings (BookingHoldService), không kiểm tra ở đây.
     public ComboSelectionRequestValidator()
     {
-        RuleFor(x => x.ComboId)
-            .GreaterThan(0)
-            .WithMessage(Messages.Validation_ComboId_Positive);
+        RuleFor(x => x.ComboId).GreaterThan(0).WithMessage(Messages.Validation_ComboId_Positive);
 
-        RuleFor(x => x.Quantity)
-            .GreaterThan(0)
-            .WithMessage(Messages.Validation_Quantity_Positive);
+        RuleFor(x => x.Quantity).GreaterThan(0).WithMessage(Messages.Validation_Quantity_Positive);
     }
 }
 
@@ -40,20 +36,15 @@ public class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequest>
             .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20);
 
-        RuleFor(x => x.SeatIds)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_Seats_AtLeastOne);
+        RuleFor(x => x.SeatIds).NotEmpty().WithMessage(Messages.Validation_Seats_AtLeastOne);
 
-        RuleForEach(x => x.SeatIds)
-            .GreaterThan(0)
-            .WithMessage(Messages.Validation_SeatId_Positive);
+        RuleForEach(x => x.SeatIds).GreaterThan(0).WithMessage(Messages.Validation_SeatId_Positive);
 
         RuleFor(x => x.SeatIds)
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithMessage(Messages.Validation_Seats_Duplicated);
 
-        RuleForEach(x => x.Combos)
-            .SetValidator(new ComboSelectionRequestValidator());
+        RuleForEach(x => x.Combos).SetValidator(new ComboSelectionRequestValidator());
     }
 }
 

@@ -39,9 +39,10 @@ public class MailKitEmailService(
                     "Chưa cấu hình email: đặt Email__ResendApiKey hoặc Email__SmtpHost."
                 );
 
-            var socketOptions = _options.SmtpPort == 465
-                ? SecureSocketOptions.SslOnConnect
-                : SecureSocketOptions.StartTls;
+            var socketOptions =
+                _options.SmtpPort == 465
+                    ? SecureSocketOptions.SslOnConnect
+                    : SecureSocketOptions.StartTls;
 
             await client.ConnectAsync(
                 _options.SmtpHost,
@@ -57,7 +58,11 @@ public class MailKitEmailService(
                 );
 
             await client.SendAsync(message, cancellationToken);
-            logger.LogInformation("Email sent successfully to {ToEmail} with subject '{Subject}'", toEmail, subject);
+            logger.LogInformation(
+                "Email sent successfully to {ToEmail} with subject '{Subject}'",
+                toEmail,
+                subject
+            );
         }
         catch (Exception ex)
         {

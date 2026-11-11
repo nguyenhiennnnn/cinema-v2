@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách hàng" as A_KH
+rectangle "Package Đánh giá phim (DG) — 4 use case" as PK {
+  usecase "UC-DG-01\nKiểm tra quyền đánh giá" as UC_DG_01
+  usecase "UC-DG-02\nViết đánh giá" as UC_DG_02
+  usecase "UC-DG-03\nSửa đánh giá" as UC_DG_03
+  usecase "UC-DG-04\nXóa đánh giá của mình" as UC_DG_04
+}
+A_KH -- UC_DG_01
+A_KH -- UC_DG_02
+A_KH -- UC_DG_03
+A_KH -- UC_DG_04
+UC_DG_02 ..> UC_DG_01 : <<include>>
+@enduml

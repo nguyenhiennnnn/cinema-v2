@@ -1,0 +1,371 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class Actor <<Entity>> {
+  +ActorId : int
+  +AvatarUrl : string?
+  +FullName : string
+}
+class AgeRating <<Entity>> {
+  +AgeRatingId : int
+  +Code : string
+  +Description : string?
+}
+class BookingCombo <<Entity>> {
+  +BookingComboId : int
+  +BookingId : int
+  +ComboId : int
+  +Quantity : int
+  +UnitPrice : decimal
+}
+class BookingTicket <<Entity>> {
+  +TicketId : int
+  +BookingId : int
+  +CheckedInAt : DateTime?
+  +IsCheckedIn : bool
+  +Price : decimal
+  +QrCode : string?
+  +ShowtimeSeatId : int
+}
+class Booking <<Entity>> {
+  +BookingId : int
+  +BookingCode : string
+  +Channel : BookingChannel
+  +CreatedAt : DateTime
+  +CreatedByEmployeeId : int?
+  +CustomerName : string
+  +CustomerPhone : string?
+  +DiscountAmount : decimal
+  +ExpiresAt : DateTime?
+  +FinalAmount : decimal
+  +ShowtimeId : int
+  +Status : BookingStatus
+  +TotalAmount : decimal
+  +UserId : int?
+}
+class CinemaRoom <<Entity>> {
+  +RoomId : int
+  +Cols : int
+  +IsActive : bool
+  +RoomName : string
+  +Rows : int
+  +ScreenTypeId : int?
+  +TotalSeats : int
+}
+class CinemaSettings <<Entity>> {
+  +Id : int
+  +Name : string
+  +Address : string
+  +Phone : string?
+  +Email : string?
+  +TaxCode : string?
+  +LogoUrl : string?
+  +OpeningTime : TimeOnly?
+  +ClosingTime : TimeOnly?
+  +UpdatedAt : DateTime?
+  +PointsPerAmount : decimal
+  +CancelRefundPercent : decimal
+  +CancelDeadlineHours : int
+  +StopSellingMinutesBefore : int
+  +HoldDurationMinutes : int
+  +CheckInOpenMinutes : int
+  +SeatGapRuleMode : string
+  +RoomBufferMinutes : int
+  +MaxSeatsPerBooking : int
+  +MaxComboQuantity : int
+  +LoyaltyWindowMonths : int
+  +MovieEndGraceDays : int
+  +ShowtimeLookaheadDays : int
+  +SchedulerStepMinutes : int
+  +SchedulerMinSameMovieGapMinutes : int
+  +SchedulerHeatLookbackDays : int
+  +SchedulerHeatSalesWeight : double
+  +SchedulerHeatRatingWeight : double
+  +SchedulerMaxRating : double
+}
+class Combo <<Entity>> {
+  +ComboId : int
+  +Description : string?
+  +ImageUrl : string?
+  +IsActive : bool
+  +Name : string
+  +Price : decimal
+}
+class CustomerProfile <<Entity>> {
+  +UserId : int
+  +Points : int
+  +TierId : int?
+  +TotalSpent : decimal
+}
+class Director <<Entity>> {
+  +DirectorId : int
+  +AvatarUrl : string?
+  +FullName : string
+}
+class Employee <<Entity>> {
+  +EmployeeId : int
+  +HireDate : DateOnly?
+  +IsActive : bool
+  +PositionId : int?
+  +UserId : int
+}
+class Genre <<Entity>> {
+  +GenreId : int
+  +Name : string
+}
+class Language <<Entity>> {
+  +LanguageId : int
+  +Name : string
+}
+class LoyaltyPointEntry <<Entity>> {
+  +EntryId : int
+  +UserId : int
+  +BookingId : int?
+  +Points : int
+  +RevokedPoints : int
+  +EarnedAt : DateTime
+}
+class MembershipTier <<Entity>> {
+  +TierId : int
+  +DiscountPercent : decimal
+  +MinPoints : int
+  +TierName : string
+}
+class MovieCast <<Entity>> {
+  +MovieId : int
+  +ActorId : int
+  +CharacterName : string?
+}
+class MovieGenre <<Entity>> {
+  +MovieId : int
+  +GenreId : int
+}
+class Movie <<Entity>> {
+  +MovieId : int
+  +AgeRatingId : int?
+  +AverageRating : decimal
+  +CreatedAt : DateTime
+  +Description : string?
+  +DirectorId : int?
+  +DurationMinutes : int
+  +LanguageId : int?
+  +OriginalTitle : string?
+  +PosterUrl : string?
+  +ReleaseDate : DateOnly?
+  +Status : MovieStatus
+  +Subtitle : string?
+  +Title : string
+  +TrailerUrl : string?
+}
+class Payment <<Entity>> {
+  +PaymentId : int
+  +Amount : decimal
+  +AmountReceived : decimal?
+  +BookingId : int
+  +ChangeGiven : decimal?
+  +CreatedAt : DateTime
+  +GatewayResponseCode : string?
+  +GatewayTransactionId : string?
+  +PaidAt : DateTime?
+  +PaymentMethod : PaymentMethod
+  +RefundTransactionId : string?
+  +RefundedAmount : decimal?
+  +RefundedAt : DateTime?
+  +Status : PaymentStatus
+  +TransactionId : string?
+}
+class Position <<Entity>> {
+  +PositionId : int
+  +Name : string
+}
+class RefreshToken <<Entity>> {
+  +RefreshTokenId : int
+  +CreatedAt : DateTime
+  +ExpiresAt : DateTime
+  +IsRevoked : bool
+  +ReplacedByTokenId : int?
+  +RevokedAt : DateTime?
+  +TokenHash : string
+  +UserId : int
+}
+class Review <<Entity>> {
+  +ReviewId : int
+  +Comment : string?
+  +CreatedAt : DateTime
+  +MovieId : int
+  +Rating : int
+  +UserId : int
+}
+class Role <<Entity>> {
+  +RoleId : int
+  +RoleName : string
+}
+class ScreenType <<Entity>> {
+  +ScreenTypeId : int
+  +Name : string
+}
+class SeatType <<Entity>> {
+  +SeatTypeId : int
+  +Name : string
+  +PriceMultiplier : decimal
+}
+class Seat <<Entity>> {
+  +SeatId : int
+  +CoupleId : Guid?
+  +IsActive : bool
+  +IsAisle : bool
+  +RoomId : int
+  +SeatNumber : int
+  +SeatRow : string
+  +SeatTypeId : int?
+}
+class ShowtimeSeat <<Entity>> {
+  +ShowtimeSeatId : int
+  +HeldByBookingId : int?
+  +HeldByUserId : int?
+  +HeldUntil : DateTime?
+  +Price : decimal
+  +SeatId : int
+  +ShowtimeId : int
+  +Status : ShowtimeSeatStatus
+}
+class Showtime <<Entity>> {
+  +ShowtimeId : int
+  +BasePrice : decimal
+  +CreatedAt : DateTime
+  +EndTime : DateTime
+  +MovieId : int
+  +RoomId : int
+  +StartTime : DateTime
+  +Status : ShowtimeStatus
+}
+class UserVerificationToken <<Entity>> {
+  +TokenId : int
+  +CreatedAt : DateTime
+  +ExpiresAt : DateTime
+  +Purpose : VerificationTokenPurpose
+  +TokenHash : string
+  +Used : bool
+  +UserId : int
+}
+class User <<Entity>> {
+  +UserId : int
+  +Avatar : string?
+  +CreatedAt : DateTime
+  +DateOfBirth : DateOnly?
+  +Email : string
+  +EmailConfirmed : bool
+  +FullName : string
+  +Gender : Gender?
+  +GoogleId : string?
+  +IsActive : bool
+  +PasswordHash : string
+  +Phone : string?
+  +RoleId : int
+  +UpdatedAt : DateTime?
+}
+enum BookingChannel {
+  Online
+  Counter
+}
+enum BookingStatus {
+  Pending
+  Confirmed
+  Cancelled
+  Expired
+}
+enum Gender {
+  Male
+  Female
+  Other
+}
+enum MovieStatus {
+  ComingSoon
+  NowShowing
+  Ended
+}
+enum PaymentMethod {
+  VNPay
+  Momo
+  Cash
+  Stripe
+}
+enum PaymentStatus {
+  Pending
+  Success
+  Failed
+  Refunded
+}
+enum SeatGapRuleMode {
+  Strict
+  AllowEdge
+  Off
+}
+enum ShowtimeSeatStatus {
+  Available
+  Held
+  Booked
+}
+enum ShowtimeStatus {
+  Scheduled
+  Cancelled
+  Completed
+}
+enum VerificationTokenPurpose {
+  EmailConfirmation
+  PasswordReset
+}
+Booking "*" --> "0..1" User : User
+Booking "*" --> "1" Showtime : Showtime
+Booking "*" --> "0..1" Employee : CreatedByEmployee
+BookingCombo "*" --> "1" Booking : Booking
+BookingCombo "*" --> "1" Combo : Combo
+BookingTicket "*" --> "1" Booking : Booking
+BookingTicket "1" -- "1" ShowtimeSeat : ShowtimeSeat
+CinemaRoom "*" --> "0..1" ScreenType : ScreenType
+CustomerProfile "1" -- "1" User : User
+CustomerProfile "*" --> "0..1" MembershipTier : Tier
+Employee "1" -- "1" User : User
+Employee "*" --> "0..1" Position : Position
+LoyaltyPointEntry "*" --> "1" User : User
+LoyaltyPointEntry "0..1" -- "0..1" Booking : Booking
+Movie "*" --> "0..1" Director : Director
+Movie "*" --> "0..1" Language : Language
+Movie "*" --> "0..1" AgeRating : AgeRating
+MovieCast "*" --> "1" Movie : Movie
+MovieCast "*" --> "1" Actor : Actor
+MovieGenre "*" --> "1" Movie : Movie
+MovieGenre "*" --> "1" Genre : Genre
+Payment "*" --> "1" Booking : Booking
+RefreshToken "*" --> "1" User : User
+RefreshToken "*" --> "0..1" RefreshToken : ReplacedByToken
+Review "*" --> "1" Movie : Movie
+Review "*" --> "1" User : User
+Seat "*" --> "1" CinemaRoom : Room
+Seat "*" --> "0..1" SeatType : SeatType
+Showtime "*" --> "1" Movie : Movie
+Showtime "*" --> "1" CinemaRoom : Room
+ShowtimeSeat "*" --> "1" Showtime : Showtime
+ShowtimeSeat "*" --> "1" Seat : Seat
+ShowtimeSeat "*" --> "0..1" User : HeldByUser
+User "*" --> "1" Role : Role
+UserVerificationToken "*" --> "1" User : User
+Booking ..> BookingChannel
+Booking ..> BookingStatus
+User ..> Gender
+Movie ..> MovieStatus
+Payment ..> PaymentMethod
+Payment ..> PaymentStatus
+CinemaSettings ..> SeatGapRuleMode
+ShowtimeSeat ..> ShowtimeSeatStatus
+Showtime ..> ShowtimeStatus
+UserVerificationToken ..> VerificationTokenPurpose
+@enduml

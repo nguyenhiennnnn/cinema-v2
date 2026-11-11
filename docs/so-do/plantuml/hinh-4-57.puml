@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Quản trị viên" as QT
+participant "AdminShowtimesController" as C
+participant "ShowtimeCancellationService" as S
+participant "IBookingService" as B
+participant "IAppDbContext" as DB
+participant "Hangfire" as H
+QT -> C : xóa (hủy) suất chiếu
+C -> S : IShowtimeCancellationService.DeleteShowtimeAsync(showtimeId)
+S -> DB : kiểm tra tồn tại, Scheduled, chưa bắt đầu
+S -> DB : BeginTransaction, Showtime = Cancelled
+S -> DB : nạp Booking Pending và Confirmed kèm Payment, User
+loop mỗi booking
+S -> DB : chọn Payment Success mới nhất, Booking = Cancelled
+alt booking vốn Pending
+S -> DB : các Payment Pending → Failed
+else booking Confirmed và có tài khoản
+S -> B : ReverseLoyaltyAsync(userId, bookingId, FinalAmount)
+end
+alt Payment là tiền mặt
+S -> S : manualRefundCount++ (email ShowtimeCancelledManualRefund)
+else cổng trực tuyến
+S -> S : thêm vào refundPaymentIds
+end
+end
+S -> DB : ghế Held của suất → Available (cập nhật hàng loạt), Commit
+S -> H : Enqueue SendEmailJob cho từng email
+S -> H : Enqueue ShowtimeRefundJob.RunAsync(paymentId) cho từng thanh toán cần hoàn
+S --> C : DeleteShowtimeResponse (showtimeId, Cancelled, manualRefundCount, số booking hoàn tự động)
+@enduml

@@ -87,7 +87,8 @@ public class AdminUsersController(IUserAdminService userAdminService) : AppContr
         int id,
         [FromBody] UpdateUserRoleRequest request,
         CancellationToken cancellationToken
-    ) => Ok(
+    ) =>
+        Ok(
             await userAdminService.UpdateUserRoleAsync(
                 id,
                 request,

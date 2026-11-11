@@ -74,14 +74,18 @@ public class LoyaltyWindowSettingsTests : BookingServiceTestBase
         await Db.SaveChangesAsync();
 
         // Mặc định 12 tháng: cả hai dòng còn hiệu lực.
-        (await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)).ShouldBe(140);
+        (
+            await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)
+        ).ShouldBe(140);
 
         var settings = await Db.CinemaSettings.SingleAsync(s => s.Id == 1);
         settings.LoyaltyWindowMonths = 3;
         await Db.SaveChangesAsync();
 
         // Cửa sổ 3 tháng: dòng 5 tháng trước đã hết hạn.
-        (await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)).ShouldBe(100);
+        (
+            await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)
+        ).ShouldBe(100);
     }
 
     [Fact]
@@ -158,7 +162,12 @@ public class SettingsPolicyUpdateTests : IDisposable
     private SettingsService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new SettingsService(_handle.Db, Microsoft.Extensions.Options.Options.Create(new Cinema.Application.Options.BrandOptions()));
+        return new SettingsService(
+            _handle.Db,
+            Microsoft.Extensions.Options.Options.Create(
+                new Cinema.Application.Options.BrandOptions()
+            )
+        );
     }
 
     [Fact]
@@ -210,7 +219,9 @@ public class SettingsPolicyUpdateTests : IDisposable
         validator.Validate(Request(roomBufferMinutes: -1)).IsValid.ShouldBeFalse();
         validator.Validate(Request(schedulerStepMinutes: 0)).IsValid.ShouldBeFalse();
         validator.Validate(Request(salesWeight: 0, ratingWeight: 0)).IsValid.ShouldBeFalse();
-        validator.Validate(Request(roomBufferMinutes: 20, maxSeatsPerBooking: 8)).IsValid.ShouldBeTrue();
+        validator
+            .Validate(Request(roomBufferMinutes: 20, maxSeatsPerBooking: 8))
+            .IsValid.ShouldBeTrue();
     }
 
     public void Dispose() => _handle.Dispose();

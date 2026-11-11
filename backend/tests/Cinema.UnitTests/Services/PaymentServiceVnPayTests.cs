@@ -31,7 +31,10 @@ public class PaymentServiceVnPayTests : IDisposable
             _handle.Db,
             _bookingServiceMock.Object,
             [_gatewayMock.Object],
-            new NotificationService(backgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            new NotificationService(
+                backgroundJobClientMock.Object,
+                Options.Create(new BrandOptions())
+            ),
             NullLogger<PaymentService>.Instance
         );
     }
@@ -257,8 +260,11 @@ public class PaymentServiceVnPayTests : IDisposable
         var sutWithoutGateway = new PaymentService(
             _handle.Db,
             _bookingServiceMock.Object,
-            [], 
-            new NotificationService(backgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            [],
+            new NotificationService(
+                backgroundJobClientMock.Object,
+                Options.Create(new BrandOptions())
+            ),
             NullLogger<PaymentService>.Instance
         );
 

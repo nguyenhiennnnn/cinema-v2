@@ -1,0 +1,15 @@
+flowchart LR
+  S1["1. Chọn suất chiếu"] --> S2["2. Chọn ghế"]
+  S2 --> S3["3. Giữ chỗ có thời hạn<br/>HoldSeatsAsync → CreateHoldBookingAsync"]
+  S3 --> S4["4. Thanh toán<br/>CheckoutAsync, IPN/webhook"]
+  S4 --> S5["5. Phát hành vé có mã QR<br/>ConfirmBookingAndGenerateTicketsAsync"]
+  S5 --> S6["6. Soát vé<br/>CheckinAsync"]
+  S3 -.- T3["ShowtimeSeat: Available → Held<br/>Booking: Pending (ExpiresAt)"]
+  S4 -.- T4["Payment: Pending → Success hoặc Failed"]
+  S5 -.- T5["Booking: Pending → Confirmed<br/>ShowtimeSeat: Held → Booked<br/>BookingTicket: IsCheckedIn = false"]
+  S6 -.- T6["BookingTicket: IsCheckedIn = true"]
+  S3 -->|"khách hủy / hết hạn giữ"| X1["Booking: Cancelled hoặc Expired<br/>ShowtimeSeat: Held → Available<br/>Payment Pending → Failed"]
+  S5 -->|"ghế không còn được giữ"| X2["Hoàn tiền tự động<br/>Payment: Success → Refunded"]
+  S5 -->|"khách hủy theo điều kiện hoàn tiền"| X3["Booking: Cancelled<br/>Payment: Refunded<br/>ShowtimeSeat: Booked → Available"]
+  classDef note fill:#fff8dc,stroke:#bbb;
+  class T3,T4,T5,T6 note;

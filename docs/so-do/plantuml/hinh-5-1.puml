@@ -1,0 +1,22 @@
+@startsalt
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+{
+{T
++ perfo-main/
+++ docker-compose.yml, .env.example, package.json, dotnet-tools.json, .editorconfig, render.yaml
+++ backend/
++++ Cinema.slnx
++++ Cinema.Api : Program.cs, Controllers (Admin, Client, Health, Payments), Filters, Middlewares
++++ Cinema.Application : Services, BackgroundJobs, Options, Utils, Validators, DTOs, Interfaces, MappingConfig
++++ Cinema.Domain : Entities, Enums
++++ Cinema.Infrastructure : Persistence, Migrations, Auth, Email, FileStorage, Payments, Realtime
++++ Cinema.Shared : Constants, Exceptions, Results, Resources
++++ tests : Cinema.UnitTests, Cinema.IntegrationTests
+++ frontend/
++++ src : api, app, components, config, features, hooks, layouts, lib, pages, stores, types, assets, main.tsx, App.tsx
++++ vite.config.ts, eslint.config.js, playwright.config.ts, tsconfig*.json, components.json
+}
+}
+@endsalt

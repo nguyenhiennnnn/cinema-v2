@@ -18,4 +18,10 @@ public record RevenueReportDto(
 
 public record TopMovieDto(int MovieId, string Title, int TicketsSold, decimal Revenue);
 
-public record EmployeePerformanceDto(int EmployeeId, string FullName, int TicketsSold, decimal Revenue, int BookingCount);
+public record EmployeePerformanceDto(
+    int EmployeeId,
+    string FullName,
+    int TicketsSold,
+    decimal Revenue,
+    int BookingCount
+);

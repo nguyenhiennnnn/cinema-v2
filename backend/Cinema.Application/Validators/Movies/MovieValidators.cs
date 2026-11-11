@@ -1,9 +1,9 @@
 using Cinema.Application.DTOs.Movies;
 using Cinema.Application.Options;
-using Microsoft.Extensions.Options;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Resources;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Validators.Movies;
 
@@ -11,9 +11,7 @@ public class MovieCastItemRequestValidator : AbstractValidator<MovieCastItemRequ
 {
     public MovieCastItemRequestValidator()
     {
-        RuleFor(x => x.ActorId)
-            .GreaterThan(0)
-            .WithMessage(Messages.Validation_ActorId_Positive);
+        RuleFor(x => x.ActorId).GreaterThan(0).WithMessage(Messages.Validation_ActorId_Positive);
 
         RuleFor(x => x.CharacterName)
             .MaximumLength(150)
@@ -72,22 +70,22 @@ public class UpsertMovieRequestValidator : AbstractValidator<UpsertMovieRequest>
             .NotEmpty()
             .WithMessage(Messages.Validation_MovieStatus_Required)
             .Must(s => ValidStatuses.Contains(s))
-            .WithMessage(string.Format(Messages.Validation_Status_AllowedValues, string.Join(", ", ValidStatuses)));
+            .WithMessage(
+                string.Format(
+                    Messages.Validation_Status_AllowedValues,
+                    string.Join(", ", ValidStatuses)
+                )
+            );
 
-        RuleFor(x => x.GenreIds)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_MovieGenres_AtLeastOne);
+        RuleFor(x => x.GenreIds).NotEmpty().WithMessage(Messages.Validation_MovieGenres_AtLeastOne);
 
         RuleForEach(x => x.GenreIds)
             .GreaterThan(0)
             .WithMessage(Messages.Validation_GenreId_Positive);
 
-        RuleFor(x => x.Cast)
-            .NotNull()
-            .WithMessage(Messages.Validation_ActorList_NotNull);
+        RuleFor(x => x.Cast).NotNull().WithMessage(Messages.Validation_ActorList_NotNull);
 
-        RuleForEach(x => x.Cast)
-            .SetValidator(new MovieCastItemRequestValidator());
+        RuleForEach(x => x.Cast).SetValidator(new MovieCastItemRequestValidator());
     }
 }
 
@@ -96,9 +94,7 @@ public class BulkDeleteMoviesRequestValidator : AbstractValidator<BulkDeleteMovi
     public BulkDeleteMoviesRequestValidator(IOptions<BookingOptions> options)
     {
         var limit = options.Value.BulkDeleteLimit;
-        RuleFor(x => x.MovieIds)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_MovieIds_NotEmpty);
+        RuleFor(x => x.MovieIds).NotEmpty().WithMessage(Messages.Validation_MovieIds_NotEmpty);
         RuleFor(x => x.MovieIds)
             .Must(ids => ids.Count <= limit)
             .WithMessage($"T\u1ed1i \u0111a {{limit}} phim m\u1ed7i l\u1ea7n.");

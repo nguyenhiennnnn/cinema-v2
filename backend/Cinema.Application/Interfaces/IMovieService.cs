@@ -46,5 +46,8 @@ public interface IMovieService
         CancellationToken cancellationToken
     );
     Task<DeleteMovieResponse> DeleteMovieAsync(int movieId, CancellationToken cancellationToken);
-    Task<BulkDeleteMoviesResponse> BulkDeleteMoviesAsync(BulkDeleteMoviesRequest request, CancellationToken cancellationToken);
+    Task<BulkDeleteMoviesResponse> BulkDeleteMoviesAsync(
+        BulkDeleteMoviesRequest request,
+        CancellationToken cancellationToken
+    );
 }

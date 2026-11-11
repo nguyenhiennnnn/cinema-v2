@@ -1,5 +1,5 @@
-using FluentValidation;
 using Cinema.Shared.Resources;
+using FluentValidation;
 
 namespace Cinema.Application.Validators.Auth;
 

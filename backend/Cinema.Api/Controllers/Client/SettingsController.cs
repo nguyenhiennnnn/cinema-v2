@@ -9,6 +9,7 @@ namespace Cinema.Api.Controllers.Client;
 public class SettingsController(ISettingsService settingsService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<CinemaSettingsDto>> GetSettings(CancellationToken cancellationToken) =>
-        Ok(await settingsService.GetSettingsAsync(cancellationToken));
+    public async Task<ActionResult<CinemaSettingsDto>> GetSettings(
+        CancellationToken cancellationToken
+    ) => Ok(await settingsService.GetSettingsAsync(cancellationToken));
 }

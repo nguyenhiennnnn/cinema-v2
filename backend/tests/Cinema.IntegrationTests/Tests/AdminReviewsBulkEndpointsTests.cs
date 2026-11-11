@@ -10,8 +10,7 @@ using Shouldly;
 
 namespace Cinema.IntegrationTests.Tests;
 
-public class AdminReviewsBulkEndpointsTests(CinemaApiFactory factory)
-    : IntegrationTestBase(factory)
+public class AdminReviewsBulkEndpointsTests(CinemaApiFactory factory) : IntegrationTestBase(factory)
 {
     private record BulkDeleteResultItemDto(int ReviewId, bool Success, string? Reason);
 

@@ -31,11 +31,7 @@ public class FallbackEmailService(
             }
             catch (Exception ex) when (hasSmtp && ex is not OperationCanceledException)
             {
-                logger.LogWarning(
-                    ex,
-                    "ResendEmailFailed chuyển sang SMTP. To: {ToEmail}",
-                    toEmail
-                );
+                logger.LogWarning(ex, "ResendEmailFailed chuyển sang SMTP. To: {ToEmail}", toEmail);
             }
         }
 

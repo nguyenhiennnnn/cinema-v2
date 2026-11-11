@@ -1,0 +1,58 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách hàng" as A_KH
+rectangle "Package Thanh toán trực tuyến (TT) — 6 use case" as PK {
+  usecase "UC-TT-01\nThanh toán đơn đặt vé trực tuyến" as UC_TT_01
+  usecase "UC-TT-02\nXử lý IPN của VNPay" as UC_TT_02
+  usecase "UC-TT-03\nXử lý IPN của MoMo" as UC_TT_03
+  usecase "UC-TT-04\nXử lý webhook của Stripe" as UC_TT_04
+  usecase "UC-TT-05\nPhát hành vé sau thanh toán" as UC_TT_05
+  usecase "UC-TT-06\nHoàn tiền" as UC_TT_06
+}
+usecase "UC-DV-01\nĐặt vé trực tuyến" as UC_DV_01 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-HT-03\nGửi email" as UC_HT_03 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-BQ-01\nBán vé tại quầy" as UC_BQ_01 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-HT-04\nHoàn tiền khi hủy suất chiếu" as UC_HT_04 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-DV-08\nHủy đơn đặt vé" as UC_DV_08 #E5E5E5;line:808080;text:606060;line.dashed
+actor "Hệ thống tác vụ nền" <<Hệ thống>> as A_NEN
+actor "Cổng VNPay" <<Hệ thống>> as A_VNP
+actor "Cổng MoMo" <<Hệ thống>> as A_MOMO
+actor "Cổng Stripe" <<Hệ thống>> as A_STR
+actor "Dịch vụ email" <<Hệ thống>> as A_MAIL
+A_KH -- UC_TT_01
+UC_TT_05 -- A_NEN
+UC_TT_06 -- A_NEN
+UC_TT_01 -- A_VNP
+UC_TT_02 -- A_VNP
+UC_TT_06 -- A_VNP
+UC_TT_01 -- A_MOMO
+UC_TT_03 -- A_MOMO
+UC_TT_06 -- A_MOMO
+UC_TT_01 -- A_STR
+UC_TT_04 -- A_STR
+UC_TT_06 -- A_STR
+UC_TT_05 -- A_MAIL
+UC_TT_06 -- A_MAIL
+UC_DV_01 ..> UC_TT_01 : <<include>>
+UC_TT_02 ..> UC_TT_05 : <<include>>
+UC_TT_03 ..> UC_TT_05 : <<include>>
+UC_TT_04 ..> UC_TT_05 : <<include>>
+UC_TT_05 ..> UC_HT_03 : <<include>>
+UC_TT_06 ..> UC_HT_03 : <<include>>
+UC_BQ_01 ..> UC_TT_05 : <<include>>
+UC_HT_04 ..> UC_TT_06 : <<include>>
+UC_TT_06 ..> UC_DV_08 : <<extend>>
+UC_TT_06 ..> UC_TT_05 : <<extend>>
+@enduml

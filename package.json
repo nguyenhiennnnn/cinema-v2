@@ -30,7 +30,7 @@
     "// === LINT / FORMAT / CHECK ===": "",
     "lint": "eslint --config frontend/eslint.config.js frontend",
     "typecheck": "tsc -b frontend",
-    "format": "dotnet csharpier .",
+    "format": "dotnet csharpier format .",
     "format:check": "dotnet csharpier check .",
     "check": "npm run format:check && npm run lint && npm run build",
     "// === DOCKER (docker-compose.yml: api + frontend, DB la Neon cloud) ===": "",

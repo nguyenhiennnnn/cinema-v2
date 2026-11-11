@@ -29,9 +29,7 @@ public class BookingCheckoutService(
         if (booking.UserId != userId)
             throw new ForbiddenAppException(Messages.Forbidden_NotBookingOwner);
         if (booking.Status != BookingStatus.Pending || booking.ExpiresAt <= DateTime.UtcNow)
-            throw new BusinessRuleException(
-                Messages.Rule_BookingNotPendingOrExpired
-            );
+            throw new BusinessRuleException(Messages.Rule_BookingNotPendingOrExpired);
 
         var gateway =
             paymentGateways.FindByMethod(request.PaymentMethod)

@@ -1,0 +1,42 @@
+@startuml
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+left to right direction
+skinparam monochrome true
+skinparam ArrowColor Black
+skinparam maxMessageSize 160
+
+node "Trình duyệt" {
+  component "SPA React 19\n(Vite, TanStack Query, Zustand)" as SPA
+}
+node "Tiến trình ASP.NET Core (Cinema.Api)" {
+  component "Controllers REST\n/api/v1 (Client, Admin, Payments, Health)" as CTRL
+  component "ShowtimeHub\n/hubs/showtimes (SignalR)" as HUB
+  component "Hangfire Server + Dashboard\n/admin/hangfire" as HF
+  component "Services\n(Cinema.Application)" as SVC
+  component "Cinema.Infrastructure\nAppDbContext, Gateways, Email, Storage" as INF
+}
+database "PostgreSQL\n(dữ liệu ứng dụng + kho Hangfire)" as DB
+cloud "Dịch vụ ngoài" {
+  component "Cloudinary" as CLD
+  component "Resend / SMTP" as MAIL
+  component "Google Sign-In" as GG
+  component "Gemini" as GEM
+  component "VNPay / MoMo / Stripe" as PAY
+}
+SPA --> CTRL : REST + JWT
+SPA <--> HUB : SignalR
+CTRL --> SVC
+HF --> SVC
+SVC --> INF
+INF --> DB
+HF --> DB
+INF --> CLD
+INF --> MAIL
+INF --> GG
+INF --> GEM
+INF --> PAY
+PAY --> CTRL : IPN / webhook
+SVC ..> HUB : IRealtimeNotifier
+@enduml

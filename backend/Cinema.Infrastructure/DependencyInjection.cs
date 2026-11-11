@@ -24,35 +24,37 @@ public static class DependencyInjection
         var env = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
         var isDev = string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase);
 
-        services.AddDbContext<AppDbContext>((sp, options) =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
-            var conn = config.GetPostgresConnectionString();
-
-            var env = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
-            var isDev = string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase);
-
-            options.UseNpgsql(
-                conn,
-                sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
-            );
-
-            options.ConfigureWarnings(w =>
-                w.Ignore(
-                    Microsoft
-                        .EntityFrameworkCore
-                        .Diagnostics
-                        .RelationalEventId
-                        .PendingModelChangesWarning
-                )
-            );
-
-            if (isDev)
+        services.AddDbContext<AppDbContext>(
+            (sp, options) =>
             {
-                options.EnableSensitiveDataLogging();
-                options.EnableDetailedErrors();
+                var config = sp.GetRequiredService<IConfiguration>();
+                var conn = config.GetPostgresConnectionString();
+
+                var env = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
+                var isDev = string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase);
+
+                options.UseNpgsql(
+                    conn,
+                    sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
+                );
+
+                options.ConfigureWarnings(w =>
+                    w.Ignore(
+                        Microsoft
+                            .EntityFrameworkCore
+                            .Diagnostics
+                            .RelationalEventId
+                            .PendingModelChangesWarning
+                    )
+                );
+
+                if (isDev)
+                {
+                    options.EnableSensitiveDataLogging();
+                    options.EnableDetailedErrors();
+                }
             }
-        });
+        );
 
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 

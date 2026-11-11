@@ -87,12 +87,7 @@ public class NotificationService(
         Enqueue(
             toEmail,
             string.Format(Messages.Email_BookingCancelledRefundedSubject, _brand.Name),
-            EmailTemplates.BookingCancelledRefunded(
-                _brand,
-                customerName,
-                bookingCode,
-                refundAmount
-            )
+            EmailTemplates.BookingCancelledRefunded(_brand, customerName, bookingCode, refundAmount)
         );
 
     public void SendSeatsExpiredToAdmin(

@@ -1,0 +1,12 @@
+flowchart TD
+  A(["CreateHoldBookingAsync"]) --> B["BeginTransactionAsync"]
+  B --> C["holdUntil = now + HoldDurationMinutes<br/>nếu vượt StartTime thì holdUntil = StartTime"]
+  C --> D["ExecuteUpdateAsync duy nhất trên ShowtimeSeats<br/>điều kiện: Available, hoặc Held bởi chính người giữ với HeldUntil đã qua<br/>đặt Status=Held, HeldByUserId, HeldByBookingId=null, HeldUntil"]
+  D --> E{"Số dòng cập nhật<br/>= số ghế yêu cầu?"}
+  E -- Không --> F["Truy vấn các ghế xung đột"]
+  F --> G["RollbackAsync"]
+  G --> H(["Ném SeatConflictException (409) kèm ConflictSeatIds"])
+  E -- Có --> I["Tính tiền và tạo Booking Pending (Mục 4.5.1.3)"]
+  I --> J["Gán HeldByBookingId cho các ghế đã giữ"]
+  J --> K["CommitAsync"]
+  K --> L(["Trả HoldBookingResponse"])

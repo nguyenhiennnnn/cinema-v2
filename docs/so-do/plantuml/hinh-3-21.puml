@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Quản trị viên" as A_QTV
+rectangle "Package Báo cáo thống kê (BC) — 5 use case" as PK {
+  usecase "UC-BC-01\nXem tổng quan dashboard" as UC_BC_01
+  usecase "UC-BC-02\nXem nhận định (insights)" as UC_BC_02
+  usecase "UC-BC-03\nXem báo cáo doanh thu" as UC_BC_03
+  usecase "UC-BC-04\nXem báo cáo phim bán chạy" as UC_BC_04
+  usecase "UC-BC-05\nXem báo cáo hiệu suất nhân viên" as UC_BC_05
+}
+A_QTV -- UC_BC_01
+A_QTV -- UC_BC_02
+A_QTV -- UC_BC_03
+A_QTV -- UC_BC_04
+A_QTV -- UC_BC_05
+@enduml

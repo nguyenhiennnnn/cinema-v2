@@ -31,7 +31,9 @@ public class RoomServiceSeatLayoutTests : IDisposable
 
     private async Task SetStatusAsync(int showtimeId, int seatId, ShowtimeSeatStatus status)
     {
-        var ss = await _handle.Db.ShowtimeSeats.SingleAsync(x => x.ShowtimeId == showtimeId && x.SeatId == seatId);
+        var ss = await _handle.Db.ShowtimeSeats.SingleAsync(x =>
+            x.ShowtimeId == showtimeId && x.SeatId == seatId
+        );
         ss.Status = status;
         await _handle.Db.SaveChangesAsync();
     }
@@ -45,7 +47,14 @@ public class RoomServiceSeatLayoutTests : IDisposable
         var items = seats
             .Select(s =>
                 change?.Invoke(s)
-                ?? new SeatLayoutItem(s.SeatRow, s.SeatNumber, s.SeatTypeId, s.IsActive, s.IsAisle, s.CoupleId)
+                ?? new SeatLayoutItem(
+                    s.SeatRow,
+                    s.SeatNumber,
+                    s.SeatTypeId,
+                    s.IsActive,
+                    s.IsAisle,
+                    s.CoupleId
+                )
             )
             .Concat(extra)
             .ToList();
@@ -59,9 +68,17 @@ public class RoomServiceSeatLayoutTests : IDisposable
         await SetStatusAsync(showtime.ShowtimeId, seats[0].SeatId, ShowtimeSeatStatus.Booked);
         var request = Layout(
             seats,
-            s => s.SeatId == seats[0].SeatId
-                ? new SeatLayoutItem(s.SeatRow, s.SeatNumber, TestDataSeeder.VipSeatTypeId, true, false, null)
-                : null
+            s =>
+                s.SeatId == seats[0].SeatId
+                    ? new SeatLayoutItem(
+                        s.SeatRow,
+                        s.SeatNumber,
+                        TestDataSeeder.VipSeatTypeId,
+                        true,
+                        false,
+                        null
+                    )
+                    : null
         );
 
         await Should.ThrowAsync<ConflictAppException>(() =>
@@ -76,9 +93,10 @@ public class RoomServiceSeatLayoutTests : IDisposable
         await SetStatusAsync(showtime.ShowtimeId, seats[1].SeatId, ShowtimeSeatStatus.Held);
         var request = Layout(
             seats,
-            s => s.SeatId == seats[1].SeatId
-                ? new SeatLayoutItem(s.SeatRow, s.SeatNumber, s.SeatTypeId, false, false, null)
-                : null
+            s =>
+                s.SeatId == seats[1].SeatId
+                    ? new SeatLayoutItem(s.SeatRow, s.SeatNumber, s.SeatTypeId, false, false, null)
+                    : null
         );
 
         await Should.ThrowAsync<ConflictAppException>(() =>
@@ -93,12 +111,21 @@ public class RoomServiceSeatLayoutTests : IDisposable
         await SetStatusAsync(showtime.ShowtimeId, seats[0].SeatId, ShowtimeSeatStatus.Booked);
         var request = Layout(
             seats,
-            s => s.SeatId == seats[0].SeatId
-                ? new SeatLayoutItem(s.SeatRow, s.SeatNumber, TestDataSeeder.VipSeatTypeId, true, false, null)
-                : null
+            s =>
+                s.SeatId == seats[0].SeatId
+                    ? new SeatLayoutItem(
+                        s.SeatRow,
+                        s.SeatNumber,
+                        TestDataSeeder.VipSeatTypeId,
+                        true,
+                        false,
+                        null
+                    )
+                    : null
         );
 
-        var result = await CreateSut().UpdateSeatLayoutAsync(room.RoomId, request, CancellationToken.None);
+        var result = await CreateSut()
+            .UpdateSeatLayoutAsync(room.RoomId, request, CancellationToken.None);
 
         result.Updated.ShouldBe(1);
     }
@@ -109,14 +136,23 @@ public class RoomServiceSeatLayoutTests : IDisposable
         var (room, seats, showtime) = Seed();
         var request = Layout(
             seats,
-            s => s.SeatId == seats[1].SeatId
-                ? new SeatLayoutItem(s.SeatRow, s.SeatNumber, TestDataSeeder.VipSeatTypeId, true, false, null)
-                : null
+            s =>
+                s.SeatId == seats[1].SeatId
+                    ? new SeatLayoutItem(
+                        s.SeatRow,
+                        s.SeatNumber,
+                        TestDataSeeder.VipSeatTypeId,
+                        true,
+                        false,
+                        null
+                    )
+                    : null
         );
 
         await CreateSut().UpdateSeatLayoutAsync(room.RoomId, request, CancellationToken.None);
 
-        var ss = await _handle.Db.ShowtimeSeats.AsNoTracking()
+        var ss = await _handle
+            .Db.ShowtimeSeats.AsNoTracking()
             .SingleAsync(x => x.ShowtimeId == showtime.ShowtimeId && x.SeatId == seats[1].SeatId);
         ss.Price.ShouldBe(showtime.BasePrice * 1.5m);
     }
@@ -133,8 +169,11 @@ public class RoomServiceSeatLayoutTests : IDisposable
 
         await CreateSut().UpdateSeatLayoutAsync(room.RoomId, request, CancellationToken.None);
 
-        var newSeat = await _handle.Db.Seats.AsNoTracking().SingleAsync(s => s.RoomId == room.RoomId && s.SeatNumber == 3);
-        var ss = await _handle.Db.ShowtimeSeats.AsNoTracking()
+        var newSeat = await _handle
+            .Db.Seats.AsNoTracking()
+            .SingleAsync(s => s.RoomId == room.RoomId && s.SeatNumber == 3);
+        var ss = await _handle
+            .Db.ShowtimeSeats.AsNoTracking()
             .SingleAsync(x => x.ShowtimeId == showtime.ShowtimeId && x.SeatId == newSeat.SeatId);
         ss.Status.ShouldBe(ShowtimeSeatStatus.Available);
         ss.Price.ShouldBe(showtime.BasePrice * 1.5m);
@@ -146,16 +185,22 @@ public class RoomServiceSeatLayoutTests : IDisposable
         var (room, seats, showtime) = Seed();
         var request = Layout(
             seats,
-            s => s.SeatId == seats[1].SeatId
-                ? new SeatLayoutItem(s.SeatRow, s.SeatNumber, s.SeatTypeId, false, false, null)
-                : null
+            s =>
+                s.SeatId == seats[1].SeatId
+                    ? new SeatLayoutItem(s.SeatRow, s.SeatNumber, s.SeatTypeId, false, false, null)
+                    : null
         );
 
         await CreateSut().UpdateSeatLayoutAsync(room.RoomId, request, CancellationToken.None);
 
-        (await _handle.Db.ShowtimeSeats.CountAsync(x => x.ShowtimeId == showtime.ShowtimeId && x.SeatId == seats[1].SeatId))
-            .ShouldBe(0);
-        (await _handle.Db.ShowtimeSeats.CountAsync(x => x.ShowtimeId == showtime.ShowtimeId)).ShouldBe(1);
+        (
+            await _handle.Db.ShowtimeSeats.CountAsync(x =>
+                x.ShowtimeId == showtime.ShowtimeId && x.SeatId == seats[1].SeatId
+            )
+        ).ShouldBe(0);
+        (
+            await _handle.Db.ShowtimeSeats.CountAsync(x => x.ShowtimeId == showtime.ShowtimeId)
+        ).ShouldBe(1);
     }
 
     [Fact]
@@ -165,11 +210,12 @@ public class RoomServiceSeatLayoutTests : IDisposable
         await SetStatusAsync(showtime.ShowtimeId, seats[0].SeatId, ShowtimeSeatStatus.Booked);
 
         await Should.ThrowAsync<ConflictAppException>(() =>
-            CreateSut().UpdateRoomAsync(
-                room.RoomId,
-                new UpdateRoomRequest(room.RoomName, room.ScreenTypeId, false),
-                CancellationToken.None
-            )
+            CreateSut()
+                .UpdateRoomAsync(
+                    room.RoomId,
+                    new UpdateRoomRequest(room.RoomName, room.ScreenTypeId, false),
+                    CancellationToken.None
+                )
         );
     }
 
@@ -178,11 +224,12 @@ public class RoomServiceSeatLayoutTests : IDisposable
     {
         var (room, _, _) = Seed();
 
-        var result = await CreateSut().UpdateRoomAsync(
-            room.RoomId,
-            new UpdateRoomRequest(room.RoomName, room.ScreenTypeId, false),
-            CancellationToken.None
-        );
+        var result = await CreateSut()
+            .UpdateRoomAsync(
+                room.RoomId,
+                new UpdateRoomRequest(room.RoomName, room.ScreenTypeId, false),
+                CancellationToken.None
+            );
 
         result.IsActive.ShouldBeFalse();
     }

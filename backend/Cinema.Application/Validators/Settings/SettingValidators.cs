@@ -22,9 +22,7 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
             .MaximumLength(255)
             .WithMessage(Messages.Validation_Address_MaxLength255);
 
-        RuleFor(x => x.Phone)
-            .MaximumLength(20)
-            .WithMessage(Messages.Validation_Phone_MaxLength20);
+        RuleFor(x => x.Phone).MaximumLength(20).WithMessage(Messages.Validation_Phone_MaxLength20);
 
         RuleFor(x => x.Email)
             .EmailAddress()
@@ -51,7 +49,9 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
             .When(x => x.ClosingTime is not null)
             .WithMessage(Messages.Validation_ClosingTime_TimeFormat);
 
-        RuleFor(x => x.PointsPerAmount).GreaterThan(0).WithMessage(Messages.Validation_PointsPerAmount_GreaterThanZero);
+        RuleFor(x => x.PointsPerAmount)
+            .GreaterThan(0)
+            .WithMessage(Messages.Validation_PointsPerAmount_GreaterThanZero);
 
         RuleFor(x => x.CancelRefundPercent)
             .InclusiveBetween(0, 100)
@@ -87,7 +87,12 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
         IntRange(x => x.MovieEndGraceDays, "movieEndGraceDays", 0, 365);
         IntRange(x => x.ShowtimeLookaheadDays, "showtimeLookaheadDays", 1, 60);
         IntRange(x => x.SchedulerStepMinutes, "schedulerStepMinutes", 1, 60);
-        IntRange(x => x.SchedulerMinSameMovieGapMinutes, "schedulerMinSameMovieGapMinutes", 0, 1440);
+        IntRange(
+            x => x.SchedulerMinSameMovieGapMinutes,
+            "schedulerMinSameMovieGapMinutes",
+            0,
+            1440
+        );
         IntRange(x => x.SchedulerHeatLookbackDays, "schedulerHeatLookbackDays", 1, 365);
         DoubleRange(x => x.SchedulerHeatSalesWeight, "schedulerHeatSalesWeight", 0, 10);
         DoubleRange(x => x.SchedulerHeatRatingWeight, "schedulerHeatRatingWeight", 0, 10);
@@ -96,7 +101,9 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
         // Hai trọng số Heat: nếu cả hai cùng được gửi lên thì tổng phải > 0 (tránh Heat luôn bằng 0).
         RuleFor(x => x)
             .Must(x => x.SchedulerHeatSalesWeight!.Value + x.SchedulerHeatRatingWeight!.Value > 0)
-            .When(x => x.SchedulerHeatSalesWeight is not null && x.SchedulerHeatRatingWeight is not null)
+            .When(x =>
+                x.SchedulerHeatSalesWeight is not null && x.SchedulerHeatRatingWeight is not null
+            )
             .WithName("schedulerHeatSalesWeight")
             .WithMessage(Messages.Validation_SchedulerHeatWeights_SumPositive);
     }

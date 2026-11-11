@@ -1,0 +1,26 @@
+// Hình 4.33. ERD module Thanh toán
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table Payments {
+  PaymentId int [pk]
+  Amount decimal [not null]
+  AmountReceived decimal
+  BookingId int [not null]
+  ChangeGiven decimal
+  CreatedAt timestamp [not null]
+  GatewayResponseCode varchar
+  GatewayTransactionId varchar
+  PaidAt timestamp
+  PaymentMethod varchar [not null, note: 'enum PaymentMethod']
+  RefundTransactionId varchar
+  RefundedAmount decimal
+  RefundedAt timestamp
+  Status varchar [not null, note: 'enum PaymentStatus']
+  TransactionId varchar
+}
+
+Table Bookings {
+  BookingId int [pk]
+}
+
+Ref: Payments.BookingId > Bookings.BookingId

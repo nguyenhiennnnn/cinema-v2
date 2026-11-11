@@ -34,8 +34,8 @@ public class CounterBookingService(
         );
         var slots = await db.LoadSeatSlotsAsync(request.ShowtimeId, cancellationToken);
         if (
-            SeatLayoutRules.ValidateSelection(slots, request.SeatIds, SeatGapRuleMode.Off)
-                is { } seatError
+            SeatLayoutRules.ValidateSelection(slots, request.SeatIds, SeatGapRuleMode.Off) is
+            { } seatError
         )
             throw new BusinessRuleException(seatError);
         string customerName;
@@ -138,13 +138,9 @@ public class CounterBookingService(
             ?? throw new NotFoundException(Messages.NotFound_Booking);
 
         if (booking.Channel != BookingChannel.Counter)
-            throw new BusinessRuleException(
-                Messages.Rule_CounterPaymentOnlyForCounterBooking
-            );
+            throw new BusinessRuleException(Messages.Rule_CounterPaymentOnlyForCounterBooking);
         if (booking.Status != BookingStatus.Pending || booking.ExpiresAt <= DateTime.UtcNow)
-            throw new BusinessRuleException(
-                Messages.Rule_BookingNotPendingOrHoldExpired
-            );
+            throw new BusinessRuleException(Messages.Rule_BookingNotPendingOrHoldExpired);
         if (request.AmountReceived < booking.FinalAmount)
             throw new BusinessRuleException(Messages.Rule_AmountReceivedInsufficient);
 
@@ -166,7 +162,10 @@ public class CounterBookingService(
             }
         );
         await db.SaveChangesAsync(cancellationToken);
-        await fulfillmentService.ConfirmBookingAndGenerateTicketsAsync(bookingId, cancellationToken);
+        await fulfillmentService.ConfirmBookingAndGenerateTicketsAsync(
+            bookingId,
+            cancellationToken
+        );
         await transaction.CommitAsync(cancellationToken);
 
         return new CounterCheckoutResponse(bookingId, "Confirmed", change);
@@ -189,9 +188,7 @@ public class CounterBookingService(
             ?? throw new NotFoundException(Messages.NotFound_QrCode);
 
         if (ticket.Booking.Status != BookingStatus.Confirmed)
-            throw new BusinessRuleException(
-                Messages.Rule_TicketNoLongerValid
-            );
+            throw new BusinessRuleException(Messages.Rule_TicketNoLongerValid);
 
         if (ticket.IsCheckedIn)
             throw new ConflictAppException(Messages.Conflict_TicketAlreadyCheckedIn);
@@ -231,5 +228,6 @@ public class CounterBookingService(
         await db
             .CinemaSettings.Where(s => s.Id == AppDbContextExtensions.CinemaSettingsId)
             .Select(s => (int?)s.CheckInOpenMinutes)
-            .FirstOrDefaultAsync(cancellationToken) ?? CinemaSettings.DefaultCheckInOpenMinutes;
+            .FirstOrDefaultAsync(cancellationToken)
+        ?? CinemaSettings.DefaultCheckInOpenMinutes;
 }

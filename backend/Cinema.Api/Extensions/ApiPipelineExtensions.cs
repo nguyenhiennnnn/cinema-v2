@@ -31,13 +31,13 @@ public static class ApiPipelineExtensions
         if (app.Environment.IsDevelopment())
             app.UseHttpsRedirection();
 
-        app.UseCors(CorsExtensions.PolicyName); 
+        app.UseCors(CorsExtensions.PolicyName);
 
         if (!app.Environment.IsEnvironment("Testing"))
             app.UseRateLimiter();
 
-        app.UseAuthentication(); 
-        app.UseAuthorization(); 
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         return app;
     }

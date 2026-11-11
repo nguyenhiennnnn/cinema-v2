@@ -1,0 +1,89 @@
+// Hình 4.29. ERD module Phim
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table Movies {
+  MovieId int [pk]
+  AgeRatingId int
+  AverageRating decimal [not null]
+  CreatedAt timestamp [not null]
+  Description text
+  DirectorId int
+  DurationMinutes int [not null]
+  LanguageId int
+  OriginalTitle varchar
+  PosterUrl varchar
+  ReleaseDate date
+  Status varchar [not null, note: 'enum MovieStatus']
+  Subtitle varchar
+  Title varchar [not null]
+  TrailerUrl varchar
+}
+
+Table MovieGenres {
+  MovieId int [not null]
+  GenreId int [not null]
+  indexes {
+    (MovieId, GenreId) [pk]
+  }
+}
+
+Table MovieCast {
+  MovieId int [not null]
+  ActorId int [not null]
+  CharacterName varchar
+  indexes {
+    (MovieId, ActorId) [pk]
+  }
+}
+
+Table Reviews {
+  ReviewId int [pk]
+  Comment text
+  CreatedAt timestamp [not null]
+  MovieId int [not null]
+  Rating int [not null]
+  UserId int [not null]
+  indexes {
+    (MovieId, UserId) [unique]
+  }
+}
+
+Table Directors {
+  DirectorId int [pk]
+}
+
+Table Languages {
+  LanguageId int [pk]
+}
+
+Table AgeRatings {
+  AgeRatingId int [pk]
+}
+
+Table Genres {
+  GenreId int [pk]
+}
+
+Table Actors {
+  ActorId int [pk]
+}
+
+Table Users {
+  UserId int [pk]
+}
+
+Table Showtimes {
+  ShowtimeId int [pk]
+  MovieId int
+}
+
+Ref: Movies.DirectorId > Directors.DirectorId
+Ref: Movies.LanguageId > Languages.LanguageId
+Ref: Movies.AgeRatingId > AgeRatings.AgeRatingId
+Ref: MovieGenres.MovieId > Movies.MovieId
+Ref: MovieGenres.GenreId > Genres.GenreId
+Ref: MovieCast.MovieId > Movies.MovieId
+Ref: MovieCast.ActorId > Actors.ActorId
+Ref: Reviews.MovieId > Movies.MovieId
+Ref: Reviews.UserId > Users.UserId
+Ref: Showtimes.MovieId > Movies.MovieId

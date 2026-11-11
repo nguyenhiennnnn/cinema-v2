@@ -1,6 +1,6 @@
-using Cinema.Application.Utils;
 using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Services.Settings;
+using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
 using Cinema.UnitTests.TestSupport;
@@ -122,7 +122,11 @@ public class SettingsServiceTests : IDisposable
     [Fact]
     public async Task UpdateSettingsAsync_OptionalFieldsOmitted_KeepsExistingValues()
     {
-        TestDataSeeder.SetCinemaSettings(_handle.Db, holdDurationMinutes: 12, checkInOpenMinutes: 50);
+        TestDataSeeder.SetCinemaSettings(
+            _handle.Db,
+            holdDurationMinutes: 12,
+            checkInOpenMinutes: 50
+        );
         var before = await _handle.Db.CinemaSettings.AsNoTracking().SingleAsync(s => s.Id == 1);
         var sut = CreateSut();
 
@@ -140,10 +144,7 @@ public class SettingsServiceTests : IDisposable
         var before = await _handle.Db.CinemaSettings.AsNoTracking().SingleAsync(s => s.Id == 1);
         var sut = CreateSut();
 
-        await sut.UpdateSettingsAsync(
-            Request(seatGapRuleMode: "NotAMode"),
-            CancellationToken.None
-        );
+        await sut.UpdateSettingsAsync(Request(seatGapRuleMode: "NotAMode"), CancellationToken.None);
 
         var saved = await _handle.Db.CinemaSettings.AsNoTracking().SingleAsync(s => s.Id == 1);
         saved.SeatGapRuleMode.ShouldBe(before.SeatGapRuleMode);
@@ -206,10 +207,7 @@ public class SettingsServiceTests : IDisposable
         var sut = CreateSut();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
-            sut.UpdateSettingsAsync(
-                Request(cancelDeadlineHours: -1),
-                CancellationToken.None
-            )
+            sut.UpdateSettingsAsync(Request(cancelDeadlineHours: -1), CancellationToken.None)
         );
     }
 

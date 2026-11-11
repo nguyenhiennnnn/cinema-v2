@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Quản trị viên" as A_QTV
+rectangle "Package Quản lý danh mục (QD) — 10 use case" as PK {
+  usecase "UC-QD-01\nQuản lý thể loại phim" as UC_QD_01
+  usecase "UC-QD-02\nQuản lý ngôn ngữ" as UC_QD_02
+  usecase "UC-QD-03\nQuản lý phân loại độ tuổi" as UC_QD_03
+  usecase "UC-QD-04\nQuản lý diễn viên" as UC_QD_04
+  usecase "UC-QD-05\nQuản lý đạo diễn" as UC_QD_05
+  usecase "UC-QD-06\nQuản lý loại màn hình" as UC_QD_06
+  usecase "UC-QD-07\nQuản lý loại ghế" as UC_QD_07
+  usecase "UC-QD-08\nQuản lý chức vụ nhân viên" as UC_QD_08
+  usecase "UC-QD-09\nQuản lý hạng thành viên" as UC_QD_09
+  usecase "UC-QD-10\nQuản lý combo" as UC_QD_10
+}
+usecase "UC-TP-01\nTải ảnh lên" as UC_TP_01 #E5E5E5;line:808080;text:606060;line.dashed
+actor "Cloudinary" <<Hệ thống>> as A_CLD
+A_QTV -- UC_QD_01
+A_QTV -- UC_QD_02
+A_QTV -- UC_QD_03
+A_QTV -- UC_QD_04
+A_QTV -- UC_QD_05
+A_QTV -- UC_QD_06
+A_QTV -- UC_QD_07
+A_QTV -- UC_QD_08
+A_QTV -- UC_QD_09
+A_QTV -- UC_QD_10
+UC_QD_04 -- A_CLD
+UC_QD_05 -- A_CLD
+UC_QD_10 -- A_CLD
+UC_TP_01 ..> UC_QD_04 : <<extend>>
+UC_TP_01 ..> UC_QD_05 : <<extend>>
+UC_TP_01 ..> UC_QD_10 : <<extend>>
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách vãng lai" as A_KVL
+actor "Người dùng đã đăng nhập" as A_NDN
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Package Xác thực (XT) — 11 use case" as PK {
+  usecase "UC-XT-01\nĐăng ký tài khoản" as UC_XT_01
+  usecase "UC-XT-02\nXác nhận email" as UC_XT_02
+  usecase "UC-XT-03\nGửi lại email xác nhận" as UC_XT_03
+  usecase "UC-XT-04\nĐăng nhập bằng email" as UC_XT_04
+  usecase "UC-XT-05\nĐăng nhập bằng Google" as UC_XT_05
+  usecase "UC-XT-06\nĐăng nhập trang quản trị" as UC_XT_06
+  usecase "UC-XT-07\nKhôi phục mật khẩu" as UC_XT_07
+  usecase "UC-XT-08\nDuy trì phiên đăng nhập" as UC_XT_08
+  usecase "UC-XT-09\nĐăng xuất" as UC_XT_09
+  usecase "UC-XT-10\nXem thông tin phiên hiện tại" as UC_XT_10
+  usecase "UC-XT-11\nCấp socket token cho kết nối thời gian thực" as UC_XT_11
+}
+usecase "UC-HT-03\nGửi email" as UC_HT_03 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-DV-02\nXem sơ đồ ghế của suất chiếu" as UC_DV_02 #E5E5E5;line:808080;text:606060;line.dashed
+actor "Google" <<Hệ thống>> as A_GG
+actor "Dịch vụ email" <<Hệ thống>> as A_MAIL
+A_KVL -- UC_XT_01
+A_KVL -- UC_XT_02
+A_KVL -- UC_XT_03
+A_KVL -- UC_XT_04
+A_KVL -- UC_XT_05
+A_KVL -- UC_XT_07
+A_NDN -- UC_XT_08
+A_NDN -- UC_XT_09
+A_NDN -- UC_XT_10
+A_NDN -- UC_XT_11
+A_NV -- UC_XT_06
+A_QTV -- UC_XT_06
+UC_XT_05 -- A_GG
+UC_XT_01 -- A_MAIL
+UC_XT_03 -- A_MAIL
+UC_XT_07 -- A_MAIL
+UC_XT_01 ..> UC_HT_03 : <<include>>
+UC_XT_03 ..> UC_HT_03 : <<include>>
+UC_XT_07 ..> UC_HT_03 : <<include>>
+UC_XT_11 ..> UC_DV_02 : <<extend>>
+@enduml

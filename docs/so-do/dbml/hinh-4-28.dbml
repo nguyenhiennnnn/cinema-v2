@@ -1,0 +1,59 @@
+// Hình 4.28. ERD module Danh mục phim
+// Dán vào https://dbdiagram.io/d để vẽ; xuất PNG/SVG/PDF.
+
+Table Genres {
+  GenreId int [pk]
+  Name varchar [not null, unique]
+}
+
+Table Languages {
+  LanguageId int [pk]
+  Name varchar [not null, unique]
+}
+
+Table AgeRatings {
+  AgeRatingId int [pk]
+  Code varchar [not null, unique]
+  Description varchar
+}
+
+Table Directors {
+  DirectorId int [pk]
+  AvatarUrl varchar
+  FullName varchar [not null]
+}
+
+Table Actors {
+  ActorId int [pk]
+  AvatarUrl varchar
+  FullName varchar [not null]
+}
+
+Table Movies {
+  MovieId int [pk]
+  DirectorId int
+  LanguageId int
+  AgeRatingId int
+}
+
+Table MovieGenres {
+  MovieId int [not null]
+  GenreId int [not null]
+  indexes {
+    (MovieId, GenreId) [pk]
+  }
+}
+
+Table MovieCast {
+  MovieId int [not null]
+  ActorId int [not null]
+  indexes {
+    (MovieId, ActorId) [pk]
+  }
+}
+
+Ref: Movies.DirectorId > Directors.DirectorId
+Ref: Movies.LanguageId > Languages.LanguageId
+Ref: Movies.AgeRatingId > AgeRatings.AgeRatingId
+Ref: MovieGenres.GenreId > Genres.GenreId
+Ref: MovieCast.ActorId > Actors.ActorId

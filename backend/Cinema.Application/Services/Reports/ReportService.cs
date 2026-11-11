@@ -23,10 +23,7 @@ public class ReportService(IAppDbContext db) : IReportService
         if (!ValidGroupBy.Contains(groupBy))
             throw new ValidationAppException(
                 Messages.Invalid_GroupBy,
-                new Dictionary<string, string[]>
-                {
-                    ["groupBy"] = [Messages.Invalid_GroupBy],
-                }
+                new Dictionary<string, string[]> { ["groupBy"] = [Messages.Invalid_GroupBy] }
             );
 
         var fromDateVal = DateTimeUtils.GetStartOfDay(fromDate);
@@ -57,7 +54,8 @@ public class ReportService(IAppDbContext db) : IReportService
             .Select(p =>
             {
                 var net = Math.Max(0m, p.Amount - (p.RefundedAmount ?? 0m));
-                var ratio = p.BookingFinalAmount > 0m ? Math.Min(1m, net / p.BookingFinalAmount) : 0m;
+                var ratio =
+                    p.BookingFinalAmount > 0m ? Math.Min(1m, net / p.BookingFinalAmount) : 0m;
                 return new
                 {
                     p.BookingId,
@@ -70,8 +68,7 @@ public class ReportService(IAppDbContext db) : IReportService
             .Where(r => r.Net > 0m)
             .ToList();
 
-        var items = rows
-            .GroupBy(r => DateTimeUtils.GetPeriodKey(r.PaidAt, groupBy))
+        var items = rows.GroupBy(r => DateTimeUtils.GetPeriodKey(r.PaidAt, groupBy))
             .OrderBy(g => g.Min(x => x.PaidAt))
             .Select(g => new
             {

@@ -199,7 +199,11 @@ public class VnPayGateway(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "VnPayRefundApiError OriginalTransactionId {TransactionId}", request.OriginalTransactionId);
+            logger.LogError(
+                ex,
+                "VnPayRefundApiError OriginalTransactionId {TransactionId}",
+                request.OriginalTransactionId
+            );
             return new RefundResult(false, null, $"Lỗi gọi VNPay refund API: {ex.Message}");
         }
     }

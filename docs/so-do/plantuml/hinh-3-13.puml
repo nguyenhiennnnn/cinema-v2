@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Package Quản lý booking (QB) — 2 use case" as PK {
+  usecase "UC-QB-01\nXem danh sách booking" as UC_QB_01
+  usecase "UC-QB-02\nXem chi tiết booking" as UC_QB_02
+}
+A_NV -- UC_QB_01
+A_NV -- UC_QB_02
+A_QTV -- UC_QB_01
+A_QTV -- UC_QB_02
+@enduml

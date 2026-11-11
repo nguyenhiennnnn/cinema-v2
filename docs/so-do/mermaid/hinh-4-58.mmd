@@ -1,0 +1,14 @@
+flowchart TD
+  A1(["Thanh toán thành công"]) --> B1["ApplyLoyaltyAsync: earned = ⌊FinalAmount / PointsPerAmount⌋"]
+  B1 --> C1{"earned > 0?"}
+  C1 -- Có --> D1["Thêm LoyaltyPointEntry (BookingId, Points, EarnedAt)<br/>UX_LoyaltyPointEntries_Booking: tối đa một dòng mỗi booking"]
+  C1 -- Không --> P
+  D1 --> P
+  A2(["Hoàn tiền thành công"]) --> B2["ReverseLoyaltyAsync(userId, bookingId, ReversedAmount)"]
+  B2 --> C2["RevokedPoints = min(Points, RevokedPoints + ⌊ReversedAmount / PointsPerAmount⌋)<br/>TotalSpent −= ReversedAmount (không âm)"]
+  C2 --> P
+  A3(["ExpireLoyaltyPointsJob (cron 5 * * * *)"]) --> B3["LoyaltyExpiryService.RecalculateAllAsync cho từng khách"]
+  B3 --> P
+  P["Tính điểm hiệu lực P(u, t) = tổng (Points − RevokedPoints)<br/>của các dòng có EarnedAt trong 12 tháng"]
+  P --> T["Chọn MembershipTier có MinPoints lớn nhất không vượt P"]
+  T --> U["Cập nhật CustomerProfile.Points và TierId<br/>(chỉ khi lệch, với job định kỳ)"]

@@ -1,0 +1,13 @@
+flowchart TD
+  A(["ShowtimeScheduler.Build cho một ngày"]) --> B["Khởi tạo: cửa sổ (open, close) từ OperatingHours.Window; maxSeats;<br/>khoảng bận theo phòng; hàng đợi phim theo độ nóng giảm dần (hòa: MovieId tăng);<br/>số suất còn lại; các thời điểm lý tưởng t_i của từng phim (4.12)"]
+  B --> C{"Còn phim có số suất còn lại > 0?"}
+  C -- Không --> Z["Sắp kết quả theo Start rồi RoomId"] --> END(["Trả danh sách SchedulerSlot"])
+  C -- Có --> D["Lấy phim kế tiếp trong hàng đợi (còn suất)"]
+  D --> E["Với mọi phòng: Candidates (giờ mở cửa, t_i, close − thời lượng,<br/>End và Start − (thời lượng + đệm) của từng khoảng bận)"]
+  E --> F["Lọc theo ràng buộc:<br/>(a) trong giờ hoạt động; (b) không trùng khoảng bận với block = thời lượng + RoomBufferMinutes;<br/>(c) cách suất cùng phim ít nhất MinSameMovieGapMinutes"]
+  F --> G{"Còn ứng viên hợp lệ?"}
+  G -- Không --> H["Đặt số suất còn lại của phim = 0"] --> C
+  G -- Có --> I["Chấm điểm: Score = −Khoảng cách / SpreadMinutes + Fit·FitWeight − Tải·LoadWeight (4.14)"]
+  I --> J["Chọn điểm cao nhất (hòa: sớm hơn, rồi RoomId nhỏ hơn)"]
+  J --> K["Loại mốc lý tưởng gần nhất; ghi [Start, Start + block) vào phòng;<br/>thêm vào kết quả; giảm số suất còn lại"]
+  K --> C

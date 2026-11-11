@@ -284,8 +284,6 @@ public class BookingFulfillmentService(
             if (!await db.Bookings.AnyAsync(b => b.BookingCode == code, cancellationToken))
                 return code;
         }
-        throw new BusinessRuleException(
-            Messages.Rule_BookingCodeGenerationFailed
-        );
+        throw new BusinessRuleException(Messages.Rule_BookingCodeGenerationFailed);
     }
 }

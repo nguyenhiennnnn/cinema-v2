@@ -1,0 +1,15 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam dpi 150
+skinparam maxMessageSize 220
+hide empty description
+  [*] --> Available : giá trị mặc định
+  Available --> Held : giữ ghế (CreateHoldBookingAsync)
+  Held --> Booked : thanh toán thành công (ConfirmBookingAndGenerateTicketsAsync)
+  Held --> Available : hết hạn giữ (ExpireDueBookingsAsync, ReleaseStaleHeldSeatsAsync)
+  Held --> Available : hủy booking Pending (ReleaseBookingSeatsAsync)
+  Held --> Available : rạp hủy suất chiếu (DeleteShowtimeAsync)
+  Booked --> Available : khách hủy booking Confirmed và được hoàn tiền (ReleaseConfirmedBookingSeatsAsync)
+@enduml

@@ -1,0 +1,60 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Khách vãng lai" as A_KVL
+actor "Khách hàng" as A_KH
+rectangle "Package Đặt vé trực tuyến (DV) — 9 use case" as PK {
+  usecase "UC-DV-01\nĐặt vé trực tuyến" as UC_DV_01
+  usecase "UC-DV-02\nXem sơ đồ ghế của suất chiếu" as UC_DV_02
+  usecase "UC-DV-03\nChọn ghế" as UC_DV_03
+  usecase "UC-DV-04\nGiữ ghế" as UC_DV_04
+  usecase "UC-DV-05\nChọn combo" as UC_DV_05
+  usecase "UC-DV-06\nXem gợi ý ghế" as UC_DV_06
+  usecase "UC-DV-07\nXem danh sách đơn đặt vé của tôi" as UC_DV_07
+  usecase "UC-DV-08\nHủy đơn đặt vé" as UC_DV_08
+  usecase "UC-DV-09\nXem vé điện tử" as UC_DV_09
+}
+usecase "UC-TT-01\nThanh toán đơn đặt vé trực tuyến" as UC_TT_01 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-HT-03\nGửi email" as UC_HT_03 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-BQ-01\nBán vé tại quầy" as UC_BQ_01 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-DP-02\nXem chi tiết phim" as UC_DP_02 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-DP-04\nXem lịch chiếu theo ngày" as UC_DP_04 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-XT-11\nCấp socket token cho kết nối thời gian thực" as UC_XT_11 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-TT-06\nHoàn tiền" as UC_TT_06 #E5E5E5;line:808080;text:606060;line.dashed
+A_KVL -- UC_DV_02
+A_KVL -- UC_DV_06
+A_KH -- UC_DV_01
+A_KH -- UC_DV_02
+A_KH -- UC_DV_03
+A_KH -- UC_DV_04
+A_KH -- UC_DV_05
+A_KH -- UC_DV_06
+A_KH -- UC_DV_07
+A_KH -- UC_DV_08
+A_KH -- UC_DV_09
+UC_DV_01 ..> UC_DV_02 : <<include>>
+UC_DV_01 ..> UC_DV_03 : <<include>>
+UC_DV_01 ..> UC_DV_04 : <<include>>
+UC_DV_01 ..> UC_TT_01 : <<include>>
+UC_DV_08 ..> UC_HT_03 : <<include>>
+UC_BQ_01 ..> UC_DV_02 : <<include>>
+UC_DV_01 ..> UC_DP_02 : <<extend>>
+UC_DV_01 ..> UC_DP_04 : <<extend>>
+UC_DV_05 ..> UC_DV_01 : <<extend>>
+UC_DV_08 ..> UC_DV_01 : <<extend>>
+UC_DV_09 ..> UC_DV_01 : <<extend>>
+UC_XT_11 ..> UC_DV_02 : <<extend>>
+UC_DV_06 ..> UC_DV_02 : <<extend>>
+UC_TT_06 ..> UC_DV_08 : <<extend>>
+@enduml

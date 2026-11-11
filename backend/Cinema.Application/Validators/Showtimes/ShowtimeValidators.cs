@@ -35,7 +35,9 @@ public class UpsertShowtimeRequestValidator : AbstractValidator<UpsertShowtimeRe
 
         RuleFor(x => x.StartTime).NotEmpty().WithMessage(Messages.Validation_StartTime_Required);
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage(Messages.Validation_BasePrice_NonNegative);
+        RuleFor(x => x.BasePrice)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage(Messages.Validation_BasePrice_NonNegative);
     }
 }
 
@@ -72,7 +74,12 @@ public class BulkCreateShowtimesRequestValidator : AbstractValidator<BulkCreateS
 
         RuleForEach(x => x.DaysOfWeek)
             .Must(d => ValidDays.Contains(d))
-            .WithMessage(string.Format(Messages.Validation_DaysOfWeek_AllowedValues, string.Join(", ", ValidDays)));
+            .WithMessage(
+                string.Format(
+                    Messages.Validation_DaysOfWeek_AllowedValues,
+                    string.Join(", ", ValidDays)
+                )
+            );
 
         RuleFor(x => x.Times).NotEmpty().WithMessage(Messages.Validation_Times_Required);
 
@@ -80,7 +87,9 @@ public class BulkCreateShowtimesRequestValidator : AbstractValidator<BulkCreateS
             .Matches(@"^([01]\d|2[0-3]):[0-5]\d$")
             .WithMessage(Messages.Validation_Times_TimeFormat);
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage(Messages.Validation_BasePrice_NonNegative);
+        RuleFor(x => x.BasePrice)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage(Messages.Validation_BasePrice_NonNegative);
     }
 }
 
@@ -92,7 +101,9 @@ public class BulkDeleteShowtimesRequestValidator : AbstractValidator<BulkDeleteS
             .NotEmpty()
             .WithMessage(Messages.Validation_ShowtimeIds_NotEmpty);
 
-        RuleForEach(x => x.ShowtimeIds).GreaterThan(0).WithMessage(Messages.Validation_ShowtimeId_Positive);
+        RuleForEach(x => x.ShowtimeIds)
+            .GreaterThan(0)
+            .WithMessage(Messages.Validation_ShowtimeId_Positive);
     }
 }
 
@@ -108,7 +119,9 @@ public class AutoScheduleRequestValidator : AbstractValidator<AutoScheduleReques
             .Cascade(CascadeMode.Stop)
             .Must(x => x.ToDate is null || x.ToDate.Value >= x.Date)
             .WithMessage(Messages.Invalid_ToDateBeforeDate)
-            .Must(x => x.ToDate is null || x.ToDate.Value.DayNumber - x.Date.DayNumber < MaxRangeDays)
+            .Must(x =>
+                x.ToDate is null || x.ToDate.Value.DayNumber - x.Date.DayNumber < MaxRangeDays
+            )
             .WithMessage(string.Format(Messages.Invalid_AutoScheduleRangeTooLong, MaxRangeDays));
 
         RuleFor(x => x.Movies)
@@ -123,7 +136,9 @@ public class AutoScheduleRequestValidator : AbstractValidator<AutoScheduleReques
         RuleForEach(x => x.Movies)
             .ChildRules(m =>
             {
-                m.RuleFor(x => x.MovieId).GreaterThan(0).WithMessage(Messages.Validation_MovieId_Positive);
+                m.RuleFor(x => x.MovieId)
+                    .GreaterThan(0)
+                    .WithMessage(Messages.Validation_MovieId_Positive);
                 m.RuleFor(x => x.Shows)
                     .InclusiveBetween(1, 20)
                     .WithMessage(Messages.Validation_Shows_Range1To20);
@@ -133,7 +148,9 @@ public class AutoScheduleRequestValidator : AbstractValidator<AutoScheduleReques
                     .WithMessage(Messages.Validation_MovieBasePrice_NonNegative);
             });
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0).WithMessage(Messages.Validation_BasePrice_NonNegative);
+        RuleFor(x => x.BasePrice)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage(Messages.Validation_BasePrice_NonNegative);
 
         RuleForEach(x => x.RoomIds).GreaterThan(0).WithMessage(Messages.Validation_RoomId_Positive);
     }
@@ -170,7 +187,9 @@ public class CloneShowtimesRequestValidator : AbstractValidator<CloneShowtimesRe
 
         RuleFor(x => x)
             .Must(x => x.SourceTo.DayNumber - x.SourceFrom.DayNumber < MaxSourceRangeDays)
-            .WithMessage(string.Format(Messages.Validation_SourceRange_TooLong, MaxSourceRangeDays));
+            .WithMessage(
+                string.Format(Messages.Validation_SourceRange_TooLong, MaxSourceRangeDays)
+            );
 
         RuleFor(x => x.ShiftDays)
             .InclusiveBetween(1, 366)

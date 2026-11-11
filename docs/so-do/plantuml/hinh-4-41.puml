@@ -1,0 +1,48 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Khách vãng lai" as K
+participant "AuthController" as C
+participant "RegistrationService" as S
+participant "VerificationTokenSender" as V
+participant "IAppDbContext" as DB
+participant "NotificationService" as N
+participant "IBackgroundJobClient (Hangfire)" as H
+participant "SendEmailJob" as J
+participant "IEmailService" as E
+K -> C : POST /api/v1/auth/register (giới hạn tốc độ auth)
+C -> S : IRegistrationService.RegisterAsync(request)
+S -> DB : kiểm tra email đã tồn tại trong Users
+alt email đã tồn tại
+S --> C : ValidationAppException Invalid_EmailExists
+else email chưa có
+S -> DB : tìm vai trò Customer
+note over S : băm mật khẩu bằng IPasswordHasher
+S -> DB : thêm User (IsActive=true, EmailConfirmed=false) và CustomerProfile (Points=0, TotalSpent=0)
+S -> DB : SaveChangesAsync
+S -> V : IssueAndSendAsync(user, EmailConfirmation)
+V -> V : GenerateOpaqueToken, băm SHA-256
+V -> DB : lưu UserVerificationToken (EmailConfirmation, Used=false, ExpiresAt)
+V -> N : gửi thư xác nhận (liên kết /auth/confirm-email?token=...)
+N -> H : Enqueue SendEmailJob
+S --> C : RegisterResponse (UserId, Email, thông điệp)
+C --> K : 201 Created
+H ->> J : chạy nền
+J -> E : SendAsync(toEmail, subject, htmlBody)
+end
+K -> C : POST /api/v1/auth/confirm-email (token từ thư)
+C -> S : IRegistrationService.ConfirmEmailAsync
+S -> DB : tìm UserVerificationToken theo TokenHash và Purpose
+alt không có, đã dùng hoặc hết hạn
+S --> C : ValidationAppException Invalid_TokenExpiredOrUsed
+else hợp lệ
+S -> DB : Used=true, EmailConfirmed=true, SaveChangesAsync
+S --> K : Success_EmailConfirmed
+end
+@enduml

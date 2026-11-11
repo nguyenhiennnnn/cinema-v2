@@ -1,0 +1,72 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class UsersController <<Controller>> {
+  +GetMyProfile() : IActionResult
+  +UpdateMyProfile(request : UpdateProfileRequest) : IActionResult
+  +GetMyReviews(cursor : string?, limit : int?) : ActionResult<CursorPageResultOfUserMyReviewDto>
+  +ChangePassword(request : ChangePasswordRequest) : IActionResult
+}
+interface IUserProfileService {
+  +GetMyProfileAsync(userId : int) : UserProfileDto
+  +UpdateMyProfileAsync(userId : int, request : UpdateProfileRequest) : UserProfileDto
+}
+interface IPasswordService {
+  +ChangePasswordAsync(userId : int, request : ChangePasswordRequest) : MessageResponse
+}
+interface IReviewService {
+  +GetMyReviewsAsync(userId : int, cursor : string?, limit : int) : CursorPageResult<UserMyReviewDto>
+}
+class UserProfileService <<Service>>
+class PasswordService <<Service>>
+class ReviewService <<Service>>
+class LoyaltyWindow <<Utility>> {
+  +GetStandingAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : Tuple
+}
+class UpdateProfileRequestValidator <<Validator>>
+class ChangePasswordRequestValidator <<Validator>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class User <<Entity>>
+class CustomerProfile <<Entity>>
+class MembershipTier <<Entity>>
+class Review <<Entity>>
+class RefreshToken <<Entity>>
+class UserProfileDto <<DTO>>
+class UpdateProfileRequest <<DTO>>
+class ChangePasswordRequest <<DTO>>
+class UserMyReviewDto <<DTO>>
+class NextTierDto <<DTO>>
+UsersController ..> IUserProfileService
+UsersController ..> IPasswordService
+UsersController ..> IReviewService
+UserProfileService ..|> IUserProfileService
+PasswordService ..|> IPasswordService
+ReviewService ..|> IReviewService
+UserProfileService ..> User
+UserProfileService ..> CustomerProfile
+UserProfileService ..> MembershipTier
+UserProfileService ..> UserProfileDto
+UserProfileService ..> UpdateProfileRequest
+UserProfileService ..> LoyaltyWindow
+PasswordService ..> RefreshToken
+PasswordService ..> ChangePasswordRequest
+ReviewService ..> Review
+ReviewService ..> UserMyReviewDto
+UserProfileDto --> NextTierDto
+UpdateProfileRequestValidator ..> UpdateProfileRequest
+ChangePasswordRequestValidator ..> ChangePasswordRequest
+UserProfileService ..> IAppDbContext
+PasswordService ..> IAppDbContext
+ReviewService ..> IAppDbContext
+@enduml

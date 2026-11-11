@@ -68,7 +68,9 @@ public class MomoGateway(IOptions<MomoOptions> options, HttpClient httpClient) :
             ) ?? throw new BusinessRuleException(Messages.Rule_MomoInvalidResponse);
 
         if (result.ResultCode != 0)
-            throw new BusinessRuleException(string.Format(Messages.Rule_MomoCreatePaymentFailed, result.Message));
+            throw new BusinessRuleException(
+                string.Format(Messages.Rule_MomoCreatePaymentFailed, result.Message)
+            );
 
         return new CreatePaymentResult(result.PayUrl ?? string.Empty, orderId);
     }

@@ -1,0 +1,17 @@
+flowchart TD
+  A(["CheckinAsync(QrCode)"]) --> B{"Tìm thấy vé theo QrCode?"}
+  B -- Không --> X1["404 NotFound_QrCode"]
+  B -- Có --> C{"Booking = Confirmed?"}
+  C -- Không --> X2["Rule_TicketNoLongerValid"]
+  C -- Có --> D{"IsCheckedIn = false?"}
+  D -- Không --> X3["409 Conflict_TicketAlreadyCheckedIn"]
+  D -- Có --> E{"Suất chiếu không bị Cancelled?"}
+  E -- Không --> X4["Rule_ShowtimeCancelled"]
+  E -- Có --> F{"now ≥ StartTime − CheckInOpenMinutes?"}
+  F -- Không --> X5["Rule_CheckInNotOpenYet"]
+  F -- Có --> G{"now ≤ EndTime?"}
+  G -- Không --> X6["Rule_ShowtimeEnded"]
+  G -- Có --> H["ExecuteUpdateAsync WHERE TicketId = @id AND IsCheckedIn = false<br/>đặt IsCheckedIn = true, CheckedInAt = now"]
+  H --> I{"Số dòng ảnh hưởng > 0?"}
+  I -- Không --> X3
+  I -- Có --> J(["CheckinResponse (TicketId, BookingId, ghế, phim, StartTime, CheckedInAt)"])

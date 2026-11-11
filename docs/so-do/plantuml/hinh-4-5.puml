@@ -1,0 +1,148 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 35
+skinparam ranksep 55
+left to right direction
+hide circle
+hide empty members
+class AuthController <<Controller>> {
+  +Register(request : RegisterRequest) : IActionResult
+  +ConfirmEmail(request : ConfirmEmailRequest) : IActionResult
+  +Login(request : LoginRequest) : IActionResult
+  +AdminLogin(request : LoginRequest) : IActionResult
+  +GoogleLogin(request : GoogleLoginRequest) : IActionResult
+  +Refresh(request : RefreshRequest) : IActionResult
+  +Logout(request : LogoutRequest) : IActionResult
+  +ForgotPassword(request : ForgotPasswordRequest) : IActionResult
+  +ResetPassword(request : ResetPasswordRequest) : IActionResult
+  .. rút gọn 9/12 phương thức ..
+}
+interface IAuthService {
+  +LoginAsync(request : LoginRequest, adminOnly : bool) : LoginResponse
+  +GoogleLoginAsync(request : GoogleLoginRequest) : LoginResponse
+  +RefreshAsync(request : RefreshRequest) : RefreshResponse
+  +GetMeAsync(userId : int) : MeResponse
+  +LogoutAsync(request : LogoutRequest) : MessageResponse
+}
+interface IRegistrationService {
+  +RegisterAsync(request : RegisterRequest) : RegisterResponse
+  +ConfirmEmailAsync(request : ConfirmEmailRequest) : MessageResponse
+}
+interface IPasswordService {
+  +ChangePasswordAsync(userId : int, request : ChangePasswordRequest) : MessageResponse
+  +ForgotPasswordAsync(request : ForgotPasswordRequest) : MessageResponse
+  +ResetPasswordAsync(request : ResetPasswordRequest) : MessageResponse
+}
+interface IVerificationTokenSender {
+  +IssueAndSendAsync(user : User, purpose : VerificationPurpose) : void
+}
+interface INotificationService {
+  +EnqueueEmailAsync(toEmail : string, subject : string, htmlBody : string) : void
+}
+interface ITokenService {
+  +GenerateAccessToken(user : User) : AccessTokenResult
+  +GenerateSocketToken(user : User) : AccessTokenResult
+  +GenerateOpaqueToken() : string
+  +HashOpaqueToken(token : string) : string
+}
+interface IGoogleAuthService {
+  +VerifyIdTokenAsync(idToken : string) : GoogleUserInfo
+}
+class AuthService <<Service>>
+class RegistrationService <<Service>>
+class PasswordService <<Service>>
+class VerificationTokenSender <<Service>>
+class NotificationService <<Service>>
+class JwtTokenService <<Service>>
+class GoogleAuthService <<Service>>
+class SendEmailJob <<Job>> {
+  +RunAsync(toEmail : string, subject : string, htmlbody : string) : void
+}
+class LoyaltyWindow <<Utility>> {
+  +GetStandingAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : Tuple
+}
+class EmailTemplates <<Utility>> {
+  +ActionLink(brand : BrandOptions, fullName : string, title : string, introText : string, buttonLabel : string, link : string, expiresIn : string) : string
+}
+interface IEmailService {
+  +SendAsync(toEmail : string, subject : string, htmlBody : string) : void
+}
+class JwtOptions <<Options>>
+class EmailOptions <<Options>>
+class AppUrlOptions <<Options>>
+class GoogleOptions <<Options>>
+interface IAppDbContext {
+  +DbSet
+  +SaveChangesAsync
+}
+class User <<Entity>>
+class Role <<Entity>>
+class CustomerProfile <<Entity>>
+class RefreshToken <<Entity>>
+class UserVerificationToken <<Entity>>
+class RegisterRequest <<DTO>>
+class ChangePasswordRequest <<DTO>>
+class ResetPasswordRequest <<DTO>>
+class LoginRequest <<DTO>>
+class LoginResponse <<DTO>>
+class RefreshResponse <<DTO>>
+class MeResponse <<DTO>>
+class SocketTokenResponse <<DTO>>
+class AccessTokenResult <<record>>
+class GoogleUserInfo <<record>>
+AuthController ..> IAuthService
+AuthController ..> IRegistrationService
+AuthController ..> IPasswordService
+AuthService ..|> IAuthService
+RegistrationService ..|> IRegistrationService
+PasswordService ..|> IPasswordService
+VerificationTokenSender ..|> IVerificationTokenSender
+NotificationService ..|> INotificationService
+JwtTokenService ..|> ITokenService
+GoogleAuthService ..|> IGoogleAuthService
+AuthService ..> ITokenService
+AuthService ..> IGoogleAuthService
+RegistrationService ..> IVerificationTokenSender
+PasswordService ..> IVerificationTokenSender
+VerificationTokenSender ..> ITokenService
+VerificationTokenSender ..> INotificationService
+NotificationService ..> SendEmailJob
+VerificationTokenSender ..> EmailTemplates
+AuthService ..> LoyaltyWindow
+AuthService ..> User
+AuthService ..> Role
+AuthService ..> CustomerProfile
+AuthService ..> RefreshToken
+AuthService ..> LoginRequest
+AuthService ..> LoginResponse
+AuthService ..> RefreshResponse
+AuthService ..> MeResponse
+AuthService ..> SocketTokenResponse
+AuthService ..> JwtOptions
+RegistrationService ..> User
+RegistrationService ..> Role
+RegistrationService ..> CustomerProfile
+RegistrationService ..> UserVerificationToken
+RegistrationService ..> RegisterRequest
+PasswordService ..> User
+PasswordService ..> RefreshToken
+PasswordService ..> UserVerificationToken
+PasswordService ..> ChangePasswordRequest
+PasswordService ..> ResetPasswordRequest
+VerificationTokenSender ..> UserVerificationToken
+VerificationTokenSender ..> EmailOptions
+VerificationTokenSender ..> AppUrlOptions
+SendEmailJob ..> IEmailService
+JwtTokenService ..> JwtOptions
+ITokenService ..> AccessTokenResult
+IGoogleAuthService ..> GoogleUserInfo
+GoogleAuthService ..> GoogleOptions
+AuthService ..> IAppDbContext
+RegistrationService ..> IAppDbContext
+PasswordService ..> IAppDbContext
+VerificationTokenSender ..> IAppDbContext
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+skinparam defaultFontName "Times New Roman"
+skinparam shadowing false
+skinparam dpi 150
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam ArrowColor Black
+
+package "Tầng ngoài" {
+  component "Cinema.Api\nProgram.cs, Controllers, Filters, Middlewares" as API
+}
+package "Hạ tầng" {
+  component "Cinema.Infrastructure\nPersistence, Payments, Email, FileStorage, Auth, Realtime" as INF
+}
+package "Lõi nghiệp vụ" {
+  component "Cinema.Application\nServices, Interfaces, DTO, Validators, BackgroundJobs" as APP
+  component "Cinema.Domain\nEntities, Enums" as DOM
+  component "Cinema.Shared\nConstants, Exceptions, Results, Resources" as SHR
+}
+API ..> INF
+API ..> APP
+API ..> DOM
+API ..> SHR
+INF ..> APP
+INF ..> DOM
+INF ..> SHR
+APP ..> DOM
+APP ..> SHR
+DOM ..> SHR
+@enduml

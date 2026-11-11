@@ -1,6 +1,7 @@
 using System.Text;
 
 namespace Cinema.Application.Utils;
+
 public static class NameNormalizer
 {
     public static string Normalize(string? value)

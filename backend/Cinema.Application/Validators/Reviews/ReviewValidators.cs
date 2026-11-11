@@ -1,8 +1,8 @@
 using Cinema.Application.DTOs.Reviews;
 using Cinema.Application.Options;
 using Cinema.Shared.Resources;
-using Microsoft.Extensions.Options;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Validators.Reviews;
 
@@ -25,9 +25,7 @@ public class BulkDeleteReviewsRequestValidator : AbstractValidator<BulkDeleteRev
     public BulkDeleteReviewsRequestValidator(IOptions<BookingOptions> options)
     {
         var limit = options.Value.BulkDeleteLimit;
-        RuleFor(x => x.ReviewIds)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_ReviewIds_NotEmpty);
+        RuleFor(x => x.ReviewIds).NotEmpty().WithMessage(Messages.Validation_ReviewIds_NotEmpty);
         RuleFor(x => x.ReviewIds)
             .Must(ids => ids.Count <= limit)
             .WithMessage($"T\u1ed1i \u0111a {{limit}} \u0111\u00e1nh gi\u00e1 m\u1ed7i l\u1ea7n.");

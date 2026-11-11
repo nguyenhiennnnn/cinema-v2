@@ -71,21 +71,15 @@ public class AuthService(
             throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
 
         if (!user.EmailConfirmed)
-            throw new ForbiddenAppException(
-                Messages.Forbidden_EmailNotVerifiedCheckInbox
-            );
+            throw new ForbiddenAppException(Messages.Forbidden_EmailNotVerifiedCheckInbox);
 
         var roleName = user.Role.RoleName;
         var isCustomer = roleName == Roles.Customer;
         var isStaff = roleName is Roles.Admin or Roles.Employee;
         if (!adminOnly && !isCustomer)
-            throw new ForbiddenAppException(
-                Messages.Forbidden_UseAdminPortal
-            );
+            throw new ForbiddenAppException(Messages.Forbidden_UseAdminPortal);
         if (adminOnly && !isStaff)
-            throw new ForbiddenAppException(
-                Messages.Forbidden_CustomerCannotUseAdminPortal
-            );
+            throw new ForbiddenAppException(Messages.Forbidden_CustomerCannotUseAdminPortal);
 
         if (adminOnly && roleName == Roles.Employee && user.Employee is not { IsActive: true })
             throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
@@ -138,10 +132,7 @@ public class AuthService(
                 await db.Roles.FirstOrDefaultAsync(
                     r => r.RoleName == Roles.Customer,
                     cancellationToken
-                )
-                ?? throw new BusinessRuleException(
-                    Messages.Rule_CustomerRoleNotSeeded
-                );
+                ) ?? throw new BusinessRuleException(Messages.Rule_CustomerRoleNotSeeded);
 
             user = new User
             {
@@ -187,9 +178,7 @@ public class AuthService(
                 throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
 
             if (user.Role.RoleName != Roles.Customer)
-                throw new ForbiddenAppException(
-                    Messages.Forbidden_AdminCannotUseGoogleLogin
-                );
+                throw new ForbiddenAppException(Messages.Forbidden_AdminCannotUseGoogleLogin);
 
             var isDirty = false;
 

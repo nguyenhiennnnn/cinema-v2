@@ -214,7 +214,11 @@ public class PaymentService(
 
         if (
             !string.IsNullOrWhiteSpace(callback.Currency)
-            && !string.Equals(callback.Currency, _stripeCurrency, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(
+                callback.Currency,
+                _stripeCurrency,
+                StringComparison.OrdinalIgnoreCase
+            )
         )
         {
             logger.LogWarning(
@@ -264,7 +268,10 @@ public class PaymentService(
         if (!isSuccess)
         {
             await transaction.CommitAsync(cancellationToken);
-            await bookingFulfillmentService.ProcessPaymentFailureAsync(payment.BookingId, cancellationToken);
+            await bookingFulfillmentService.ProcessPaymentFailureAsync(
+                payment.BookingId,
+                cancellationToken
+            );
             logger.LogInformation(
                 "PaymentFailed PaymentId {PaymentId} BookingId {BookingId}",
                 payment.PaymentId,

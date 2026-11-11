@@ -1,0 +1,11 @@
+flowchart TD
+  A(["POST /api/v1/movies/{movieId}/reviews (CustomerOnly)"]) --> B["CreateReviewRequestValidator<br/>Rating 1–10, Comment tối đa 1000 ký tự"]
+  B --> C{"Phim tồn tại?"}
+  C -- Không --> X1["404 NotFound_Movie"]
+  C -- Có --> D{"Đã có Review với (UserId, MovieId)?"}
+  D -- Có --> X2["409 Conflict_ReviewAlreadyExists"]
+  D -- Không --> E{"Có BookingTicket IsCheckedIn = true<br/>của khách cho phim này?"}
+  E -- Không --> X3["Rule_ReviewRequiresCheckIn"]
+  E -- Có --> F["Tạo Review (CreatedAt UTC) và lưu"]
+  F --> G["RecalculateMovieAverageRatingAsync<br/>trung bình Rating làm tròn 2 chữ số → Movie.AverageRating"]
+  G --> H(["201 Created"])

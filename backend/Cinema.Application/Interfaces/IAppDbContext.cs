@@ -66,5 +66,6 @@ public static class AppDbContextExtensions
         await db
             .CinemaSettings.Where(s => s.Id == CinemaSettingsId)
             .Select(s => (int?)s.ShowtimeLookaheadDays)
-            .FirstOrDefaultAsync(cancellationToken) ?? CinemaSettings.DefaultShowtimeLookaheadDays;
+            .FirstOrDefaultAsync(cancellationToken)
+        ?? CinemaSettings.DefaultShowtimeLookaheadDays;
 }

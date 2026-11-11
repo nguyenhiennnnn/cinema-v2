@@ -35,7 +35,8 @@ public class ShowtimeCancellationService(
 
         var manualRefundCount = 0;
         var refundPaymentIds = new List<int>();
-        var manualRefundNotices = new List<(string ToEmail, string CustomerName, string BookingCode, decimal Amount)>();
+        var manualRefundNotices =
+            new List<(string ToEmail, string CustomerName, string BookingCode, decimal Amount)>();
         var bookingCount = 0;
 
         await using (var transaction = await db.Database.BeginTransactionAsync(cancellationToken))
@@ -64,7 +65,9 @@ public class ShowtimeCancellationService(
 
                 if (!wasConfirmed)
                     foreach (
-                        var pending in booking.Payments.Where(p => p.Status == PaymentStatus.Pending)
+                        var pending in booking.Payments.Where(p =>
+                            p.Status == PaymentStatus.Pending
+                        )
                     )
                         pending.Status = PaymentStatus.Failed;
 
@@ -170,4 +173,3 @@ public class ShowtimeCancellationService(
         );
     }
 }
-

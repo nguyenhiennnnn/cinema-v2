@@ -63,16 +63,16 @@ public class UpdateSeatLayoutRequestValidator : AbstractValidator<UpdateSeatLayo
 {
     public UpdateSeatLayoutRequestValidator()
     {
-        RuleFor(x => x.Seats)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_Seats_NotEmpty);
+        RuleFor(x => x.Seats).NotEmpty().WithMessage(Messages.Validation_Seats_NotEmpty);
 
-        RuleForEach(x => x.Seats)
-            .SetValidator(new SeatLayoutItemValidator());
+        RuleForEach(x => x.Seats).SetValidator(new SeatLayoutItemValidator());
 
         RuleFor(x => x.Seats)
             .Must(seats =>
-                seats.Select(s => (s.SeatRow.Trim().ToUpperInvariant(), s.SeatNumber)).Distinct().Count() == seats.Count
+                seats
+                    .Select(s => (s.SeatRow.Trim().ToUpperInvariant(), s.SeatNumber))
+                    .Distinct()
+                    .Count() == seats.Count
             )
             .WithMessage(Messages.Validation_Seats_DuplicatedPosition)
             .WithName("seats");

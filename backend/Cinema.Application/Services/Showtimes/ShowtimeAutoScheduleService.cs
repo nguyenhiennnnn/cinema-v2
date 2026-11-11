@@ -94,16 +94,16 @@ public class ShowtimeAutoScheduleService(
             })
             .ToListAsync(cancellationToken);
         if (rooms.Count == 0)
-            throw new BusinessRuleException(
-                Messages.Rule_NoSchedulableRooms
-            );
+            throw new BusinessRuleException(Messages.Rule_NoSchedulableRooms);
 
         var cinemaSettings = await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken);
         var scheduler = BuildSchedulerOptions(_scheduler, cinemaSettings);
         var bufferMinutes = cinemaSettings.RoomBufferMinutes;
         var hours = new { cinemaSettings.OpeningTime, cinemaSettings.ClosingTime };
         var (open, _) = OperatingHours.Window(request.Date, hours.OpeningTime, hours.ClosingTime);
-        var horizon = BusinessTime.StartOfDayUtc(toDate).AddDays(ShowtimeRules.ConflictLookaheadDays);
+        var horizon = BusinessTime
+            .StartOfDayUtc(toDate)
+            .AddDays(ShowtimeRules.ConflictLookaheadDays);
         var scheduledRoomIds = rooms.Select(r => r.RoomId).ToList();
         var busy = await db
             .Showtimes.Where(s =>
@@ -233,4 +233,3 @@ public class ShowtimeAutoScheduleService(
         return result;
     }
 }
-

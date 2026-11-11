@@ -1,0 +1,41 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 300
+skinparam ParticipantPadding 12
+skinparam dpi 150
+autonumber
+actor "Khách hàng" as K
+participant "BookingsController" as C
+participant "ValidationActionFilter" as V
+participant "BookingService" as S
+participant "SeatLayoutRules" as R
+participant "IAppDbContext" as DB
+participant "IRealtimeNotifier" as N
+K -> C : POST /api/v1/bookings/hold (giới hạn booking-hold)
+C -> V : HoldSeatsRequestValidator
+V --> C : hợp lệ
+C -> S : HoldSeatsAsync(userId, request)
+S -> DB : LoadSeatSlotsAsync và SeatGapRuleMode
+S -> R : ValidateSelection(slots, ghế chọn, chế độ)
+alt vi phạm ghế đôi hoặc ghế lẻ
+S --> K : BusinessRuleException 422
+end
+S -> S : CreateHoldBookingAsync
+S -> DB : kiểm tra suất chiếu (tồn tại, Scheduled, chưa bắt đầu, chưa dừng bán online)
+S -> DB : kiểm tra chưa có booking Pending còn hạn
+S -> DB : BeginTransaction, UPDATE có điều kiện ShowtimeSeats
+alt số dòng lệch
+S -> DB : Rollback
+S --> K : SeatConflictException 409 (ConflictSeatIds)
+else khớp
+S -> DB : BuildBookingCombosAsync, tính TotalAmount, DiscountAmount, FinalAmount
+S -> DB : tạo Booking Pending (mã booking duy nhất), gán HeldByBookingId
+S -> DB : Commit
+S -> N : NotifySeatHeldAsync(showtimeId, seatIds, holderUserId, holdUntil)
+S --> C : HoldBookingResponse
+C --> K : 201 Created
+end
+@enduml

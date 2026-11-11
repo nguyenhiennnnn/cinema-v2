@@ -13,20 +13,15 @@ public class CounterHoldRequestValidator : AbstractValidator<CounterHoldRequest>
             .GreaterThan(0)
             .WithMessage(Messages.Validation_ShowtimeId_Positive);
 
-        RuleFor(x => x.SeatIds)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_Seats_AtLeastOne);
+        RuleFor(x => x.SeatIds).NotEmpty().WithMessage(Messages.Validation_Seats_AtLeastOne);
 
-        RuleForEach(x => x.SeatIds)
-            .GreaterThan(0)
-            .WithMessage(Messages.Validation_SeatId_Positive);
+        RuleForEach(x => x.SeatIds).GreaterThan(0).WithMessage(Messages.Validation_SeatId_Positive);
 
         RuleFor(x => x.SeatIds)
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithMessage(Messages.Validation_Seats_Duplicated);
 
-        RuleForEach(x => x.Combos)
-            .SetValidator(new ComboSelectionRequestValidator());
+        RuleForEach(x => x.Combos).SetValidator(new ComboSelectionRequestValidator());
 
         RuleFor(x => x.UserId)
             .GreaterThan(0)
@@ -39,9 +34,7 @@ public class CounterHoldRequestValidator : AbstractValidator<CounterHoldRequest>
             .WithMessage(Messages.Validation_UserIdOrCustomerNameRequired)
             .WithName("customerName");
 
-        RuleFor(x => x.CustomerName)
-            .MaximumLength(100)
-            .When(x => x.CustomerName is not null);
+        RuleFor(x => x.CustomerName).MaximumLength(100).When(x => x.CustomerName is not null);
 
         RuleFor(x => x.CustomerPhone)
             .Matches(PhoneRules.Pattern)
@@ -65,8 +58,6 @@ public class CheckinRequestValidator : AbstractValidator<CheckinRequest>
 {
     public CheckinRequestValidator()
     {
-        RuleFor(x => x.QrCode)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_QrCode_Required);
+        RuleFor(x => x.QrCode).NotEmpty().WithMessage(Messages.Validation_QrCode_Required);
     }
 }

@@ -32,10 +32,7 @@ public class AiAssistantService(
         if (!modelClient.IsConfigured)
         {
             logger.LogWarning("AI model client is not configured (missing API key).");
-            return new AiChatResponse(
-                Messages.Ai_NotConfigured,
-                DateTime.UtcNow
-            );
+            return new AiChatResponse(Messages.Ai_NotConfigured, DateTime.UtcNow);
         }
 
         var systemPrompt = await promptBuilder.BuildSystemPromptAsync(userId, cancellationToken);
@@ -46,7 +43,8 @@ public class AiAssistantService(
         {
             foreach (var h in request.History)
             {
-                var role = h.Role.ToLowerInvariant() == "user" ? AiMessageRole.User : AiMessageRole.Model;
+                var role =
+                    h.Role.ToLowerInvariant() == "user" ? AiMessageRole.User : AiMessageRole.Model;
                 messages.Add(AiMessage.FromText(role, h.Content));
             }
         }
@@ -111,11 +109,7 @@ public class AiAssistantService(
                     if (++totalToolCalls > MaxTotalToolCalls)
                     {
                         result = new AiToolExecutor.ToolResult(
-                            new JsonObject
-                            {
-                                ["error"] =
-                                    Messages.Ai_ToolCallLimitExceeded,
-                            },
+                            new JsonObject { ["error"] = Messages.Ai_ToolCallLimitExceeded },
                             []
                         );
                     }
@@ -136,10 +130,7 @@ public class AiAssistantService(
                 messages.Add(new AiMessage(AiMessageRole.Tool, results));
             }
 
-            return new AiChatResponse(
-                Messages.Ai_NoReply,
-                DateTime.UtcNow
-            );
+            return new AiChatResponse(Messages.Ai_NoReply, DateTime.UtcNow);
         }
         catch (OperationCanceledException)
         {
@@ -148,10 +139,7 @@ public class AiAssistantService(
         catch (Exception ex)
         {
             logger.LogError(ex, "Lỗi khi xử lý hội thoại với Trợ lý AI.");
-            return new AiChatResponse(
-                Messages.Ai_ProcessingError,
-                DateTime.UtcNow
-            );
+            return new AiChatResponse(Messages.Ai_ProcessingError, DateTime.UtcNow);
         }
     }
 

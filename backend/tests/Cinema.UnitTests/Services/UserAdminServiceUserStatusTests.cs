@@ -21,8 +21,20 @@ public class UserAdminServiceUserStatusTests : IDisposable
     {
         var user = TestDataSeeder.AddCustomer(_handle.Db);
         _handle.Db.RefreshTokens.AddRange(
-            new RefreshToken { UserId = user.UserId, TokenHash = "t1", ExpiresAt = DateTime.UtcNow.AddDays(5), CreatedAt = DateTime.UtcNow },
-            new RefreshToken { UserId = user.UserId, TokenHash = "t2", ExpiresAt = DateTime.UtcNow.AddDays(5), CreatedAt = DateTime.UtcNow }
+            new RefreshToken
+            {
+                UserId = user.UserId,
+                TokenHash = "t1",
+                ExpiresAt = DateTime.UtcNow.AddDays(5),
+                CreatedAt = DateTime.UtcNow,
+            },
+            new RefreshToken
+            {
+                UserId = user.UserId,
+                TokenHash = "t2",
+                ExpiresAt = DateTime.UtcNow.AddDays(5),
+                CreatedAt = DateTime.UtcNow,
+            }
         );
         await _handle.Db.SaveChangesAsync();
         return user;
@@ -34,12 +46,26 @@ public class UserAdminServiceUserStatusTests : IDisposable
         var user = await SeedUserWithTokensAsync();
         var bystander = await SeedUserWithTokensAsyncWithEmail("other@test.local");
 
-        await CreateSut().UpdateUserStatusAsync(user.UserId, new UpdateUserStatusRequest(false), currentUserId: 0, CancellationToken.None);
+        await CreateSut()
+            .UpdateUserStatusAsync(
+                user.UserId,
+                new UpdateUserStatusRequest(false),
+                currentUserId: 0,
+                CancellationToken.None
+            );
 
-        (await _handle.Db.RefreshTokens.AsNoTracking().Where(rt => rt.UserId == user.UserId).ToListAsync())
-            .ShouldAllBe(rt => rt.IsRevoked && rt.RevokedAt != null);
-        (await _handle.Db.RefreshTokens.AsNoTracking().Where(rt => rt.UserId == bystander.UserId).ToListAsync())
-            .ShouldAllBe(rt => !rt.IsRevoked);
+        (
+            await _handle
+                .Db.RefreshTokens.AsNoTracking()
+                .Where(rt => rt.UserId == user.UserId)
+                .ToListAsync()
+        ).ShouldAllBe(rt => rt.IsRevoked && rt.RevokedAt != null);
+        (
+            await _handle
+                .Db.RefreshTokens.AsNoTracking()
+                .Where(rt => rt.UserId == bystander.UserId)
+                .ToListAsync()
+        ).ShouldAllBe(rt => !rt.IsRevoked);
     }
 
     [Fact]
@@ -47,17 +73,33 @@ public class UserAdminServiceUserStatusTests : IDisposable
     {
         var user = await SeedUserWithTokensAsync();
 
-        await CreateSut().UpdateUserStatusAsync(user.UserId, new UpdateUserStatusRequest(true), currentUserId: 0, CancellationToken.None);
+        await CreateSut()
+            .UpdateUserStatusAsync(
+                user.UserId,
+                new UpdateUserStatusRequest(true),
+                currentUserId: 0,
+                CancellationToken.None
+            );
 
-        (await _handle.Db.RefreshTokens.AsNoTracking().Where(rt => rt.UserId == user.UserId).ToListAsync())
-            .ShouldAllBe(rt => !rt.IsRevoked);
+        (
+            await _handle
+                .Db.RefreshTokens.AsNoTracking()
+                .Where(rt => rt.UserId == user.UserId)
+                .ToListAsync()
+        ).ShouldAllBe(rt => !rt.IsRevoked);
     }
 
     private async Task<User> SeedUserWithTokensAsyncWithEmail(string email)
     {
         var user = TestDataSeeder.AddCustomer(_handle.Db, email: email);
         _handle.Db.RefreshTokens.Add(
-            new RefreshToken { UserId = user.UserId, TokenHash = $"h-{email}", ExpiresAt = DateTime.UtcNow.AddDays(5), CreatedAt = DateTime.UtcNow }
+            new RefreshToken
+            {
+                UserId = user.UserId,
+                TokenHash = $"h-{email}",
+                ExpiresAt = DateTime.UtcNow.AddDays(5),
+                CreatedAt = DateTime.UtcNow,
+            }
         );
         await _handle.Db.SaveChangesAsync();
         return user;

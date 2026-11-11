@@ -56,4 +56,3 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         SeedData.Apply(modelBuilder);
     }
 }
-

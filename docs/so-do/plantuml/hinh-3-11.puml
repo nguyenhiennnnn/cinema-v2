@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Package Bán vé tại quầy (BQ) — 1 use case" as PK {
+  usecase "UC-BQ-01\nBán vé tại quầy" as UC_BQ_01
+}
+usecase "UC-DV-02\nXem sơ đồ ghế của suất chiếu" as UC_DV_02 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-TT-05\nPhát hành vé sau thanh toán" as UC_TT_05 #E5E5E5;line:808080;text:606060;line.dashed
+usecase "UC-QN-03\nTìm kiếm khách hàng" as UC_QN_03 #E5E5E5;line:808080;text:606060;line.dashed
+A_NV -- UC_BQ_01
+A_QTV -- UC_BQ_01
+UC_BQ_01 ..> UC_DV_02 : <<include>>
+UC_BQ_01 ..> UC_TT_05 : <<include>>
+UC_QN_03 ..> UC_BQ_01 : <<extend>>
+@enduml

@@ -15,16 +15,13 @@ internal static class BulkIdRules
         int limit
     )
     {
-        validator
-            .RuleFor(selector)
-            .NotEmpty()
-            .WithMessage(Messages.Validation_BulkIds_NotEmpty);
-            
+        validator.RuleFor(selector).NotEmpty().WithMessage(Messages.Validation_BulkIds_NotEmpty);
+
         validator
             .RuleFor(selector)
             .Must(ids => ids != null && ids.Distinct().Count() <= limit)
             .WithMessage(string.Format(Messages.Validation_BulkIds_MaxCount, limit));
-            
+
         validator
             .RuleForEach(selector)
             .GreaterThan(0)

@@ -13,11 +13,8 @@ public abstract record AiMessagePart;
 
 public sealed record AiTextPart(string Text) : AiMessagePart;
 
-public sealed record AiFunctionCallPart(
-    string Name,
-    JsonObject? Args,
-    string? ProviderState = null
-) : AiMessagePart;
+public sealed record AiFunctionCallPart(string Name, JsonObject? Args, string? ProviderState = null)
+    : AiMessagePart;
 
 public sealed record AiFunctionResultPart(string Name, JsonObject Response) : AiMessagePart;
 
@@ -57,5 +54,4 @@ public sealed record AiModelRequest(
     int MaxOutputTokens
 );
 
-public class AiModelException(string message, Exception? inner = null)
-    : Exception(message, inner);
+public class AiModelException(string message, Exception? inner = null) : Exception(message, inner);

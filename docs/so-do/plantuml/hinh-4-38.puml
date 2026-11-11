@@ -1,0 +1,20 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam dpi 150
+skinparam maxMessageSize 220
+hide empty description
+  [*] --> Pending : CheckoutAsync (cổng trực tuyến)
+  [*] --> Success : CounterCheckoutAsync (tiền mặt tại quầy)
+  Pending --> Success : cổng báo thành công (ApplyPaymentResultAsync)
+  Pending --> Failed : cổng báo thất bại (ApplyPaymentResultAsync)
+  Pending --> Failed : khách bắt đầu thanh toán mới (CheckoutAsync)
+  Pending --> Failed : booking bị nhả hoặc hết hạn (ReleaseAndCancelBookingAsync, ExpireDueBookingsAsync)
+  Pending --> Failed : rạp hủy suất chiếu (DeleteShowtimeAsync)
+  Failed --> Success : cổng báo thành công muộn (IsAlreadyProcessed)
+  Success --> Refunded : khách hủy trong thời hạn hoàn tiền (CancelBookingAsync)
+  Success --> Refunded : rạp hủy suất chiếu (ShowtimeRefundJob)
+  Success --> Refunded : ghế hết hạn trước khi xác nhận (HandleSeatsExpiredAfterPaymentAsync)
+  Refunded --> [*]
+@enduml

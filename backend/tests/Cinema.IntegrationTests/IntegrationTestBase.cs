@@ -53,10 +53,7 @@ public abstract class IntegrationTestBase(CinemaApiFactory factory) : IAsyncLife
     protected async Task<string> LoginAsync(string email, string password, bool admin = false)
     {
         var endpoint = admin ? "/api/v1/auth/admin-login" : "/api/v1/auth/login";
-        var loginResponse = await Client.PostAsJsonAsync(
-            endpoint,
-            new { email, password }
-        );
+        var loginResponse = await Client.PostAsJsonAsync(endpoint, new { email, password });
         loginResponse.EnsureSuccessStatusCode();
         var login = await ReadDataAsync<LoginResponseDto>(loginResponse);
         return login.AccessToken;

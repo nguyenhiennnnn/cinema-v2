@@ -17,7 +17,11 @@ public static class ApiErrorWriter
     private static readonly string[] SkippedPathPrefixes = ["/admin/hangfire", "/swagger"];
 
     public static Task WriteAsync(HttpContext context, ApiError error) =>
-        WriteAsync(context, error.StatusCode, ApiResponse.ErrorResponse(error.Message, error.Errors));
+        WriteAsync(
+            context,
+            error.StatusCode,
+            ApiResponse.ErrorResponse(error.Message, error.Errors)
+        );
 
     public static Task WriteAsync(HttpContext context, int statusCode, ApiResponse response)
     {
@@ -40,11 +44,7 @@ public static class ApiErrorWriter
         var message = DefaultMessageFor(context.Response.StatusCode);
         return message is null
             ? Task.CompletedTask
-            : WriteAsync(
-                context,
-                context.Response.StatusCode,
-                ApiResponse.ErrorResponse(message)
-            );
+            : WriteAsync(context, context.Response.StatusCode, ApiResponse.ErrorResponse(message));
     }
 
     private static string? DefaultMessageFor(int statusCode) =>

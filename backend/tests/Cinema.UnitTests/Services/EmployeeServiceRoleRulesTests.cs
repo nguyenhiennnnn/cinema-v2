@@ -1,5 +1,5 @@
-using Cinema.Application.Interfaces;
 using Cinema.Application.DTOs.Employees;
+using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Employees;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Exceptions;
@@ -49,17 +49,19 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         AddAdmin("a2@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateUserAdminSut().UpdateUserRoleAsync(
-                admin.UserId,
-                new UpdateUserRoleRequest(EmployeeRoleId),
-                currentUserId: admin.UserId,
-                CancellationToken.None
-            )
+            CreateUserAdminSut()
+                .UpdateUserRoleAsync(
+                    admin.UserId,
+                    new UpdateUserRoleRequest(EmployeeRoleId),
+                    currentUserId: admin.UserId,
+                    CancellationToken.None
+                )
         );
 
         ex.Message.ShouldBe(Messages.Rule_CannotChangeOwnRole);
-        (await _handle.Db.Users.AsNoTracking().FirstAsync(u => u.UserId == admin.UserId))
-            .RoleId.ShouldBe(TestDataSeeder.AdminRoleId);
+        (
+            await _handle.Db.Users.AsNoTracking().FirstAsync(u => u.UserId == admin.UserId)
+        ).RoleId.ShouldBe(TestDataSeeder.AdminRoleId);
     }
 
     [Fact]
@@ -69,12 +71,13 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var caller = TestDataSeeder.AddCustomer(_handle.Db, "caller@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateUserAdminSut().UpdateUserRoleAsync(
-                onlyAdmin.UserId,
-                new UpdateUserRoleRequest(EmployeeRoleId),
-                currentUserId: caller.UserId,
-                CancellationToken.None
-            )
+            CreateUserAdminSut()
+                .UpdateUserRoleAsync(
+                    onlyAdmin.UserId,
+                    new UpdateUserRoleRequest(EmployeeRoleId),
+                    currentUserId: caller.UserId,
+                    CancellationToken.None
+                )
         );
 
         ex.Message.ShouldBe(Messages.Rule_CannotDemoteLastAdmin);
@@ -86,12 +89,13 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var target = AddAdmin("target@test.local");
         var caller = AddAdmin("caller@test.local");
 
-        var result = await CreateUserAdminSut().UpdateUserRoleAsync(
-            target.UserId,
-            new UpdateUserRoleRequest(EmployeeRoleId),
-            currentUserId: caller.UserId,
-            CancellationToken.None
-        );
+        var result = await CreateUserAdminSut()
+            .UpdateUserRoleAsync(
+                target.UserId,
+                new UpdateUserRoleRequest(EmployeeRoleId),
+                currentUserId: caller.UserId,
+                CancellationToken.None
+            );
 
         result.RoleId.ShouldBe(EmployeeRoleId);
     }
@@ -103,12 +107,13 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         AddAdmin("a2@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateUserAdminSut().UpdateUserStatusAsync(
-                admin.UserId,
-                new UpdateUserStatusRequest(false),
-                currentUserId: admin.UserId,
-                CancellationToken.None
-            )
+            CreateUserAdminSut()
+                .UpdateUserStatusAsync(
+                    admin.UserId,
+                    new UpdateUserStatusRequest(false),
+                    currentUserId: admin.UserId,
+                    CancellationToken.None
+                )
         );
 
         ex.Message.ShouldBe(Messages.Rule_CannotLockSelf);
@@ -121,12 +126,13 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var caller = TestDataSeeder.AddCustomer(_handle.Db, "caller@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateUserAdminSut().UpdateUserStatusAsync(
-                onlyAdmin.UserId,
-                new UpdateUserStatusRequest(false),
-                currentUserId: caller.UserId,
-                CancellationToken.None
-            )
+            CreateUserAdminSut()
+                .UpdateUserStatusAsync(
+                    onlyAdmin.UserId,
+                    new UpdateUserStatusRequest(false),
+                    currentUserId: caller.UserId,
+                    CancellationToken.None
+                )
         );
 
         ex.Message.ShouldBe(Messages.Rule_CannotLockLastAdmin);
@@ -138,12 +144,13 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var (user, employee) = TestDataSeeder.AddEmployee(_handle.Db, "me@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateEmployeeSut().UpdateEmployeeAsync(
-                employee.EmployeeId,
-                new UpdateEmployeeRequest(null, null, IsActive: false),
-                currentUserId: user.UserId,
-                CancellationToken.None
-            )
+            CreateEmployeeSut()
+                .UpdateEmployeeAsync(
+                    employee.EmployeeId,
+                    new UpdateEmployeeRequest(null, null, IsActive: false),
+                    currentUserId: user.UserId,
+                    CancellationToken.None
+                )
         );
 
         ex.Message.ShouldBe(Messages.Rule_CannotDeactivateSelfEmployee);
