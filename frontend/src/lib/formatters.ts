@@ -16,7 +16,11 @@ export function formatPercent(
   opts?: { showSign?: boolean },
 ): string {
   const sign = opts?.showSign && value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(1)}%`;
+  const text = new Intl.NumberFormat(getLocale(), {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value);
+  return `${sign}${text}%`;
 }
 
 export function formatNumber(
@@ -31,28 +35,48 @@ export function formatShowtimeHour(iso: string) {
   return formatTime(iso, iso);
 }
 
-function formatWithPattern(
+const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+};
+const DAY_MONTH_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+};
+const TIME_OPTIONS: Intl.DateTimeFormatOptions = {
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+};
+
+function formatWithIntl(
   date: string | Date | null | undefined,
-  pattern: string,
+  options: Intl.DateTimeFormatOptions,
   fallback: string,
 ): string {
   const d = toWallDate(date);
   if (!d) return fallback;
   try {
-    return format(d, pattern);
+    return new Intl.DateTimeFormat(getLocale(), options).format(d);
   } catch {
     return fallback;
   }
 }
 
 export const formatDate = (date?: string | Date | null, fallback = "—") =>
-  formatWithPattern(date, "dd/MM/yyyy", fallback);
+  formatWithIntl(date, DATE_OPTIONS, fallback);
+
+export const formatDayMonthLocalized = (
+  date?: string | Date | null,
+  fallback = "",
+) => formatWithIntl(date, DAY_MONTH_OPTIONS, fallback);
 
 export const formatTime = (date?: string | Date | null, fallback = "—") =>
-  formatWithPattern(date, "HH:mm", fallback);
+  formatWithIntl(date, TIME_OPTIONS, fallback);
 
 export const formatDateTime = (date?: string | Date | null, fallback = "—") =>
-  formatWithPattern(date, "dd/MM/yyyy HH:mm", fallback);
+  formatWithIntl(date, { ...DATE_OPTIONS, ...TIME_OPTIONS }, fallback);
 
 export function toDateInputValue(date?: string | Date | null): string | null {
   const d = toWallDate(date);

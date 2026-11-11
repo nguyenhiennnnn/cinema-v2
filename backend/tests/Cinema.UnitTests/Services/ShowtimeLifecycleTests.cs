@@ -20,7 +20,7 @@ public class ShowtimeLifecycleServiceTests : ShowtimeServiceTestBase
         var running = TestDataSeeder.AddShowtime(Db, movie, room, seats, DateTime.UtcNow.AddMinutes(-30));
         var cancelled = TestDataSeeder.AddShowtime(
             Db, movie, room, seats, DateTime.UtcNow.AddHours(-8), status: ShowtimeStatus.Cancelled);
-        var sut = CreateSut();
+        var sut = CreateLifecycleService();
 
         var count = await sut.CompleteEndedShowtimesAsync(CancellationToken.None);
 
@@ -44,7 +44,7 @@ public class ShowtimeLifecycleServiceTests : ShowtimeServiceTestBase
         var comingSoon = TestDataSeeder.AddMovie(Db, title: "Soon", status: MovieStatus.ComingSoon);
         TestDataSeeder.AddShowtime(Db, stale, room, seats, DateTime.UtcNow.AddDays(-3), status: ShowtimeStatus.Completed);
         TestDataSeeder.AddShowtime(Db, upcoming, room, seats, DateTime.UtcNow.AddDays(1));
-        var sut = CreateSut();
+        var sut = CreateLifecycleService();
 
         var count = await sut.EndMoviesWithoutUpcomingShowtimesAsync(CancellationToken.None);
 

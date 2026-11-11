@@ -13,6 +13,7 @@ import { FormImageField } from "@/components/common/form/form-upload-field";
 import { FormTextareaField } from "@/components/common/form/form-textarea-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
+import { getCurrencyLabel } from "@/lib/regional-settings";
 
 const comboFormSchema = z.object({
   name: z
@@ -99,7 +100,7 @@ export const ComboUpdateForm = ({ combo, onSuccess }: ComboUpdateFormProps) => {
         <FormInputField
           name="price"
           control={form.control}
-          label="Giá (VND)"
+          label={`Giá (${getCurrencyLabel()})`}
           type="number"
           min={0}
           step={1000}

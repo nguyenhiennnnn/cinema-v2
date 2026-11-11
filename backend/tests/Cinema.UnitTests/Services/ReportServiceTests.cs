@@ -1,4 +1,5 @@
 using Cinema.Application.Services.Reports;
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
@@ -15,6 +16,7 @@ public class ReportServiceTests : IDisposable
     private ReportService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
+        BusinessTime.Configure("Asia/Ho_Chi_Minh");
         return new ReportService(_handle.Db);
     }
 

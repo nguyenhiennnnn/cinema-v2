@@ -16,6 +16,7 @@ import { useMyProfile, useUpdateMyProfile } from "@/features/client/account/hook
 import { toDateInputValue } from "@/lib/formatters";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useEffect } from "react";
+import { getBusinessTodayDate } from "@/lib/business-time";
 
 const GENDER_OPTIONS = [
   { value: "Male", label: "Nam" },
@@ -120,8 +121,8 @@ const AccountProfilePage = () => {
             label="Ngày sinh"
             placeholder="Chọn ngày sinh"
             captionLayout="dropdown"
-            fromYear={new Date().getFullYear() - 100}
-            toYear={new Date().getFullYear()}
+            fromYear={getBusinessTodayDate().getFullYear() - 100}
+            toYear={getBusinessTodayDate().getFullYear()}
             emptyValue={null}
           />
 

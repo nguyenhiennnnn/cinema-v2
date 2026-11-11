@@ -1,139 +1,14 @@
 using Cinema.Application.DTOs.Auth;
 using Cinema.Domain.Entities;
-using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
 using Cinema.UnitTests.TestSupport;
-using Hangfire.Common;
-using Hangfire.States;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Shouldly;
 
 namespace Cinema.UnitTests.Services;
-
-public class AuthServiceRegisterAndConfirmTests : AuthServiceTestBase
-{
-    [Fact]
-    public async Task RegisterAsync_NewEmail_CreatesUserAndCustomerProfileAndQueuesVerificationEmail()
-    {
-        var sut = CreateSut();
-        var request = new RegisterRequest("Nguyen Van A", "new@test.local", "Str0ngPass", null);
-
-        var response = await sut.RegisterAsync(request, CancellationToken.None);
-
-        response.Email.ShouldBe("new@test.local");
-        var user = await Db.Users.SingleAsync(u => u.UserId == response.UserId);
-        user.RoleId.ShouldBe(TestDataSeeder.CustomerRoleId);
-        user.EmailConfirmed.ShouldBeFalse();
-        (await Db.CustomerProfiles.AnyAsync(p => p.UserId == user.UserId)).ShouldBeTrue();
-        (
-            await Db.UserVerificationTokens.AnyAsync(t =>
-                t.UserId == user.UserId && t.Purpose == VerificationTokenPurpose.EmailConfirmation
-            )
-        ).ShouldBeTrue();
-        BackgroundJobClientMock.Verify(
-            c => c.Create(It.IsAny<Job>(), It.IsAny<IState>()),
-            Times.Once
-        );
-    }
-
-    [Fact]
-    public async Task RegisterAsync_EmailAlreadyExists_ThrowsValidationAppException()
-    {
-        TestDataSeeder.AddCustomer(Db, email: "existing@test.local");
-        var sut = CreateSut();
-        var request = new RegisterRequest(
-            "Nguyen Van A",
-            "existing@test.local",
-            "Str0ngPass",
-            null
-        );
-
-        var ex = await Should.ThrowAsync<ValidationAppException>(() =>
-            sut.RegisterAsync(request, CancellationToken.None)
-        );
-        ex.Errors!.ShouldContainKey("email");
-    }
-
-    [Fact]
-    public async Task ConfirmEmailAsync_ValidToken_ConfirmsEmailAndMarksTokenUsed()
-    {
-        var user = TestDataSeeder.AddCustomer(Db, emailConfirmed: false);
-        TokenServiceMock.Setup(t => t.HashOpaqueToken("raw-token")).Returns("hashed-token");
-        Db.UserVerificationTokens.Add(
-            new UserVerificationToken
-            {
-                UserId = user.UserId,
-                TokenHash = "hashed-token",
-                Purpose = VerificationTokenPurpose.EmailConfirmation,
-                ExpiresAt = DateTime.UtcNow.AddHours(1),
-                Used = false,
-                CreatedAt = DateTime.UtcNow,
-            }
-        );
-        await Db.SaveChangesAsync();
-        var sut = CreateSut();
-
-        await sut.ConfirmEmailAsync(new ConfirmEmailRequest("raw-token"), CancellationToken.None);
-
-        var reloadedUser = await Db.Users.SingleAsync(u => u.UserId == user.UserId);
-        reloadedUser.EmailConfirmed.ShouldBeTrue();
-        var reloadedToken = await Db.UserVerificationTokens.SingleAsync(t =>
-            t.UserId == user.UserId
-        );
-        reloadedToken.Used.ShouldBeTrue();
-    }
-
-    [Fact]
-    public async Task ConfirmEmailAsync_ExpiredToken_ThrowsValidationAppException()
-    {
-        var user = TestDataSeeder.AddCustomer(Db, emailConfirmed: false);
-        TokenServiceMock.Setup(t => t.HashOpaqueToken("raw-token")).Returns("hashed-token");
-        Db.UserVerificationTokens.Add(
-            new UserVerificationToken
-            {
-                UserId = user.UserId,
-                TokenHash = "hashed-token",
-                Purpose = VerificationTokenPurpose.EmailConfirmation,
-                ExpiresAt = DateTime.UtcNow.AddHours(-1),
-                Used = false,
-                CreatedAt = DateTime.UtcNow.AddHours(-2),
-            }
-        );
-        await Db.SaveChangesAsync();
-        var sut = CreateSut();
-
-        await Should.ThrowAsync<ValidationAppException>(() =>
-            sut.ConfirmEmailAsync(new ConfirmEmailRequest("raw-token"), CancellationToken.None)
-        );
-    }
-
-    [Fact]
-    public async Task ConfirmEmailAsync_AlreadyUsedToken_ThrowsValidationAppException()
-    {
-        var user = TestDataSeeder.AddCustomer(Db, emailConfirmed: false);
-        TokenServiceMock.Setup(t => t.HashOpaqueToken("raw-token")).Returns("hashed-token");
-        Db.UserVerificationTokens.Add(
-            new UserVerificationToken
-            {
-                UserId = user.UserId,
-                TokenHash = "hashed-token",
-                Purpose = VerificationTokenPurpose.EmailConfirmation,
-                ExpiresAt = DateTime.UtcNow.AddHours(1),
-                Used = true, 
-                CreatedAt = DateTime.UtcNow,
-            }
-        );
-        await Db.SaveChangesAsync();
-        var sut = CreateSut();
-
-        await Should.ThrowAsync<ValidationAppException>(() =>
-            sut.ConfirmEmailAsync(new ConfirmEmailRequest("raw-token"), CancellationToken.None)
-        );
-    }
-}
 
 public class AuthServiceLoginTests : AuthServiceTestBase
 {
@@ -146,7 +21,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
                 h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), "correct-password")
             )
             .Returns(PasswordVerificationResult.Success);
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         var response = await sut.LoginAsync(
             new LoginRequest("login@test.local", "correct-password"),
@@ -163,7 +38,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
     [Fact]
     public async Task LoginAsync_UnknownEmail_ThrowsUnauthorized()
     {
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
             sut.LoginAsync(
@@ -183,7 +58,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
                 h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
             )
             .Returns(PasswordVerificationResult.Failed);
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
             sut.LoginAsync(
@@ -203,7 +78,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
                 h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
             )
             .Returns(PasswordVerificationResult.Success);
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<ForbiddenAppException>(() =>
             sut.LoginAsync(
@@ -223,7 +98,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
                 h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
             )
             .Returns(PasswordVerificationResult.Success);
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<ForbiddenAppException>(() =>
             sut.LoginAsync(
@@ -245,9 +120,8 @@ public class AuthServiceLoginTests : AuthServiceTestBase
                 h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
             )
             .Returns(PasswordVerificationResult.Success);
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
-        // adminOnly: false == the regular customer-facing /auth/login endpoint.
         await Should.ThrowAsync<ForbiddenAppException>(() =>
             sut.LoginAsync(
                 new LoginRequest("admin@test.local", "whatever"),
@@ -271,7 +145,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
         AllowPassword();
 
         await Should.ThrowAsync<ForbiddenAppException>(() =>
-            CreateSut()
+            CreateAuthService()
                 .LoginAsync(
                     new LoginRequest("cust@test.local", "pw"),
                     adminOnly: true,
@@ -293,7 +167,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
         AllowPassword();
 
         await Should.ThrowAsync<ForbiddenAppException>(() =>
-            CreateSut()
+            CreateAuthService()
                 .LoginAsync(
                     new LoginRequest("odd@test.local", "pw"),
                     adminOnly: true,
@@ -308,7 +182,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
         var (admin, _) = TestDataSeeder.AddEmployee(Db, email: "boss@test.local");
         AllowPassword();
 
-        var response = await CreateSut()
+        var response = await CreateAuthService()
             .LoginAsync(
                 new LoginRequest("boss@test.local", "pw"),
                 adminOnly: true,
@@ -330,7 +204,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
         AllowPassword();
 
         await Should.ThrowAsync<ForbiddenAppException>(() =>
-            CreateSut()
+            CreateAuthService()
                 .LoginAsync(
                     new LoginRequest("staff@test.local", "pw"),
                     adminOnly: true,
@@ -351,7 +225,7 @@ public class AuthServiceLoginTests : AuthServiceTestBase
         PasswordHasherMock
             .Setup(h => h.HashPassword(It.IsAny<User>(), "correct-password"))
             .Returns("new-stronger-hash");
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await sut.LoginAsync(
             new LoginRequest("rehash@test.local", "correct-password"),
@@ -390,7 +264,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
         TokenServiceMock
             .Setup(t => t.HashOpaqueToken("new-refresh-raw"))
             .Returns("hash:new-refresh-raw");
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         var response = await sut.RefreshAsync(
             new RefreshRequest("refresh-raw"),
@@ -411,7 +285,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
     [Fact]
     public async Task RefreshAsync_UnknownToken_ThrowsUnauthorized()
     {
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
             sut.RefreshAsync(new RefreshRequest("nonexistent"), CancellationToken.None)
@@ -424,7 +298,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
         var (_, token) = await SeedActiveRefreshTokenAsync();
         token.IsRevoked = true;
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
             sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
@@ -458,7 +332,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
         second.IsRevoked = true;
         second.ReplacedByTokenId = third.RefreshTokenId;
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
             sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
@@ -483,7 +357,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
         Db.RefreshTokens.Add(other);
         token.IsRevoked = true;
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
             sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
@@ -499,7 +373,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
         var (_, token) = await SeedActiveRefreshTokenAsync();
         token.ExpiresAt = DateTime.UtcNow.AddDays(-1);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
             sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
@@ -510,7 +384,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
     public async Task LogoutAsync_ActiveToken_RevokesIt()
     {
         var (_, token) = await SeedActiveRefreshTokenAsync();
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         await sut.LogoutAsync(new LogoutRequest("refresh-raw"), CancellationToken.None);
 
@@ -523,7 +397,7 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
     [Fact]
     public async Task LogoutAsync_UnknownToken_StillReturnsSuccessMessage()
     {
-        var sut = CreateSut();
+        var sut = CreateAuthService();
 
         var result = await sut.LogoutAsync(
             new LogoutRequest("never-issued"),
@@ -531,208 +405,5 @@ public class AuthServiceRefreshAndLogoutTests : AuthServiceTestBase
         );
 
         result.Message.ShouldNotBeNullOrWhiteSpace();
-    }
-}
-
-public class AuthServicePasswordTests : AuthServiceTestBase
-{
-    [Fact]
-    public async Task ChangePasswordAsync_WrongCurrentPassword_ThrowsValidationAppException()
-    {
-        var user = TestDataSeeder.AddCustomer(Db);
-        PasswordHasherMock
-            .Setup(h =>
-                h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
-            )
-            .Returns(PasswordVerificationResult.Failed);
-        var sut = CreateSut();
-
-        var ex = await Should.ThrowAsync<ValidationAppException>(() =>
-            sut.ChangePasswordAsync(
-                user.UserId,
-                new ChangePasswordRequest("wrong", "Str0ngPass"),
-                CancellationToken.None
-            )
-        );
-        ex.Errors!.ShouldContainKey("currentPassword");
-    }
-
-    [Fact]
-    public async Task ChangePasswordAsync_CorrectCurrentPassword_UpdatesHash()
-    {
-        var user = TestDataSeeder.AddCustomer(Db);
-        PasswordHasherMock
-            .Setup(h => h.VerifyHashedPassword(It.IsAny<User>(), It.IsAny<string>(), "current"))
-            .Returns(PasswordVerificationResult.Success);
-        PasswordHasherMock
-            .Setup(h => h.HashPassword(It.IsAny<User>(), "NewStr0ngPass"))
-            .Returns("new-hash");
-        var sut = CreateSut();
-
-        await sut.ChangePasswordAsync(
-            user.UserId,
-            new ChangePasswordRequest("current", "NewStr0ngPass"),
-            CancellationToken.None
-        );
-
-        var reloaded = await Db.Users.SingleAsync(u => u.UserId == user.UserId);
-        reloaded.PasswordHash.ShouldBe("new-hash");
-    }
-
-    [Fact]
-    public async Task ForgotPasswordAsync_UnknownEmail_ReturnsStandardMessageWithoutQueueingEmail()
-    {
-        var sut = CreateSut();
-
-        var result = await sut.ForgotPasswordAsync(
-            new ForgotPasswordRequest("nobody@test.local"),
-            CancellationToken.None
-        );
-
-        result.Message.ShouldNotBeNullOrWhiteSpace();
-        BackgroundJobClientMock.Verify(
-            c => c.Create(It.IsAny<Job>(), It.IsAny<IState>()),
-            Times.Never
-        );
-    }
-
-    [Fact]
-    public async Task ResetPasswordAsync_ValidToken_UpdatesPasswordAndRevokesAllActiveRefreshTokens()
-    {
-        var user = TestDataSeeder.AddCustomer(Db);
-        Db.RefreshTokens.Add(
-            new RefreshToken
-            {
-                UserId = user.UserId,
-                TokenHash = "some-active-refresh-hash",
-                ExpiresAt = DateTime.UtcNow.AddDays(5),
-                IsRevoked = false,
-                CreatedAt = DateTime.UtcNow,
-            }
-        );
-        TokenServiceMock.Setup(t => t.HashOpaqueToken("reset-raw")).Returns("hashed-reset-token");
-        Db.UserVerificationTokens.Add(
-            new UserVerificationToken
-            {
-                UserId = user.UserId,
-                TokenHash = "hashed-reset-token",
-                Purpose = VerificationTokenPurpose.PasswordReset,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(30),
-                Used = false,
-                CreatedAt = DateTime.UtcNow,
-            }
-        );
-        await Db.SaveChangesAsync();
-        PasswordHasherMock
-            .Setup(h => h.HashPassword(It.IsAny<User>(), "NewStr0ngPass"))
-            .Returns("reset-hash");
-        var sut = CreateSut();
-
-        await sut.ResetPasswordAsync(
-            new ResetPasswordRequest("reset-raw", "NewStr0ngPass"),
-            CancellationToken.None
-        );
-
-        var reloadedUser = await Db.Users.SingleAsync(u => u.UserId == user.UserId);
-        reloadedUser.PasswordHash.ShouldBe("reset-hash");
-        (
-            await Db.RefreshTokens.CountAsync(rt => rt.UserId == user.UserId && !rt.IsRevoked)
-        ).ShouldBe(0);
-    }
-}
-
-public class AuthServiceStaffInviteTests : AuthServiceTestBase
-{
-    private static readonly TimeSpan InviteValidity = TimeSpan.FromHours(72);
-
-    [Fact]
-    public async Task SendStaffInviteAsync_IssuesStaffInviteTokenValidFor72HoursAndQueuesEmail()
-    {
-        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
-        var sut = CreateSut();
-
-        await sut.SendStaffInviteAsync(user, CancellationToken.None);
-
-        var token = await Db.UserVerificationTokens.SingleAsync(t => t.UserId == user.UserId);
-        token.Purpose.ShouldBe(VerificationTokenPurpose.StaffInvite);
-        token.Used.ShouldBeFalse();
-        (token.ExpiresAt - DateTime.UtcNow).ShouldBeInRange(
-            InviteValidity - TimeSpan.FromMinutes(1),
-            InviteValidity
-        );
-        BackgroundJobClientMock.Verify(
-            c => c.Create(It.IsAny<Job>(), It.IsAny<IState>()),
-            Times.Once
-        );
-    }
-
-    [Fact]
-    public async Task SendStaffInviteAsync_Resend_InvalidatesPreviousInviteTokens()
-    {
-        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
-
-        await CreateSut().SendStaffInviteAsync(user, CancellationToken.None);
-        await CreateSut().SendStaffInviteAsync(user, CancellationToken.None);
-
-        var tokens = await Db.UserVerificationTokens.Where(t => t.UserId == user.UserId).ToListAsync();
-        tokens.Count.ShouldBe(2);
-        tokens.Count(t => !t.Used).ShouldBe(1);
-    }
-
-    [Fact]
-    public async Task ResetPasswordAsync_StaffInviteToken_SetsPasswordAndConsumesToken()
-    {
-        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
-        user.PasswordHash = User.PendingPasswordHash;
-        TokenServiceMock.Setup(t => t.HashOpaqueToken("invite-raw")).Returns("hashed-invite");
-        Db.UserVerificationTokens.Add(
-            new UserVerificationToken
-            {
-                UserId = user.UserId,
-                TokenHash = "hashed-invite",
-                Purpose = VerificationTokenPurpose.StaffInvite,
-                ExpiresAt = DateTime.UtcNow.AddHours(10),
-                CreatedAt = DateTime.UtcNow,
-            }
-        );
-        await Db.SaveChangesAsync();
-        PasswordHasherMock
-            .Setup(h => h.HashPassword(It.IsAny<User>(), "NewStr0ngPass"))
-            .Returns("invite-hash");
-
-        await CreateSut().ResetPasswordAsync(
-            new ResetPasswordRequest("invite-raw", "NewStr0ngPass"),
-            CancellationToken.None
-        );
-
-        (await Db.Users.AsNoTracking().SingleAsync(u => u.UserId == user.UserId))
-            .PasswordHash.ShouldBe("invite-hash");
-        (await Db.UserVerificationTokens.AsNoTracking().SingleAsync(t => t.TokenHash == "hashed-invite"))
-            .Used.ShouldBeTrue();
-    }
-
-    [Fact]
-    public async Task ResetPasswordAsync_ExpiredStaffInviteToken_Throws()
-    {
-        var user = TestDataSeeder.AddCustomer(Db, "staff@test.local");
-        TokenServiceMock.Setup(t => t.HashOpaqueToken("old-raw")).Returns("hashed-old");
-        Db.UserVerificationTokens.Add(
-            new UserVerificationToken
-            {
-                UserId = user.UserId,
-                TokenHash = "hashed-old",
-                Purpose = VerificationTokenPurpose.StaffInvite,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(-1),
-                CreatedAt = DateTime.UtcNow.AddHours(-73),
-            }
-        );
-        await Db.SaveChangesAsync();
-
-        await Should.ThrowAsync<ValidationAppException>(() =>
-            CreateSut().ResetPasswordAsync(
-                new ResetPasswordRequest("old-raw", "NewStr0ngPass"),
-                CancellationToken.None
-            )
-        );
     }
 }

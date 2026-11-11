@@ -62,6 +62,12 @@ services:
         sync: false
       - key: Brand__TimeZoneId
         value: Asia/Ho_Chi_Minh
+      - key: Brand__Locale
+        value: vi-VN
+      - key: Brand__CurrencyCode
+        value: VND
+      - key: Brand__CurrencySymbol
+        value: VNĐ
 
       # ── Booking / Rate Limit ─────────────────────────────────────────────
       - key: Booking__CheckInOpenMinutes

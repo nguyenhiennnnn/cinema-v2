@@ -27,7 +27,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
                 SeatNumber = 5,
                 IsActive = false,
             }
-        ); // inactive
+        );
         Db.Seats.Add(
             new Seat
             {
@@ -43,7 +43,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
             durationMinutes: 120,
             status: MovieStatus.NowShowing
         );
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         var response = await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, SafeStartTime(), 90_000m),
@@ -67,13 +67,13 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
                 RoomId = room.RoomId,
                 SeatRow = "V",
                 SeatNumber = 1,
-                SeatTypeId = TestDataSeeder.VipSeatTypeId, // seeded PriceMultiplier 1.5
+                SeatTypeId = TestDataSeeder.VipSeatTypeId,
                 IsActive = true,
             }
         );
         await Db.SaveChangesAsync();
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         var response = await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, SafeStartTime(), 100_000m),
@@ -91,7 +91,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
     {
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<ValidationAppException>(() =>
             sut.CreateShowtimeAsync(
@@ -105,7 +105,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
     public async Task CreateShowtimeAsync_RoomDoesNotExist_ThrowsValidationAppException()
     {
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<ValidationAppException>(() =>
             sut.CreateShowtimeAsync(
@@ -121,7 +121,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db, status: MovieStatus.Ended);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CreateShowtimeAsync(
@@ -137,7 +137,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db, isActive: false);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CreateShowtimeAsync(
@@ -150,9 +150,9 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
     [Fact]
     public async Task CreateShowtimeAsync_RoomHasNoSeatMap_ThrowsBusinessRuleException()
     {
-        var room = TestDataSeeder.AddRoom(Db); // no seats added
+        var room = TestDataSeeder.AddRoom(Db);
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CreateShowtimeAsync(
@@ -168,7 +168,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
         var tooEarly = BusinessTime.ToUtc(BusinessTime.Today().AddDays(1), new TimeOnly(6, 0));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
@@ -184,15 +184,14 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
     {
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
-        var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120); // + 15min buffer = 135min block
-        var sut = CreateSut();
+        var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
+        var sut = CreateShowtimeService();
         var firstStart = SafeStartTime();
         await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, firstStart, 90_000m),
             CancellationToken.None
         );
 
-        // Starts 1h after the first showtime's start — well before it ends (135 min later).
         var overlappingStart = firstStart.AddHours(1);
 
         await Should.ThrowAsync<ConflictAppException>(() =>
@@ -210,15 +209,13 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
         RoomBufferMinutes = 20;
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
         var firstStart = SafeStartTime();
         var first = await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, firstStart, 90_000m),
             CancellationToken.None
         );
 
-        // First showtime ends exactly at first.EndTime (100min movie + 20min buffer) — starting
-        // the next showtime right at that boundary must not be treated as an overlap.
         var second = await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, first.EndTime, 90_000m),
             CancellationToken.None
@@ -233,16 +230,16 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
-        var sut = CreateSut();
+        var sut = CreateCancellationService();
+        var showtimeSut = CreateShowtimeService();
         var start = SafeStartTime();
-        var first = await sut.CreateShowtimeAsync(
+        var first = await showtimeSut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, start, 90_000m),
             CancellationToken.None
         );
         await sut.DeleteShowtimeAsync(first.ShowtimeId, CancellationToken.None);
 
-        // Same slot should now be free again since the earlier showtime was cancelled.
-        var second = await sut.CreateShowtimeAsync(
+        var second = await showtimeSut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, start, 90_000m),
             CancellationToken.None
         );
@@ -264,7 +261,7 @@ public class ShowtimeServiceUpdateAndDeleteTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room1.RoomId, count: 1);
         TestDataSeeder.AddSeats(Db, room2.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
         var created = await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room1.RoomId, SafeStartTime(), 90_000m),
             CancellationToken.None
@@ -285,7 +282,7 @@ public class ShowtimeServiceUpdateAndDeleteTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
-        var showtimeSut = CreateSut();
+        var showtimeSut = CreateShowtimeService();
         var created = await showtimeSut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, SafeStartTime(), 90_000m),
             CancellationToken.None
@@ -319,8 +316,9 @@ public class ShowtimeServiceUpdateAndDeleteTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
-        var created = await sut.CreateShowtimeAsync(
+        var sut = CreateCancellationService();
+        var showtimeSut = CreateShowtimeService();
+        var created = await showtimeSut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, SafeStartTime(), 90_000m),
             CancellationToken.None
         );
@@ -346,10 +344,6 @@ public class ShowtimeServiceUpdateAndDeleteTests : ShowtimeServiceTestBase
         );
         await Db.SaveChangesAsync();
 
-        // The manual mutations above were tracked directly on this context (same `sut`,
-        // no intervening CreateSut() call) — DeleteShowtimeAsync's bulk ExecuteUpdateAsync
-        // calls bypass the tracker, so without clearing it here the entities we just
-        // touched would keep resolving to their pre-delete in-memory values afterwards.
         Db.ChangeTracker.Clear();
 
         var result = await sut.DeleteShowtimeAsync(created.ShowtimeId, CancellationToken.None);

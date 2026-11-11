@@ -16,7 +16,7 @@ public class EmployeeServiceInviteTests : IDisposable
     private const int EmployeeRoleId = 3;
 
     private readonly SqliteAppDbContextHandle _handle = new();
-    private readonly Mock<IAuthService> _authMock = new();
+    private readonly Mock<IRegistrationService> _registrationMock = new();
 
     static EmployeeServiceInviteTests()
     {
@@ -35,7 +35,13 @@ public class EmployeeServiceInviteTests : IDisposable
     private EmployeeService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new EmployeeService(_handle.Db, _authMock.Object);
+        return new EmployeeService(_handle.Db, _registrationMock.Object);
+    }
+
+    private UserAdminService CreateUserAdminSut()
+    {
+        _handle.Db.ChangeTracker.Clear();
+        return new UserAdminService(_handle.Db);
     }
 
     private static InviteEmployeeRequest Invite(string email = "new.staff@test.local") =>
@@ -56,7 +62,7 @@ public class EmployeeServiceInviteTests : IDisposable
         employee.HireDate.ShouldBe(new DateOnly(2026, 11, 1));
         result.EmployeeId.ShouldBe(employee.EmployeeId);
         result.IsPendingActivation.ShouldBeTrue();
-        _authMock.Verify(
+        _registrationMock.Verify(
             a => a.SendStaffInviteAsync(It.Is<User>(u => u.UserId == user.UserId), It.IsAny<CancellationToken>()),
             Times.Once
         );
@@ -71,7 +77,7 @@ public class EmployeeServiceInviteTests : IDisposable
             CreateSut().InviteEmployeeAsync(Invite("dup@test.local"), CancellationToken.None)
         );
 
-        _authMock.Verify(
+        _registrationMock.Verify(
             a => a.SendStaffInviteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
             Times.Never
         );
@@ -93,7 +99,7 @@ public class EmployeeServiceInviteTests : IDisposable
     [Fact]
     public async Task InviteEmployeeAsync_SendInviteFails_RollsBackUserAndEmployee()
     {
-        _authMock
+        _registrationMock
             .Setup(a => a.SendStaffInviteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("mail down"));
 
@@ -110,11 +116,11 @@ public class EmployeeServiceInviteTests : IDisposable
     public async Task ResendEmployeeInviteAsync_PendingEmployee_SendsInvite()
     {
         var created = await CreateSut().InviteEmployeeAsync(Invite(), CancellationToken.None);
-        _authMock.Invocations.Clear();
+        _registrationMock.Invocations.Clear();
 
         await CreateSut().ResendEmployeeInviteAsync(created.EmployeeId, CancellationToken.None);
 
-        _authMock.Verify(
+        _registrationMock.Verify(
             a => a.SendStaffInviteAsync(It.Is<User>(u => u.UserId == created.UserId), It.IsAny<CancellationToken>()),
             Times.Once
         );
@@ -130,7 +136,7 @@ public class EmployeeServiceInviteTests : IDisposable
         );
 
         ex.Message.ShouldBe(Messages.Rule_EmployeeAlreadyActivated);
-        _authMock.Verify(
+        _registrationMock.Verify(
             a => a.SendStaffInviteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
             Times.Never
         );
@@ -231,8 +237,8 @@ public class EmployeeServiceInviteTests : IDisposable
         TestDataSeeder.AddCustomer(_handle.Db, "cust@test.local");
         TestDataSeeder.AddEmployee(_handle.Db, "staff@test.local");
 
-        var withoutCustomers = await CreateSut().GetAdminUsersForSelectAsync(null, false, CancellationToken.None);
-        var withCustomers = await CreateSut().GetAdminUsersForSelectAsync(
+        var withoutCustomers = await CreateUserAdminSut().GetAdminUsersForSelectAsync(null, false, CancellationToken.None);
+        var withCustomers = await CreateUserAdminSut().GetAdminUsersForSelectAsync(
             null,
             false,
             CancellationToken.None,

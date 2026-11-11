@@ -5,12 +5,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FAQ_ITEMS } from "../constants";
+import { getFaqItems } from "../constants";
 
 export function MembershipFaq() {
   return (
     <Accordion className="w-full">
-      {FAQ_ITEMS.map((item, index) => (
+      {getFaqItems().map((item, index) => (
         <Fragment key={item.question}>
           <AccordionItem value={`faq-${index}`}>
             <AccordionTrigger className="text-left text-sm font-medium text-foreground md:text-base">

@@ -19,18 +19,26 @@ public class BookingSeatReleaser(IAppDbContext db, IRealtimeNotifier realtimeNot
     )
     {
         var holderUserId = await ResolveHolderUserIdAsync(booking, cancellationToken);
-        var seats = await db
+        var seatIds = await db
             .ShowtimeSeats.HeldFor(booking, holderUserId)
+            .Select(s => s.ShowtimeSeatId)
             .ToListAsync(cancellationToken);
 
-        var seatIds = seats.Select(s => s.ShowtimeSeatId).ToList();
-        foreach (var seat in seats)
+        if (seatIds.Count > 0)
         {
-            seat.Status = ShowtimeSeatStatus.Available;
-            seat.HeldByUserId = null;
-            seat.HeldByBookingId = null;
-            seat.HeldUntil = null;
+            await db
+                .ShowtimeSeats.Where(ss => seatIds.Contains(ss.ShowtimeSeatId))
+                .ExecuteUpdateAsync(
+                    setters =>
+                        setters
+                            .SetProperty(x => x.Status, ShowtimeSeatStatus.Available)
+                            .SetProperty(x => x.HeldByUserId, (int?)null)
+                            .SetProperty(x => x.HeldByBookingId, (int?)null)
+                            .SetProperty(x => x.HeldUntil, (DateTime?)null),
+                    cancellationToken
+                );
         }
+
         return seatIds;
     }
 

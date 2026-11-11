@@ -13,7 +13,7 @@ namespace Cinema.UnitTests.Services;
 
 public class EmployeeServiceRoleRulesTests : IDisposable
 {
-    private const int EmployeeRoleId = 3; // seeded by SeedData.Apply
+    private const int EmployeeRoleId = 3;
 
     private readonly SqliteAppDbContextHandle _handle = new();
 
@@ -24,10 +24,16 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         _handle.Db.SaveChanges();
     }
 
-    private EmployeeService CreateSut()
+    private UserAdminService CreateUserAdminSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new EmployeeService(_handle.Db, Mock.Of<IAuthService>());
+        return new UserAdminService(_handle.Db);
+    }
+
+    private EmployeeService CreateEmployeeSut()
+    {
+        _handle.Db.ChangeTracker.Clear();
+        return new EmployeeService(_handle.Db, Mock.Of<IRegistrationService>());
     }
 
     private User AddAdmin(string email)
@@ -43,7 +49,7 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         AddAdmin("a2@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateSut().UpdateUserRoleAsync(
+            CreateUserAdminSut().UpdateUserRoleAsync(
                 admin.UserId,
                 new UpdateUserRoleRequest(EmployeeRoleId),
                 currentUserId: admin.UserId,
@@ -63,7 +69,7 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var caller = TestDataSeeder.AddCustomer(_handle.Db, "caller@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateSut().UpdateUserRoleAsync(
+            CreateUserAdminSut().UpdateUserRoleAsync(
                 onlyAdmin.UserId,
                 new UpdateUserRoleRequest(EmployeeRoleId),
                 currentUserId: caller.UserId,
@@ -80,7 +86,7 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var target = AddAdmin("target@test.local");
         var caller = AddAdmin("caller@test.local");
 
-        var result = await CreateSut().UpdateUserRoleAsync(
+        var result = await CreateUserAdminSut().UpdateUserRoleAsync(
             target.UserId,
             new UpdateUserRoleRequest(EmployeeRoleId),
             currentUserId: caller.UserId,
@@ -97,7 +103,7 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         AddAdmin("a2@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateSut().UpdateUserStatusAsync(
+            CreateUserAdminSut().UpdateUserStatusAsync(
                 admin.UserId,
                 new UpdateUserStatusRequest(false),
                 currentUserId: admin.UserId,
@@ -115,7 +121,7 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var caller = TestDataSeeder.AddCustomer(_handle.Db, "caller@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateSut().UpdateUserStatusAsync(
+            CreateUserAdminSut().UpdateUserStatusAsync(
                 onlyAdmin.UserId,
                 new UpdateUserStatusRequest(false),
                 currentUserId: caller.UserId,
@@ -132,7 +138,7 @@ public class EmployeeServiceRoleRulesTests : IDisposable
         var (user, employee) = TestDataSeeder.AddEmployee(_handle.Db, "me@test.local");
 
         var ex = await Should.ThrowAsync<BusinessRuleException>(() =>
-            CreateSut().UpdateEmployeeAsync(
+            CreateEmployeeSut().UpdateEmployeeAsync(
                 employee.EmployeeId,
                 new UpdateEmployeeRequest(null, null, IsActive: false),
                 currentUserId: user.UserId,

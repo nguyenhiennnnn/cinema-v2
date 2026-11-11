@@ -4,7 +4,6 @@ using Cinema.Application.DTOs.Common;
 using Cinema.Application.DTOs.Reviews;
 using Cinema.Application.DTOs.Users;
 using Cinema.Application.Interfaces;
-using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Cinema.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +16,7 @@ namespace Cinema.Api.Controllers.Client;
 [Authorize]
 public class UsersController(
     IUserProfileService userProfileService,
-    IAuthService authService,
+    IPasswordService passwordService,
     IReviewService reviewService
 ) : AppControllerBase
 {
@@ -57,7 +56,7 @@ public class UsersController(
         CancellationToken cancellationToken
     )
     {
-        var result = await authService.ChangePasswordAsync(
+        var result = await passwordService.ChangePasswordAsync(
             CurrentUserId,
             request,
             cancellationToken

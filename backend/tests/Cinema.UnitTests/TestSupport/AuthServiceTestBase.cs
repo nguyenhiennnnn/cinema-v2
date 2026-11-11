@@ -46,7 +46,7 @@ public abstract class AuthServiceTestBase : IDisposable
             .Returns((User _, string p) => $"hashed:{p}");
     }
 
-    protected AuthService CreateSut()
+    protected AuthService CreateAuthService()
     {
         Db.ChangeTracker.Clear();
 
@@ -55,15 +55,49 @@ public abstract class AuthServiceTestBase : IDisposable
             TokenServiceMock.Object,
             GoogleAuthServiceMock.Object,
             PasswordHasherMock.Object,
-            Options.Create(new AppUrlOptions()),
             Options.Create(
                 new JwtOptions { RefreshTokenExpirationDays = RefreshTokenExpirationDays }
             ),
-            Options.Create(new EmailOptions()),
-            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
             NullLogger<AuthService>.Instance
         );
     }
+
+    protected RegistrationService CreateRegistrationService()
+    {
+        Db.ChangeTracker.Clear();
+
+        return new(
+            Db,
+            TokenServiceMock.Object,
+            PasswordHasherMock.Object,
+            Options.Create(new EmailOptions()),
+            CreateVerificationTokenSender(),
+            NullLogger<RegistrationService>.Instance
+        );
+    }
+
+    protected PasswordService CreatePasswordService()
+    {
+        Db.ChangeTracker.Clear();
+
+        return new(
+            Db,
+            TokenServiceMock.Object,
+            PasswordHasherMock.Object,
+            Options.Create(new EmailOptions()),
+            CreateVerificationTokenSender(),
+            NullLogger<PasswordService>.Instance
+        );
+    }
+
+    private VerificationTokenSender CreateVerificationTokenSender() =>
+        new(
+            Db,
+            TokenServiceMock.Object,
+            Options.Create(new AppUrlOptions()),
+            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            NullLogger<VerificationTokenSender>.Instance
+        );
 
     public void Dispose() => _handle.Dispose();
 }

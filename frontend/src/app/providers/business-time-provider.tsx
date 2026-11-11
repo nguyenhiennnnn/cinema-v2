@@ -6,6 +6,7 @@ import {
   getBusinessTimeZone,
   subscribeBusinessTimeZone,
 } from "@/lib/business-time";
+import { getRegionalKey, subscribeRegionalSettings } from "@/lib/regional-settings";
 
 export const BusinessTimeProvider = ({
   children,
@@ -16,6 +17,10 @@ export const BusinessTimeProvider = ({
   const timeZone = useSyncExternalStore(
     subscribeBusinessTimeZone,
     getBusinessTimeZone,
+  );
+  const regionalKey = useSyncExternalStore(
+    subscribeRegionalSettings,
+    getRegionalKey,
   );
   const [timedOut, setTimedOut] = useState(false);
 
@@ -30,5 +35,5 @@ export const BusinessTimeProvider = ({
 
   if (isPending && !timedOut) return <PageLoader />;
 
-  return <Fragment key={timeZone}>{children}</Fragment>;
+  return <Fragment key={`${timeZone}|${regionalKey}`}>{children}</Fragment>;
 };

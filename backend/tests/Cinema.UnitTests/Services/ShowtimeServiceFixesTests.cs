@@ -41,7 +41,6 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             ExpiresAt = expiresAt,
         };
 
-    // ── Update ───────────────────────────────────────────────────────────────
 
     [Fact]
     public async Task UpdateShowtimeAsync_PersistsChangesToDatabase()
@@ -49,7 +48,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
         var created = await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, Day(1), 90_000m),
             CancellationToken.None
@@ -61,7 +60,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             CancellationToken.None
         );
 
-        Db.ChangeTracker.Clear(); // đọc lại từ DB, không dùng bản đang track
+        Db.ChangeTracker.Clear();
         var reloaded = await Db.Showtimes.AsNoTracking().SingleAsync(s => s.ShowtimeId == created.ShowtimeId);
         reloaded.StartTime.ShouldBe(Day(2, 16));
         reloaded.BasePrice.ShouldBe(120_000m);
@@ -78,7 +77,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats, Day(-1), status: status);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.UpdateShowtimeAsync(
@@ -100,7 +99,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             NewBooking(showtime.ShowtimeId, "BK-PENDING-LIVE", BookingStatus.Pending, DateTime.UtcNow.AddMinutes(10))
         );
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<ConflictAppException>(() =>
             sut.UpdateShowtimeAsync(
@@ -123,7 +122,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         showtimeSeat.HeldByUserId = TestDataSeeder.AddCustomer(Db).UserId;
         showtimeSeat.HeldUntil = DateTime.UtcNow.AddMinutes(10);
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<ConflictAppException>(() =>
             sut.UpdateShowtimeAsync(
@@ -145,7 +144,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             NewBooking(showtime.ShowtimeId, "BK-PENDING-OLD", BookingStatus.Pending, DateTime.UtcNow.AddMinutes(-5))
         );
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         var result = await sut.UpdateShowtimeAsync(
             showtime.ShowtimeId,
@@ -156,7 +155,6 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         result.StartTime.ShouldBe(Day(2));
     }
 
-    // ── Delete ───────────────────────────────────────────────────────────────
 
     [Theory]
     [InlineData(ShowtimeStatus.Completed)]
@@ -169,7 +167,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats, Day(-1), status: status);
         Db.Bookings.Add(NewBooking(showtime.ShowtimeId, "BK-DONE", BookingStatus.Confirmed));
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCancellationService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.DeleteShowtimeAsync(showtime.ShowtimeId, CancellationToken.None)
@@ -205,7 +203,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             }
         );
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCancellationService();
 
         var result = await sut.DeleteShowtimeAsync(showtime.ShowtimeId, CancellationToken.None);
 
@@ -223,7 +221,6 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             .Status.ShouldBe(BookingStatus.Cancelled);
     }
 
-    // ── ShowtimeRefundJob ────────────────────────────────────────────────────
 
     private async Task<int> SeedCancelledOnlinePaymentAsync()
     {
@@ -272,7 +269,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var job = CreateRefundJob();
 
         await job.RunAsync(paymentId, null, CancellationToken.None);
-        await job.RunAsync(paymentId, null, CancellationToken.None); // chạy lại: phải bỏ qua
+        await job.RunAsync(paymentId, null, CancellationToken.None);
 
         gateway.Verify(
             g => g.RefundAsync(It.IsAny<RefundRequest>(), It.IsAny<CancellationToken>()),
@@ -302,7 +299,6 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         payment.Status.ShouldBe(PaymentStatus.Success);
     }
 
-    // ── Batch create ─────────────────────────────────────────────────────────
 
     [Fact]
     public async Task ApplyAutoScheduleAsync_UnknownMovie_IsSkippedWithReason_OthersStillCreated()
@@ -310,7 +306,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 3);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
-        var sut = CreateSut();
+        var sut = CreateAutoScheduleService();
 
         var result = await sut.ApplyAutoScheduleAsync(
             new ApplyAutoScheduleRequest(
@@ -335,9 +331,10 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
-        var sut = CreateSut();
+        var sut = CreateBatchService();
+        var showtimeSut = CreateShowtimeService();
         var target = BusinessTime.LocalDate(Day(2));
-        await sut.CreateShowtimeAsync(
+        await showtimeSut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, BusinessTime.ToUtc(target, new TimeOnly(14, 0)), 90_000m),
             CancellationToken.None
         );
@@ -354,12 +351,11 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             CancellationToken.None
         );
 
-        result.TotalCreated.ShouldBe(2); // 10:00 và 18:00
-        result.TotalSkipped.ShouldBe(1); // 14:30 đè suất 14:00
+        result.TotalCreated.ShouldBe(2);
+        result.TotalSkipped.ShouldBe(1);
         result.Skipped[0].Time.ShouldBe("14:30");
     }
 
-    // ── Auto-schedule nhiều ngày + nhân bản ──────────────────────────────────
 
     [Fact]
     public async Task PreviewAutoScheduleAsync_DateRange_PlacesShowsOnEveryDay()
@@ -367,7 +363,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 4);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
-        var sut = CreateSut();
+        var sut = CreateAutoScheduleService();
         var from = BusinessTime.LocalDate(Day(2));
         var to = from.AddDays(2);
 
@@ -400,7 +396,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         TestDataSeeder.AddShowtime(
             Db, movie, room, seats, BusinessTime.ToUtc(sourceDay, new TimeOnly(14, 0)),
             status: ShowtimeStatus.Completed);
-        var sut = CreateSut();
+        var sut = CreateBatchService();
         var request = new CloneShowtimesRequest(sourceDay, sourceDay, ShiftDays: 7);
 
         var first = await sut.CloneShowtimesAsync(request, CancellationToken.None);
@@ -416,7 +412,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
     [Fact]
     public async Task CloneShowtimesAsync_NoSourceShowtimes_ThrowsBusinessRuleException()
     {
-        var sut = CreateSut();
+        var sut = CreateBatchService();
         var day = BusinessTime.LocalDate(Day(-30));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
@@ -430,7 +426,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CreateShowtimeAsync(
@@ -447,7 +443,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
         var created = await sut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, Day(1), 90_000m),
             CancellationToken.None
@@ -469,7 +465,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db);
         var yesterday = BusinessTime.Today().AddDays(-1);
-        var sut = CreateSut();
+        var sut = CreateBatchService();
 
         var result = await sut.BulkCreateShowtimesAsync(
             new BulkCreateShowtimesRequest(
@@ -495,7 +491,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var showtime = TestDataSeeder.AddShowtime(Db, movie, room, seats, DateTime.UtcNow.AddMinutes(-30));
-        var sut = CreateSut();
+        var sut = CreateCancellationService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.DeleteShowtimeAsync(showtime.ShowtimeId, CancellationToken.None)
@@ -527,7 +523,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
             }
         );
         await Db.SaveChangesAsync();
-        var sut = CreateSut();
+        var sut = CreateCancellationService();
 
         await sut.DeleteShowtimeAsync(showtime.ShowtimeId, CancellationToken.None);
 

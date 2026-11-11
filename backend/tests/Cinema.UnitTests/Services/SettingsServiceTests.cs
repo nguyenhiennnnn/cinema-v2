@@ -16,7 +16,19 @@ public class SettingsServiceTests : IDisposable
     private SettingsService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new SettingsService(_handle.Db, Microsoft.Extensions.Options.Options.Create(new Cinema.Application.Options.BrandOptions()));
+        BusinessTime.Configure("Asia/Ho_Chi_Minh");
+        return new SettingsService(
+            _handle.Db,
+            Microsoft.Extensions.Options.Options.Create(
+                new Cinema.Application.Options.BrandOptions
+                {
+                    TimeZoneId = "Asia/Ho_Chi_Minh",
+                    Locale = "vi-VN",
+                    CurrencyCode = "VND",
+                    CurrencySymbol = "VNĐ",
+                }
+            )
+        );
     }
 
     private static UpdateSettingsRequest Request(

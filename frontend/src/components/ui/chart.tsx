@@ -3,6 +3,7 @@ import * as RechartsPrimitive from "recharts"
 import type { TooltipValueType } from "recharts"
 
 import { cn } from "@/lib/utils"
+import { getLocale } from "@/lib/regional-settings"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -253,7 +254,7 @@ function ChartTooltipContent({
                       {item.value != null && (
                         <span className="tabular-nums font-medium text-foreground tabular-nums">
                           {typeof item.value === "number"
-                            ? item.value.toLocaleString()
+                            ? item.value.toLocaleString(getLocale())
                             : String(item.value)}
                         </span>
                       )}

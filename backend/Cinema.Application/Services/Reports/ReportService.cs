@@ -72,7 +72,7 @@ public class ReportService(IAppDbContext db) : IReportService
 
         var items = rows
             .GroupBy(r => DateTimeUtils.GetPeriodKey(r.PaidAt, groupBy))
-            .OrderBy(g => g.Key, StringComparer.Ordinal)
+            .OrderBy(g => g.Min(x => x.PaidAt))
             .Select(g => new
             {
                 Period = g.Key,

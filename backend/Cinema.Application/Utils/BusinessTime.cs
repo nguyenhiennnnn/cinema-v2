@@ -2,7 +2,8 @@ namespace Cinema.Application.Utils;
 
 public static class BusinessTime
 {
-    private static TimeZoneInfo _zone = TimeZoneInfo.Utc;
+    private static TimeZoneInfo _zone =
+        ResolveZone("Asia/Ho_Chi_Minh") ?? TimeZoneInfo.Utc;
     private static string _ianaId = ToIanaId(_zone);
 
     public static TimeZoneInfo Zone => _zone;
@@ -31,11 +32,17 @@ public static class BusinessTime
         {
             DateTimeKind.Utc => value,
             DateTimeKind.Local => value.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(
-                TimeZoneInfo.ConvertTimeToUtc(value, _zone),
-                DateTimeKind.Utc
-            ),
+            _ => ConvertUnspecifiedToUtc(value),
         };
+
+    private static DateTime ConvertUnspecifiedToUtc(DateTime value)
+    {
+        var wall = DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
+        if (_zone.IsInvalidTime(wall))
+            wall = wall.AddHours(1);
+
+        return DateTime.SpecifyKind(TimeZoneInfo.ConvertTimeToUtc(wall, _zone), DateTimeKind.Utc);
+    }
 
     public static DateTime ToUtc(DateOnly day, TimeOnly time) =>
         ToUtc(DateTime.SpecifyKind(day.ToDateTime(time), DateTimeKind.Unspecified));
@@ -53,7 +60,12 @@ public static class BusinessTime
         StartOfDayUtc(localDay.AddDays(1));
 
     private static DateTime AsUtc(DateTime value) =>
-        value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+        };
 
     private static string ToIanaId(TimeZoneInfo zone)
     {

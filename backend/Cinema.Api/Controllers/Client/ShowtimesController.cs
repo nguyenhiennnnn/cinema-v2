@@ -7,7 +7,7 @@ namespace Cinema.Api.Controllers.Client;
 
 [ApiController]
 [Route("api/v1/showtimes")]
-public class ShowtimesController(IShowtimeService showtimeService) : ControllerBase
+public class ShowtimesController(IShowtimeQueryService showtimeQueryService) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetSchedule(
@@ -22,7 +22,7 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
                 new Dictionary<string, string[]> { ["date"] = [Messages.Invalid_DateRequired] }
             );
 
-        var result = await showtimeService.GetWholeCinemaScheduleAsync(
+        var result = await showtimeQueryService.GetWholeCinemaScheduleAsync(
             date.Value,
             screenType,
             cancellationToken
@@ -33,7 +33,7 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
     [HttpGet("{showtimeId:int}/seats")]
     public async Task<IActionResult> GetSeats(int showtimeId, CancellationToken cancellationToken)
     {
-        var result = await showtimeService.GetShowtimeSeatsAsync(showtimeId, cancellationToken);
+        var result = await showtimeQueryService.GetShowtimeSeatsAsync(showtimeId, cancellationToken);
         return Ok(result);
     }
 
@@ -50,7 +50,7 @@ public class ShowtimesController(IShowtimeService showtimeService) : ControllerB
                 new Dictionary<string, string[]> { ["count"] = [Messages.Invalid_CountOutOfRange] }
             );
 
-        var result = await showtimeService.GetSeatSuggestionsAsync(
+        var result = await showtimeQueryService.GetSeatSuggestionsAsync(
             showtimeId,
             count,
             cancellationToken

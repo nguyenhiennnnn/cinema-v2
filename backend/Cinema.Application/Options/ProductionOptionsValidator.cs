@@ -23,6 +23,9 @@ public static class ProductionOptionsValidator
         RequirePublicUrl(errors, "App:FrontendBaseUrl", app.FrontendBaseUrl);
 
         RequireValue(errors, "Brand:TimeZoneId", brand.TimeZoneId);
+        RequireValue(errors, "Brand:Locale", brand.Locale);
+        RequireValue(errors, "Brand:CurrencyCode", brand.CurrencyCode);
+        RequireValue(errors, "Brand:CurrencySymbol", brand.CurrencySymbol);
 
         if (corsOrigins.Count == 0)
             errors.Add("Cors:AllowedOrigins chưa cấu hình.");

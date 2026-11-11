@@ -18,6 +18,7 @@ import { FormSearchSelectField } from "@/components/common/form/form-search-sele
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { getCurrencyLabel } from "@/lib/regional-settings";
 
 const showtimeFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -111,7 +112,7 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
         <FormInputField
           name="basePrice"
           control={form.control}
-          label="Giá vé (VNĐ)"
+          label={`Giá vé (${getCurrencyLabel()})`}
           type="number"
           min={0}
           step={1000}

@@ -11,7 +11,13 @@ namespace Cinema.Api.Controllers.Admin;
 [ApiController]
 [Route("api/v1/admin/showtimes")]
 [Authorize]
-public class AdminShowtimesController(IShowtimeService showtimeService) : ControllerBase
+public class AdminShowtimesController(
+    IShowtimeService showtimeService,
+    IShowtimeCancellationService showtimeCancellationService,
+    IShowtimeBatchService showtimeBatchService,
+    IShowtimeAutoScheduleService showtimeAutoScheduleService,
+    IShowtimeQueryService showtimeQueryService
+) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.StaffOnly)]
@@ -32,7 +38,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     public async Task<IActionResult> GetCalendar(
         [FromQuery] AdminShowtimeCalendarFilter filter,
         CancellationToken cancellationToken
-    ) => Ok(await showtimeService.GetShowtimesCalendarAsync(filter, cancellationToken));
+    ) => Ok(await showtimeQueryService.GetShowtimesCalendarAsync(filter, cancellationToken));
 
     [HttpPost]
     [SuccessMessage(nameof(Messages.Success_ShowtimeCreated))]
@@ -59,7 +65,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     [SuccessMessage(nameof(Messages.Success_ShowtimeDeleted))]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken) =>
-        Ok(await showtimeService.DeleteShowtimeAsync(id, cancellationToken));
+        Ok(await showtimeCancellationService.DeleteShowtimeAsync(id, cancellationToken));
 
     [HttpPost("bulk")]
     [SuccessMessage(nameof(Messages.Success_ShowtimesBulkCreated))]
@@ -70,7 +76,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     ) =>
         StatusCode(
             StatusCodes.Status201Created,
-            await showtimeService.BulkCreateShowtimesAsync(request, cancellationToken)
+            await showtimeBatchService.BulkCreateShowtimesAsync(request, cancellationToken)
         );
 
     [HttpPost("auto-schedule/preview")]
@@ -78,7 +84,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     public async Task<IActionResult> PreviewAutoSchedule(
         [FromBody] AutoScheduleRequest request,
         CancellationToken cancellationToken
-    ) => Ok(await showtimeService.PreviewAutoScheduleAsync(request, cancellationToken));
+    ) => Ok(await showtimeAutoScheduleService.PreviewAutoScheduleAsync(request, cancellationToken));
 
     [HttpPost("auto-schedule/apply")]
     [SuccessMessage(nameof(Messages.Success_ShowtimesAutoScheduleApplied))]
@@ -89,7 +95,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     ) =>
         StatusCode(
             StatusCodes.Status201Created,
-            await showtimeService.ApplyAutoScheduleAsync(request, cancellationToken)
+            await showtimeAutoScheduleService.ApplyAutoScheduleAsync(request, cancellationToken)
         );
 
     [HttpPost("clone")]
@@ -101,7 +107,7 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     ) =>
         StatusCode(
             StatusCodes.Status201Created,
-            await showtimeService.CloneShowtimesAsync(request, cancellationToken)
+            await showtimeBatchService.CloneShowtimesAsync(request, cancellationToken)
         );
 
     [HttpDelete("bulk")]
@@ -109,5 +115,5 @@ public class AdminShowtimesController(IShowtimeService showtimeService) : Contro
     public async Task<IActionResult> BulkDelete(
         [FromBody] BulkDeleteShowtimesRequest request,
         CancellationToken cancellationToken
-    ) => Ok(await showtimeService.BulkDeleteShowtimesAsync(request, cancellationToken));
+    ) => Ok(await showtimeBatchService.BulkDeleteShowtimesAsync(request, cancellationToken));
 }

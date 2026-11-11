@@ -20,7 +20,7 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
         if (DateOnly.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
             return date;
 
-        if (DateOnly.TryParse(value, out date))
+        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
             return date;
 
         throw new JsonException($"Không thể chuyển đổi '{value}' sang DateOnly.");
@@ -40,8 +40,7 @@ public class DateTimeJsonConverter : JsonConverter<DateTime>
         if (string.IsNullOrWhiteSpace(value))
             return default;
 
-        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dt))
-            return BusinessTime.ToUtc(dt);
+        DateTime dt;
 
         if (DateTime.TryParseExact(value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
             return BusinessTime.ToUtc(dt);
@@ -50,6 +49,9 @@ public class DateTimeJsonConverter : JsonConverter<DateTime>
             return BusinessTime.ToUtc(dt);
 
         if (DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+            return BusinessTime.ToUtc(dt);
+
+        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out dt))
             return BusinessTime.ToUtc(dt);
 
         if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))

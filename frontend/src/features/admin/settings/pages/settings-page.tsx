@@ -16,6 +16,7 @@ import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { SeatGapRuleMode } from "@/types/enum";
 import { useAdminSettings, useAdminUpdateSettings } from "../hooks/use-admin-settings";
 import { FormImageField } from "@/components/common/form/form-upload-field";
+import { getCurrencyLabel } from "@/lib/regional-settings";
 
 const SEAT_GAP_RULE_OPTIONS = [
   { value: SeatGapRuleMode.Strict, label: "Chặn mọi ghế lẻ" },
@@ -215,7 +216,7 @@ const AdminSettingsPage = () => {
           <FormInputField
             name="pointsPerAmount"
             control={form.control}
-            label="Điểm / VND"
+            label={`Điểm / ${getCurrencyLabel()}`}
             type="number"
             min={0}
           />

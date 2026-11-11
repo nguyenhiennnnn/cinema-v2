@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Cinema.Application.Utils;
 
 public static class OperatingHours
@@ -39,7 +41,9 @@ public static class OperatingHours
                 return null;
         }
 
-        var range = $"{opening?.ToString("HH:mm") ?? "--"} - {closing?.ToString("HH:mm") ?? "--"}";
-        return $"Suất chiếu {BusinessTime.ToLocal(start):HH:mm} - {BusinessTime.ToLocal(end):HH:mm} nằm ngoài khung giờ hoạt động của rạp ({range}).";
+        var range = $"{opening?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? "--"} - {closing?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? "--"}";
+        var startText = BusinessTime.ToLocal(start).ToString("HH:mm", CultureInfo.InvariantCulture);
+        var endText = BusinessTime.ToLocal(end).ToString("HH:mm", CultureInfo.InvariantCulture);
+        return $"Suất chiếu {startText} - {endText} nằm ngoài khung giờ hoạt động của rạp ({range}).";
     }
 }

@@ -7,6 +7,9 @@ import {
 } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
+import { getBusinessTodayDate } from "@/lib/business-time"
+import { getDateFnsLocale } from "@/lib/date-fns-locale"
+import { getLocale } from "@/lib/regional-settings"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react"
 
@@ -16,7 +19,7 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = "label",
   buttonVariant = "ghost",
-  locale,
+  locale: localeProp,
   formatters,
   components,
   ...props
@@ -24,6 +27,7 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
 }) {
   const defaultClassNames = getDefaultClassNames()
+  const locale = localeProp ?? getDateFnsLocale(getLocale())
 
   return (
     <DayPicker
@@ -35,10 +39,11 @@ function Calendar({
         className
       )}
       captionLayout={captionLayout}
+      today={getBusinessTodayDate()}
       locale={locale}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString(locale?.code, { month: "short" }),
+          date.toLocaleString(locale?.code ?? getLocale(), { month: "short" }),
         ...formatters,
       }}
       classNames={{
@@ -193,7 +198,7 @@ function CalendarDayButton({
     <Button
       variant="ghost"
       size="icon"
-      data-day={day.date.toLocaleDateString(locale?.code)}
+      data-day={day.date.toLocaleDateString(locale?.code ?? getLocale())}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&

@@ -22,10 +22,10 @@ public static class DateTimeUtils
         var local = BusinessTime.ToLocal(createdAt);
         return groupBy switch
         {
-            "day" => local.ToString("dd/MM/yyyy"),
+            "day" => local.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
             "week" => $"{ISOWeek.GetYear(local)}-W{ISOWeek.GetWeekOfYear(local):D2}",
-            "month" => local.ToString("MM/yyyy"),
-            _ => local.ToString("dd/MM/yyyy"),
+            "month" => local.ToString("MM/yyyy", CultureInfo.InvariantCulture),
+            _ => local.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
         };
     }
 

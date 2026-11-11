@@ -26,6 +26,9 @@ internal static class ShowtimeSeeder
     internal static DateTime LocalDayStartUtc(DateTime now, int offsetDays = 0) =>
         BusinessTime.StartOfDayUtc(BusinessTime.LocalDate(now).AddDays(offsetDays));
 
+    private static DateOnly LocalDay(DateTime now, int offsetDays = 0) =>
+        BusinessTime.LocalDate(now).AddDays(offsetDays);
+
     private readonly record struct Busy(int RoomId, DateTime Start, DateTime End);
 
     private sealed class Context
@@ -66,7 +69,7 @@ internal static class ShowtimeSeeder
 
         for (var offset = 0; offset <= FutureDays; offset++)
         {
-            var day = LocalDayStartUtc(now, offset);
+            var day = LocalDay(now, offset);
             var rotation = offset * 3;
             created.AddRange(
                 PlanDay(ctx, day, offset == 0 ? cutoff : null, ctx.NowShowing, ref rotation, now)
@@ -99,7 +102,7 @@ internal static class ShowtimeSeeder
         var created = new List<Showtime>();
         for (var offset = -PastDays; offset <= -1; offset++)
         {
-            var day = LocalDayStartUtc(now, offset);
+            var day = LocalDay(now, offset);
             var rotation = (offset + PastDays) * 3;
             created.AddRange(PlanDay(ctx, day, null, ctx.PastPool, ref rotation, now));
         }
@@ -129,7 +132,7 @@ internal static class ShowtimeSeeder
             return result;
 
         var nowMinute = new DateTime(now.Ticks - now.Ticks % TimeSpan.TicksPerMinute, now.Kind);
-        var today = LocalDayStartUtc(now);
+        var today = LocalDay(now);
 
         // (key, movieId ưu tiên, giờ bắt đầu, phòng ưu tiên, status)
         var specs = new (string Key, int MovieId, DateTime Start, int PreferredRoomId, ShowtimeStatus Status)[]
@@ -141,9 +144,9 @@ internal static class ShowtimeSeeder
             // 90 phút nữa: < CancelDeadlineHours (2h) nên không được hoàn tiền, nhưng chưa mở check-in.
             (SpecialRefundClosed, 6, nowMinute.AddMinutes(90), 4, ShowtimeStatus.Scheduled),
             // Hết vé 100%: ngày mai 19:00, phòng nhỏ nhất.
-            (SpecialSoldOut, 3, today.AddDays(1).AddHours(19), 3, ShowtimeStatus.Scheduled),
+            (SpecialSoldOut, 3, BusinessTime.ToUtc(today.AddDays(1), new TimeOnly(19, 0)), 3, ShowtimeStatus.Scheduled),
             // Suất bị hủy bởi rạp: có booking bị hủy + hoàn tiền (tự động & thủ công).
-            (SpecialCancelled, 14, today.AddDays(2).AddHours(15), 4, ShowtimeStatus.Cancelled),
+            (SpecialCancelled, 14, BusinessTime.ToUtc(today.AddDays(2), new TimeOnly(15, 0)), 4, ShowtimeStatus.Cancelled),
         };
 
         var created = new List<Showtime>();
@@ -267,7 +270,7 @@ internal static class ShowtimeSeeder
 
     private static List<Showtime> PlanDay(
         Context ctx,
-        DateTime day,
+        DateOnly localDay,
         DateTime? notBefore,
         List<Movie> pool,
         ref int rotation,
@@ -278,22 +281,25 @@ internal static class ShowtimeSeeder
         if (pool.Count == 0)
             return result;
 
-        var close = day.Add(ctx.Closing.ToTimeSpan());
-        if (ctx.Closing <= ctx.Opening)
-            close = close.AddDays(1);
+        var dayStart = BusinessTime.StartOfDayUtc(localDay);
+        var dayEnd = BusinessTime.StartOfNextDayUtc(localDay);
+        var close = BusinessTime.ToUtc(
+            ctx.Closing <= ctx.Opening ? localDay.AddDays(1) : localDay,
+            ctx.Closing
+        );
 
         for (var roomIndex = 0; roomIndex < ctx.Rooms.Count; roomIndex++)
         {
             var room = ctx.Rooms[roomIndex];
             var roomId = room.RoomId;
-            var existing = ctx.Busy.Count(b => b.RoomId == roomId && b.Start >= day && b.Start < day.AddDays(1));
+            var existing = ctx.Busy.Count(b => b.RoomId == roomId && b.Start >= dayStart && b.Start < dayEnd);
             if (existing >= MinShowsPerRoomDay)
                 continue;
 
             var toAdd = MaxShowsPerRoomDay - existing;
 
             // Suất đầu ~ 1 giờ sau giờ mở cửa, lệch 15 phút giữa các phòng cho tự nhiên.
-            var cursor = day.Add(ctx.Opening.ToTimeSpan()).AddMinutes(60 + roomIndex * 15);
+            var cursor = BusinessTime.ToUtc(localDay, ctx.Opening).AddMinutes(60 + roomIndex * 15);
             if (notBefore is { } floor && cursor < floor)
                 cursor = floor;
 

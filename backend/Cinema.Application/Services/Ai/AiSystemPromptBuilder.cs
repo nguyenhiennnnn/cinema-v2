@@ -1,3 +1,4 @@
+using System.Globalization;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Utils;
@@ -27,8 +28,8 @@ public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> bran
         var cinemaName = settings?.Name ?? _brand.Name;
         var address = settings?.Address ?? Messages.Ai_Prompt_NotUpdated;
         var phone = settings?.Phone ?? Messages.Ai_Prompt_NotUpdated;
-        var opening = settings?.OpeningTime?.ToString("HH:mm") ?? FallbackOpeningTime;
-        var closing = settings?.ClosingTime?.ToString("HH:mm") ?? FallbackClosingTime;
+        var opening = settings?.OpeningTime?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? FallbackOpeningTime;
+        var closing = settings?.ClosingTime?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? FallbackClosingTime;
 
         var now = DateTime.UtcNow;
 
@@ -53,7 +54,7 @@ public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> bran
                 var standing = await LoyaltyWindow.GetStandingAsync(
                     db,
                     user.UserId,
-                    DateTime.UtcNow,
+                    now,
                     cancellationToken
                 );
                 var points = standing.Points;
@@ -92,6 +93,7 @@ public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> bran
             : Messages.Ai_Prompt_GuestRule;
 
         return string.Format(
+            CultureInfo.InvariantCulture,
             Messages.Ai_Prompt_SystemTemplate,
             cinemaName,
             BusinessTime.ToLocal(now),
@@ -103,7 +105,8 @@ public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> bran
             string.Join("\n", movieInfoLines),
             string.Join("\n", comboLines),
             _brand.Name,
-            loginRule
+            loginRule,
+            BusinessTime.IanaId
         );
     }
 }

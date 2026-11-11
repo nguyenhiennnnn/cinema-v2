@@ -36,6 +36,9 @@ services:
       Brand__Tagline: ${BRAND_TAGLINE:-Vé điện tử · Không cần in}
       Brand__SupportEmail: ${BRAND_SUPPORT_EMAIL:-}
       Brand__TimeZoneId: ${BRAND_TIME_ZONE:-Asia/Ho_Chi_Minh}
+      Brand__Locale: ${BRAND_LOCALE:-vi-VN}
+      Brand__CurrencyCode: ${BRAND_CURRENCY_CODE:-VND}
+      Brand__CurrencySymbol: ${BRAND_CURRENCY_SYMBOL:-VNĐ}
 
       Booking__CheckInOpenMinutes: ${BOOKING_CHECK_IN_OPEN_MINUTES:-30}
       RateLimit__GlobalSegmentsPerWindow: ${RATE_LIMIT_GLOBAL_SEGMENTS_PER_WINDOW:-4}

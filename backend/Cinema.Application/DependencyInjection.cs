@@ -28,12 +28,20 @@ public static class DependencyInjection
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IRegistrationService, RegistrationService>();
+        services.AddScoped<IPasswordService, PasswordService>();
+        services.AddScoped<IVerificationTokenSender, VerificationTokenSender>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<ICatalogService, CatalogService>();
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<ISeatExpirationService, SeatExpirationService>();
         services.AddScoped<IShowtimeService, ShowtimeService>();
+        services.AddScoped<IShowtimeCancellationService, ShowtimeCancellationService>();
+        services.AddScoped<IShowtimeBatchService, ShowtimeBatchService>();
+        services.AddScoped<IShowtimeAutoScheduleService, ShowtimeAutoScheduleService>();
+        services.AddScoped<IShowtimeQueryService, ShowtimeQueryService>();
+        services.AddScoped<IShowtimeLifecycleService, ShowtimeLifecycleService>();
         services.AddScoped<BookingSeatReleaser>();
         services.AddScoped<IBookingHoldPolicy, OnlineHoldPolicy>();
         services.AddScoped<IBookingHoldPolicy, CounterHoldPolicy>();
@@ -53,6 +61,7 @@ public static class DependencyInjection
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<IUserAdminService, UserAdminService>();
         services.AddScoped<AiToolExecutor>();
         services.AddScoped<AiSystemPromptBuilder>();
         services.AddScoped<IAiAssistantService, AiAssistantService>();

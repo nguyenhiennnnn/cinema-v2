@@ -17,7 +17,7 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
-        var sut = CreateSut();
+        var sut = CreateShowtimeService();
         var start = BusinessTime.ToUtc(TargetDay, new TimeOnly(22, 30));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
@@ -40,8 +40,9 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 4);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
-        var sut = CreateSut();
-        var existing = await sut.CreateShowtimeAsync(
+        var sut = CreateAutoScheduleService();
+        var showtimeSut = CreateShowtimeService();
+        var existing = await showtimeSut.CreateShowtimeAsync(
             new UpsertShowtimeRequest(movie.MovieId, room.RoomId, BusinessTime.ToUtc(TargetDay, new TimeOnly(18, 0)), 90_000m),
             CancellationToken.None
         );
@@ -64,7 +65,7 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db, status: Cinema.Domain.Enums.MovieStatus.Ended);
-        var sut = CreateSut();
+        var sut = CreateAutoScheduleService();
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.PreviewAutoScheduleAsync(
@@ -80,7 +81,7 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
-        var sut = CreateSut();
+        var sut = CreateAutoScheduleService();
         var first = BusinessTime.ToUtc(TargetDay, new TimeOnly(14, 0));
 
         var result = await sut.ApplyAutoScheduleAsync(

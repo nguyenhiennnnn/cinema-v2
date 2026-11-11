@@ -1,3 +1,4 @@
+using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -735,7 +736,7 @@ internal static class BookingScenarioSeeder
         private void Apply(Plan p)
         {
             var showtime = p.St.Showtime;
-            var code = $"{CodePrefix}{p.CreatedAt:yyyyMMdd}{++_seq:D4}";
+            var code = $"{CodePrefix}{BusinessTime.LocalDate(p.CreatedAt):yyyyMMdd}{++_seq:D4}";
 
             // Combo
             decimal comboTotal = 0m;

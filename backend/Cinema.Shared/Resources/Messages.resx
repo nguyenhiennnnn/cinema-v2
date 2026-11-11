@@ -1392,7 +1392,7 @@
 Nhiệm vụ của bạn là hỗ trợ khách hàng tư vấn phim, lịch chiếu, giá vé, tình trạng ghế, combo bắp nước, và thông tin rạp.
 
 === DỮ LIỆU THỜI GIAN THỰC TỪ HỆ THỐNG DB RẠP CHÍNH THỨC ===
-- Thời gian hiện tại: {1:dd/MM/yyyy HH:mm:ss}
+- Thời gian hiện tại: {1:dd/MM/yyyy HH:mm:ss} (múi giờ {11})
 - Thông tin Rạp: {0} | Địa chỉ: {2} | Hotline: {3} | Giờ mở/đóng cửa: {4} - {5}
 - Thông tin khách hàng đang trò chuyện: {6}
 

@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { addDays, differenceInCalendarDays, format, parseISO, startOfWeek } from "date-fns";
+import { addDays, differenceInCalendarDays, parseISO, startOfWeek } from "date-fns";
 
 import { getBusinessTodayDate } from "@/lib/business-time";
-import { toDateInputValue } from "@/lib/formatters";
+import { formatDate, toDateInputValue } from "@/lib/formatters";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 import { toast } from "@/components/ui/toast";
@@ -79,8 +79,8 @@ export const ShowtimeCloneForm = ({ onSuccess }: ShowtimeCloneFormProps) => {
   const targetRangeLabel = canPreviewTarget
     ? (() => {
         const shift = differenceInCalendarDays(parseISO(targetFrom), parseISO(sourceFrom));
-        const a = format(addDays(parseISO(sourceFrom), shift), "dd/MM/yyyy");
-        const b = format(addDays(parseISO(sourceTo), shift), "dd/MM/yyyy");
+        const a = formatDate(addDays(parseISO(sourceFrom), shift));
+        const b = formatDate(addDays(parseISO(sourceTo), shift));
         return shift >= 1 ? `${a} – ${b}` : null;
       })()
     : null;

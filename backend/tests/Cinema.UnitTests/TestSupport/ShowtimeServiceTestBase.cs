@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Services.Notifications;
@@ -32,9 +28,50 @@ public abstract class ShowtimeServiceTestBase : IDisposable
         return mock;
     }
 
-    protected ShowtimeService CreateSut()
+    protected ShowtimeService CreateShowtimeService()
     {
-        // Khoảng nghỉ phòng nay là chính sách trong CinemaSettings (DB), không còn nằm ở BookingOptions.
+        PrepareDatabase();
+        return new(Db, NullLogger<ShowtimeService>.Instance);
+    }
+
+    protected ShowtimeCancellationService CreateCancellationService()
+    {
+        PrepareDatabase();
+        return NewCancellationService();
+    }
+
+    protected ShowtimeBatchService CreateBatchService()
+    {
+        PrepareDatabase();
+        return NewBatchService();
+    }
+
+    protected ShowtimeAutoScheduleService CreateAutoScheduleService()
+    {
+        PrepareDatabase();
+        return new(Db, NewBatchService(), NullLogger<ShowtimeAutoScheduleService>.Instance);
+    }
+
+    protected ShowtimeLifecycleService CreateLifecycleService()
+    {
+        PrepareDatabase();
+        return new(Db, NullLogger<ShowtimeLifecycleService>.Instance);
+    }
+
+    private ShowtimeCancellationService NewCancellationService() =>
+        new(
+            Db,
+            BookingServiceMock.Object,
+            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
+            BackgroundJobClientMock.Object,
+            NullLogger<ShowtimeCancellationService>.Instance
+        );
+
+    private ShowtimeBatchService NewBatchService() =>
+        new(Db, NewCancellationService(), NullLogger<ShowtimeBatchService>.Instance);
+
+    private void PrepareDatabase()
+    {
         var settings = Db.CinemaSettings.FirstOrDefault(s => s.Id == 1);
         if (settings is null)
         {
@@ -49,15 +86,6 @@ public abstract class ShowtimeServiceTestBase : IDisposable
         settings.RoomBufferMinutes = RoomBufferMinutes;
         Db.SaveChanges();
         Db.ChangeTracker.Clear();
-
-        return new(
-            Db,
-            PaymentGatewayMocks.Select(m => m.Object),
-            BackgroundJobClientMock.Object,
-            new NotificationService(BackgroundJobClientMock.Object, Options.Create(new BrandOptions())),
-            BookingServiceMock.Object,
-            NullLogger<ShowtimeService>.Instance
-        );
     }
 
     public void Dispose() => _handle.Dispose();

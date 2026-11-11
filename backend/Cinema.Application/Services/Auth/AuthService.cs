@@ -3,7 +3,6 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
-using Cinema.Domain.Enums;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
@@ -20,18 +19,12 @@ public class AuthService(
     ITokenService tokenService,
     IGoogleAuthService googleAuthService,
     IPasswordHasher<User> passwordHasher,
-    IOptions<AppUrlOptions> appurlOptions,
     IOptions<JwtOptions> jwtOptions,
-    IOptions<EmailOptions> emailOptions,
-    INotificationService notificationService,
     ILogger<AuthService> logger
 ) : IAuthService
 {
-    private const int StaffInviteExpirationHours = 72;
-
     private readonly int _refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
 
-    // Points/hạng trả về cho client lấy từ sổ điểm 12 tháng, không dùng bản cache trên CustomerProfile.
     private async Task<LoginUserDto> ToLoginUserDtoAsync(
         User user,
         CancellationToken cancellationToken
@@ -48,100 +41,6 @@ public class AuthService(
             cancellationToken
         );
         return dto with { MembershipTierName = tier?.TierName, Points = points };
-    }
-
-    public async Task<RegisterResponse> RegisterAsync(
-        RegisterRequest request,
-        CancellationToken cancellationToken
-    )
-    {
-        var emailExists = await db.Users.AnyAsync(u => u.Email == request.Email, cancellationToken);
-
-        if (emailExists)
-            throw new ValidationAppException(
-                Messages.Invalid_EmailExists,
-                new Dictionary<string, string[]> { ["email"] = [Messages.Invalid_EmailInUse] }
-            );
-
-        var customerRole =
-            await db.Roles.FirstOrDefaultAsync(r => r.RoleName == Roles.Customer, cancellationToken)
-            ?? throw new BusinessRuleException(Messages.Rule_CustomerRoleNotSeeded);
-
-        var user = new User
-        {
-            FullName = request.FullName,
-            Email = request.Email,
-            Phone = request.Phone,
-            RoleId = customerRole.RoleId,
-            IsActive = true,
-            EmailConfirmed = false,
-            CreatedAt = DateTime.UtcNow,
-        };
-
-        user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
-
-        db.Users.Add(user);
-
-        var customerProfile = new CustomerProfile
-        {
-            User = user,
-            Points = 0,
-            TotalSpent = 0,
-        };
-        db.CustomerProfiles.Add(customerProfile);
-
-        await db.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("UserRegistered UserId {UserId}", user.UserId);
-
-        await IssueVerificationTokenAndSendEmailAsync(
-            user,
-            VerificationTokenPurpose.EmailConfirmation,
-            TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
-            "auth/confirm-email",
-            cancellationToken
-        );
-
-        return new RegisterResponse(
-            user.UserId,
-            user.Email,
-            Messages.Success_RegistrationCheckEmail
-        );
-    }
-
-    public async Task<MessageResponse> ConfirmEmailAsync(
-        ConfirmEmailRequest request,
-        CancellationToken cancellationToken
-    )
-    {
-        var tokenHash = tokenService.HashOpaqueToken(request.Token);
-
-        var verificationToken = await db
-            .UserVerificationTokens.Include(t => t.User)
-            .FirstOrDefaultAsync(
-                t =>
-                    t.TokenHash == tokenHash
-                    && t.Purpose == VerificationTokenPurpose.EmailConfirmation,
-                cancellationToken
-            );
-
-        if (
-            verificationToken is null
-            || verificationToken.Used
-            || verificationToken.ExpiresAt <= DateTime.UtcNow
-        )
-            throw new ValidationAppException(Messages.Invalid_TokenExpiredOrUsed);
-
-        verificationToken.Used = true;
-
-        if (!verificationToken.User.EmailConfirmed)
-        {
-            verificationToken.User.EmailConfirmed = true;
-            verificationToken.User.UpdatedAt = DateTime.UtcNow;
-        }
-
-        await db.SaveChangesAsync(cancellationToken);
-
-        return new MessageResponse(Messages.Success_EmailConfirmed);
     }
 
     public async Task<LoginResponse> LoginAsync(
@@ -176,8 +75,6 @@ public class AuthService(
                 Messages.Forbidden_EmailNotVerifiedCheckInbox
             );
 
-        // Allow-list: cổng quản trị chỉ nhận Admin/Employee. Dùng allow-list thay vì "không phải Customer"
-        // để role lạ (hoặc role thêm sau này) không tự động lọt vào cổng quản trị.
         var roleName = user.Role.RoleName;
         var isCustomer = roleName == Roles.Customer;
         var isStaff = roleName is Roles.Admin or Roles.Employee;
@@ -190,7 +87,6 @@ public class AuthService(
                 Messages.Forbidden_CustomerCannotUseAdminPortal
             );
 
-        // Nhân viên bị vô hiệu hóa hồ sơ (Employee.IsActive = false) hoặc mất hồ sơ thì không được vào.
         if (adminOnly && roleName == Roles.Employee && user.Employee is not { IsActive: true })
             throw new ForbiddenAppException(Messages.Forbidden_AccountLocked);
 
@@ -444,209 +340,6 @@ public class AuthService(
         return user.Adapt<MeResponse>();
     }
 
-    public async Task<MessageResponse> ChangePasswordAsync(
-        int userId,
-        ChangePasswordRequest request,
-        CancellationToken cancellationToken
-    )
-    {
-        var user =
-            await db.Users.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken)
-            ?? throw new NotFoundException(Messages.NotFound_User);
-
-        if (!user.EmailConfirmed)
-            throw new ForbiddenAppException(
-                Messages.Forbidden_EmailNotVerifiedCheckInbox
-            );
-
-        var verifyResult = passwordHasher.VerifyHashedPassword(
-            user,
-            user.PasswordHash,
-            request.CurrentPassword
-        );
-        if (verifyResult == PasswordVerificationResult.Failed)
-            throw new ValidationAppException(
-                Messages.Invalid_CurrentPassword,
-                new Dictionary<string, string[]>
-                {
-                    ["currentPassword"] = [Messages.Invalid_CurrentPassword],
-                }
-            );
-
-        user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
-        user.UpdatedAt = DateTime.UtcNow;
-
-        var revokedCount = await db.RevokeActiveTokensAsync(userId, cancellationToken);
-
-        await db.SaveChangesAsync(cancellationToken);
-        logger.LogInformation(
-            "PasswordChanged UserId {UserId} — đã thu hồi {Count} refresh token cũ.",
-            userId,
-            revokedCount
-        );
-
-        return new MessageResponse(Messages.Success_PasswordChanged);
-    }
-
-    public async Task<MessageResponse> ForgotPasswordAsync(
-        ForgotPasswordRequest request,
-        CancellationToken cancellationToken
-    )
-    {
-        var standardMessage = Messages.Success_PasswordResetEmailSent;
-
-        var user = await db.Users.FirstOrDefaultAsync(
-            u => u.Email == request.Email,
-            cancellationToken
-        );
-        if (user is null)
-        {
-            logger.LogInformation(
-                "ForgotPassword — email không tồn tại, bỏ qua (không lộ thông tin)."
-            );
-            return new MessageResponse(standardMessage);
-        }
-
-        var oldTokens = await db
-            .UserVerificationTokens.Where(t =>
-                t.UserId == user.UserId
-                && t.Purpose == VerificationTokenPurpose.PasswordReset
-                && !t.Used
-                && t.ExpiresAt > DateTime.UtcNow
-            )
-            .ToListAsync(cancellationToken);
-        foreach (var t in oldTokens)
-            t.Used = true;
-        if (oldTokens.Count > 0)
-            await db.SaveChangesAsync(cancellationToken);
-
-        await IssueVerificationTokenAndSendEmailAsync(
-            user,
-            VerificationTokenPurpose.PasswordReset,
-            TimeSpan.FromMinutes(emailOptions.Value.PasswordResetExpirationMinutes),
-            "reset-password",
-            cancellationToken
-        );
-
-        return new MessageResponse(standardMessage);
-    }
-
-    public async Task<MessageResponse> ResetPasswordAsync(
-        ResetPasswordRequest request,
-        CancellationToken cancellationToken
-    )
-    {
-        var tokenHash = tokenService.HashOpaqueToken(request.Token);
-
-        var verificationToken = await db
-            .UserVerificationTokens.Include(t => t.User)
-            .FirstOrDefaultAsync(
-                t =>
-                    t.TokenHash == tokenHash
-                    && (
-                        t.Purpose == VerificationTokenPurpose.PasswordReset
-                        || t.Purpose == VerificationTokenPurpose.StaffInvite
-                    ),
-                cancellationToken
-            );
-
-        if (
-            verificationToken is null
-            || verificationToken.Used
-            || verificationToken.ExpiresAt <= DateTime.UtcNow
-        )
-            throw new ValidationAppException(Messages.Invalid_TokenExpiredOrUsed);
-
-        verificationToken.Used = true;
-        verificationToken.User.PasswordHash = passwordHasher.HashPassword(
-            verificationToken.User,
-            request.NewPassword
-        );
-        verificationToken.User.UpdatedAt = DateTime.UtcNow;
-
-        var revokedCount = await db.RevokeActiveTokensAsync(
-            verificationToken.UserId,
-            cancellationToken
-        );
-
-        await db.SaveChangesAsync(cancellationToken);
-        logger.LogInformation(
-            "PasswordReset UserId {UserId} — đã thu hồi {Count} refresh token cũ.",
-            verificationToken.UserId,
-            revokedCount
-        );
-
-        return new MessageResponse(Messages.Success_PasswordReset);
-    }
-
-    public async Task<MessageResponse> ResendConfirmationEmailAsync(
-        ResendConfirmationEmailRequest request,
-        CancellationToken cancellationToken
-    )
-    {
-        var standardMessage = Messages.Success_ConfirmationEmailSent;
-
-        var user = await db.Users.FirstOrDefaultAsync(
-            u => u.Email == request.Email,
-            cancellationToken
-        );
-
-        if (user is null || user.EmailConfirmed)
-        {
-            logger.LogInformation(
-                "ResendConfirmationEmail — email không tồn tại hoặc đã xác thực, bỏ qua."
-            );
-            return new MessageResponse(standardMessage);
-        }
-
-        var oldTokens = await db
-            .UserVerificationTokens.Where(t =>
-                t.UserId == user.UserId
-                && t.Purpose == VerificationTokenPurpose.EmailConfirmation
-                && !t.Used
-                && t.ExpiresAt > DateTime.UtcNow
-            )
-            .ToListAsync(cancellationToken);
-
-        foreach (var t in oldTokens)
-            t.Used = true;
-
-        if (oldTokens.Count > 0)
-            await db.SaveChangesAsync(cancellationToken);
-
-        await IssueVerificationTokenAndSendEmailAsync(
-            user,
-            VerificationTokenPurpose.EmailConfirmation,
-            TimeSpan.FromHours(emailOptions.Value.EmailConfirmationExpirationHours),
-            "auth/confirm-email",
-            cancellationToken
-        );
-
-        return new MessageResponse(standardMessage);
-    }
-
-    public async Task SendStaffInviteAsync(User user, CancellationToken cancellationToken)
-    {
-        var oldTokens = await db
-            .UserVerificationTokens.Where(t =>
-                t.UserId == user.UserId
-                && t.Purpose == VerificationTokenPurpose.StaffInvite
-                && !t.Used
-                && t.ExpiresAt > DateTime.UtcNow
-            )
-            .ToListAsync(cancellationToken);
-        foreach (var t in oldTokens)
-            t.Used = true;
-
-        await IssueVerificationTokenAndSendEmailAsync(
-            user,
-            VerificationTokenPurpose.StaffInvite,
-            TimeSpan.FromHours(StaffInviteExpirationHours),
-            "reset-password",
-            cancellationToken
-        );
-    }
-
     public async Task<SocketTokenResponse> GenerateSocketTokenAsync(
         int userId,
         CancellationToken cancellationToken
@@ -682,46 +375,5 @@ public class AuthService(
 
         await db.SaveChangesAsync(cancellationToken);
         return rawToken;
-    }
-
-    private async Task IssueVerificationTokenAndSendEmailAsync(
-        User user,
-        VerificationTokenPurpose purpose,
-        TimeSpan validFor,
-        string frontendPath,
-        CancellationToken cancellationToken
-    )
-    {
-        var rawToken = tokenService.GenerateOpaqueToken();
-        db.UserVerificationTokens.Add(
-            new UserVerificationToken
-            {
-                UserId = user.UserId,
-                TokenHash = tokenService.HashOpaqueToken(rawToken),
-                Purpose = purpose,
-                ExpiresAt = DateTime.UtcNow.Add(validFor),
-                Used = false,
-                CreatedAt = DateTime.UtcNow,
-            }
-        );
-
-        await db.SaveChangesAsync(cancellationToken);
-
-        var link =
-            $"{appurlOptions.Value.FrontendBaseUrl.TrimEnd('/')}/{frontendPath.TrimStart('/')}?token={Uri.EscapeDataString(rawToken)}";
-
-        notificationService.SendVerificationLink(
-            purpose,
-            user.Email,
-            user.FullName,
-            link,
-            validFor
-        );
-
-        logger.LogInformation(
-            "SecurityEmailQueued UserId {UserId} Purpose {Purpose}",
-            user.UserId,
-            purpose
-        );
     }
 }

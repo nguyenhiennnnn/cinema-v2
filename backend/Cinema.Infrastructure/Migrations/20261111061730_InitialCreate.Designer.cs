@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cinema.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261110150152_InitialCreate")]
+    [Migration("20261111061730_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1170,7 +1170,7 @@ namespace Cinema.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("EarnedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Points")
                         .HasColumnType("integer");
@@ -1361,7 +1361,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 1,
                             AgeRatingId = 5,
                             AverageRating = 4.8m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Câu chuyện về J. Robert Oppenheimer, nhà vật lý lý thuyết người Mỹ lãnh đạo Dự án Manhattan phát triển vũ khí nguyên tử đầu tiên trên thế giới trong Thế chiến thứ hai.",
                             DirectorId = 1,
                             DurationMinutes = 180,
@@ -1379,7 +1379,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 2,
                             AgeRatingId = 4,
                             AverageRating = 4.7m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Paul Atreides hợp lực cùng Chani và người Fremen để trả thù những kẻ đã hủy diệt gia đình anh, đồng thời đối mặt với lựa chọn nghiệt ngã giữa tình yêu và vận mệnh của vũ trụ.",
                             DirectorId = 2,
                             DurationMinutes = 166,
@@ -1397,7 +1397,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 3,
                             AgeRatingId = 5,
                             AverageRating = 4.5m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Mai - người phụ nữ gần 40 tuổi làm nghề mát-xa trị liệu mang nhiều vết thương tâm hồn, gặp Dương - chàng trai đào hoa trẻ tuổi quyết tâm theo đuổi cô. Một câu chuyện tình yêu đầy thử thách và định kiến xã hội.",
                             DirectorId = 3,
                             DurationMinutes = 131,
@@ -1415,7 +1415,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 4,
                             AgeRatingId = 5,
                             AverageRating = 4.9m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Gia đình ông Kim nghèo khó tìm cách từng người một thâm nhập vào làm việc cho gia đình ngài Park giàu sang phú quý, mở ra chuỗi bi kịch tầng lớp châm biếm sâu cay.",
                             DirectorId = 7,
                             DurationMinutes = 132,
@@ -1433,7 +1433,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 5,
                             AgeRatingId = 3,
                             AverageRating = 4.6m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Jake Sully cùng Neytiri và các con phải rời bỏ quê hương, tìm đến nương náu ở vùng biển của tộc Metkayina khi loài người trở lại đe dọa sự sống của Pandora.",
                             DirectorId = 6,
                             DurationMinutes = 192,
@@ -1451,7 +1451,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 6,
                             AgeRatingId = 2,
                             AverageRating = 4.4m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Bộ phim gia đình xúc động về bà Hai 73 tuổi neo đơn ở vùng cao Lâm Đồng và những câu chuyện trăn trở của 5 người con đã trưởng thành khi mẹ gặp nạn.",
                             DirectorId = 5,
                             DurationMinutes = 138,
@@ -1469,7 +1469,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 7,
                             AgeRatingId = 5,
                             AverageRating = 4.7m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Cơ quan Phương sai Thời gian (TVA) lôi kéo Deadpool vào một nhiệm vụ bảo vệ đa vũ trụ, buộc anh phải hợp tác cùng một biến thể bất đắc dĩ của Wolverine.",
                             DirectorId = 9,
                             DurationMinutes = 128,
@@ -1487,7 +1487,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 8,
                             AgeRatingId = 1,
                             AverageRating = 4.8m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Cô bé Riley bước vào tuổi dậy thì, kéo theo sự xuất hiện của những cảm xúc mới tinh vi như Lo Âu, Ganh Tị, Xấu Hổ và Chán Nản bên cạnh nhóm Vui Vẻ quen thuộc.",
                             DirectorId = 10,
                             DurationMinutes = 96,
@@ -1505,7 +1505,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 9,
                             AgeRatingId = 3,
                             AverageRating = 4.2m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Tác phẩm tái hiện cuộc đời tài hoa, lãng tử của cố nhạc sĩ Trịnh Công Sơn qua những giai đoạn gắn liền với các 'nàng thơ' Dao Ánh, Bích Diễm, Khánh Ly, Michiko.",
                             DirectorId = 8,
                             DurationMinutes = 136,
@@ -1523,7 +1523,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 10,
                             AgeRatingId = 5,
                             AverageRating = 4.1m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Bộ phim kỳ ảo tâm linh về Hùng - người đàn ông nắm giữ bí thuật ngải bất tử vượt qua 3 thế kỷ đầy tham vọng, thù hận và sự trừng phạt nghiệt ngã của số phận.",
                             DirectorId = 4,
                             DurationMinutes = 130,
@@ -1541,7 +1541,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 11,
                             AgeRatingId = 3,
                             AverageRating = 4.9m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Khi Trái Đất bên bờ diệt vong, một nhóm nhà thám hiểm vũ trụ dấn thân vào hố sâu không gian qua một lỗ sâu mới xuất hiện để tìm kiếm hành tinh mới cho sự sống còn của nhân loại.",
                             DirectorId = 1,
                             DurationMinutes = 169,
@@ -1559,7 +1559,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 12,
                             AgeRatingId = 3,
                             AverageRating = 4.5m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Chuyển thể từ truyện dài cùng tên của nhà văn Nguyễn Nhật Ánh, kể về mối tình đơn phương vừa tha thiết vừa đượm buồn của Ngạn dành cho cô bạn thanh mai trúc mã Hà Lan có đôi mắt biếc.",
                             DirectorId = 4,
                             DurationMinutes = 117,
@@ -1577,7 +1577,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 13,
                             AgeRatingId = 2,
                             AverageRating = 4.4m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Tác phẩm xoay quanh đại gia đình Giàu - Sang - Phú - Quý tại một con hẻm nghèo ở Sài Gòn, đặc biệt là mối quan hệ mâu thuẫn thế hệ đầy day dứt và tình yêu thương sâu sắc giữa Ba Sang và Quắn.",
                             DirectorId = 3,
                             DurationMinutes = 128,
@@ -1595,7 +1595,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 14,
                             AgeRatingId = 5,
                             AverageRating = 4.6m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Một nhóm pháp sư, thầy phong thủy và chuyên gia tang lễ hàng đầu Hàn Quốc nhận lời khai quật một ngôi mộ bí ẩn với mức thù lao khổng lồ, vô tình giải thoát một thế lực hắc ám cổ xưa rùng rợn.",
                             DirectorId = 12,
                             DurationMinutes = 134,
@@ -1613,7 +1613,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 15,
                             AgeRatingId = 2,
                             AverageRating = 4.9m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Miles Morales tái ngộ cùng Gwen Stacy và bị kéo vào đa vũ trụ đầy hiểm họa. Tại đây, Miles phải đối đầu với Liên minh Người Nhện để bảo vệ định mệnh và người thân yêu nhất của mình.",
                             DirectorId = 13,
                             DurationMinutes = 140,
@@ -1631,7 +1631,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 16,
                             AgeRatingId = 3,
                             AverageRating = 4.9m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Sau cú búng tay hủy diệt của Thanos, các Avengers còn sống sót tập hợp lực lượng một lần cuối cùng, thực hiện kế hoạch du hành thời gian đầy táo bạo nhằm khôi phục vũ trụ.",
                             DirectorId = 11,
                             DurationMinutes = 181,
@@ -1649,7 +1649,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 17,
                             AgeRatingId = 1,
                             AverageRating = 4.3m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Po chuẩn bị trở thành Thủ lĩnh Tinh thần của Thung lũng Bình Yên và phải huấn luyện một chiến binh rồng mới, đồng thời đối đầu với mụ phù thủy Tắc Kè Hoa có khả năng biến hình nguy hiểm.",
                             DirectorId = 14,
                             DurationMinutes = 94,
@@ -1667,7 +1667,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 18,
                             AgeRatingId = 4,
                             AverageRating = 4.3m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Câu chuyện xoay quanh tiệm bánh canh cua của bà Ngọc Nữ và những rắc rối, mâu thuẫn tình cảm trong một gia đình nhiều thế hệ toàn phụ nữ nơi sự kiểm soát thái quá dẫn đến đổ vỡ.",
                             DirectorId = 3,
                             DurationMinutes = 102,
@@ -1685,7 +1685,7 @@ namespace Cinema.Infrastructure.Migrations
                             MovieId = 19,
                             AgeRatingId = 2,
                             AverageRating = 4.7m,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Cô nữ sinh 17 tuổi Suzume gặp gỡ chàng trai kỳ lạ Souta và bắt đầu hành trình băng qua khắp nước Nhật để đóng lại những cánh cửa giải phóng tai ương thảm họa bảo vệ sự bình yên nhân loại.",
                             DirectorId = 15,
                             DurationMinutes = 122,
@@ -4875,7 +4875,7 @@ namespace Cinema.Infrastructure.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@cinema.local",
                             EmailConfirmed = true,
                             FullName = "System Admin",

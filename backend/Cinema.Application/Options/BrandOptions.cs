@@ -11,11 +11,11 @@ public class BrandOptions
 
     public string TimeZoneId { get; set; } = string.Empty;
 
-    public string Locale { get; set; } = "vi-VN";
+    public string Locale { get; set; } = string.Empty;
 
-    public string CurrencyCode { get; set; } = "VND";
+    public string CurrencyCode { get; set; } = string.Empty;
 
-    public string CurrencySymbol { get; set; } = "VNĐ";
+    public string CurrencySymbol { get; set; } = string.Empty;
 
     public const string DefaultPhoneRegex = @"^(0|\+84)[0-9]{9,10}$";
 

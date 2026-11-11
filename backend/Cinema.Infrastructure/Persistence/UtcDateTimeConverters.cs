@@ -9,7 +9,12 @@ public sealed class UtcDateTimeConverter()
         value.Kind == DateTimeKind.Local ? value.ToUniversalTime() : AsUtc(value);
 
     internal static DateTime AsUtc(DateTime value) =>
-        value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+        };
 }
 
 public sealed class NullableUtcDateTimeConverter()

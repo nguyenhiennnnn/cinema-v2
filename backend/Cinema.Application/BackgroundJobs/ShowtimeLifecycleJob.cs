@@ -2,11 +2,11 @@ using Cinema.Application.Interfaces;
 
 namespace Cinema.Application.BackgroundJobs;
 
-public class ShowtimeLifecycleJob(IShowtimeService showtimeService)
+public class ShowtimeLifecycleJob(IShowtimeLifecycleService showtimeLifecycleService)
 {
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        await showtimeService.CompleteEndedShowtimesAsync(cancellationToken);
-        await showtimeService.EndMoviesWithoutUpcomingShowtimesAsync(cancellationToken);
+        await showtimeLifecycleService.CompleteEndedShowtimesAsync(cancellationToken);
+        await showtimeLifecycleService.EndMoviesWithoutUpcomingShowtimesAsync(cancellationToken);
     }
 }

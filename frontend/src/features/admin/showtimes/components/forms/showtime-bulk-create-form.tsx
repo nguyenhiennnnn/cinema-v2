@@ -23,6 +23,7 @@ import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { getCurrencyLabel } from "@/lib/regional-settings";
 
 const WEEKDAY_VALUES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const REFERENCE_MONDAY = new Date(2024, 0, 1);
@@ -209,7 +210,7 @@ export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProp
         <FormInputField
           name="basePrice"
           control={form.control}
-          label="Giá vé (VNĐ)"
+          label={`Giá vé (${getCurrencyLabel()})`}
           type="number"
           min={0}
           step={1000}

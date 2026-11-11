@@ -5,6 +5,7 @@ import { MembershipFaq } from "../components/membership-faq";
 import { useMembershipTiers } from "@/features/client/catalog/hooks/use-catalog";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
+import { formatCurrency } from "@/lib/formatters";
 import { ROUTES } from "@/config/routes";
 
 const MembershipPage = () => {
@@ -27,7 +28,7 @@ const MembershipPage = () => {
           Chương trình Khách hàng Thân thiết {BRAND.name}
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground md:text-base">
-          Mỗi <span className="font-semibold text-foreground">10.000 VNĐ</span>{" "}
+          Mỗi <span className="font-semibold text-foreground">{formatCurrency(10000)}</span>{" "}
           chi tiêu = <span className="font-semibold text-foreground">1</span>{" "}
           điểm thưởng tích lũy. Càng xem nhiều, quyền lợi càng lớn.
         </p>

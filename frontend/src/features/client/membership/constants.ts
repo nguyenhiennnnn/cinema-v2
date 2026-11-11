@@ -7,6 +7,7 @@ import {
   Gift,
   CalendarCheck,
 } from "lucide-react";
+import { formatCurrency } from "@/lib/formatters";
 
 export const TIER_VISUALS = [
   {
@@ -42,11 +43,11 @@ export const COMPARE_ROWS = [
   { label: "Combo bắp nước miễn phí sinh nhật", unlockAt: 3, icon: Gift },
 ] as const;
 
-export const FAQ_ITEMS = [
+export const getFaqItems = () => [
   {
     question: "Làm sao để tích điểm hội viên?",
     answer:
-      "Mỗi 10.000 VNĐ chi tiêu cho vé xem phim hoặc bắp nước tại rạp (thanh toán thành công) sẽ được cộng 1 điểm thưởng vào tài khoản của bạn. Điểm được cộng tự động ngay sau khi đơn hàng hoàn tất.",
+      `Mỗi ${formatCurrency(10000)} chi tiêu cho vé xem phim hoặc bắp nước tại rạp (thanh toán thành công) sẽ được cộng 1 điểm thưởng vào tài khoản của bạn. Điểm được cộng tự động ngay sau khi đơn hàng hoàn tất.`,
   },
   {
     question: "Điểm và hạng thẻ của tôi có bị hết hạn không?",

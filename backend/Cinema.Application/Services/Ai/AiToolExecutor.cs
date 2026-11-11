@@ -191,7 +191,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     ["movieTitle"] = r.MovieTitle,
                     ["room"] = r.RoomName,
                     ["screenType"] = r.ScreenType,
-                    ["startTime"] = BusinessTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
+                    ["startTime"] = BusinessTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
                     ["basePriceVnd"] = r.BasePrice,
                     ["availableSeats"] = r.AvailableSeats,
                 }
@@ -201,6 +201,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     "showtime",
                     r.MovieTitle,
                     string.Format(
+                        CultureInfo.InvariantCulture,
                         Messages.Ai_Card_ShowtimeSubtitle,
                         BusinessTime.ToLocal(r.StartTime),
                         r.RoomName
@@ -293,7 +294,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             ["showtimeId"] = showtime.ShowtimeId,
             ["movieTitle"] = showtime.MovieTitle,
             ["room"] = showtime.RoomName,
-            ["startTime"] = BusinessTime.ToLocal(showtime.StartTime).ToString("dd/MM/yyyy HH:mm"),
+            ["startTime"] = BusinessTime.ToLocal(showtime.StartTime).ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
             ["totalSeats"] = seats.Count,
             ["availableSeats"] = free.Count,
             ["bySeatType"] = byType,
@@ -306,6 +307,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             "showtime",
             showtime.MovieTitle,
             string.Format(
+                CultureInfo.InvariantCulture,
                 Messages.Ai_Card_ShowtimeSubtitle,
                 BusinessTime.ToLocal(showtime.StartTime),
                 showtime.RoomName
@@ -380,7 +382,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     ["status"] = statusText,
                     ["movieTitle"] = r.MovieTitle,
                     ["room"] = r.RoomName,
-                    ["startTime"] = BusinessTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
+                    ["startTime"] = BusinessTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
                     ["seats"] = new JsonArray(seats.Select(s => (JsonNode?)s).ToArray()),
                     ["finalAmountVnd"] = r.FinalAmount,
                 }
@@ -390,6 +392,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     "booking",
                     r.MovieTitle,
                     string.Format(
+                        CultureInfo.InvariantCulture,
                         Messages.Ai_Card_BookingSubtitle,
                         BusinessTime.ToLocal(r.StartTime),
                         r.RoomName,

@@ -1,6 +1,5 @@
 using Cinema.Application.DTOs.Auth;
 using Cinema.Application.Interfaces;
-using Cinema.Shared.Constants;
 using Cinema.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +9,12 @@ namespace Cinema.Api.Controllers.Client;
 
 [ApiController]
 [Route("api/v1/auth")]
-public class AuthController(IAuthService authService) : AppControllerBase
+public class AuthController(
+    IAuthService authService,
+    IRegistrationService registrationService,
+    IPasswordService passwordService
+) : AppControllerBase
 {
-
     [HttpPost("register")]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register(
@@ -20,7 +22,7 @@ public class AuthController(IAuthService authService) : AppControllerBase
         CancellationToken cancellationToken
     )
     {
-        var result = await authService.RegisterAsync(request, cancellationToken);
+        var result = await registrationService.RegisterAsync(request, cancellationToken);
 
         return StatusCode(StatusCodes.Status201Created, result);
     }
@@ -31,7 +33,7 @@ public class AuthController(IAuthService authService) : AppControllerBase
         CancellationToken cancellationToken
     )
     {
-        var result = await authService.ConfirmEmailAsync(request, cancellationToken);
+        var result = await registrationService.ConfirmEmailAsync(request, cancellationToken);
 
         return Ok(result);
     }
@@ -98,7 +100,7 @@ public class AuthController(IAuthService authService) : AppControllerBase
         CancellationToken cancellationToken
     )
     {
-        var result = await authService.ForgotPasswordAsync(request, cancellationToken);
+        var result = await passwordService.ForgotPasswordAsync(request, cancellationToken);
         return Ok(result);
     }
 
@@ -109,7 +111,7 @@ public class AuthController(IAuthService authService) : AppControllerBase
         CancellationToken cancellationToken
     )
     {
-        var result = await authService.ResetPasswordAsync(request, cancellationToken);
+        var result = await passwordService.ResetPasswordAsync(request, cancellationToken);
         return Ok(ApiResponse.SuccessResponse(result, result.Message));
     }
 
@@ -119,7 +121,7 @@ public class AuthController(IAuthService authService) : AppControllerBase
         CancellationToken cancellationToken
     )
     {
-        var result = await authService.ResendConfirmationEmailAsync(request, cancellationToken);
+        var result = await registrationService.ResendConfirmationEmailAsync(request, cancellationToken);
         return Ok(result);
     }
 

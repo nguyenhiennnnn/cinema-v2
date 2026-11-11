@@ -13,7 +13,7 @@ namespace Cinema.Api.Controllers.Admin;
 [ApiController]
 [Route("api/v1/admin/users")]
 [Authorize]
-public class AdminUsersController(IEmployeeService employeeService) : AppControllerBase
+public class AdminUsersController(IUserAdminService userAdminService) : AppControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.AdminOnly)]
@@ -25,7 +25,7 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
         CancellationToken cancellationToken = default
     ) =>
         Ok(
-            await employeeService.GetUsersAdminAsync(
+            await userAdminService.GetUsersAdminAsync(
                 roleId,
                 search,
                 page,
@@ -43,7 +43,7 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
         CancellationToken cancellationToken = default
     ) =>
         Ok(
-            await employeeService.GetAdminUsersForSelectAsync(
+            await userAdminService.GetAdminUsersForSelectAsync(
                 search,
                 availableOnly,
                 cancellationToken,
@@ -56,7 +56,7 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
     public async Task<IActionResult> SearchCustomers(
         [FromQuery] string? q,
         CancellationToken cancellationToken
-    ) => Ok(await employeeService.SearchCustomersForCounterAsync(q, cancellationToken));
+    ) => Ok(await userAdminService.SearchCustomersForCounterAsync(q, cancellationToken));
 
     [HttpPut("{id:int}/status")]
     [Authorize(Policy = Policies.AdminOnly)]
@@ -66,7 +66,7 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
         CancellationToken cancellationToken
     )
     {
-        var result = await employeeService.UpdateUserStatusAsync(
+        var result = await userAdminService.UpdateUserStatusAsync(
             id,
             request,
             CurrentUserId,
@@ -88,7 +88,7 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
         [FromBody] UpdateUserRoleRequest request,
         CancellationToken cancellationToken
     ) => Ok(
-            await employeeService.UpdateUserRoleAsync(
+            await userAdminService.UpdateUserRoleAsync(
                 id,
                 request,
                 CurrentUserId,
@@ -103,7 +103,7 @@ public class AdminUsersController(IEmployeeService employeeService) : AppControl
         CancellationToken cancellationToken
     ) =>
         Ok(
-            await employeeService.BulkUpdateUserStatusAsync(
+            await userAdminService.BulkUpdateUserStatusAsync(
                 request,
                 CurrentUserId,
                 cancellationToken

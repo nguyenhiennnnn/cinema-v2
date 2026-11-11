@@ -27,6 +27,7 @@ import {
 import type { AutoScheduleResponseDto } from "@/features/admin/showtimes/types";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { getCurrencyLabel } from "@/lib/regional-settings";
 
 const formSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày."),
@@ -302,7 +303,7 @@ export const ShowtimeAutoScheduleForm = ({ onSuccess }: ShowtimeAutoScheduleForm
         <FormInputField
           name="basePrice"
           control={form.control}
-          label="Giá vé mặc định (VNĐ)"
+          label={`Giá vé mặc định (${getCurrencyLabel()})`}
           type="number"
           min={0}
           step={1000}

@@ -1,6 +1,5 @@
-import { format } from "date-fns";
-import { toWallDate } from "@/lib/business-time";
 import {
+  formatDayMonthLocalized,
   formatTime as formatTimeUtil,
   toDateInputValue,
 } from "@/lib/formatters";
@@ -15,8 +14,7 @@ export function formatWeekdayShort(date: Date) {
 }
 
 export function formatDayMonth(value: Date | string) {
-  const date = toWallDate(value);
-  return date ? format(date, "dd/MM") : "";
+  return formatDayMonthLocalized(value, "");
 }
 
 export function formatShowtimeTime(value: string) {

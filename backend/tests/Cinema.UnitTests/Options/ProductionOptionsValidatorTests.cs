@@ -27,7 +27,13 @@ public class ProductionOptionsValidatorTests
             vnPay ?? new VnPayOptions(),
             momo ?? new MomoOptions(),
             stripe ?? new StripeOptions(),
-            new BrandOptions { TimeZoneId = "UTC" }
+            new BrandOptions
+            {
+                TimeZoneId = "UTC",
+                Locale = "vi-VN",
+                CurrencyCode = "VND",
+                CurrencySymbol = "VNĐ",
+            }
         );
 
     [Fact]
@@ -46,7 +52,13 @@ public class ProductionOptionsValidatorTests
             new VnPayOptions(),
             new MomoOptions(),
             new StripeOptions(),
-            new BrandOptions { TimeZoneId = "UTC" }
+            new BrandOptions
+            {
+                TimeZoneId = "UTC",
+                Locale = "vi-VN",
+                CurrencyCode = "VND",
+                CurrencySymbol = "VNĐ",
+            }
         );
 
         errors.Count.ShouldBe(4);

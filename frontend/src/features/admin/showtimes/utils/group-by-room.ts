@@ -1,3 +1,4 @@
+import { getLocale } from "@/lib/regional-settings";
 import type { ShowtimeCalendarItemDto } from "../types";
 
 export interface RoomRow {
@@ -25,6 +26,6 @@ export function groupByRoom(showtimes: ShowtimeCalendarItemDto[]): RoomRow[] {
   }
 
   return Array.from(map.values()).sort((a, b) =>
-    a.roomName.localeCompare(b.roomName, "vi"),
+    a.roomName.localeCompare(b.roomName, getLocale()),
   );
 }

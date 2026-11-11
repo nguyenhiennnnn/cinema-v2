@@ -1,7 +1,6 @@
 using Cinema.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Cinema.UnitTests.TestSupport;
 
