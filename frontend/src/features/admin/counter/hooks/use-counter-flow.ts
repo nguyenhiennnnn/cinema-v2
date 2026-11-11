@@ -4,9 +4,11 @@ import { getBusinessToday } from "@/lib/business-time";
 import { ShowtimeSeatStatus } from "@/types/enum";
 import { useShowtimeSeats } from "@/features/client/showtimes/hooks/use-showtimes";
 import { useRealtimeSeatMap } from "@/hooks/use-realtime-seat-map";
+import { useActiveCombos } from "@/features/client/combos/hooks/use-combos";
 import {
   useCounterHold,
   useCounterCheckout,
+  useCounterCancel,
   useAdminBookingDetail,
 } from "@/features/admin/bookings/hooks/use-admin-booking";
 import type {
@@ -42,7 +44,7 @@ export function useCounterFlow() {
     ownBookingId: holdResult?.bookingId ?? null,
     onHoldExpired: () => {
       toast.add({ title: "Thời gian giữ ghế đã hết hạn.", type: "warning" });
-      resetFlow();
+      resetLocalFlow();
     },
   });
 
@@ -50,6 +52,8 @@ export function useCounterFlow() {
 
   const counterHold = useCounterHold();
   const counterCheckout = useCounterCheckout();
+  const counterCancel = useCounterCancel();
+  const activeCombos = useActiveCombos();
 
   const combosPayload = useMemo(
     () =>
@@ -69,10 +73,26 @@ export function useCounterFlow() {
 
   const estimatedTotal = useMemo(() => {
     const seatsTotal = selectedSeatsInfo.reduce((sum, s) => sum + s.price, 0);
-    return seatsTotal;
-  }, [selectedSeatsInfo]);
+    const combosTotal = combosPayload.reduce((sum, item) => {
+      const combo = activeCombos.data?.find((c) => c.comboId === item.comboId);
+      return sum + (combo?.price ?? 0) * item.quantity;
+    }, 0);
+    return seatsTotal + combosTotal;
+  }, [selectedSeatsInfo, combosPayload, activeCombos.data]);
 
-  const pickShowtime = (id: number) => {
+  const cancelHold = async () => {
+    if (!holdResult) return true;
+    try {
+      await counterCancel.mutateAsync(holdResult.bookingId);
+    } catch {
+      return false;
+    }
+    setHoldResult(null);
+    return true;
+  };
+
+  const pickShowtime = async (id: number) => {
+    if (id !== showtimeId && !(await cancelHold())) return;
     setShowtimeId(id);
     setSelectedSeatIds(new Set());
     setStep("seats");
@@ -135,7 +155,12 @@ export function useCounterFlow() {
     );
   };
 
-  const resetFlow = () => {
+  const backToSeats = async () => {
+    if (!(await cancelHold())) return;
+    setStep("seats");
+  };
+
+  const resetLocalFlow = () => {
     setStep("showtime");
     setShowtimeId(null);
     setSelectedSeatIds(new Set());
@@ -145,6 +170,11 @@ export function useCounterFlow() {
     setUserId(null);
     setHoldResult(null);
     setCheckoutResult(null);
+  };
+
+  const resetFlow = async () => {
+    if (!(await cancelHold())) return;
+    resetLocalFlow();
   };
 
   return {
@@ -174,9 +204,12 @@ export function useCounterFlow() {
     holdResult,
     confirmCheckout,
     isCheckingOut: counterCheckout.isPending,
+    isCancelling: counterCancel.isPending,
     checkoutResult,
     bookingDetail,
     pickShowtime,
+    cancelHold,
+    backToSeats,
     resetFlow,
   };
 }

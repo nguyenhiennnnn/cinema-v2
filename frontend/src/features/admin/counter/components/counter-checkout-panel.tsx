@@ -1,19 +1,29 @@
 ﻿import { useEffect, useState } from "react";
-import { Clock, HandCoins } from "lucide-react";
+import { Armchair, Clock, HandCoins, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/formatters";
 import { useCountdown } from "@/hooks/use-countdown";
+import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 import type { CounterHoldResponse } from "@/features/admin/bookings/types";
 
 interface CounterCheckoutPanelProps {
   hold: CounterHoldResponse;
   onConfirm: (amountReceived: number) => void;
+  onChangeSeats: () => void | Promise<void>;
+  onCancelOrder: () => void | Promise<void>;
   isSubmitting?: boolean;
 }
 
-export const CounterCheckoutPanel = ({ hold, onConfirm, isSubmitting }: CounterCheckoutPanelProps) => {
+export const CounterCheckoutPanel = ({
+  hold,
+  onConfirm,
+  onChangeSeats,
+  onCancelOrder,
+  isSubmitting,
+}: CounterCheckoutPanelProps) => {
+  const openAlertDialog = useAlertDialogOpen();
   const [amountReceived, setAmountReceived] = useState(hold.finalAmount);
   const { remainingMs, label } = useCountdown(hold.expiresAt);
 
@@ -24,6 +34,17 @@ export const CounterCheckoutPanel = ({ hold, onConfirm, isSubmitting }: CounterC
   const change = Math.max(0, amountReceived - hold.finalAmount);
   const isInsufficient = amountReceived < hold.finalAmount;
   const isExpired = remainingMs <= 0;
+
+  const handleCancelOrder = () => {
+    openAlertDialog({
+      title: `Huỷ đơn ${hold.bookingCode}?`,
+      description: "Ghế đang giữ sẽ được nhả ngay và đơn này sẽ bị huỷ.",
+      confirmText: "Huỷ đơn",
+      cancelText: "Giữ lại",
+      variant: "destructive",
+      onConfirm: onCancelOrder,
+    });
+  };
 
   return (
     <div className="flex flex-col gap-4 bg-card p-4">
@@ -67,6 +88,16 @@ export const CounterCheckoutPanel = ({ hold, onConfirm, isSubmitting }: CounterC
         <HandCoins className="size-4" />
         <span>{isSubmitting ? "Đang xử lý..." : "Xác nhận thanh toán"}</span>
       </Button>
+      <div className="grid grid-cols-2 gap-2">
+        <Button variant="outline" onClick={onChangeSeats} disabled={isSubmitting}>
+          <Armchair className="size-4" />
+          <span>Đổi ghế</span>
+        </Button>
+        <Button variant="outline" onClick={handleCancelOrder} disabled={isSubmitting}>
+          <X className="size-4" />
+          <span>Huỷ đơn</span>
+        </Button>
+      </div>
       {isInsufficient && (
         <p className="text-xs text-destructive">Số tiền khách đưa chưa đủ so với số tiền cần thanh toán.</p>
       )}

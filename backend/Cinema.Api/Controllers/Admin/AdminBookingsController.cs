@@ -82,6 +82,21 @@ public class AdminBookingsController(IBookingService bookingService) : AppContro
         return Ok(result);
     }
 
+    [HttpPost("{bookingId:int}/counter-cancel")]
+    [Authorize(Policy = Policies.StaffOnly)]
+    public async Task<ActionResult<CancelBookingResponse>> CounterCancel(
+        int bookingId,
+        CancellationToken cancellationToken
+    )
+    {
+        var result = await bookingService.CounterCancelAsync(
+            bookingId,
+            GetCurrentEmployeeId(),
+            cancellationToken
+        );
+        return Ok(result);
+    }
+
     [HttpPost("checkin")]
     [Authorize(Policy = Policies.StaffOnly)]
     public async Task<ActionResult<CheckinResponse>> Checkin(

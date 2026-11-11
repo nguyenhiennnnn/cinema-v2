@@ -1,4 +1,6 @@
-﻿import { CalendarX } from "lucide-react";
+﻿import { useEffect } from "react";
+import { addDays } from "date-fns";
+import { CalendarX } from "lucide-react";
 import { DateStrip } from "@/components/common/date-strip";
 import { EmptyState } from "@/components/common/empty-state";
 import { ScheduleFilterBar } from "@/features/client/schedule/components/schedule-filter-bar";
@@ -6,13 +8,25 @@ import { ScheduleMovieRow } from "@/features/client/schedule/components/schedule
 import { useSchedule } from "@/features/client/showtimes/hooks/use-showtimes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useScheduleParams } from "@/hooks/use-query-params";
-import { getBusinessToday } from "@/lib/business-time";
+import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
+import { toDateKey } from "@/lib/cinema-format";
+import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { Seo } from "@/components/common/seo";
 import { BRAND } from "@/config/brand";
 
 const SchedulePage = () => {
   const [{ date, format }, setScheduleParams] = useScheduleParams();
-  const selectedDate = date || getBusinessToday();
+  const { data: settings } = useCinemaSettings();
+  const daysCount = settings?.showtimeLookaheadDays ?? 7;
+  const today = getBusinessToday();
+  const maxDate = toDateKey(addDays(getBusinessTodayDate(), daysCount - 1));
+  const isOutOfRange =
+    !!settings && !!date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < today || date > maxDate);
+  const selectedDate = !date || isOutOfRange ? today : date;
+
+  useEffect(() => {
+    if (isOutOfRange) setScheduleParams({ date: null, format: null });
+  }, [isOutOfRange, setScheduleParams]);
 
   const { data, isLoading } = useSchedule(selectedDate, format);
   const movies = data?.movies ?? [];
@@ -29,7 +43,11 @@ const SchedulePage = () => {
         <p className="mt-1 text-sm text-muted-foreground">Tra cứu lịch chiếu toàn bộ phim tại rạp theo từng ngày.</p>
       </div>
 
-      <DateStrip value={selectedDate} onChange={(value) => setScheduleParams({ date: value, format: null })} />
+      <DateStrip
+        value={selectedDate}
+        daysCount={daysCount}
+        onChange={(value) => setScheduleParams({ date: value, format: null })}
+      />
 
       <div className="mt-4">
         <ScheduleFilterBar

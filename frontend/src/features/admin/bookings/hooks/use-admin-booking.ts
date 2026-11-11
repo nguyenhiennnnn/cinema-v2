@@ -40,6 +40,13 @@ export function useCounterCheckout() {
   });
 }
 
+export function useCounterCancel() {
+  return useMutation({
+    meta: { invalidates: "bookingChanged" },
+    mutationFn: (bookingId: number) => bookingsAdminApi.counterCancel(bookingId),
+  });
+}
+
 export function useCheckin() {
   return useMutation({
     meta: { invalidates: "bookingChanged" },

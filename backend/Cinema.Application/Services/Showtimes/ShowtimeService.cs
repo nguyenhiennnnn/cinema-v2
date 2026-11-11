@@ -1028,6 +1028,11 @@ public class ShowtimeService(
             .OrderBy(name => name)
             .ToListAsync(cancellationToken);
 
+        var lookaheadDays = await db.LoadShowtimeLookaheadDaysAsync(cancellationToken);
+        var maxDate = VietnamTime.LocalDate(DateTime.UtcNow.AddDays(lookaheadDays));
+        if (date > maxDate)
+            return new WholeCinemaScheduleDto(date.ToString("dd/MM/yyyy"), [], formats);
+
         if (!string.IsNullOrWhiteSpace(screenType))
             dayQuery = dayQuery.Where(s =>
                 (s.Room.ScreenType != null ? s.Room.ScreenType.Name : "2D") == screenType

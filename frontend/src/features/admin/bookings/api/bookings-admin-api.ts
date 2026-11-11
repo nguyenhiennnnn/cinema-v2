@@ -11,6 +11,7 @@ import type {
   CheckinRequest,
   CheckinResponse,
 } from "@/features/admin/bookings/types";
+import type { CancelBookingResponse } from "@/features/client/bookings/types";
 import { ENDPOINTS } from "@/api/endpoints";
 
 export const bookingsAdminApi = {
@@ -25,6 +26,9 @@ export const bookingsAdminApi = {
 
   counterCheckout: (bookingId: number, body: CounterCheckoutRequest) =>
     apiPost<ApiResponse<CounterCheckoutResponse>>(ENDPOINTS.admin.bookings.counterCheckout(bookingId), body),
+
+  counterCancel: (bookingId: number) =>
+    apiPost<ApiResponse<CancelBookingResponse>>(ENDPOINTS.admin.bookings.counterCancel(bookingId)),
 
   checkin: (body: CheckinRequest) =>
     apiPost<ApiResponse<CheckinResponse>>(ENDPOINTS.admin.bookings.checkin, body),

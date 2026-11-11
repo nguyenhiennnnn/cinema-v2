@@ -22,7 +22,7 @@ const AdminCounterPage = () => {
         description="Chọn suất chiếu, chọn ghế và lập đơn bán vé trực tiếp cho khách."
         action={
           flow.step !== "showtime" ? (
-            <Button variant="outline" onClick={flow.resetFlow}>
+            <Button variant="outline" onClick={flow.resetFlow} disabled={flow.isCancelling || flow.isCheckingOut}>
               Bắt đầu lại
             </Button>
           ) : undefined
@@ -96,7 +96,9 @@ const AdminCounterPage = () => {
           <CounterCheckoutPanel
             hold={flow.holdResult}
             onConfirm={flow.confirmCheckout}
-            isSubmitting={flow.isCheckingOut}
+            onChangeSeats={flow.backToSeats}
+            onCancelOrder={flow.resetFlow}
+            isSubmitting={flow.isCheckingOut || flow.isCancelling}
           />
         </div>
       )}

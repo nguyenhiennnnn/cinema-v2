@@ -58,6 +58,11 @@ public interface IBookingService
         int bookingId,
         CancellationToken cancellationToken
     );
+    Task<CancelBookingResponse> CounterCancelAsync(
+        int bookingId,
+        int employeeId,
+        CancellationToken cancellationToken
+    );
     Task<CounterCheckoutResponse> CounterCheckoutAsync(
         int bookingId,
         CounterCheckoutRequest request,

@@ -6,6 +6,7 @@ import { ShowtimeGroupList } from "@/components/common/showtime-group-list";
 import { EmptyState } from "@/components/common/empty-state";
 import { getBusinessToday } from "@/lib/business-time";
 import { toDateKey } from "@/lib/cinema-format";
+import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import type { UpcomingShowtimeDto } from "@/features/client/movies/types";
 
 interface MovieShowtimeSelectorProps {
@@ -13,6 +14,8 @@ interface MovieShowtimeSelectorProps {
 }
 
 export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps) => {
+  const { data: settings } = useCinemaSettings();
+
   const dateKeys = useMemo(() => {
     const set = new Set(showtimes.map((s) => toDateKey(s.startTime)));
     return Array.from(set).sort();
@@ -41,6 +44,7 @@ export const MovieShowtimeSelector = ({ showtimes }: MovieShowtimeSelectorProps)
 
       <DateStrip
         value={selectedDate}
+        daysCount={settings?.showtimeLookaheadDays ?? 7}
         onChange={setManualSelectedDate}
         availableDates={dateKeys}
         className="mt-4"

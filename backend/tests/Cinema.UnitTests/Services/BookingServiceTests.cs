@@ -615,4 +615,21 @@ public class BookingServiceConfirmAndCancelTests : BookingServiceTestBase
         var reloaded = await Db.Bookings.SingleAsync(b => b.BookingId == booking.BookingId);
         reloaded.Status.ShouldBe(BookingStatus.Confirmed);
     }
+
+    [Fact]
+    public async Task CounterCancelAsync_OnlinePendingBookingWithHeldSeats_ThrowsAndKeepsSeatsHeld()
+    {
+        var (booking, _, _) = await SeedHeldBookingAsync();
+        var (_, employee) = TestDataSeeder.AddEmployee(Db);
+        var sut = CreateSut();
+
+        await Should.ThrowAsync<BusinessRuleException>(() =>
+            sut.CounterCancelAsync(booking.BookingId, employee.EmployeeId, CancellationToken.None)
+        );
+
+        (await Db.Bookings.AsNoTracking().SingleAsync(b => b.BookingId == booking.BookingId))
+            .Status.ShouldBe(BookingStatus.Pending);
+        (await Db.ShowtimeSeats.AsNoTracking().SingleAsync(ss => ss.ShowtimeId == booking.ShowtimeId))
+            .Status.ShouldBe(ShowtimeSeatStatus.Held);
+    }
 }

@@ -24,6 +24,8 @@ public class BookingService(
     ILogger<BookingService> logger
 ) : IBookingService
 {
+    private const int MaxCounterPendingBookingsPerEmployee = 5;
+
     private readonly BookingOptions _options = bookingOptions.Value;
 
     public async Task<HoldBookingResponse> HoldSeatsAsync(
@@ -553,6 +555,57 @@ public class BookingService(
         );
     }
 
+    public async Task<CancelBookingResponse> CounterCancelAsync(
+        int bookingId,
+        int employeeId,
+        CancellationToken cancellationToken
+    )
+    {
+        var booking =
+            await db.Bookings.FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken)
+            ?? throw new NotFoundException(Messages.NotFound_Booking);
+
+        var cancelled = new CancelBookingResponse(
+            bookingId,
+            BookingStatus.Cancelled.ToDtoStatus(),
+            RefundAmount: null,
+            RefundStatus: null
+        );
+
+        if (booking.Channel != BookingChannel.Counter)
+            throw new BusinessRuleException(Messages.Rule_OnlyCounterPendingCancellable);
+        if (booking.Status == BookingStatus.Cancelled)
+            return cancelled;
+        if (booking.Status != BookingStatus.Pending)
+            throw new BusinessRuleException(Messages.Rule_OnlyCounterPendingCancellable);
+
+        var claimed = await db
+            .Bookings.Where(b => b.BookingId == bookingId && b.Status == BookingStatus.Pending)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(b => b.Status, BookingStatus.Cancelled),
+                cancellationToken
+            );
+        if (claimed == 0)
+        {
+            var currentStatus = await db
+                .Bookings.AsNoTracking()
+                .Where(b => b.BookingId == bookingId)
+                .Select(b => b.Status)
+                .FirstAsync(cancellationToken);
+            if (currentStatus == BookingStatus.Cancelled)
+                return cancelled;
+            throw new BusinessRuleException(Messages.Rule_OnlyCounterPendingCancellable);
+        }
+
+        await ReleaseAndCancelBookingAsync(booking, cancellationToken);
+        logger.LogInformation(
+            "BookingCancelled(Counter) BookingId {BookingId} EmployeeId {EmployeeId}",
+            bookingId,
+            employeeId
+        );
+        return cancelled;
+    }
+
     public async Task<CounterCheckoutResponse> CounterCheckoutAsync(
         int bookingId,
         CounterCheckoutRequest request,
@@ -992,24 +1045,35 @@ public class BookingService(
             );
         }
 
-        var hasActivePending = await db.Bookings.AnyAsync(
-            b =>
-                b.ShowtimeId == showtimeId
-                && b.Status == BookingStatus.Pending
-                && b.ExpiresAt > DateTime.UtcNow
-                && (
-                    (channel == BookingChannel.Online && b.UserId == holderUserId)
-                    || (
-                        channel == BookingChannel.Counter
-                        && b.CreatedByEmployeeId == createdByEmployeeId
-                    )
-                ),
-            cancellationToken
-        );
-        if (hasActivePending)
-            throw new ConflictAppException(
-                Messages.Conflict_PendingBookingExistsForShowtime
+        if (channel == BookingChannel.Online)
+        {
+            var hasActivePending = await db.Bookings.AnyAsync(
+                b =>
+                    b.ShowtimeId == showtimeId
+                    && b.Status == BookingStatus.Pending
+                    && b.ExpiresAt > DateTime.UtcNow
+                    && b.Channel == BookingChannel.Online
+                    && b.UserId == holderUserId,
+                cancellationToken
             );
+            if (hasActivePending)
+                throw new ConflictAppException(
+                    Messages.Conflict_PendingBookingExistsForShowtime
+                );
+        }
+        else if (channel == BookingChannel.Counter)
+        {
+            var counterPendingCount = await db.Bookings.CountAsync(
+                b =>
+                    b.Channel == BookingChannel.Counter
+                    && b.Status == BookingStatus.Pending
+                    && b.ExpiresAt > DateTime.UtcNow
+                    && b.CreatedByEmployeeId == createdByEmployeeId,
+                cancellationToken
+            );
+            if (counterPendingCount >= MaxCounterPendingBookingsPerEmployee)
+                throw new ConflictAppException(Messages.Rule_CounterPendingLimit);
+        }
 
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var now = DateTime.UtcNow;

@@ -80,6 +80,7 @@ export const ENDPOINTS = {
       byId: (id: number) => `/admin/bookings/${id}`,
       counterHold: "/admin/bookings/counter-hold",
       counterCheckout: (id: number) => `/admin/bookings/${id}/counter-checkout`,
+      counterCancel: (id: number) => `/admin/bookings/${id}/counter-cancel`,
       checkin: "/admin/bookings/checkin",
     },
     combos: {

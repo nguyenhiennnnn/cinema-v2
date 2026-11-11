@@ -1108,6 +1108,24 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
+        ///   Tra cứu một chuỗi được bản địa hóa tương tự Bạn đang giữ tối đa 5 đơn bán tại quầy chưa thanh toán.
+        /// </summary>
+        public static string Rule_CounterPendingLimit {
+            get {
+                return ResourceManager.GetString("Rule_CounterPendingLimit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Tra cứu một chuỗi được bản địa hóa tương tự Chỉ có thể huỷ đơn bán tại quầy đang ở trạng thái Pending.
+        /// </summary>
+        public static string Rule_OnlyCounterPendingCancellable {
+            get {
+                return ResourceManager.GetString("Rule_OnlyCounterPendingCancellable", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Tối đa {0} suất chiếu mỗi lần tạo hàng loạt. Hãy thu hẹp khoảng ngày..
         /// </summary>
         public static string Rule_BulkCreateBatchTooLarge {
