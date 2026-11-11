@@ -31,6 +31,12 @@ public record CinemaSettingsDto(
 )
 {
     public string TimeZoneId { get; init; } = string.Empty;
+
+    public string Locale { get; init; } = string.Empty;
+
+    public string CurrencyCode { get; init; } = string.Empty;
+
+    public string CurrencySymbol { get; init; } = string.Empty;
 }
 
 public record UpdateSettingsRequest(

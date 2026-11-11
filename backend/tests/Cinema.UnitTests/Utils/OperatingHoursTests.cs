@@ -9,7 +9,7 @@ public class OperatingHoursTests
     private static readonly TimeOnly Close = new(23, 59);
 
     private static DateTime At(int day, int hour, int minute = 0) =>
-        VietnamTime.ToUtc(
+        BusinessTime.ToUtc(
             DateTime.SpecifyKind(
                 new DateTime(2026, 10, 28).AddDays(day).AddHours(hour).AddMinutes(minute),
                 DateTimeKind.Unspecified

@@ -1,5 +1,6 @@
 using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -7,11 +8,15 @@ using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Services.Settings;
 
-public class SettingsService(IAppDbContext db) : ISettingsService
+public class SettingsService(IAppDbContext db, IOptions<BrandOptions> brandOptions)
+    : ISettingsService
 {
+    private readonly BrandOptions _brand = brandOptions.Value;
+
     public async Task<CinemaSettingsDto> GetSettingsAsync(CancellationToken cancellationToken)
     {
         var settings =
@@ -86,9 +91,12 @@ public class SettingsService(IAppDbContext db) : ISettingsService
         return ToDto(settings);
     }
 
-    private static CinemaSettingsDto ToDto(CinemaSettings settings) =>
+    private CinemaSettingsDto ToDto(CinemaSettings settings) =>
         settings.Adapt<CinemaSettingsDto>() with
         {
-            TimeZoneId = VietnamTime.IanaId,
+            TimeZoneId = BusinessTime.IanaId,
+            Locale = _brand.Locale,
+            CurrencyCode = _brand.CurrencyCode,
+            CurrencySymbol = _brand.CurrencySymbol,
         };
 }

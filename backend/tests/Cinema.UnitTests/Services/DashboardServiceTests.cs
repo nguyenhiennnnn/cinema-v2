@@ -175,7 +175,7 @@ public class DashboardServiceTests : IDisposable
     {
         var now = DateTime.UtcNow;
         var (showtime, seats) = await SeedShowtimeWithSeatsAsync(
-            VietnamTime.ToUtc(VietnamTime.Today(), new TimeOnly(20, 0)),
+            BusinessTime.ToUtc(BusinessTime.Today(), new TimeOnly(20, 0)),
             seatCount: 4
         );
         var bookedSeat = seats[0];
@@ -204,7 +204,7 @@ public class DashboardServiceTests : IDisposable
     {
         var now = DateTime.UtcNow;
         var (showtime, _) = await SeedShowtimeWithSeatsAsync(
-            VietnamTime.ToUtc(VietnamTime.Today(), new TimeOnly(18, 0))
+            BusinessTime.ToUtc(BusinessTime.Today(), new TimeOnly(18, 0))
         );
         await AddConfirmedBookingAsync(showtime.ShowtimeId, now, 150_000m);
         var sut = CreateSut();
@@ -219,7 +219,7 @@ public class DashboardServiceTests : IDisposable
     [Fact]
     public async Task GetSummaryAsync_BookingJustAfterVietnamMidnight_CountsAsTodayAndJustBeforeAsYesterday()
     {
-        var startOfToday = VietnamTime.StartOfDayUtc(VietnamTime.Today());
+        var startOfToday = BusinessTime.StartOfDayUtc(BusinessTime.Today());
         var (showtime, _) = await SeedShowtimeWithSeatsAsync(DateTime.UtcNow.AddDays(3));
         await AddConfirmedBookingAsync(showtime.ShowtimeId, startOfToday.AddMinutes(30), 200_000m);
         await AddConfirmedBookingAsync(showtime.ShowtimeId, startOfToday.AddMinutes(-30), 100_000m);
@@ -239,7 +239,7 @@ public class DashboardServiceTests : IDisposable
         var payment = await _handle.Db.Payments.SingleAsync(p => p.BookingId == booking.BookingId);
         payment.Status = PaymentStatus.Refunded;
         payment.RefundedAmount = 30_000m;
-        payment.PaidAt = VietnamTime.StartOfDayUtc(VietnamTime.Today()).AddMinutes(30);
+        payment.PaidAt = BusinessTime.StartOfDayUtc(BusinessTime.Today()).AddMinutes(30);
         var tracked = await _handle.Db.Bookings.SingleAsync(b => b.BookingId == booking.BookingId);
         tracked.Status = BookingStatus.Cancelled;
         await _handle.Db.SaveChangesAsync();

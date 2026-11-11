@@ -35,6 +35,7 @@ services:
       Brand__DisplayName: ${BRAND_DISPLAY_NAME:-PERFO}
       Brand__Tagline: ${BRAND_TAGLINE:-Vé điện tử · Không cần in}
       Brand__SupportEmail: ${BRAND_SUPPORT_EMAIL:-}
+      Brand__TimeZoneId: ${BRAND_TIME_ZONE:-Asia/Ho_Chi_Minh}
 
       Booking__CheckInOpenMinutes: ${BOOKING_CHECK_IN_OPEN_MINUTES:-30}
       RateLimit__GlobalSegmentsPerWindow: ${RATE_LIMIT_GLOBAL_SEGMENTS_PER_WINDOW:-4}

@@ -158,7 +158,7 @@ public class SettingsPolicyUpdateTests : IDisposable
     private SettingsService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new SettingsService(_handle.Db);
+        return new SettingsService(_handle.Db, Microsoft.Extensions.Options.Options.Create(new Cinema.Application.Options.BrandOptions()));
     }
 
     [Fact]

@@ -60,6 +60,8 @@ services:
         value: "Vé điện tử · Không cần in"
       - key: Brand__SupportEmail
         sync: false
+      - key: Brand__TimeZoneId
+        value: Asia/Ho_Chi_Minh
 
       # ── Booking / Rate Limit ─────────────────────────────────────────────
       - key: Booking__CheckInOpenMinutes

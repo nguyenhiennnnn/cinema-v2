@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Bookings;
+using Cinema.Application.Utils;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
@@ -20,7 +20,7 @@ public class ComboSelectionRequestValidator : AbstractValidator<ComboSelectionRe
     }
 }
 
-public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequest>
+public class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequest>
 {
     public HoldSeatsRequestValidator()
     {
@@ -35,7 +35,7 @@ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequ
             .WithMessage(Messages.Validation_CustomerName_MaxLength100);
 
         RuleFor(x => x.CustomerPhone)
-            .Matches(PhoneRegex())
+            .Matches(PhoneRules.Pattern)
             .When(x => !string.IsNullOrEmpty(x.CustomerPhone))
             .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20);
@@ -55,9 +55,6 @@ public partial class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequ
         RuleForEach(x => x.Combos)
             .SetValidator(new ComboSelectionRequestValidator());
     }
-
-    [GeneratedRegex(@"^(0|\+84)[0-9]{9,10}$")]
-    private static partial Regex PhoneRegex();
 }
 
 public class CheckoutRequestValidator : AbstractValidator<CheckoutRequest>

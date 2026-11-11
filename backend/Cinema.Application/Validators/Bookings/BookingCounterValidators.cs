@@ -1,11 +1,11 @@
-using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Bookings;
+using Cinema.Application.Utils;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Bookings;
 
-public partial class CounterHoldRequestValidator : AbstractValidator<CounterHoldRequest>
+public class CounterHoldRequestValidator : AbstractValidator<CounterHoldRequest>
 {
     public CounterHoldRequestValidator()
     {
@@ -44,14 +44,11 @@ public partial class CounterHoldRequestValidator : AbstractValidator<CounterHold
             .When(x => x.CustomerName is not null);
 
         RuleFor(x => x.CustomerPhone)
-            .Matches(PhoneRegex())
+            .Matches(PhoneRules.Pattern)
             .When(x => !string.IsNullOrEmpty(x.CustomerPhone))
             .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20);
     }
-
-    [GeneratedRegex(@"^(0|\+84)[0-9]{9,10}$")]
-    private static partial Regex PhoneRegex();
 }
 
 public class CounterCheckoutRequestValidator : AbstractValidator<CounterCheckoutRequest>

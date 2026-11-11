@@ -139,8 +139,8 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             )
                 return Error(Messages.Ai_Error_DateFormat);
 
-            var dayStart = VietnamTime.StartOfDayUtc(date);
-            var dayEnd = VietnamTime.StartOfNextDayUtc(date);
+            var dayStart = BusinessTime.StartOfDayUtc(date);
+            var dayEnd = BusinessTime.StartOfNextDayUtc(date);
             query = query.Where(s => s.StartTime >= dayStart && s.StartTime < dayEnd);
         }
         else
@@ -191,7 +191,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     ["movieTitle"] = r.MovieTitle,
                     ["room"] = r.RoomName,
                     ["screenType"] = r.ScreenType,
-                    ["startTime"] = VietnamTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
+                    ["startTime"] = BusinessTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
                     ["basePriceVnd"] = r.BasePrice,
                     ["availableSeats"] = r.AvailableSeats,
                 }
@@ -202,7 +202,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     r.MovieTitle,
                     string.Format(
                         Messages.Ai_Card_ShowtimeSubtitle,
-                        VietnamTime.ToLocal(r.StartTime),
+                        BusinessTime.ToLocal(r.StartTime),
                         r.RoomName
                     ),
                     string.Format(Messages.Ai_Card_PriceAndSeats, r.BasePrice, r.AvailableSeats),
@@ -293,7 +293,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             ["showtimeId"] = showtime.ShowtimeId,
             ["movieTitle"] = showtime.MovieTitle,
             ["room"] = showtime.RoomName,
-            ["startTime"] = VietnamTime.ToLocal(showtime.StartTime).ToString("dd/MM/yyyy HH:mm"),
+            ["startTime"] = BusinessTime.ToLocal(showtime.StartTime).ToString("dd/MM/yyyy HH:mm"),
             ["totalSeats"] = seats.Count,
             ["availableSeats"] = free.Count,
             ["bySeatType"] = byType,
@@ -307,7 +307,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
             showtime.MovieTitle,
             string.Format(
                 Messages.Ai_Card_ShowtimeSubtitle,
-                VietnamTime.ToLocal(showtime.StartTime),
+                BusinessTime.ToLocal(showtime.StartTime),
                 showtime.RoomName
             ),
             string.Format(Messages.Ai_Card_SeatsLeft, free.Count, seats.Count),
@@ -380,7 +380,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     ["status"] = statusText,
                     ["movieTitle"] = r.MovieTitle,
                     ["room"] = r.RoomName,
-                    ["startTime"] = VietnamTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
+                    ["startTime"] = BusinessTime.ToLocal(r.StartTime).ToString("dd/MM/yyyy HH:mm"),
                     ["seats"] = new JsonArray(seats.Select(s => (JsonNode?)s).ToArray()),
                     ["finalAmountVnd"] = r.FinalAmount,
                 }
@@ -391,7 +391,7 @@ public class AiToolExecutor(IAppDbContext db, ILogger<AiToolExecutor> logger)
                     r.MovieTitle,
                     string.Format(
                         Messages.Ai_Card_BookingSubtitle,
-                        VietnamTime.ToLocal(r.StartTime),
+                        BusinessTime.ToLocal(r.StartTime),
                         r.RoomName,
                         string.Join(", ", seats)
                     ),

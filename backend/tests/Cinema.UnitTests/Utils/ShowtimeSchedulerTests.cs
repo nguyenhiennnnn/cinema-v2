@@ -12,7 +12,7 @@ public class ShowtimeSchedulerTests
     private static readonly SchedulerRoom[] Rooms = [new(1, 120), new(2, 80), new(3, 60)];
 
     private static DateTime LocalAt(int day, TimeOnly time) =>
-        VietnamTime.ToUtc(Day.AddDays(day), time);
+        BusinessTime.ToUtc(Day.AddDays(day), time);
 
     private static List<SchedulerSlot> Build(
         IReadOnlyList<SchedulerMovie> movies,

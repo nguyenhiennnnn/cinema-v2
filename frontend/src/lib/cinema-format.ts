@@ -4,14 +4,14 @@ import {
   formatTime as formatTimeUtil,
   toDateInputValue,
 } from "@/lib/formatters";
+import { getLocale } from "@/lib/regional-settings";
 
 export function toDateKey(date: Date | string | null | undefined) {
   return toDateInputValue(date) ?? "";
 }
 
 export function formatWeekdayShort(date: Date) {
-  const day = date.getDay();
-  return day === 0 ? "CN" : `Th ${day + 1}`;
+  return new Intl.DateTimeFormat(getLocale(), { weekday: "short" }).format(date);
 }
 
 export function formatDayMonth(value: Date | string) {

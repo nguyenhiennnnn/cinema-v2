@@ -10,7 +10,8 @@ public static class ProductionOptionsValidator
         IReadOnlyCollection<string> corsOrigins,
         VnPayOptions vnPay,
         MomoOptions momo,
-        StripeOptions stripe
+        StripeOptions stripe,
+        BrandOptions brand
     )
     {
         var errors = new List<string>();
@@ -20,6 +21,8 @@ public static class ProductionOptionsValidator
 
         RequirePublicUrl(errors, "App:ApiBaseUrl", app.ApiBaseUrl);
         RequirePublicUrl(errors, "App:FrontendBaseUrl", app.FrontendBaseUrl);
+
+        RequireValue(errors, "Brand:TimeZoneId", brand.TimeZoneId);
 
         if (corsOrigins.Count == 0)
             errors.Add("Cors:AllowedOrigins chưa cấu hình.");

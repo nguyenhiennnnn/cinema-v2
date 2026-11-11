@@ -93,7 +93,7 @@ public class AdminShowtimesBulkEndpointsTests(CinemaApiFactory factory)
         result.TotalCreated.ShouldBe(1);
         result.TotalSkipped.ShouldBe(0);
         result.Created[0].SeatsGenerated.ShouldBe(50);
-        Cinema.Application.Utils.VietnamTime.ToLocal(result.Created[0].StartTime).Hour.ShouldBe(10);
+        Cinema.Application.Utils.BusinessTime.ToLocal(result.Created[0].StartTime).Hour.ShouldBe(10);
     }
 
     [Fact]

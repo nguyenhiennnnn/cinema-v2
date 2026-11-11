@@ -11,12 +11,12 @@ using Shouldly;
 namespace Cinema.UnitTests.Utils;
 
 [CollectionDefinition(Name, DisableParallelization = true)]
-public class VietnamTimeGlobalStateCollection
+public class BusinessTimeGlobalStateCollection
 {
-    public const string Name = "VietnamTime global state";
+    public const string Name = "BusinessTime global state";
 }
 
-[Collection(VietnamTimeGlobalStateCollection.Name)]
+[Collection(BusinessTimeGlobalStateCollection.Name)]
 public class VnPayGatewayTests
 {
     private static readonly DateTime FixedUtcNow = new(2026, 3, 15, 10, 0, 0, DateTimeKind.Utc);
@@ -84,15 +84,15 @@ public class VnPayGatewayTests
     [InlineData("UTC")]
     public async Task CreatePayment_CreateDate_IgnoresConfiguredBrandTimeZone(string brandZone)
     {
-        var previous = VietnamTime.IanaId;
-        VietnamTime.Configure(brandZone);
+        var previous = BusinessTime.IanaId;
+        BusinessTime.Configure(brandZone);
         try
         {
             (await CreateDateAsync(FixedUtcNow)).ShouldBe("20260315170000");
         }
         finally
         {
-            VietnamTime.Configure(previous);
+            BusinessTime.Configure(previous);
         }
     }
 
@@ -124,8 +124,8 @@ public class VnPayGatewayTests
         var sut = CreateSut(FixedUtcNow, handler);
         var originalPaymentUtc = new DateTime(2026, 3, 14, 18, 0, 0, DateTimeKind.Unspecified);
 
-        var previous = VietnamTime.IanaId;
-        VietnamTime.Configure("America/New_York");
+        var previous = BusinessTime.IanaId;
+        BusinessTime.Configure("America/New_York");
         try
         {
             var result = await sut.RefundAsync(
@@ -135,29 +135,11 @@ public class VnPayGatewayTests
         }
         finally
         {
-            VietnamTime.Configure(previous);
+            BusinessTime.Configure(previous);
         }
 
         using var doc = JsonDocument.Parse(handler.Body!);
         doc.RootElement.GetProperty("vnp_CreateDate").GetString().ShouldBe("20260315170000");
         doc.RootElement.GetProperty("vnp_TransactionDate").GetString().ShouldBe("20260315010000");
-    }
-
-    [Fact]
-    public void VietnamTime_FixedGmt7_IsPlusSevenAndIndependentFromBrandZone()
-    {
-        VietnamTime.FixedGmt7.GetUtcOffset(FixedUtcNow).ShouldBe(TimeSpan.FromHours(7));
-
-        var previous = VietnamTime.IanaId;
-        VietnamTime.Configure("America/New_York");
-        try
-        {
-            VietnamTime.FixedGmt7.GetUtcOffset(FixedUtcNow).ShouldBe(TimeSpan.FromHours(7));
-            VietnamTime.Zone.GetUtcOffset(FixedUtcNow).ShouldNotBe(TimeSpan.FromHours(7));
-        }
-        finally
-        {
-            VietnamTime.Configure(previous);
-        }
     }
 }

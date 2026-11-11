@@ -26,7 +26,8 @@ public class ProductionOptionsValidatorTests
             origins ?? Origins,
             vnPay ?? new VnPayOptions(),
             momo ?? new MomoOptions(),
-            stripe ?? new StripeOptions()
+            stripe ?? new StripeOptions(),
+            new BrandOptions { TimeZoneId = "UTC" }
         );
 
     [Fact]
@@ -44,7 +45,8 @@ public class ProductionOptionsValidatorTests
             [],
             new VnPayOptions(),
             new MomoOptions(),
-            new StripeOptions()
+            new StripeOptions(),
+            new BrandOptions { TimeZoneId = "UTC" }
         );
 
         errors.Count.ShouldBe(4);

@@ -21,7 +21,7 @@ namespace Cinema.UnitTests.Services;
 public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
 {
     private static DateTime Day(int daysFromNow, int hour = 14) =>
-        VietnamTime.ToUtc(VietnamTime.Today().AddDays(daysFromNow), new TimeOnly(hour, 0));
+        BusinessTime.ToUtc(BusinessTime.Today().AddDays(daysFromNow), new TimeOnly(hour, 0));
 
     private static Booking NewBooking(
         int showtimeId,
@@ -336,9 +336,9 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
         var sut = CreateSut();
-        var target = VietnamTime.LocalDate(Day(2));
+        var target = BusinessTime.LocalDate(Day(2));
         await sut.CreateShowtimeAsync(
-            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, VietnamTime.ToUtc(target, new TimeOnly(14, 0)), 90_000m),
+            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, BusinessTime.ToUtc(target, new TimeOnly(14, 0)), 90_000m),
             CancellationToken.None
         );
 
@@ -368,7 +368,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 4);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
         var sut = CreateSut();
-        var from = VietnamTime.LocalDate(Day(2));
+        var from = BusinessTime.LocalDate(Day(2));
         var to = from.AddDays(2);
 
         var result = await sut.PreviewAutoScheduleAsync(
@@ -384,7 +384,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         result.Items.Count.ShouldBe(6);
         result.Unplaced.ShouldBeEmpty();
         result
-            .Items.Select(i => VietnamTime.LocalDate(i.StartTime))
+            .Items.Select(i => BusinessTime.LocalDate(i.StartTime))
             .Distinct()
             .Count()
             .ShouldBe(3);
@@ -396,9 +396,9 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         var seats = TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 100);
-        var sourceDay = VietnamTime.LocalDate(Day(-1));
+        var sourceDay = BusinessTime.LocalDate(Day(-1));
         TestDataSeeder.AddShowtime(
-            Db, movie, room, seats, VietnamTime.ToUtc(sourceDay, new TimeOnly(14, 0)),
+            Db, movie, room, seats, BusinessTime.ToUtc(sourceDay, new TimeOnly(14, 0)),
             status: ShowtimeStatus.Completed);
         var sut = CreateSut();
         var request = new CloneShowtimesRequest(sourceDay, sourceDay, ShiftDays: 7);
@@ -407,7 +407,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var second = await sut.CloneShowtimesAsync(request, CancellationToken.None);
 
         first.TotalCreated.ShouldBe(1);
-        first.Created[0].StartTime.ShouldBe(VietnamTime.ToUtc(sourceDay.AddDays(7), new TimeOnly(14, 0)));
+        first.Created[0].StartTime.ShouldBe(BusinessTime.ToUtc(sourceDay.AddDays(7), new TimeOnly(14, 0)));
         first.Created[0].SeatsGenerated.ShouldBe(2);
         second.TotalCreated.ShouldBe(0);
         second.TotalSkipped.ShouldBe(1);
@@ -417,7 +417,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
     public async Task CloneShowtimesAsync_NoSourceShowtimes_ThrowsBusinessRuleException()
     {
         var sut = CreateSut();
-        var day = VietnamTime.LocalDate(Day(-30));
+        var day = BusinessTime.LocalDate(Day(-30));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CloneShowtimesAsync(new CloneShowtimesRequest(day, day), CancellationToken.None)
@@ -468,7 +468,7 @@ public class ShowtimeServiceFixesTests : ShowtimeServiceTestBase
         var room = TestDataSeeder.AddRoom(Db);
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db);
-        var yesterday = VietnamTime.Today().AddDays(-1);
+        var yesterday = BusinessTime.Today().AddDays(-1);
         var sut = CreateSut();
 
         var result = await sut.BulkCreateShowtimesAsync(

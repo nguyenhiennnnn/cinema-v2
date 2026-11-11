@@ -2,7 +2,7 @@ import { isValid, parseISO } from "date-fns";
 import { ENV } from "@/config/env";
 import { getServerNow } from "@/lib/server-clock";
 
-export const DEFAULT_BUSINESS_TIME_ZONE = ENV.BUSINESS_TIME_ZONE;
+const FALLBACK_TIME_ZONE = "UTC";
 
 const ZONE_DESIGNATOR = /T.*(Z|[+-]\d{2}:?\d{2})$/i;
 
@@ -28,10 +28,19 @@ function isValidTimeZone(id: string): boolean {
   }
 }
 
-let businessTimeZone = DEFAULT_BUSINESS_TIME_ZONE;
-let partsFormatter = createPartsFormatter(
-  isValidTimeZone(businessTimeZone) ? businessTimeZone : "Asia/Ho_Chi_Minh",
-);
+function resolveBootstrapTimeZone(): string {
+  const candidates = [
+    ENV.BUSINESS_TIME_ZONE,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+  ];
+  return (
+    candidates.find((id): id is string => !!id && isValidTimeZone(id)) ??
+    FALLBACK_TIME_ZONE
+  );
+}
+
+let businessTimeZone = resolveBootstrapTimeZone();
+let partsFormatter = createPartsFormatter(businessTimeZone);
 const timeZoneListeners = new Set<() => void>();
 
 export const getBusinessTimeZone = () => businessTimeZone;

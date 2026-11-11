@@ -31,6 +31,8 @@ public class ShowtimeService(
 {
     private const int MaxBatchSize = 2000;
     private const int MaxAutoScheduleDays = 31;
+    private const int ConflictLookbackDays = 1;
+    private const int ConflictLookaheadDays = 2;
 
     private readonly SchedulerOptions _scheduler = schedulerOptions?.Value ?? new();
 
@@ -77,8 +79,8 @@ public class ShowtimeService(
             query = query.Where(s => s.MovieId == filter.MovieId);
         if (filter.Date is not null)
         {
-            var dayStart = VietnamTime.StartOfDayUtc(filter.Date.Value);
-            var dayEnd = VietnamTime.StartOfNextDayUtc(filter.Date.Value);
+            var dayStart = BusinessTime.StartOfDayUtc(filter.Date.Value);
+            var dayEnd = BusinessTime.StartOfNextDayUtc(filter.Date.Value);
             query = query.Where(s => s.StartTime >= dayStart && s.StartTime < dayEnd);
         }
 
@@ -548,7 +550,7 @@ public class ShowtimeService(
                     new ShowtimeDraft(
                         request.MovieId,
                         request.RoomId,
-                        VietnamTime.ToUtc(date, timeOfDay),
+                        BusinessTime.ToUtc(date, timeOfDay),
                         request.BasePrice,
                         request.AllowAfterHours
                     )
@@ -734,7 +736,7 @@ public class ShowtimeService(
         var bufferMinutes = cinemaSettings.RoomBufferMinutes;
         var hours = new { cinemaSettings.OpeningTime, cinemaSettings.ClosingTime };
         var (open, _) = OperatingHours.Window(request.Date, hours.OpeningTime, hours.ClosingTime);
-        var horizon = VietnamTime.StartOfDayUtc(toDate).AddDays(2);
+        var horizon = BusinessTime.StartOfDayUtc(toDate).AddDays(ConflictLookaheadDays);
         var scheduledRoomIds = rooms.Select(r => r.RoomId).ToList();
         var busy = await db
             .Showtimes.Where(s =>
@@ -869,8 +871,8 @@ public class ShowtimeService(
         CancellationToken cancellationToken
     )
     {
-        var from = VietnamTime.StartOfDayUtc(request.SourceFrom);
-        var to = VietnamTime.StartOfNextDayUtc(request.SourceTo);
+        var from = BusinessTime.StartOfDayUtc(request.SourceFrom);
+        var to = BusinessTime.StartOfNextDayUtc(request.SourceTo);
 
         var query = db.Showtimes.Where(s =>
             s.Status != ShowtimeStatus.Cancelled && s.StartTime >= from && s.StartTime < to
@@ -1015,8 +1017,8 @@ public class ShowtimeService(
         CancellationToken cancellationToken
     )
     {
-        var dayStart = VietnamTime.StartOfDayUtc(date);
-        var dayEnd = VietnamTime.StartOfNextDayUtc(date);
+        var dayStart = BusinessTime.StartOfDayUtc(date);
+        var dayEnd = BusinessTime.StartOfNextDayUtc(date);
 
         var dayQuery = db.Showtimes.Where(s =>
             s.Status == ShowtimeStatus.Scheduled && s.StartTime >= dayStart && s.StartTime < dayEnd
@@ -1029,7 +1031,7 @@ public class ShowtimeService(
             .ToListAsync(cancellationToken);
 
         var lookaheadDays = await db.LoadShowtimeLookaheadDaysAsync(cancellationToken);
-        var maxDate = VietnamTime.LocalDate(DateTime.UtcNow.AddDays(lookaheadDays));
+        var maxDate = BusinessTime.LocalDate(DateTime.UtcNow.AddDays(lookaheadDays));
         if (date > maxDate)
             return new WholeCinemaScheduleDto(date.ToString("dd/MM/yyyy"), [], formats);
 
@@ -1088,8 +1090,8 @@ public class ShowtimeService(
         CancellationToken cancellationToken
     )
     {
-        var rangeStart = VietnamTime.StartOfDayUtc(filter.From);
-        var rangeEndExclusive = VietnamTime.StartOfNextDayUtc(filter.To);
+        var rangeStart = BusinessTime.StartOfDayUtc(filter.From);
+        var rangeEndExclusive = BusinessTime.StartOfNextDayUtc(filter.To);
 
         var query = db
             .Showtimes.Include(s => s.Movie)
@@ -1127,7 +1129,7 @@ public class ShowtimeService(
         var seatCountLookup = seatCounts.ToDictionary(x => x.ShowtimeId, x => x);
 
         var days = showtimes
-            .GroupBy(s => VietnamTime.LocalDate(s.StartTime))
+            .GroupBy(s => BusinessTime.LocalDate(s.StartTime))
             .OrderBy(g => g.Key)
             .Select(g => new ShowtimeCalendarDayDto(
                 g.Key.ToString("dd/MM/yyyy"),
@@ -1251,8 +1253,8 @@ public class ShowtimeService(
         var bufferMinutes = hours?.RoomBufferMinutes ?? CinemaSettings.DefaultRoomBufferMinutes;
         var intervals = await LoadScheduledIntervalsAsync(
             roomIds,
-            drafts.Min(d => d.StartTime).AddDays(-1),
-            drafts.Max(d => d.StartTime).AddDays(2),
+            drafts.Min(d => d.StartTime).AddDays(-ConflictLookbackDays),
+            drafts.Max(d => d.StartTime).AddDays(ConflictLookaheadDays),
             cancellationToken
         );
 
@@ -1303,10 +1305,10 @@ public class ShowtimeService(
             {
                 skipped.Add(
                     new BulkSkippedShowtimeItem(
-                        VietnamTime
+                        BusinessTime
                             .ToLocal(draft.StartTime)
                             .ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                        VietnamTime
+                        BusinessTime
                             .ToLocal(draft.StartTime)
                             .ToString("HH:mm", CultureInfo.InvariantCulture),
                         reason ?? Messages.Invalid_ShowtimeInvalid

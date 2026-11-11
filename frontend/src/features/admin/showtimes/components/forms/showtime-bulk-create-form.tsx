@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { addDays } from "date-fns";
 import { Plus, Trash2 } from "lucide-react";
 
 import { toast } from "@/components/ui/toast";
@@ -17,20 +18,14 @@ import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminBulkCreateShowtimes } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
 import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
+import { formatWeekdayShort } from "@/lib/cinema-format";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
-const daysOfWeekOptions = [
-  { value: "Mon", label: "Th 2" },
-  { value: "Tue", label: "Th 3" },
-  { value: "Wed", label: "Th 4" },
-  { value: "Thu", label: "Th 5" },
-  { value: "Fri", label: "Th 6" },
-  { value: "Sat", label: "Th 7" },
-  { value: "Sun", label: "CN" },
-];
+const WEEKDAY_VALUES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const REFERENCE_MONDAY = new Date(2024, 0, 1);
 
 const bulkFormSchema = z.object({
   movieId: z.coerce.number({ message: "Vui lòng chọn phim." }),
@@ -51,6 +46,10 @@ interface ShowtimeBulkCreateFormProps {
 
 export const ShowtimeBulkCreateForm = ({ onSuccess }: ShowtimeBulkCreateFormProps) => {
   const bulkCreate = useAdminBulkCreateShowtimes();
+  const daysOfWeekOptions = WEEKDAY_VALUES.map((value, index) => ({
+    value,
+    label: formatWeekdayShort(addDays(REFERENCE_MONDAY, index)),
+  }));
 
   const [movieSearch, setMovieSearch] = useState("");
   const [roomSearch, setRoomSearch] = useState("");

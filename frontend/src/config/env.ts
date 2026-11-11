@@ -1,3 +1,6 @@
+const optionalEnv = (value: unknown): string | undefined =>
+  typeof value === "string" && value.trim() ? value.trim() : undefined;
+
 export const ENV = {
   IS_DEV: import.meta.env.DEV,
   API_BASE_URL: (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "",
@@ -5,12 +8,8 @@ export const ENV = {
   SITE_URL: (
     (import.meta.env.VITE_SITE_URL as string | undefined) ?? ""
   ).replace(/\/+$/, ""),
-  BUSINESS_TIME_ZONE:
-    (import.meta.env.VITE_BUSINESS_TIME_ZONE as string | undefined) ??
-    "Asia/Ho_Chi_Minh",
-  LOCALE: (import.meta.env.VITE_LOCALE as string | undefined) ?? "vi-VN",
-  CURRENCY_CODE:
-    (import.meta.env.VITE_CURRENCY_CODE as string | undefined) ?? "VND",
-  CURRENCY_SYMBOL:
-    (import.meta.env.VITE_CURRENCY_SYMBOL as string | undefined) ?? "VNĐ",
+  BUSINESS_TIME_ZONE: optionalEnv(import.meta.env.VITE_BUSINESS_TIME_ZONE),
+  LOCALE: optionalEnv(import.meta.env.VITE_LOCALE),
+  CURRENCY_CODE: optionalEnv(import.meta.env.VITE_CURRENCY_CODE),
+  CURRENCY_SYMBOL: optionalEnv(import.meta.env.VITE_CURRENCY_SYMBOL),
 } as const;

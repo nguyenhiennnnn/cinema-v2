@@ -114,11 +114,11 @@ public class BookingQueryService(IAppDbContext db, IOptions<BookingOptions> book
             query = query.Where(b => b.Channel == ch);
         if (filter.FromDate is not null)
             query = query.Where(b =>
-                b.CreatedAt >= VietnamTime.StartOfDayUtc(filter.FromDate.Value)
+                b.CreatedAt >= BusinessTime.StartOfDayUtc(filter.FromDate.Value)
             );
         if (filter.ToDate is not null)
             query = query.Where(b =>
-                b.CreatedAt < VietnamTime.StartOfNextDayUtc(filter.ToDate.Value)
+                b.CreatedAt < BusinessTime.StartOfNextDayUtc(filter.ToDate.Value)
             );
         if (!string.IsNullOrWhiteSpace(filter.Search))
             query = query.Where(b =>

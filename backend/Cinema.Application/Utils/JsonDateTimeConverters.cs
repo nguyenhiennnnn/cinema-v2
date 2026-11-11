@@ -41,19 +41,19 @@ public class DateTimeJsonConverter : JsonConverter<DateTime>
             return default;
 
         if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dt))
-            return VietnamTime.ToUtc(dt);
+            return BusinessTime.ToUtc(dt);
 
         if (DateTime.TryParseExact(value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-            return VietnamTime.ToUtc(dt);
+            return BusinessTime.ToUtc(dt);
 
         if (DateTime.TryParseExact(value, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-            return VietnamTime.ToUtc(dt);
+            return BusinessTime.ToUtc(dt);
 
         if (DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-            return VietnamTime.ToUtc(dt);
+            return BusinessTime.ToUtc(dt);
 
-        if (DateTime.TryParse(value, out dt))
-            return VietnamTime.ToUtc(dt);
+        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+            return BusinessTime.ToUtc(dt);
 
         throw new JsonException($"Không thể chuyển đổi '{value}' sang DateTime UTC.");
     }

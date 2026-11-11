@@ -1,11 +1,11 @@
-using System.Text.RegularExpressions;
 using Cinema.Application.DTOs.Auth;
+using Cinema.Application.Utils;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Auth;
 
-public partial class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {
     public RegisterRequestValidator()
     {
@@ -13,14 +13,11 @@ public partial class RegisterRequestValidator : AbstractValidator<RegisterReques
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(150);
         RuleFor(x => x.Password).StrongPassword();
         RuleFor(x => x.Phone)
-            .Matches(PhoneRegex())
+            .Matches(PhoneRules.Pattern)
             .When(x => !string.IsNullOrEmpty(x.Phone))
             .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20);
     }
-
-    [GeneratedRegex(@"^(0|\+84)[0-9]{9,10}$")]
-    private static partial Regex PhoneRegex();
 }
 
 public class LoginRequestValidator : AbstractValidator<LoginRequest>

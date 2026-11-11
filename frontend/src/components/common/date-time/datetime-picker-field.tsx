@@ -4,7 +4,19 @@ import { CalendarClockIcon, ClockIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getBusinessNow, toWallDate } from "@/lib/business-time";
-import { combineDateAndTime, toTimeValue } from "@/lib/wall-time";
+import {
+  combineDateAndTime,
+  isWithinOperatingWindow,
+  minutesToTimeValue,
+  timeToMinutes,
+  toTimeValue,
+} from "@/lib/wall-time";
+import {
+  DEFAULT_PICKER_OFFSET_FROM_OPENING_MINUTES,
+  FALLBACK_CLOSING_MINUTES,
+  FALLBACK_OPENING_MINUTES,
+} from "@/config/default-constants";
+import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { formatDateTime, toDateTimeInputValue } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -37,8 +49,13 @@ export const DateTimePickerField = ({
 }: DateTimePickerFieldProps) => {
   const [open, setOpen] = useState(false);
   const isDisabled = useFieldDisabled(disabled);
+  const { data: settings } = useCinemaSettings();
   const selected = toWallDate(value);
   const timeValue = toTimeValue(selected);
+  const openingMinutes =
+    timeToMinutes(settings?.openingTime) ?? FALLBACK_OPENING_MINUTES;
+  const closingMinutes =
+    timeToMinutes(settings?.closingTime) ?? FALLBACK_CLOSING_MINUTES;
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) {
@@ -48,9 +65,11 @@ export const DateTimePickerField = ({
     const base = selected ?? getBusinessNow();
     let timeStr = toTimeValue(base);
     if (!selected) {
-      const nowH = base.getHours();
-      if (nowH < 8 || nowH >= 23) {
-        timeStr = "10:00";
+      const nowMinutes = base.getHours() * 60 + base.getMinutes();
+      if (!isWithinOperatingWindow(nowMinutes, openingMinutes, closingMinutes)) {
+        timeStr = minutesToTimeValue(
+          openingMinutes + DEFAULT_PICKER_OFFSET_FROM_OPENING_MINUTES,
+        );
       }
     }
     onChange(toDateTimeInputValue(combineDateAndTime(date, timeStr)));

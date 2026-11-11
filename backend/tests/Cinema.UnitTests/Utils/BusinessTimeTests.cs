@@ -3,9 +3,9 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Utils;
 
-public class VietnamTimeTests
+public class BusinessTimeTests
 {
     [Fact]
     public void IanaId_DefaultZone_IsIanaFormat() =>
-        VietnamTime.IanaId.ShouldBe("Asia/Ho_Chi_Minh");
+        BusinessTime.IanaId.ShouldBe("Asia/Ho_Chi_Minh");
 }

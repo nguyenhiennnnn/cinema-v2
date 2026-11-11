@@ -19,7 +19,7 @@ public static class DateTimeUtils
 
     public static string GetPeriodKey(DateTime createdAt, string groupBy)
     {
-        var local = VietnamTime.ToLocal(createdAt);
+        var local = BusinessTime.ToLocal(createdAt);
         return groupBy switch
         {
             "day" => local.ToString("dd/MM/yyyy"),
@@ -29,7 +29,7 @@ public static class DateTimeUtils
         };
     }
 
-    public static DateTime GetStartOfDay(DateOnly date) => VietnamTime.StartOfDayUtc(date);
+    public static DateTime GetStartOfDay(DateOnly date) => BusinessTime.StartOfDayUtc(date);
 
-    public static DateTime GetStartOfNextDay(DateOnly date) => VietnamTime.StartOfNextDayUtc(date);
+    public static DateTime GetStartOfNextDay(DateOnly date) => BusinessTime.StartOfNextDayUtc(date);
 }

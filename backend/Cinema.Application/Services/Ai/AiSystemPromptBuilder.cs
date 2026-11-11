@@ -10,6 +10,9 @@ namespace Cinema.Application.Services.Ai;
 
 public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> brandOptions)
 {
+    private const string FallbackOpeningTime = "08:00";
+    private const string FallbackClosingTime = "23:30";
+
     private readonly BrandOptions _brand = brandOptions.Value;
 
     public async Task<string> BuildSystemPromptAsync(
@@ -24,8 +27,8 @@ public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> bran
         var cinemaName = settings?.Name ?? _brand.Name;
         var address = settings?.Address ?? Messages.Ai_Prompt_NotUpdated;
         var phone = settings?.Phone ?? Messages.Ai_Prompt_NotUpdated;
-        var opening = settings?.OpeningTime?.ToString("HH:mm") ?? "08:00";
-        var closing = settings?.ClosingTime?.ToString("HH:mm") ?? "23:30";
+        var opening = settings?.OpeningTime?.ToString("HH:mm") ?? FallbackOpeningTime;
+        var closing = settings?.ClosingTime?.ToString("HH:mm") ?? FallbackClosingTime;
 
         var now = DateTime.UtcNow;
 
@@ -91,7 +94,7 @@ public class AiSystemPromptBuilder(IAppDbContext db, IOptions<BrandOptions> bran
         return string.Format(
             Messages.Ai_Prompt_SystemTemplate,
             cinemaName,
-            VietnamTime.ToLocal(now),
+            BusinessTime.ToLocal(now),
             address,
             phone,
             opening,

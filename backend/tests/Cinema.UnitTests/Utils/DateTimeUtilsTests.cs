@@ -64,7 +64,7 @@ public class DateTimeUtilsTests
     {
         var date = new DateOnly(2026, 6, 15);
 
-        DateTimeUtils.GetStartOfDay(date).ShouldBe(VietnamTime.StartOfDayUtc(date));
+        DateTimeUtils.GetStartOfDay(date).ShouldBe(BusinessTime.StartOfDayUtc(date));
     }
 
     [Fact]
@@ -72,6 +72,6 @@ public class DateTimeUtilsTests
     {
         var date = new DateOnly(2026, 6, 15);
 
-        DateTimeUtils.GetStartOfNextDay(date).ShouldBe(VietnamTime.StartOfNextDayUtc(date));
+        DateTimeUtils.GetStartOfNextDay(date).ShouldBe(BusinessTime.StartOfNextDayUtc(date));
     }
 }

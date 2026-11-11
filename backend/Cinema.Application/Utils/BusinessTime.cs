@@ -1,18 +1,9 @@
 namespace Cinema.Application.Utils;
 
-public static class VietnamTime
+public static class BusinessTime
 {
-    private static TimeZoneInfo _zone = ResolveZone("Asia/Ho_Chi_Minh")!;
+    private static TimeZoneInfo _zone = TimeZoneInfo.Utc;
     private static string _ianaId = ToIanaId(_zone);
-
-    public static TimeZoneInfo FixedGmt7 { get; } =
-        ResolveZone("Asia/Ho_Chi_Minh")
-        ?? TimeZoneInfo.CreateCustomTimeZone(
-            "Vietnam-GMT7",
-            TimeSpan.FromHours(7),
-            "Indochina Time",
-            "Indochina Time"
-        );
 
     public static TimeZoneInfo Zone => _zone;
 
@@ -29,7 +20,7 @@ public static class VietnamTime
             ResolveZone(timeZoneId)
             ?? throw new InvalidOperationException(
                 $"Timezone '{timeZoneId}' (Brand:TimeZoneId) không hợp lệ hoặc không được hỗ trợ trên hệ thống này. "
-                    + "Dùng IANA ID (ví dụ: 'Asia/Ho_Chi_Minh') hoặc Windows ID ('SE Asia Standard Time')."
+                    + "Dùng IANA ID hoặc Windows ID được hệ thống hỗ trợ."
             );
 
         _ianaId = ToIanaId(_zone);

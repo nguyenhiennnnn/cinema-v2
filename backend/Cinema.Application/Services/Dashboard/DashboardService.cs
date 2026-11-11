@@ -10,14 +10,16 @@ namespace Cinema.Application.Services.Dashboard;
 public class DashboardService(IAppDbContext db, IReportService reportService) : IDashboardService
 {
     private const int TopMoviesLimit = 5;
+    private const int MinInsightsDays = 1;
+    private const int MaxInsightsDays = 90;
 
     public async Task<DashboardSummaryDto> GetSummaryAsync(CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
-        var today = VietnamTime.Today(now);
-        var todayStart = VietnamTime.StartOfDayUtc(today);
-        var todayEnd = VietnamTime.StartOfNextDayUtc(today);
-        var yesterdayStart = VietnamTime.StartOfDayUtc(today.AddDays(-1));
+        var today = BusinessTime.Today(now);
+        var todayStart = BusinessTime.StartOfDayUtc(today);
+        var todayEnd = BusinessTime.StartOfNextDayUtc(today);
+        var yesterdayStart = BusinessTime.StartOfDayUtc(today.AddDays(-1));
 
         var paidRows = await db
             .Payments.Where(p =>
@@ -110,11 +112,12 @@ public class DashboardService(IAppDbContext db, IReportService reportService) : 
         CancellationToken cancellationToken
     )
     {
-        var clampedDays = Math.Clamp(days, 1, 90);
+        var clampedDays = Math.Clamp(days, MinInsightsDays, MaxInsightsDays);
 
-        var toDate = VietnamTime.Today();
-        var todayStart = VietnamTime.StartOfDayUtc(toDate);
-        var todayEnd = VietnamTime.StartOfNextDayUtc(toDate);
+        var now = DateTime.UtcNow;
+        var toDate = BusinessTime.Today(now);
+        var todayStart = BusinessTime.StartOfDayUtc(toDate);
+        var todayEnd = BusinessTime.StartOfNextDayUtc(toDate);
 
         var fromDate = toDate.AddDays(-(clampedDays - 1));
 

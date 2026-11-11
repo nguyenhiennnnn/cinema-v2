@@ -22,15 +22,7 @@ public static class ApiStartupExtensions
                 options.Filters.Add<ApiResponseFilter>();
                 options.Filters.Add<ValidationActionFilter>();
             })
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.Converters.Add(
-                    new Cinema.Application.Utils.DateOnlyJsonConverter()
-                );
-                options.JsonSerializerOptions.Converters.Add(
-                    new Cinema.Application.Utils.DateTimeJsonConverter()
-                );
-            });
+            .AddJsonOptions(options => options.JsonSerializerOptions.AddCinemaConverters());
 
         services.AddValidatorsFromAssembly(typeof(MapsterConfig).Assembly);
 
@@ -89,7 +81,8 @@ public static class ApiStartupExtensions
             configuration.GetCorsOrigins(),
             configuration.BindSection<VnPayOptions>(VnPayOptions.SectionName),
             configuration.BindSection<MomoOptions>(MomoOptions.SectionName),
-            configuration.BindSection<StripeOptions>(StripeOptions.SectionName)
+            configuration.BindSection<StripeOptions>(StripeOptions.SectionName),
+            configuration.BindSection<BrandOptions>(BrandOptions.SectionName)
         );
         if (productionErrors.Count > 0)
             throw new InvalidOperationException(

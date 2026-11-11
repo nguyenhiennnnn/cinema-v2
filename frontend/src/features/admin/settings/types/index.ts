@@ -28,6 +28,9 @@ export interface CinemaSettingsDto {
   schedulerHeatRatingWeight: number;
   schedulerMaxRating: number;
   timeZoneId?: string;
+  locale?: string;
+  currencyCode?: string;
+  currencySymbol?: string;
 }
 
 export interface UpdateSettingsRequest {

@@ -13,7 +13,8 @@
     "Name": "Perfo",
     "DisplayName": "PERFO",
     "Tagline": "Vé điện tử · Không cần in",
-    "SupportEmail": ""
+    "SupportEmail": "",
+    "TimeZoneId": "Asia/Ho_Chi_Minh"
   },
   "Email": {
     "SmtpHost": "",

@@ -69,7 +69,7 @@ public class ComboService(IAppDbContext db) : IComboService
 
         var maxSales = sales.Values.DefaultIfEmpty(0).Max();
         var medianPrice = combos.Select(c => c.Price).Order().ElementAt(combos.Count / 2);
-        var localHour = VietnamTime.ToLocal(showtime.StartTime).Hour;
+        var localHour = BusinessTime.ToLocal(showtime.StartTime).Hour;
         var lateNight = localHour >= 21 || localHour < 6;
         var kidsMovie = showtime.AgeCode is "P" or "K";
 

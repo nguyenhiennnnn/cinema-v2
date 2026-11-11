@@ -14,9 +14,11 @@ builder.AddApiLogging();
 var jwtOptions = configuration.BindSection<JwtOptions>(JwtOptions.SectionName);
 var brandOptions = configuration.BindSection<BrandOptions>(BrandOptions.SectionName);
 
-Cinema.Application.Utils.VietnamTime.Configure(brandOptions.TimeZoneId);
+Cinema.Application.Utils.BusinessTime.Configure(brandOptions.TimeZoneId);
 
 Cinema.Application.Utils.CodeGenerator.Configure(brandOptions.BookingCodePrefix);
+
+Cinema.Application.Utils.PhoneRules.Configure(brandOptions.PhoneRegex);
 
 builder
     .Services.AddApiOptions(configuration)
@@ -26,7 +28,8 @@ builder
     .AddJwtAuthentication(jwtOptions)
     .AddSwaggerDocs(brandOptions.Name)
     .AddBackgroundJobs(configuration, builder.Environment)
-    .AddSignalR();
+    .AddSignalR()
+    .AddJsonProtocol(options => options.PayloadSerializerOptions.AddCinemaConverters());
 
 builder.Services.AddCorsPolicy(configuration);
 builder.Services.AddRateLimiting(configuration);

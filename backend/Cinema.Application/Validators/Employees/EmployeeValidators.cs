@@ -1,4 +1,5 @@
 using Cinema.Application.DTOs.Employees;
+using Cinema.Application.Utils;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
@@ -47,7 +48,7 @@ public class InviteEmployeeRequestValidator : AbstractValidator<InviteEmployeeRe
             .WithMessage(Messages.Validation_Email_MaxLength150);
 
         RuleFor(x => x.Phone)
-            .Matches(@"^(0|\+84)[0-9]{9,10}$")
+            .Matches(PhoneRules.Pattern)
             .When(x => !string.IsNullOrEmpty(x.Phone))
             .WithMessage(Messages.Validation_Phone_Invalid)
             .MaximumLength(20)

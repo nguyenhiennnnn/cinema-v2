@@ -275,7 +275,7 @@ public class ReportServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetRevenueReportAsync_GroupsByPaidAtInVietnamTime()
+    public async Task GetRevenueReportAsync_GroupsByPaidAtInBusinessTime()
     {
         var day = DateOnly.FromDateTime(DateTime.UtcNow.Date);
         var paidAt = new DateTime(day.Year, day.Month, day.Day, 18, 0, 0, DateTimeKind.Utc);

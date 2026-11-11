@@ -12,7 +12,7 @@ namespace Cinema.UnitTests.Services;
 public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
 {
     private static DateTime SafeStartTime(int daysFromNow = 1) =>
-        VietnamTime.ToUtc(VietnamTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));
+        BusinessTime.ToUtc(BusinessTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));
 
     [Fact]
     public async Task CreateShowtimeAsync_ValidRequest_GeneratesOneShowtimeSeatPerActiveNonAisleSeat()
@@ -169,7 +169,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db);
         var sut = CreateSut();
-        var tooEarly = VietnamTime.ToUtc(VietnamTime.Today().AddDays(1), new TimeOnly(6, 0));
+        var tooEarly = BusinessTime.ToUtc(BusinessTime.Today().AddDays(1), new TimeOnly(6, 0));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CreateShowtimeAsync(
@@ -254,7 +254,7 @@ public class ShowtimeServiceCreateTests : ShowtimeServiceTestBase
 public class ShowtimeServiceUpdateAndDeleteTests : ShowtimeServiceTestBase
 {
     private static DateTime SafeStartTime(int daysFromNow = 1) =>
-        VietnamTime.ToUtc(VietnamTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));
+        BusinessTime.ToUtc(BusinessTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));
 
     [Fact]
     public async Task UpdateShowtimeAsync_ChangingRoomId_ThrowsBusinessRuleException()

@@ -9,7 +9,7 @@ namespace Cinema.UnitTests.Services;
 
 public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
 {
-    private static DateOnly TargetDay => VietnamTime.Today().AddDays(2);
+    private static DateOnly TargetDay => BusinessTime.Today().AddDays(2);
 
     [Fact]
     public async Task CreateShowtimeAsync_EndsAfterClosing_ThrowsUnlessAllowAfterHours()
@@ -18,7 +18,7 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 1);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
         var sut = CreateSut();
-        var start = VietnamTime.ToUtc(TargetDay, new TimeOnly(22, 30));
+        var start = BusinessTime.ToUtc(TargetDay, new TimeOnly(22, 30));
 
         await Should.ThrowAsync<BusinessRuleException>(() =>
             sut.CreateShowtimeAsync(
@@ -42,7 +42,7 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
         var sut = CreateSut();
         var existing = await sut.CreateShowtimeAsync(
-            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, VietnamTime.ToUtc(TargetDay, new TimeOnly(18, 0)), 90_000m),
+            new UpsertShowtimeRequest(movie.MovieId, room.RoomId, BusinessTime.ToUtc(TargetDay, new TimeOnly(18, 0)), 90_000m),
             CancellationToken.None
         );
 
@@ -81,7 +81,7 @@ public class ShowtimeServiceAutoScheduleTests : ShowtimeServiceTestBase
         TestDataSeeder.AddSeats(Db, room.RoomId, count: 2);
         var movie = TestDataSeeder.AddMovie(Db, durationMinutes: 120);
         var sut = CreateSut();
-        var first = VietnamTime.ToUtc(TargetDay, new TimeOnly(14, 0));
+        var first = BusinessTime.ToUtc(TargetDay, new TimeOnly(14, 0));
 
         var result = await sut.ApplyAutoScheduleAsync(
             new ApplyAutoScheduleRequest(

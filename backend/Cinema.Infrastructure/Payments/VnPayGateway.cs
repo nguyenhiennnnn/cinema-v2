@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
@@ -32,14 +33,14 @@ public class VnPayGateway(
     private const string SuccessResponseCode = "00";
     private const string DefaultIpAddress = "127.0.0.1";
     private const decimal AmountScale = 100m;
+    private const string CurrencyCode = "VND";
+    private static readonly TimeSpan VnPayOffset = TimeSpan.FromHours(7);
 
     private static string FormatVnPayDate(DateTime utc) =>
-        TimeZoneInfo
-            .ConvertTimeFromUtc(
-                utc.Kind == DateTimeKind.Utc ? utc : DateTime.SpecifyKind(utc, DateTimeKind.Utc),
-                VietnamTime.FixedGmt7
-            )
-            .ToString(DateFormat);
+        DateTime
+            .SpecifyKind(utc, DateTimeKind.Utc)
+            .Add(VnPayOffset)
+            .ToString(DateFormat, CultureInfo.InvariantCulture);
 
     private static string ToVnpAmount(decimal amount) => ((long)(amount * AmountScale)).ToString();
 
@@ -56,7 +57,7 @@ public class VnPayGateway(
             ["vnp_Command"] = "pay",
             ["vnp_TmnCode"] = _options.TmnCode,
             ["vnp_Amount"] = ToVnpAmount(request.Amount),
-            ["vnp_CurrCode"] = "VND",
+            ["vnp_CurrCode"] = CurrencyCode,
             ["vnp_TxnRef"] = request.TransactionId,
             ["vnp_OrderInfo"] = request.OrderInfo,
             ["vnp_OrderType"] = "other",

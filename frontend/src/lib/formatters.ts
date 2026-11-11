@@ -1,17 +1,14 @@
 import { format } from "date-fns";
-import { ENV } from "@/config/env";
 import { toWallDate } from "@/lib/business-time";
-
-const LOCALE = ENV.LOCALE;
-const CURRENCY_SYMBOL = ENV.CURRENCY_SYMBOL;
+import { getCurrencyLabel, getLocale } from "@/lib/regional-settings";
 
 export function formatPoints(points: number) {
-  return new Intl.NumberFormat(LOCALE).format(points);
+  return new Intl.NumberFormat(getLocale()).format(points);
 }
 
 export function formatCurrency(amount?: number | null): string {
-  if (amount == null || isNaN(amount)) return `0 ${CURRENCY_SYMBOL}`;
-  return `${new Intl.NumberFormat(LOCALE).format(Math.round(amount))} ${CURRENCY_SYMBOL}`;
+  const value = amount == null || isNaN(amount) ? 0 : Math.round(amount);
+  return `${new Intl.NumberFormat(getLocale()).format(value)} ${getCurrencyLabel()}`.trim();
 }
 
 export function formatPercent(
@@ -27,7 +24,7 @@ export function formatNumber(
   options?: Intl.NumberFormatOptions,
 ): string {
   if (value == null || isNaN(value)) return "0";
-  return new Intl.NumberFormat(LOCALE, options).format(value);
+  return new Intl.NumberFormat(getLocale(), options).format(value);
 }
 
 export function formatShowtimeHour(iso: string) {

@@ -16,7 +16,7 @@ public class SettingsServiceTests : IDisposable
     private SettingsService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new SettingsService(_handle.Db);
+        return new SettingsService(_handle.Db, Microsoft.Extensions.Options.Options.Create(new Cinema.Application.Options.BrandOptions()));
     }
 
     private static UpdateSettingsRequest Request(
@@ -63,7 +63,7 @@ public class SettingsServiceTests : IDisposable
 
         var result = await sut.GetSettingsAsync(CancellationToken.None);
 
-        result.TimeZoneId.ShouldBe(VietnamTime.IanaId);
+        result.TimeZoneId.ShouldBe(BusinessTime.IanaId);
         result.TimeZoneId.ShouldContain("/");
     }
 

@@ -24,7 +24,7 @@ internal static class ShowtimeSeeder
     private const double SafetyBufferHours = 0.5;
 
     internal static DateTime LocalDayStartUtc(DateTime now, int offsetDays = 0) =>
-        VietnamTime.StartOfDayUtc(VietnamTime.LocalDate(now).AddDays(offsetDays));
+        BusinessTime.StartOfDayUtc(BusinessTime.LocalDate(now).AddDays(offsetDays));
 
     private readonly record struct Busy(int RoomId, DateTime Start, DateTime End);
 

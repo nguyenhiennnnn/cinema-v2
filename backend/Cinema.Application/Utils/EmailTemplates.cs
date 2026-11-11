@@ -64,7 +64,7 @@ public static class EmailTemplates
         string ticketHtml = ""
     )
     {
-        var year = VietnamTime.Today().Year;
+        var year = BusinessTime.Today().Year;
         var name = Enc(brand.DisplayName);
         var support = string.IsNullOrWhiteSpace(brand.SupportEmail)
             ? string.Empty

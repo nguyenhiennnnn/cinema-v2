@@ -50,7 +50,7 @@ public static class BackgroundJobExtensions
         var options = app.Configuration.BindSection<BackgroundJobOptions>(
             BackgroundJobOptions.SectionName
         );
-        var jobOptions = new RecurringJobOptions { TimeZone = Cinema.Application.Utils.VietnamTime.Zone };
+        var jobOptions = new RecurringJobOptions { TimeZone = Cinema.Application.Utils.BusinessTime.Zone };
 
         RecurringJob.AddOrUpdate<ReleaseExpiredSeatsJob>(
             RecurringJobIds.ReleaseExpiredSeats,
