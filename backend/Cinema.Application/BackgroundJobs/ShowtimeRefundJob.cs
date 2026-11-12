@@ -124,7 +124,11 @@ public class ShowtimeRefundJob(
         );
 
         var retryCount = context?.GetJobParameter<int>("RetryCount") ?? _retryAttempts;
-        var failureMessage = $"Hoàn tiền thất bại PaymentId {paymentId}: {refundResult.Message}";
+        var failureMessage = string.Format(
+            Messages.Refund_JobFailed,
+            paymentId,
+            refundResult.Message
+        );
         if (retryCount < _retryAttempts)
             throw new InvalidOperationException(failureMessage);
 

@@ -156,19 +156,23 @@ public class MomoGateway(IOptions<MomoOptions> options, HttpClient httpClient) :
             );
 
             if (result is null)
-                return new RefundResult(false, null, "MoMo trả về response rỗng/không hợp lệ.");
+                return new RefundResult(false, null, Messages.Refund_MomoEmptyResponse);
 
             return result.ResultCode == 0
                 ? new RefundResult(true, orderId, null)
                 : new RefundResult(
                     false,
                     null,
-                    $"MoMo hoàn tiền thất bại: ResultCode={result.ResultCode} Message={result.Message}"
+                    string.Format(Messages.Refund_MomoFailed, result.ResultCode, result.Message)
                 );
         }
         catch (Exception ex)
         {
-            return new RefundResult(false, null, $"Lỗi gọi MoMo refund API: {ex.Message}");
+            return new RefundResult(
+                false,
+                null,
+                string.Format(Messages.Refund_MomoApiError, ex.Message)
+            );
         }
     }
 

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Cinema.Shared.Resources;
 
 namespace Cinema.Application.Utils;
 
@@ -45,6 +46,11 @@ public static class OperatingHours
             $"{opening?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? "--"} - {closing?.ToString("HH:mm", CultureInfo.InvariantCulture) ?? "--"}";
         var startText = BusinessTime.ToLocal(start).ToString("HH:mm", CultureInfo.InvariantCulture);
         var endText = BusinessTime.ToLocal(end).ToString("HH:mm", CultureInfo.InvariantCulture);
-        return $"Suất chiếu {startText} - {endText} nằm ngoài khung giờ hoạt động của rạp ({range}).";
+        return string.Format(
+            Messages.Rule_ShowtimeOutsideOperatingHours,
+            startText,
+            endText,
+            range
+        );
     }
 }

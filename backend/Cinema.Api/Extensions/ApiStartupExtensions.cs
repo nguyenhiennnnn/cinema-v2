@@ -88,7 +88,7 @@ public static class ApiStartupExtensions
         );
         if (productionErrors.Count > 0)
             throw new InvalidOperationException(
-                "Cấu hình Production không hợp lệ:"
+                Messages.Config_ProductionInvalid
                     + string.Concat(productionErrors.Select(e => $"\n- {e}"))
             );
 

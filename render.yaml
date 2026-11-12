@@ -134,8 +134,6 @@ services:
       # ── Stripe ────────────────────────────────────────────────────────────
       - key: Stripe__SecretKey
         sync: false
-      - key: Stripe__PublishableKey
-        sync: false
       - key: Stripe__WebhookSecret
         sync: false
       - key: Stripe__ReturnUrl
@@ -143,8 +141,6 @@ services:
 
       # ── Google OAuth ──────────────────────────────────────────────────────
       - key: Google__ClientId
-        sync: false
-      - key: Google__ClientSecret
         sync: false
 
       # ── Gemini AI ─────────────────────────────────────────────────────────

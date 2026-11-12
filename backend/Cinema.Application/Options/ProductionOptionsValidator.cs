@@ -1,3 +1,5 @@
+using Cinema.Shared.Resources;
+
 namespace Cinema.Application.Options;
 
 public static class ProductionOptionsValidator
@@ -17,7 +19,7 @@ public static class ProductionOptionsValidator
         var errors = new List<string>();
 
         if (jwt.Secret.Length < MinJwtSecretLength)
-            errors.Add($"Jwt:Secret chưa cấu hình hoặc ngắn hơn {MinJwtSecretLength} ký tự.");
+            errors.Add(string.Format(Messages.Config_JwtSecretTooShort, MinJwtSecretLength));
 
         RequirePublicUrl(errors, "App:ApiBaseUrl", app.ApiBaseUrl);
         RequirePublicUrl(errors, "App:FrontendBaseUrl", app.FrontendBaseUrl);
@@ -28,7 +30,7 @@ public static class ProductionOptionsValidator
         RequireValue(errors, "Brand:CurrencySymbol", brand.CurrencySymbol);
 
         if (corsOrigins.Count == 0)
-            errors.Add("Cors:AllowedOrigins chưa cấu hình.");
+            errors.Add(Messages.Config_CorsOriginsMissing);
 
         if (IsAnySet(vnPay.TmnCode, vnPay.HashSecret))
         {
@@ -59,12 +61,12 @@ public static class ProductionOptionsValidator
     private static void RequireValue(List<string> errors, string key, string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            errors.Add($"{key} chưa cấu hình.");
+            errors.Add(string.Format(Messages.Config_ValueMissing, key));
     }
 
     private static void RequirePublicUrl(List<string> errors, string key, string value)
     {
         if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) || uri.IsLoopback)
-            errors.Add($"{key} chưa cấu hình hoặc đang trỏ về localhost.");
+            errors.Add(string.Format(Messages.Config_PublicUrlInvalid, key));
     }
 }

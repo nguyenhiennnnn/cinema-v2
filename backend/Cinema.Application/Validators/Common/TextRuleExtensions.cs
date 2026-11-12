@@ -1,4 +1,5 @@
 using Cinema.Application.Utils;
+using Cinema.Shared.Resources;
 using FluentValidation;
 
 namespace Cinema.Application.Validators.Common;
@@ -10,5 +11,5 @@ public static class TextRuleExtensions
     ) =>
         ruleBuilder
             .Must(value => !NameNormalizer.ContainsDisallowedCharacters(value))
-            .WithMessage("Giá trị chứa ký tự không hợp lệ. Xóa ký tự lạ rồi thử lại.");
+            .WithMessage(Messages.Validation_Text_InvalidCharacters);
 }

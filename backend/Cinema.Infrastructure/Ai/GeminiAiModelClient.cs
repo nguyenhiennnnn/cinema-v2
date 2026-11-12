@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Ai;
+using Cinema.Shared.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -119,7 +120,7 @@ public class GeminiAiModelClient(
 
             default:
                 throw new NotSupportedException(
-                    $"Loại phần tin nhắn không được hỗ trợ: {part.GetType().Name}."
+                    string.Format(Messages.Ai_UnsupportedMessagePart, part.GetType().Name)
                 );
         }
     }

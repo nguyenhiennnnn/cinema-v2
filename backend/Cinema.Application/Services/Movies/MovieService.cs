@@ -372,11 +372,7 @@ public class MovieService : IMovieService
             catch (NotFoundException)
             {
                 results.Add(
-                    new BulkDeleteMoviesResultItem(
-                        movieId,
-                        false,
-                        "Kh\u00f4ng t\u00ecm th\u1ea5y phim."
-                    )
+                    new BulkDeleteMoviesResultItem(movieId, false, Messages.NotFound_Movie)
                 );
             }
             catch (AppException ex)
@@ -387,15 +383,11 @@ public class MovieService : IMovieService
             {
                 logger.LogWarning(
                     ex,
-                    "BulkDeleteMovie th\u1ea5t b\u1ea1i MovieId {MovieId}",
+                    "BulkDeleteMovie thất bại MovieId {MovieId}",
                     movieId
                 );
                 results.Add(
-                    new BulkDeleteMoviesResultItem(
-                        movieId,
-                        false,
-                        "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."
-                    )
+                    new BulkDeleteMoviesResultItem(movieId, false, Messages.Bulk_UnknownError)
                 );
             }
         }

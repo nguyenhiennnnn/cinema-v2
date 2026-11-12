@@ -2,6 +2,7 @@ using System.Text;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -65,7 +66,7 @@ public static class AuthenticationExtensions
         var rawUserId = context.Principal?.FindFirst(AppClaimTypes.UserId)?.Value;
         if (!int.TryParse(rawUserId, out var userId))
         {
-            context.Fail("Token không hợp lệ.");
+            context.Fail(Messages.Unauthorized_InvalidToken);
             return;
         }
 
@@ -75,7 +76,7 @@ public static class AuthenticationExtensions
             context.HttpContext.RequestAborted
         );
         if (!isActive)
-            context.Fail("Tài khoản đã bị khóa.");
+            context.Fail(Messages.Forbidden_AccountLocked);
     }
 
     private static Task ReadSignalRTokenFromQuery(MessageReceivedContext context)

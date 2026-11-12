@@ -1,5 +1,6 @@
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Cinema.Shared.Resources;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;
@@ -35,9 +36,7 @@ public class MailKitEmailService(
         try
         {
             if (string.IsNullOrWhiteSpace(_options.SmtpHost))
-                throw new InvalidOperationException(
-                    "Chưa cấu hình email: đặt Email__ResendApiKey hoặc Email__SmtpHost."
-                );
+                throw new InvalidOperationException(Messages.Config_EmailNotConfigured);
 
             var socketOptions =
                 _options.SmtpPort == 465

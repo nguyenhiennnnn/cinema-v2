@@ -6,6 +6,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -187,14 +188,18 @@ public class VnPayGateway(
             );
 
             if (result is null)
-                return new RefundResult(false, null, "VNPay trả về response rỗng/không hợp lệ.");
+                return new RefundResult(false, null, Messages.Refund_VnPayEmptyResponse);
 
             return result.vnp_ResponseCode == SuccessResponseCode
                 ? new RefundResult(true, result.vnp_TransactionNo, null)
                 : new RefundResult(
                     false,
                     null,
-                    $"VNPay ResponseCode={result.vnp_ResponseCode} Message={result.vnp_Message}"
+                    string.Format(
+                        Messages.Refund_VnPayFailed,
+                        result.vnp_ResponseCode,
+                        result.vnp_Message
+                    )
                 );
         }
         catch (Exception ex)
@@ -204,7 +209,11 @@ public class VnPayGateway(
                 "VnPayRefundApiError OriginalTransactionId {TransactionId}",
                 request.OriginalTransactionId
             );
-            return new RefundResult(false, null, $"Lỗi gọi VNPay refund API: {ex.Message}");
+            return new RefundResult(
+                false,
+                null,
+                string.Format(Messages.Refund_VnPayApiError, ex.Message)
+            );
         }
     }
 

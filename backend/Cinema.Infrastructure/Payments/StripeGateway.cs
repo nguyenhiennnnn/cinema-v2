@@ -54,7 +54,10 @@ public class StripeGateway(IOptions<StripeOptions> options, ILogger<StripeGatewa
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
                             Name = string.IsNullOrWhiteSpace(request.OrderInfo)
-                                ? $"Vé xem phim (Mã GD: {request.TransactionId})"
+                                ? string.Format(
+                                    Messages.Payment_StripeProductName,
+                                    request.TransactionId
+                                )
                                 : request.OrderInfo,
                         },
                     },
@@ -201,7 +204,7 @@ public class StripeGateway(IOptions<StripeOptions> options, ILogger<StripeGatewa
     )
     {
         if (string.IsNullOrWhiteSpace(_options.SecretKey))
-            return new RefundResult(false, null, "Stripe SecretKey chưa được cấu hình.");
+            return new RefundResult(false, null, Messages.Refund_StripeNotConfigured);
 
         try
         {
@@ -230,9 +233,7 @@ public class StripeGateway(IOptions<StripeOptions> options, ILogger<StripeGatewa
                 return new RefundResult(
                     false,
                     null,
-                    "Không tìm thấy mã giao dịch Stripe gốc (GatewayTransactionId) để hoàn tiền. "
-                        + "Đây có thể là giao dịch cũ trước khi hệ thống lưu mã Stripe thật — "
-                        + "vui lòng hoàn tiền thủ công qua Stripe Dashboard."
+                    Messages.Refund_StripeMissingGatewayTransactionId
                 );
             }
 
@@ -256,14 +257,18 @@ public class StripeGateway(IOptions<StripeOptions> options, ILogger<StripeGatewa
 
             return refund.Status == "succeeded" || refund.Status == "pending"
                 ? new RefundResult(true, refund.Id, null)
-                : new RefundResult(false, refund.Id, $"Stripe Refund status: {refund.Status}");
+                : new RefundResult(
+                    false,
+                    refund.Id,
+                    string.Format(Messages.Refund_StripeStatus, refund.Status)
+                );
         }
         catch (StripeException ex)
         {
             return new RefundResult(
                 false,
                 null,
-                $"Lỗi gọi Stripe refund API: {ex.StripeError?.Message ?? ex.Message}"
+                string.Format(Messages.Refund_StripeApiError, ex.StripeError?.Message ?? ex.Message)
             );
         }
         catch (Exception ex)
@@ -271,7 +276,7 @@ public class StripeGateway(IOptions<StripeOptions> options, ILogger<StripeGatewa
             return new RefundResult(
                 false,
                 null,
-                $"Lỗi không xác định khi hoàn tiền Stripe: {ex.Message}"
+                string.Format(Messages.Refund_StripeUnexpectedError, ex.Message)
             );
         }
     }

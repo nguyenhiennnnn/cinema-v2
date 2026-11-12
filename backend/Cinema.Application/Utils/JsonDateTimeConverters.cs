@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Cinema.Shared.Resources;
 
 namespace Cinema.Application.Utils;
 
@@ -43,7 +44,7 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
         if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
             return date;
 
-        throw new JsonException($"Không thể chuyển đổi '{value}' sang DateOnly.");
+        throw new JsonException(string.Format(Messages.Json_DateOnlyConvertFailed, value));
     }
 
     public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
@@ -112,7 +113,7 @@ public class DateTimeJsonConverter : JsonConverter<DateTime>
         if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
             return BusinessTime.ToUtc(dt);
 
-        throw new JsonException($"Không thể chuyển đổi '{value}' sang DateTime UTC.");
+        throw new JsonException(string.Format(Messages.Json_DateTimeUtcConvertFailed, value));
     }
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)

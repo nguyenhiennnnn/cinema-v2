@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
+using Cinema.Shared.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -58,7 +59,7 @@ public class ResendEmailService(
                     body
                 );
                 throw new InvalidOperationException(
-                    $"Resend API trả về {(int)response.StatusCode}: {body}"
+                    string.Format(Messages.Email_ResendApiError, (int)response.StatusCode, body)
                 );
             }
 

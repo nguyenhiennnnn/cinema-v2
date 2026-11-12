@@ -1,6 +1,7 @@
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Resources;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Application.Utils;
@@ -136,7 +137,7 @@ public static class SeatLayoutRules
                 && !pickedIds.Contains(s.ShowtimeSeatId)
             )
         )
-            return "Ghế đôi phải được chọn cùng nhau.";
+            return Messages.Rule_SeatCoupleMustBePickedTogether;
 
         if (gapRuleMode == SeatGapRuleMode.Off)
             return null;
@@ -177,7 +178,7 @@ public static class SeatLayoutRules
                 )
                     continue;
 
-                return $"Không thể để trống ghế lẻ {lone[0].Row}{n}. Vui lòng chọn lại để không bỏ lẻ ghế.";
+                return string.Format(Messages.Rule_SeatLoneGap, lone[0].Row, n);
             }
         }
 

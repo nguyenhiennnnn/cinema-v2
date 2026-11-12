@@ -1,3 +1,4 @@
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -11,7 +12,7 @@ public class ShowtimeHub : Hub
     public async Task JoinShowtime(int showtimeId)
     {
         if (showtimeId <= 0)
-            throw new HubException("showtimeId không hợp lệ.");
+            throw new HubException(Messages.Validation_ShowtimeId_Invalid);
 
         await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(showtimeId));
     }
@@ -19,7 +20,7 @@ public class ShowtimeHub : Hub
     public async Task LeaveShowtime(int showtimeId)
     {
         if (showtimeId <= 0)
-            throw new HubException("showtimeId không hợp lệ.");
+            throw new HubException(Messages.Validation_ShowtimeId_Invalid);
 
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupName(showtimeId));
     }

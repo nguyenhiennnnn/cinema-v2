@@ -91,9 +91,13 @@ public class ComboService(IAppDbContext db) : IComboService
                 var label =
                     size > 0
                         ? quantity == 1
-                            ? $"Phù hợp cho {size} người"
-                            : $"Phù hợp cho {quantity * size} người (x{quantity})"
-                        : "Bán chạy cùng thể loại";
+                            ? string.Format(Messages.Combo_SuggestionFitPeople, size)
+                            : string.Format(
+                                Messages.Combo_SuggestionFitPeopleQuantity,
+                                quantity * size,
+                                quantity
+                            )
+                        : Messages.Combo_SuggestionBestSeller;
                 return (
                     Score: score,
                     c.Price,

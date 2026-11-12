@@ -1,4 +1,5 @@
 using System.Globalization;
+using Cinema.Shared.Resources;
 
 namespace Cinema.Application.Utils;
 
@@ -14,8 +15,8 @@ public static class DateTimeUtils
 
     public static string FormatDuration(TimeSpan span) =>
         span.TotalMinutes >= 1
-            ? $"{(int)Math.Ceiling(span.TotalMinutes)} phút"
-            : $"{(int)Math.Ceiling(span.TotalSeconds)} giây";
+            ? string.Format(Messages.Common_DurationMinutes, (int)Math.Ceiling(span.TotalMinutes))
+            : string.Format(Messages.Common_DurationSeconds, (int)Math.Ceiling(span.TotalSeconds));
 
     public static string GetPeriodKey(DateTime createdAt, string groupBy)
     {

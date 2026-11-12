@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Net;
 using Cinema.Application.Options;
+using Cinema.Shared.Resources;
 
 namespace Cinema.Application.Utils;
 
@@ -55,7 +56,7 @@ public static class EmailTemplates
 
     private static string MoneyDigits(decimal amount) => amount.ToString("N0", MoneyFormat);
 
-    private static string Money(decimal amount) => $"{MoneyDigits(amount)} VNĐ";
+    private static string Money(decimal amount) => $"{MoneyDigits(amount)} {Messages.Common_CurrencyVnd}";
 
     private static string Layout(
         BrandOptions brand,
@@ -68,7 +69,12 @@ public static class EmailTemplates
         var name = Enc(brand.DisplayName);
         var support = string.IsNullOrWhiteSpace(brand.SupportEmail)
             ? string.Empty
-            : $"<br />Cần hỗ trợ? Liên hệ <a href=\"mailto:{Enc(brand.SupportEmail)}\" class=\"tx\" style=\"color:{ColorForeground}; text-decoration:underline;\">{Enc(brand.SupportEmail)}</a>.";
+            : string.Format(
+                Messages.Email_SupportContact,
+                $"<a href=\"mailto:{Enc(brand.SupportEmail)}\" class=\"tx\" style=\"color:{ColorForeground}; text-decoration:underline;\">{Enc(brand.SupportEmail)}</a>"
+            );
+        var autoSent = string.Format(Messages.Email_FooterAutoSent, name);
+        var copyright = string.Format(Messages.Email_FooterCopyright, year, name);
 
         return $$"""
             <!DOCTYPE html>
@@ -131,8 +137,8 @@ public static class EmailTemplates
                         </tr>
                         <tr>
                           <td class="tx-mut" style="padding:8px 0 0 0; font-size:13px; line-height:1.5; color:{{ColorMuted}};">
-                            Email này được gửi tự động từ hệ thống {{name}}, vui lòng không trả lời trực tiếp email này.{{support}}<br />
-                            &copy; {{year}} {{name}}. Đã đăng ký bản quyền.
+                            {{autoSent}}{{support}}<br />
+                            {{copyright}}
                           </td>
                         </tr>
                       </table>
@@ -164,7 +170,7 @@ public static class EmailTemplates
                 </td>
               </tr>
             </table>
-            <p class="tx-mut" style="margin:0 0 20px 0; font-size:13px; line-height:1.5; color:{ColorMuted};">Nếu nút không mở được, hãy sao chép liên kết này vào trình duyệt:<br /><a href="{Enc(
+            <p class="tx-mut" style="margin:0 0 20px 0; font-size:13px; line-height:1.5; color:{ColorMuted};">{Messages.Email_ButtonFallbackHint}<br /><a href="{Enc(
                 url
             )}" target="_blank" class="tx" style="color:{ColorForeground}; text-decoration:underline; word-break:break-all;">{Enc(
                 url
@@ -214,7 +220,7 @@ public static class EmailTemplates
               <td class="tx" style="padding:16px 16px 12px 0; vertical-align:baseline; font-size:15px; line-height:1.4; font-weight:600; color:{ColorForeground};">{label}</td>
               <td class="tx" style="padding:12px 0; vertical-align:baseline; white-space:nowrap; {StyleNumeral} font-size:28px; color:{ColorForeground}; text-align:right;">{MoneyDigits(
                 amount
-            )}<span style="font-family:{FontBody}; font-size:15px; font-weight:600; letter-spacing:0;">&nbsp;VNĐ</span></td>
+            )}<span style="font-family:{FontBody}; font-size:15px; font-weight:600; letter-spacing:0;">&nbsp;{Messages.Common_CurrencyVnd}</span></td>
             </tr>
             """;
 
@@ -251,7 +257,7 @@ public static class EmailTemplates
             </tr>
             <tr>
               <td class="bg-pri" style="background-color:{ColorPrimary}; padding:8px 28px 28px 28px;">
-                <p style="margin:0 0 4px 0; font-size:13px; line-height:1.5; font-weight:500; color:{ColorPrimaryForeground};">Mã đặt vé</p>
+                <p style="margin:0 0 4px 0; font-size:13px; line-height:1.5; font-weight:500; color:{ColorPrimaryForeground};">{Messages.Email_BookingCodeLabel}</p>
                 <p style="margin:0; {StyleNumeral} font-size:32px; letter-spacing:0.04em; word-break:break-all; color:{ColorPrimaryForeground};">{Enc(
                 bookingCode
             )}</p>
@@ -271,11 +277,11 @@ public static class EmailTemplates
     {
         var body = $"""
             {Heading(title)}
-            {Paragraph($"Xin chào <strong>{Enc(fullName)}</strong>,")}
+            {Paragraph(string.Format(Messages.Email_Greeting, Enc(fullName)))}
             {Paragraph(introText)}
             {Button(buttonLabel, link)}
             {MutedParagraph(
-                $"Liên kết hết hạn sau <strong>{expiresIn}</strong>. Nếu bạn không yêu cầu, hãy bỏ qua email này."
+                string.Format(Messages.Email_LinkExpiry, expiresIn)
             )}
             """;
 
@@ -292,22 +298,34 @@ public static class EmailTemplates
     {
         var rows = new List<string>();
         if (!string.IsNullOrWhiteSpace(movieTitle))
-            rows.Add(DetailRow("Phim", Enc(movieTitle)));
-        rows.Add(DetailRow("Số ghế", $"{seatCount} ghế", isLast: true));
+            rows.Add(DetailRow(Messages.Email_MovieLabel, Enc(movieTitle)));
+        rows.Add(DetailRow(
+                Messages.Email_SeatCountLabel,
+                string.Format(Messages.Email_SeatCountValue, seatCount),
+                isLast: true
+            ));
 
         var body = $"""
-            {Badge("Đã xác nhận", Success, SymbolCheck)}
-            {Heading("Vé của bạn đã sẵn sàng")}
+            {Badge(Messages.Email_BadgeConfirmed, Success, SymbolCheck)}
+            {Heading(Messages.Email_BookingConfirmedHeading)}
             {Paragraph(
-                $"Xin chào <strong>{Enc(customerName)}</strong>, đơn đặt vé của bạn đã được xác nhận. Vào mục <strong>Vé của tôi</strong> trên hệ thống để xem chi tiết và mã QR."
+                string.Format(
+                    Messages.Email_BookingConfirmedBody,
+                    Enc(customerName)
+                )
             )}
             {DetailCard([.. rows])}
             {MutedParagraph(
-                "Có mặt trước giờ chiếu ít nhất 15 phút và xuất trình mã QR tại quầy soát vé."
+                Messages.Email_BookingConfirmedNote
             )}
             """;
 
-        return Layout(brand, $"Vé {bookingCode} đã được xác nhận", body, TicketStub(bookingCode));
+        return Layout(
+            brand,
+            string.Format(Messages.Email_BookingConfirmedPreheader, bookingCode),
+            body,
+            TicketStub(bookingCode)
+        );
     }
 
     public static string BookingCancelledRefunded(
@@ -318,21 +336,33 @@ public static class EmailTemplates
     )
     {
         var body = $"""
-            {Badge("Đã hủy vé", Danger, SymbolCross)}
-            {Heading("Đơn đặt vé đã được hủy")}
+            {Badge(Messages.Email_BadgeCancelled, Danger, SymbolCross)}
+            {Heading(Messages.Email_BookingCancelledHeading)}
             {Paragraph(
-                $"Xin chào <strong>{Enc(customerName)}</strong>, đơn đặt vé <strong>{Enc(bookingCode)}</strong> đã được hủy theo yêu cầu của bạn."
+                string.Format(
+                    Messages.Email_BookingCancelledBody,
+                    Enc(customerName),
+                    Enc(bookingCode)
+                )
             )}
             {DetailCard(
-                DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
-                DetailRowTotal("Số tiền hoàn lại", refundAmount)
+                DetailRow(Messages.Email_BookingCodeLabel, Enc(bookingCode), code: true),
+                DetailRowTotal(Messages.Email_RefundAmountLabel, refundAmount)
             )}
             {MutedParagraph(
-                "Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng."
+                Messages.Email_RefundNoteBank
             )}
             """;
 
-        return Layout(brand, $"Đơn đặt vé {bookingCode} đã hủy, hoàn {Money(refundAmount)}", body);
+        return Layout(
+            brand,
+            string.Format(
+                Messages.Email_BookingCancelledPreheader,
+                bookingCode,
+                Money(refundAmount)
+            ),
+            body
+        );
     }
 
     public static string ShowtimeCancelledAutoRefunded(
@@ -343,23 +373,31 @@ public static class EmailTemplates
     )
     {
         var body = $"""
-            {Badge("Suất chiếu bị hủy", Danger, SymbolCross)}
-            {Heading("Suất chiếu của bạn đã bị hủy")}
+            {Badge(Messages.Email_BadgeShowtimeCancelled, Danger, SymbolCross)}
+            {Heading(Messages.Email_ShowtimeCancelledHeading)}
             {Paragraph(
-                $"Xin chào <strong>{Enc(customerName)}</strong>, rạp đã hủy suất chiếu trong đơn đặt vé <strong>{Enc(bookingCode)}</strong>. Chúng tôi đã hoàn 100% số tiền về phương thức thanh toán bạn đã dùng."
+                string.Format(
+                    Messages.Email_ShowtimeCancelledAutoBody,
+                    Enc(customerName),
+                    Enc(bookingCode)
+                )
             )}
             {DetailCard(
-                DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
-                DetailRowTotal("Số tiền đã hoàn", refundAmount)
+                DetailRow(Messages.Email_BookingCodeLabel, Enc(bookingCode), code: true),
+                DetailRowTotal(Messages.Email_RefundedAmountLabel, refundAmount)
             )}
             {MutedParagraph(
-                "Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng hoặc cổng thanh toán."
+                Messages.Email_RefundNoteBankOrGateway
             )}
             """;
 
         return Layout(
             brand,
-            $"Suất chiếu của đơn {bookingCode} đã bị hủy, đã hoàn {Money(refundAmount)}",
+            string.Format(
+                Messages.Email_ShowtimeCancelledAutoPreheader,
+                bookingCode,
+                Money(refundAmount)
+            ),
             body
         );
     }
@@ -372,23 +410,31 @@ public static class EmailTemplates
     )
     {
         var body = $"""
-            {Badge("Suất chiếu bị hủy", Danger, SymbolCross)}
-            {Heading("Suất chiếu của bạn đã bị hủy")}
+            {Badge(Messages.Email_BadgeShowtimeCancelled, Danger, SymbolCross)}
+            {Heading(Messages.Email_ShowtimeCancelledHeading)}
             {Paragraph(
-                $"Xin chào <strong>{Enc(customerName)}</strong>, rạp đã hủy suất chiếu trong đơn đặt vé <strong>{Enc(bookingCode)}</strong>. Khoản hoàn tiền cần nhân viên rạp xử lý thủ công."
+                string.Format(
+                    Messages.Email_ShowtimeCancelledManualBody,
+                    Enc(customerName),
+                    Enc(bookingCode)
+                )
             )}
             {DetailCard(
-                DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
-                DetailRowTotal("Số tiền cần hoàn", amountDue)
+                DetailRow(Messages.Email_BookingCodeLabel, Enc(bookingCode), code: true),
+                DetailRowTotal(Messages.Email_AmountDueLabel, amountDue)
             )}
             {MutedParagraph(
-                "Mang mã đặt vé đến quầy hoặc liên hệ rạp để được hoàn tiền sớm nhất."
+                Messages.Email_ShowtimeCancelledManualNote
             )}
             """;
 
         return Layout(
             brand,
-            $"Suất chiếu của đơn {bookingCode} đã bị hủy, cần hoàn {Money(amountDue)}",
+            string.Format(
+                Messages.Email_ShowtimeCancelledManualPreheader,
+                bookingCode,
+                Money(amountDue)
+            ),
             body
         );
     }
@@ -403,37 +449,54 @@ public static class EmailTemplates
     {
         var rows = new[]
         {
-            DetailRow("Mã đặt vé", Enc(bookingCode), code: true),
-            DetailRowTotal(autoRefunded ? "Số tiền đã hoàn" : "Số tiền sẽ được hoàn", amount),
+            DetailRow(Messages.Email_BookingCodeLabel, Enc(bookingCode), code: true),
+            DetailRowTotal(
+                autoRefunded ? Messages.Email_RefundedAmountLabel : Messages.Email_RefundWillBeAmountLabel,
+                amount
+            ),
         };
 
         var body = autoRefunded
             ? $"""
-                {Badge("Đã hoàn tiền", Neutral, SymbolCheck)}
-                {Heading("Không xuất được vé")}
+                {Badge(Messages.Email_BadgeRefunded, Neutral, SymbolCheck)}
+                {Heading(Messages.Email_TicketNotIssuedHeading)}
                 {Paragraph(
-                    $"Xin chào <strong>{Enc(customerName)}</strong>, thanh toán cho đơn đặt vé <strong>{Enc(bookingCode)}</strong> đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Chúng tôi đã hoàn toàn bộ số tiền về phương thức thanh toán bạn đã dùng."
+                    string.Format(
+                        Messages.Email_SeatsExpiredCustomerRefundedBody,
+                        Enc(customerName),
+                        Enc(bookingCode)
+                    )
                 )}
                 {DetailCard([.. rows])}
                 {MutedParagraph(
-                    "Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng."
+                    Messages.Email_RefundNoteBank
                 )}
                 """
             : $"""
-                {Badge("Chờ hoàn tiền", Warning, SymbolAlert)}
-                {Heading("Không xuất được vé")}
+                {Badge(Messages.Email_BadgeRefundPending, Warning, SymbolAlert)}
+                {Heading(Messages.Email_TicketNotIssuedHeading)}
                 {Paragraph(
-                    $"Xin chào <strong>{Enc(customerName)}</strong>, thanh toán cho đơn đặt vé <strong>{Enc(bookingCode)}</strong> đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Rạp sẽ hoàn toàn bộ số tiền cho bạn sớm nhất."
+                    string.Format(
+                        Messages.Email_SeatsExpiredCustomerPendingBody,
+                        Enc(customerName),
+                        Enc(bookingCode)
+                    )
                 )}
                 {DetailCard([.. rows])}
                 {MutedParagraph(
-                    "Cần hỗ trợ thì liên hệ trực tiếp rạp và cung cấp mã đặt vé ở trên."
+                    Messages.Email_SeatsExpiredCustomerPendingNote
                 )}
                 """;
 
         return Layout(
             brand,
-            $"Đơn đặt vé {bookingCode} chưa xuất được vé, {(autoRefunded ? "đã hoàn tiền" : "chờ hoàn tiền")}",
+            string.Format(
+                Messages.Email_SeatsExpiredCustomerPreheader,
+                bookingCode,
+                autoRefunded
+                    ? Messages.Email_StatusRefunded
+                    : Messages.Email_StatusRefundPending
+            ),
             body
         );
     }
@@ -448,31 +511,34 @@ public static class EmailTemplates
     {
         var rows = new[]
         {
-            DetailRow("Đơn đặt vé", $"#{bookingId}", code: true),
-            DetailRow("Thanh toán", $"#{paymentId}", code: true),
-            DetailRowTotal(autoRefunded ? "Số tiền đã hoàn" : "Số tiền cần hoàn", amount),
+            DetailRow(Messages.Email_BookingLabel, $"#{bookingId}", code: true),
+            DetailRow(Messages.Email_PaymentLabel, $"#{paymentId}", code: true),
+            DetailRowTotal(
+                autoRefunded ? Messages.Email_RefundedAmountLabel : Messages.Email_AmountDueLabel,
+                amount
+            ),
         };
 
         var body = autoRefunded
             ? $"""
-                {Badge("Đã tự động hoàn tiền", Success, SymbolCheck)}
-                {Heading("Ghế hết hạn giữ ngay sau khi thanh toán")}
+                {Badge(Messages.Email_BadgeAutoRefunded, Success, SymbolCheck)}
+                {Heading(Messages.Email_SeatsExpiredAdminHeading)}
                 {Paragraph(
-                    "Đơn đặt vé đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng lúc đó."
+                    Messages.Email_SeatsExpiredAdminIntro
                 )}
                 {Paragraph(
-                    "Hệ thống đã <strong>tự động hoàn tiền</strong> cho khách qua cổng thanh toán. Kiểm tra lại giao dịch hoàn tiền để chắc chắn."
+                    Messages.Email_SeatsExpiredAdminAutoRefundNote
                 )}
                 {DetailCard([.. rows])}
                 """
             : $"""
-                {Badge("Cần xử lý thủ công", Danger, SymbolAlert)}
-                {Heading("Ghế hết hạn giữ ngay sau khi thanh toán")}
+                {Badge(Messages.Email_BadgeManualRequired, Danger, SymbolAlert)}
+                {Heading(Messages.Email_SeatsExpiredAdminHeading)}
                 {Paragraph(
-                    "Đơn đặt vé đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng lúc đó."
+                    Messages.Email_SeatsExpiredAdminIntro
                 )}
                 {Callout(
-                    "<strong>Hoàn tiền tự động qua cổng thanh toán thất bại hoặc không khả dụng.</strong> Hoàn tiền thủ công cho khách.",
+                    Messages.Email_SeatsExpiredAdminManualCallout,
                     Danger,
                     SymbolAlert
                 )}
@@ -482,8 +548,14 @@ public static class EmailTemplates
         return Layout(
             brand,
             autoRefunded
-                ? $"Đã tự động hoàn tiền cho đơn đặt vé #{bookingId}"
-                : $"Cần hoàn tiền thủ công cho đơn đặt vé #{bookingId}",
+                ? string.Format(
+                    Messages.Email_SeatsExpiredAdminAutoPreheader,
+                    bookingId
+                )
+                : string.Format(
+                    Messages.Email_SeatsExpiredAdminManualPreheader,
+                    bookingId
+                ),
             body
         );
     }

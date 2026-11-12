@@ -1,3 +1,4 @@
+
 namespace Cinema.Application.Options;
 
 public class BrandOptions
@@ -6,7 +7,7 @@ public class BrandOptions
 
     public string Name { get; set; } = "Perfo";
     public string DisplayName { get; set; } = "PERFO";
-    public string Tagline { get; set; } = "Vé điện tử · Không cần in";
+    public string Tagline { get; set; } = string.Empty;
     public string SupportEmail { get; set; } = string.Empty;
 
     public string TimeZoneId { get; set; } = string.Empty;

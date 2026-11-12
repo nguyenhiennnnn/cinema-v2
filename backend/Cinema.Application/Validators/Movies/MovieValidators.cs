@@ -97,7 +97,7 @@ public class BulkDeleteMoviesRequestValidator : AbstractValidator<BulkDeleteMovi
         RuleFor(x => x.MovieIds).NotEmpty().WithMessage(Messages.Validation_MovieIds_NotEmpty);
         RuleFor(x => x.MovieIds)
             .Must(ids => ids.Count <= limit)
-            .WithMessage($"T\u1ed1i \u0111a {{limit}} phim m\u1ed7i l\u1ea7n.");
+            .WithMessage(string.Format(Messages.Validation_MovieIds_MaxCount, limit));
         RuleForEach(x => x.MovieIds)
             .GreaterThan(0)
             .WithMessage(Messages.Validation_MovieId_Positive);

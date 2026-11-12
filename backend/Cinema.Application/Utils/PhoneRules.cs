@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Cinema.Application.Options;
+using Cinema.Shared.Resources;
 
 namespace Cinema.Application.Utils;
 
@@ -12,9 +13,7 @@ public static class PhoneRules
     public static void Configure(string phoneRegex)
     {
         if (string.IsNullOrWhiteSpace(phoneRegex))
-            throw new InvalidOperationException(
-                "Brand:PhoneRegex không được để trống. Kiểm tra appsettings.json."
-            );
+            throw new InvalidOperationException(Messages.Config_PhoneRegexRequired);
 
         _pattern = Build(phoneRegex);
     }

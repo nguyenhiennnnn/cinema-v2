@@ -1151,16 +1151,6 @@
   <data name="Rule_CannotDeactivateSelfEmployee" xml:space="preserve">
     <value>Không thể tự vô hiệu hóa hồ sơ nhân viên của chính mình.</value>
   </data>
-  <data name="Validation_BulkId_Positive" xml:space="preserve">
-    <value>Mỗi id phải lớn hơn 0.</value>
-  </data>
-  <data name="Validation_BulkIds_MaxCount" xml:space="preserve">
-    <value>Tối đa {0} mục mỗi lần.</value>
-    <comment>Có 1 tham số: dùng string.Format(Messages.Validation_BulkIds_MaxCount, limit)</comment>
-  </data>
-  <data name="Validation_BulkIds_NotEmpty" xml:space="preserve">
-    <value>Danh sách id không được để trống.</value>
-  </data>
   <data name="Validation_Setting_NumberRange" xml:space="preserve">
     <value>{0} phải từ {1} đến {2}.</value>
     <comment>Có 3 tham số: dùng string.Format(Messages.Validation_Setting_NumberRange, tên, min, max)</comment>
@@ -1415,5 +1405,302 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
 7. {10}
 8. Các thẻ suất chiếu/vé sẽ tự hiển thị bên dưới câu trả lời, nên KHÔNG cần chép lại toàn bộ danh sách; chỉ tóm tắt ngắn gọn và nêu điểm đáng chú ý.
 9. Nếu hàm trả về lỗi hoặc không có kết quả, hãy báo lại cho khách một cách tự nhiên và gợi ý lựa chọn khác.</value>
+  </data>
+  <!-- ===== Rule ===== -->
+  <data name="Rule_SeatCoupleMustBePickedTogether" xml:space="preserve">
+    <value>Ghế đôi phải được chọn cùng nhau.</value>
+  </data>
+  <data name="Rule_SeatLoneGap" xml:space="preserve">
+    <value>Không thể để trống ghế lẻ {0}{1}. Vui lòng chọn lại để không bỏ lẻ ghế.</value>
+  </data>
+  <data name="Rule_ShowtimeOutsideOperatingHours" xml:space="preserve">
+    <value>Suất chiếu {0} - {1} nằm ngoài khung giờ hoạt động của rạp ({2}).</value>
+  </data>
+
+  <!-- ===== Validation ===== -->
+  <data name="Validation_Text_InvalidCharacters" xml:space="preserve">
+    <value>Giá trị chứa ký tự không hợp lệ. Xóa ký tự lạ rồi thử lại.</value>
+  </data>
+  <data name="Validation_ShowtimeId_Invalid" xml:space="preserve">
+    <value>showtimeId không hợp lệ.</value>
+  </data>
+  <data name="Validation_ReviewIds_MaxCount" xml:space="preserve">
+    <value>Tối đa {0} đánh giá mỗi lần.</value>
+  </data>
+  <data name="Validation_MovieIds_MaxCount" xml:space="preserve">
+    <value>Tối đa {0} phim mỗi lần.</value>
+  </data>
+
+  <!-- ===== Unauthorized ===== -->
+  <data name="Unauthorized_InvalidToken" xml:space="preserve">
+    <value>Token không hợp lệ.</value>
+  </data>
+
+  <!-- ===== Common ===== -->
+  <data name="Common_DurationMinutes" xml:space="preserve">
+    <value>{0} phút</value>
+  </data>
+  <data name="Common_DurationSeconds" xml:space="preserve">
+    <value>{0} giây</value>
+  </data>
+
+  <!-- ===== Combo ===== -->
+  <data name="Combo_SuggestionFitPeople" xml:space="preserve">
+    <value>Phù hợp cho {0} người</value>
+  </data>
+  <data name="Combo_SuggestionFitPeopleQuantity" xml:space="preserve">
+    <value>Phù hợp cho {0} người (x{1})</value>
+  </data>
+  <data name="Combo_SuggestionBestSeller" xml:space="preserve">
+    <value>Bán chạy cùng thể loại</value>
+  </data>
+
+  <!-- ===== Payment ===== -->
+  <data name="Payment_StripeProductName" xml:space="preserve">
+    <value>Vé xem phim (Mã GD: {0})</value>
+  </data>
+
+  <!-- ===== Refund ===== -->
+  <data name="Refund_StripeNotConfigured" xml:space="preserve">
+    <value>Stripe SecretKey chưa được cấu hình.</value>
+  </data>
+  <data name="Refund_StripeMissingGatewayTransactionId" xml:space="preserve">
+    <value>Không tìm thấy mã giao dịch Stripe gốc (GatewayTransactionId) để hoàn tiền. Đây có thể là giao dịch cũ trước khi hệ thống lưu mã Stripe thật — vui lòng hoàn tiền thủ công qua Stripe Dashboard.</value>
+  </data>
+  <data name="Refund_StripeStatus" xml:space="preserve">
+    <value>Stripe Refund status: {0}</value>
+  </data>
+  <data name="Refund_StripeApiError" xml:space="preserve">
+    <value>Lỗi gọi Stripe refund API: {0}</value>
+  </data>
+  <data name="Refund_StripeUnexpectedError" xml:space="preserve">
+    <value>Lỗi không xác định khi hoàn tiền Stripe: {0}</value>
+  </data>
+  <data name="Refund_MomoEmptyResponse" xml:space="preserve">
+    <value>MoMo trả về response rỗng/không hợp lệ.</value>
+  </data>
+  <data name="Refund_MomoFailed" xml:space="preserve">
+    <value>MoMo hoàn tiền thất bại: ResultCode={0} Message={1}</value>
+  </data>
+  <data name="Refund_MomoApiError" xml:space="preserve">
+    <value>Lỗi gọi MoMo refund API: {0}</value>
+  </data>
+  <data name="Refund_VnPayEmptyResponse" xml:space="preserve">
+    <value>VNPay trả về response rỗng/không hợp lệ.</value>
+  </data>
+  <data name="Refund_VnPayFailed" xml:space="preserve">
+    <value>VNPay ResponseCode={0} Message={1}</value>
+  </data>
+  <data name="Refund_VnPayApiError" xml:space="preserve">
+    <value>Lỗi gọi VNPay refund API: {0}</value>
+  </data>
+  <!-- ===== Config ===== -->
+  <data name="Config_JwtSecretTooShort" xml:space="preserve">
+    <value>Jwt:Secret chưa cấu hình hoặc ngắn hơn {0} ký tự.</value>
+  </data>
+  <data name="Config_CorsOriginsMissing" xml:space="preserve">
+    <value>Cors:AllowedOrigins chưa cấu hình.</value>
+  </data>
+  <data name="Config_ValueMissing" xml:space="preserve">
+    <value>{0} chưa cấu hình.</value>
+  </data>
+  <data name="Config_PublicUrlInvalid" xml:space="preserve">
+    <value>{0} chưa cấu hình hoặc đang trỏ về localhost.</value>
+  </data>
+  <data name="Config_ProductionInvalid" xml:space="preserve">
+    <value>Cấu hình Production không hợp lệ:</value>
+  </data>
+  <data name="Config_TimeZoneIdRequired" xml:space="preserve">
+    <value>Brand:TimeZoneId không được để trống. Kiểm tra appsettings.json.</value>
+  </data>
+  <data name="Config_TimeZoneInvalid" xml:space="preserve">
+    <value>Timezone '{0}' (Brand:TimeZoneId) không hợp lệ hoặc không được hỗ trợ trên hệ thống này. Dùng IANA ID hoặc Windows ID được hệ thống hỗ trợ.</value>
+  </data>
+  <data name="Config_PhoneRegexRequired" xml:space="preserve">
+    <value>Brand:PhoneRegex không được để trống. Kiểm tra appsettings.json.</value>
+  </data>
+  <data name="Config_EmailNotConfigured" xml:space="preserve">
+    <value>Chưa cấu hình email: đặt Email__ResendApiKey hoặc Email__SmtpHost.</value>
+  </data>
+
+  <!-- ===== Ai ===== -->
+  <data name="Ai_UnsupportedMessagePart" xml:space="preserve">
+    <value>Loại phần tin nhắn không được hỗ trợ: {0}.</value>
+  </data>
+
+  <!-- ===== Json ===== -->
+  <data name="Json_DateOnlyConvertFailed" xml:space="preserve">
+    <value>Không thể chuyển đổi '{0}' sang DateOnly.</value>
+  </data>
+  <data name="Json_DateTimeUtcConvertFailed" xml:space="preserve">
+    <value>Không thể chuyển đổi '{0}' sang DateTime UTC.</value>
+  </data>
+
+  <!-- ===== Email ===== -->
+  <data name="Email_ResendApiError" xml:space="preserve">
+    <value>Resend API trả về {0}: {1}</value>
+  </data>
+
+  <!-- ===== Refund ===== -->
+  <data name="Refund_JobFailed" xml:space="preserve">
+    <value>Hoàn tiền thất bại PaymentId {0}: {1}</value>
+  </data>
+
+  <!-- ===== Email (templates) ===== -->
+  <data name="Email_BookingCodeLabel" xml:space="preserve">
+    <value>Mã đặt vé</value>
+  </data>
+  <data name="Common_CurrencyVnd" xml:space="preserve">
+    <value>VNĐ</value>
+  </data>
+  <data name="Email_SupportContact" xml:space="preserve">
+    <value>&lt;br /&gt;Cần hỗ trợ? Liên hệ {0}.</value>
+  </data>
+  <data name="Email_FooterAutoSent" xml:space="preserve">
+    <value>Email này được gửi tự động từ hệ thống {0}, vui lòng không trả lời trực tiếp email này.</value>
+  </data>
+  <data name="Email_FooterCopyright" xml:space="preserve">
+    <value>&amp;copy; {0} {1}. Đã đăng ký bản quyền.</value>
+  </data>
+  <data name="Email_ButtonFallbackHint" xml:space="preserve">
+    <value>Nếu nút không mở được, hãy sao chép liên kết này vào trình duyệt:</value>
+  </data>
+  <data name="Email_Greeting" xml:space="preserve">
+    <value>Xin chào &lt;strong&gt;{0}&lt;/strong&gt;,</value>
+  </data>
+  <data name="Email_LinkExpiry" xml:space="preserve">
+    <value>Liên kết hết hạn sau &lt;strong&gt;{0}&lt;/strong&gt;. Nếu bạn không yêu cầu, hãy bỏ qua email này.</value>
+  </data>
+  <data name="Email_MovieLabel" xml:space="preserve">
+    <value>Phim</value>
+  </data>
+  <data name="Email_SeatCountLabel" xml:space="preserve">
+    <value>Số ghế</value>
+  </data>
+  <data name="Email_SeatCountValue" xml:space="preserve">
+    <value>{0} ghế</value>
+  </data>
+  <data name="Email_BadgeConfirmed" xml:space="preserve">
+    <value>Đã xác nhận</value>
+  </data>
+  <data name="Email_BookingConfirmedHeading" xml:space="preserve">
+    <value>Vé của bạn đã sẵn sàng</value>
+  </data>
+  <data name="Email_BookingConfirmedBody" xml:space="preserve">
+    <value>Xin chào &lt;strong&gt;{0}&lt;/strong&gt;, đơn đặt vé của bạn đã được xác nhận. Vào mục &lt;strong&gt;Vé của tôi&lt;/strong&gt; trên hệ thống để xem chi tiết và mã QR.</value>
+  </data>
+  <data name="Email_BookingConfirmedNote" xml:space="preserve">
+    <value>Có mặt trước giờ chiếu ít nhất 15 phút và xuất trình mã QR tại quầy soát vé.</value>
+  </data>
+  <data name="Email_BookingConfirmedPreheader" xml:space="preserve">
+    <value>Vé {0} đã được xác nhận</value>
+  </data>
+  <data name="Email_BadgeCancelled" xml:space="preserve">
+    <value>Đã hủy vé</value>
+  </data>
+  <data name="Email_BookingCancelledHeading" xml:space="preserve">
+    <value>Đơn đặt vé đã được hủy</value>
+  </data>
+  <data name="Email_BookingCancelledBody" xml:space="preserve">
+    <value>Xin chào &lt;strong&gt;{0}&lt;/strong&gt;, đơn đặt vé &lt;strong&gt;{1}&lt;/strong&gt; đã được hủy theo yêu cầu của bạn.</value>
+  </data>
+  <data name="Email_RefundAmountLabel" xml:space="preserve">
+    <value>Số tiền hoàn lại</value>
+  </data>
+  <data name="Email_RefundNoteBank" xml:space="preserve">
+    <value>Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng.</value>
+  </data>
+  <data name="Email_BookingCancelledPreheader" xml:space="preserve">
+    <value>Đơn đặt vé {0} đã hủy, hoàn {1}</value>
+  </data>
+  <data name="Email_BadgeShowtimeCancelled" xml:space="preserve">
+    <value>Suất chiếu bị hủy</value>
+  </data>
+  <data name="Email_ShowtimeCancelledHeading" xml:space="preserve">
+    <value>Suất chiếu của bạn đã bị hủy</value>
+  </data>
+  <data name="Email_ShowtimeCancelledAutoBody" xml:space="preserve">
+    <value>Xin chào &lt;strong&gt;{0}&lt;/strong&gt;, rạp đã hủy suất chiếu trong đơn đặt vé &lt;strong&gt;{1}&lt;/strong&gt;. Chúng tôi đã hoàn 100% số tiền về phương thức thanh toán bạn đã dùng.</value>
+  </data>
+  <data name="Email_RefundedAmountLabel" xml:space="preserve">
+    <value>Số tiền đã hoàn</value>
+  </data>
+  <data name="Email_RefundNoteBankOrGateway" xml:space="preserve">
+    <value>Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng hoặc cổng thanh toán.</value>
+  </data>
+  <data name="Email_ShowtimeCancelledAutoPreheader" xml:space="preserve">
+    <value>Suất chiếu của đơn {0} đã bị hủy, đã hoàn {1}</value>
+  </data>
+  <data name="Email_ShowtimeCancelledManualBody" xml:space="preserve">
+    <value>Xin chào &lt;strong&gt;{0}&lt;/strong&gt;, rạp đã hủy suất chiếu trong đơn đặt vé &lt;strong&gt;{1}&lt;/strong&gt;. Khoản hoàn tiền cần nhân viên rạp xử lý thủ công.</value>
+  </data>
+  <data name="Email_AmountDueLabel" xml:space="preserve">
+    <value>Số tiền cần hoàn</value>
+  </data>
+  <data name="Email_ShowtimeCancelledManualNote" xml:space="preserve">
+    <value>Mang mã đặt vé đến quầy hoặc liên hệ rạp để được hoàn tiền sớm nhất.</value>
+  </data>
+  <data name="Email_ShowtimeCancelledManualPreheader" xml:space="preserve">
+    <value>Suất chiếu của đơn {0} đã bị hủy, cần hoàn {1}</value>
+  </data>
+  <data name="Email_RefundWillBeAmountLabel" xml:space="preserve">
+    <value>Số tiền sẽ được hoàn</value>
+  </data>
+  <data name="Email_BadgeRefunded" xml:space="preserve">
+    <value>Đã hoàn tiền</value>
+  </data>
+  <data name="Email_TicketNotIssuedHeading" xml:space="preserve">
+    <value>Không xuất được vé</value>
+  </data>
+  <data name="Email_SeatsExpiredCustomerRefundedBody" xml:space="preserve">
+    <value>Xin chào &lt;strong&gt;{0}&lt;/strong&gt;, thanh toán cho đơn đặt vé &lt;strong&gt;{1}&lt;/strong&gt; đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Chúng tôi đã hoàn toàn bộ số tiền về phương thức thanh toán bạn đã dùng.</value>
+  </data>
+  <data name="Email_BadgeRefundPending" xml:space="preserve">
+    <value>Chờ hoàn tiền</value>
+  </data>
+  <data name="Email_SeatsExpiredCustomerPendingBody" xml:space="preserve">
+    <value>Xin chào &lt;strong&gt;{0}&lt;/strong&gt;, thanh toán cho đơn đặt vé &lt;strong&gt;{1}&lt;/strong&gt; đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Rạp sẽ hoàn toàn bộ số tiền cho bạn sớm nhất.</value>
+  </data>
+  <data name="Email_SeatsExpiredCustomerPendingNote" xml:space="preserve">
+    <value>Cần hỗ trợ thì liên hệ trực tiếp rạp và cung cấp mã đặt vé ở trên.</value>
+  </data>
+  <data name="Email_SeatsExpiredCustomerPreheader" xml:space="preserve">
+    <value>Đơn đặt vé {0} chưa xuất được vé, {1}</value>
+  </data>
+  <data name="Email_StatusRefunded" xml:space="preserve">
+    <value>đã hoàn tiền</value>
+  </data>
+  <data name="Email_StatusRefundPending" xml:space="preserve">
+    <value>chờ hoàn tiền</value>
+  </data>
+  <data name="Email_BookingLabel" xml:space="preserve">
+    <value>Đơn đặt vé</value>
+  </data>
+  <data name="Email_PaymentLabel" xml:space="preserve">
+    <value>Thanh toán</value>
+  </data>
+  <data name="Email_BadgeAutoRefunded" xml:space="preserve">
+    <value>Đã tự động hoàn tiền</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminHeading" xml:space="preserve">
+    <value>Ghế hết hạn giữ ngay sau khi thanh toán</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminIntro" xml:space="preserve">
+    <value>Đơn đặt vé đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng lúc đó.</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminAutoRefundNote" xml:space="preserve">
+    <value>Hệ thống đã &lt;strong&gt;tự động hoàn tiền&lt;/strong&gt; cho khách qua cổng thanh toán. Kiểm tra lại giao dịch hoàn tiền để chắc chắn.</value>
+  </data>
+  <data name="Email_BadgeManualRequired" xml:space="preserve">
+    <value>Cần xử lý thủ công</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminManualCallout" xml:space="preserve">
+    <value>&lt;strong&gt;Hoàn tiền tự động qua cổng thanh toán thất bại hoặc không khả dụng.&lt;/strong&gt; Hoàn tiền thủ công cho khách.</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminAutoPreheader" xml:space="preserve">
+    <value>Đã tự động hoàn tiền cho đơn đặt vé #{0}</value>
+  </data>
+  <data name="Email_SeatsExpiredAdminManualPreheader" xml:space="preserve">
+    <value>Cần hoàn tiền thủ công cho đơn đặt vé #{0}</value>
   </data>
 </root>

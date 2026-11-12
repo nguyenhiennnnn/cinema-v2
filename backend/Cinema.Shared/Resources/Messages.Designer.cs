@@ -3114,32 +3114,8 @@ namespace Cinema.Shared.Resources {
             }
         }
 
-        /// <summary>
-        ///   Looks up a localized string similar to Mỗi id phải lớn hơn 0..
-        /// </summary>
-        public static string Validation_BulkId_Positive {
-            get {
-                return ResourceManager.GetString("Validation_BulkId_Positive", resourceCulture);
-            }
-        }
 
-        /// <summary>
-        ///   Looks up a localized string similar to Tối đa {0} mục mỗi lần..
-        /// </summary>
-        public static string Validation_BulkIds_MaxCount {
-            get {
-                return ResourceManager.GetString("Validation_BulkIds_MaxCount", resourceCulture);
-            }
-        }
 
-        /// <summary>
-        ///   Looks up a localized string similar to Danh sách id không được để trống..
-        /// </summary>
-        public static string Validation_BulkIds_NotEmpty {
-            get {
-                return ResourceManager.GetString("Validation_BulkIds_NotEmpty", resourceCulture);
-            }
-        }
 
         /// <summary>
         ///   Looks up a localized string similar to Tổng hai trọng số Heat (doanh số và đánh giá) phải lớn hơn 0..
@@ -3849,6 +3825,824 @@ namespace Cinema.Shared.Resources {
         public static string Email_StaffInviteButton {
             get {
                 return ResourceManager.GetString("Email_StaffInviteButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ghế đôi phải được chọn cùng nhau..
+        /// </summary>
+        public static string Rule_SeatCoupleMustBePickedTogether {
+            get {
+                return ResourceManager.GetString("Rule_SeatCoupleMustBePickedTogether", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể để trống ghế lẻ {0}{1}. Vui lòng chọn lại để không bỏ lẻ ghế..
+        /// </summary>
+        public static string Rule_SeatLoneGap {
+            get {
+                return ResourceManager.GetString("Rule_SeatLoneGap", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu {0} - {1} nằm ngoài khung giờ hoạt động của rạp ({2})..
+        /// </summary>
+        public static string Rule_ShowtimeOutsideOperatingHours {
+            get {
+                return ResourceManager.GetString("Rule_ShowtimeOutsideOperatingHours", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Giá trị chứa ký tự không hợp lệ. Xóa ký tự lạ rồi thử lại..
+        /// </summary>
+        public static string Validation_Text_InvalidCharacters {
+            get {
+                return ResourceManager.GetString("Validation_Text_InvalidCharacters", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to showtimeId không hợp lệ..
+        /// </summary>
+        public static string Validation_ShowtimeId_Invalid {
+            get {
+                return ResourceManager.GetString("Validation_ShowtimeId_Invalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tối đa {0} đánh giá mỗi lần..
+        /// </summary>
+        public static string Validation_ReviewIds_MaxCount {
+            get {
+                return ResourceManager.GetString("Validation_ReviewIds_MaxCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tối đa {0} phim mỗi lần..
+        /// </summary>
+        public static string Validation_MovieIds_MaxCount {
+            get {
+                return ResourceManager.GetString("Validation_MovieIds_MaxCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Token không hợp lệ..
+        /// </summary>
+        public static string Unauthorized_InvalidToken {
+            get {
+                return ResourceManager.GetString("Unauthorized_InvalidToken", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} phút.
+        /// </summary>
+        public static string Common_DurationMinutes {
+            get {
+                return ResourceManager.GetString("Common_DurationMinutes", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} giây.
+        /// </summary>
+        public static string Common_DurationSeconds {
+            get {
+                return ResourceManager.GetString("Common_DurationSeconds", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Phù hợp cho {0} người.
+        /// </summary>
+        public static string Combo_SuggestionFitPeople {
+            get {
+                return ResourceManager.GetString("Combo_SuggestionFitPeople", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Phù hợp cho {0} người (x{1}).
+        /// </summary>
+        public static string Combo_SuggestionFitPeopleQuantity {
+            get {
+                return ResourceManager.GetString("Combo_SuggestionFitPeopleQuantity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bán chạy cùng thể loại.
+        /// </summary>
+        public static string Combo_SuggestionBestSeller {
+            get {
+                return ResourceManager.GetString("Combo_SuggestionBestSeller", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vé xem phim (Mã GD: {0}).
+        /// </summary>
+        public static string Payment_StripeProductName {
+            get {
+                return ResourceManager.GetString("Payment_StripeProductName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stripe SecretKey chưa được cấu hình..
+        /// </summary>
+        public static string Refund_StripeNotConfigured {
+            get {
+                return ResourceManager.GetString("Refund_StripeNotConfigured", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không tìm thấy mã giao dịch Stripe gốc (GatewayTransactionId) để hoàn tiền. Đây có thể là giao dịch cũ trước khi hệ thống lưu mã Stripe thật — vui lòng hoàn tiền thủ công qua Stripe Dashboard..
+        /// </summary>
+        public static string Refund_StripeMissingGatewayTransactionId {
+            get {
+                return ResourceManager.GetString("Refund_StripeMissingGatewayTransactionId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stripe Refund status: {0}.
+        /// </summary>
+        public static string Refund_StripeStatus {
+            get {
+                return ResourceManager.GetString("Refund_StripeStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lỗi gọi Stripe refund API: {0}.
+        /// </summary>
+        public static string Refund_StripeApiError {
+            get {
+                return ResourceManager.GetString("Refund_StripeApiError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lỗi không xác định khi hoàn tiền Stripe: {0}.
+        /// </summary>
+        public static string Refund_StripeUnexpectedError {
+            get {
+                return ResourceManager.GetString("Refund_StripeUnexpectedError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to MoMo trả về response rỗng/không hợp lệ..
+        /// </summary>
+        public static string Refund_MomoEmptyResponse {
+            get {
+                return ResourceManager.GetString("Refund_MomoEmptyResponse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to MoMo hoàn tiền thất bại: ResultCode={0} Message={1}.
+        /// </summary>
+        public static string Refund_MomoFailed {
+            get {
+                return ResourceManager.GetString("Refund_MomoFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lỗi gọi MoMo refund API: {0}.
+        /// </summary>
+        public static string Refund_MomoApiError {
+            get {
+                return ResourceManager.GetString("Refund_MomoApiError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNPay trả về response rỗng/không hợp lệ..
+        /// </summary>
+        public static string Refund_VnPayEmptyResponse {
+            get {
+                return ResourceManager.GetString("Refund_VnPayEmptyResponse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNPay ResponseCode={0} Message={1}.
+        /// </summary>
+        public static string Refund_VnPayFailed {
+            get {
+                return ResourceManager.GetString("Refund_VnPayFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lỗi gọi VNPay refund API: {0}.
+        /// </summary>
+        public static string Refund_VnPayApiError {
+            get {
+                return ResourceManager.GetString("Refund_VnPayApiError", resourceCulture);
+            }
+        }
+        /// <summary>
+        ///   Looks up a localized string similar to Jwt:Secret chưa cấu hình hoặc ngắn hơn {0} ký tự..
+        /// </summary>
+        public static string Config_JwtSecretTooShort {
+            get {
+                return ResourceManager.GetString("Config_JwtSecretTooShort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cors:AllowedOrigins chưa cấu hình..
+        /// </summary>
+        public static string Config_CorsOriginsMissing {
+            get {
+                return ResourceManager.GetString("Config_CorsOriginsMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} chưa cấu hình..
+        /// </summary>
+        public static string Config_ValueMissing {
+            get {
+                return ResourceManager.GetString("Config_ValueMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} chưa cấu hình hoặc đang trỏ về localhost..
+        /// </summary>
+        public static string Config_PublicUrlInvalid {
+            get {
+                return ResourceManager.GetString("Config_PublicUrlInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cấu hình Production không hợp lệ:.
+        /// </summary>
+        public static string Config_ProductionInvalid {
+            get {
+                return ResourceManager.GetString("Config_ProductionInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Brand:TimeZoneId không được để trống. Kiểm tra appsettings.json..
+        /// </summary>
+        public static string Config_TimeZoneIdRequired {
+            get {
+                return ResourceManager.GetString("Config_TimeZoneIdRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Timezone '{0}' (Brand:TimeZoneId) không hợp lệ hoặc không được hỗ trợ trên hệ thống này. Dùng IANA ID hoặc Windows ID được hệ thống hỗ trợ..
+        /// </summary>
+        public static string Config_TimeZoneInvalid {
+            get {
+                return ResourceManager.GetString("Config_TimeZoneInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Brand:PhoneRegex không được để trống. Kiểm tra appsettings.json..
+        /// </summary>
+        public static string Config_PhoneRegexRequired {
+            get {
+                return ResourceManager.GetString("Config_PhoneRegexRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Chưa cấu hình email: đặt Email__ResendApiKey hoặc Email__SmtpHost..
+        /// </summary>
+        public static string Config_EmailNotConfigured {
+            get {
+                return ResourceManager.GetString("Config_EmailNotConfigured", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loại phần tin nhắn không được hỗ trợ: {0}..
+        /// </summary>
+        public static string Ai_UnsupportedMessagePart {
+            get {
+                return ResourceManager.GetString("Ai_UnsupportedMessagePart", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể chuyển đổi '{0}' sang DateOnly..
+        /// </summary>
+        public static string Json_DateOnlyConvertFailed {
+            get {
+                return ResourceManager.GetString("Json_DateOnlyConvertFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể chuyển đổi '{0}' sang DateTime UTC..
+        /// </summary>
+        public static string Json_DateTimeUtcConvertFailed {
+            get {
+                return ResourceManager.GetString("Json_DateTimeUtcConvertFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Resend API trả về {0}: {1}.
+        /// </summary>
+        public static string Email_ResendApiError {
+            get {
+                return ResourceManager.GetString("Email_ResendApiError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hoàn tiền thất bại PaymentId {0}: {1}.
+        /// </summary>
+        public static string Refund_JobFailed {
+            get {
+                return ResourceManager.GetString("Refund_JobFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mã đặt vé.
+        /// </summary>
+        public static string Email_BookingCodeLabel {
+            get {
+                return ResourceManager.GetString("Email_BookingCodeLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNĐ.
+        /// </summary>
+        public static string Common_CurrencyVnd {
+            get {
+                return ResourceManager.GetString("Common_CurrencyVnd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to <br />Cần hỗ trợ? Liên hệ {0}..
+        /// </summary>
+        public static string Email_SupportContact {
+            get {
+                return ResourceManager.GetString("Email_SupportContact", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email này được gửi tự động từ hệ thống {0}, vui lòng không trả lời trực tiếp email này..
+        /// </summary>
+        public static string Email_FooterAutoSent {
+            get {
+                return ResourceManager.GetString("Email_FooterAutoSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to &copy; {0} {1}. Đã đăng ký bản quyền..
+        /// </summary>
+        public static string Email_FooterCopyright {
+            get {
+                return ResourceManager.GetString("Email_FooterCopyright", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nếu nút không mở được, hãy sao chép liên kết này vào trình duyệt:.
+        /// </summary>
+        public static string Email_ButtonFallbackHint {
+            get {
+                return ResourceManager.GetString("Email_ButtonFallbackHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin chào <strong>{0}</strong>,.
+        /// </summary>
+        public static string Email_Greeting {
+            get {
+                return ResourceManager.GetString("Email_Greeting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Liên kết hết hạn sau <strong>{0}</strong>. Nếu bạn không yêu cầu, hãy bỏ qua email này..
+        /// </summary>
+        public static string Email_LinkExpiry {
+            get {
+                return ResourceManager.GetString("Email_LinkExpiry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Phim.
+        /// </summary>
+        public static string Email_MovieLabel {
+            get {
+                return ResourceManager.GetString("Email_MovieLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Số ghế.
+        /// </summary>
+        public static string Email_SeatCountLabel {
+            get {
+                return ResourceManager.GetString("Email_SeatCountLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ghế.
+        /// </summary>
+        public static string Email_SeatCountValue {
+            get {
+                return ResourceManager.GetString("Email_SeatCountValue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xác nhận.
+        /// </summary>
+        public static string Email_BadgeConfirmed {
+            get {
+                return ResourceManager.GetString("Email_BadgeConfirmed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vé của bạn đã sẵn sàng.
+        /// </summary>
+        public static string Email_BookingConfirmedHeading {
+            get {
+                return ResourceManager.GetString("Email_BookingConfirmedHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin chào <strong>{0}</strong>, đơn đặt vé của bạn đã được xác nhận. Vào mục <strong>Vé của tôi</strong> trên hệ thống để xem chi tiết và mã QR..
+        /// </summary>
+        public static string Email_BookingConfirmedBody {
+            get {
+                return ResourceManager.GetString("Email_BookingConfirmedBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Có mặt trước giờ chiếu ít nhất 15 phút và xuất trình mã QR tại quầy soát vé..
+        /// </summary>
+        public static string Email_BookingConfirmedNote {
+            get {
+                return ResourceManager.GetString("Email_BookingConfirmedNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vé {0} đã được xác nhận.
+        /// </summary>
+        public static string Email_BookingConfirmedPreheader {
+            get {
+                return ResourceManager.GetString("Email_BookingConfirmedPreheader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hủy vé.
+        /// </summary>
+        public static string Email_BadgeCancelled {
+            get {
+                return ResourceManager.GetString("Email_BadgeCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đơn đặt vé đã được hủy.
+        /// </summary>
+        public static string Email_BookingCancelledHeading {
+            get {
+                return ResourceManager.GetString("Email_BookingCancelledHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin chào <strong>{0}</strong>, đơn đặt vé <strong>{1}</strong> đã được hủy theo yêu cầu của bạn..
+        /// </summary>
+        public static string Email_BookingCancelledBody {
+            get {
+                return ResourceManager.GetString("Email_BookingCancelledBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Số tiền hoàn lại.
+        /// </summary>
+        public static string Email_RefundAmountLabel {
+            get {
+                return ResourceManager.GetString("Email_RefundAmountLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng..
+        /// </summary>
+        public static string Email_RefundNoteBank {
+            get {
+                return ResourceManager.GetString("Email_RefundNoteBank", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đơn đặt vé {0} đã hủy, hoàn {1}.
+        /// </summary>
+        public static string Email_BookingCancelledPreheader {
+            get {
+                return ResourceManager.GetString("Email_BookingCancelledPreheader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu bị hủy.
+        /// </summary>
+        public static string Email_BadgeShowtimeCancelled {
+            get {
+                return ResourceManager.GetString("Email_BadgeShowtimeCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu của bạn đã bị hủy.
+        /// </summary>
+        public static string Email_ShowtimeCancelledHeading {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin chào <strong>{0}</strong>, rạp đã hủy suất chiếu trong đơn đặt vé <strong>{1}</strong>. Chúng tôi đã hoàn 100% số tiền về phương thức thanh toán bạn đã dùng..
+        /// </summary>
+        public static string Email_ShowtimeCancelledAutoBody {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledAutoBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Số tiền đã hoàn.
+        /// </summary>
+        public static string Email_RefundedAmountLabel {
+            get {
+                return ResourceManager.GetString("Email_RefundedAmountLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tiền hoàn về tài khoản hoặc thẻ bạn đã dùng để thanh toán trong vài ngày làm việc, tùy thời gian xử lý của ngân hàng hoặc cổng thanh toán..
+        /// </summary>
+        public static string Email_RefundNoteBankOrGateway {
+            get {
+                return ResourceManager.GetString("Email_RefundNoteBankOrGateway", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu của đơn {0} đã bị hủy, đã hoàn {1}.
+        /// </summary>
+        public static string Email_ShowtimeCancelledAutoPreheader {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledAutoPreheader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin chào <strong>{0}</strong>, rạp đã hủy suất chiếu trong đơn đặt vé <strong>{1}</strong>. Khoản hoàn tiền cần nhân viên rạp xử lý thủ công..
+        /// </summary>
+        public static string Email_ShowtimeCancelledManualBody {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledManualBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Số tiền cần hoàn.
+        /// </summary>
+        public static string Email_AmountDueLabel {
+            get {
+                return ResourceManager.GetString("Email_AmountDueLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mang mã đặt vé đến quầy hoặc liên hệ rạp để được hoàn tiền sớm nhất..
+        /// </summary>
+        public static string Email_ShowtimeCancelledManualNote {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledManualNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu của đơn {0} đã bị hủy, cần hoàn {1}.
+        /// </summary>
+        public static string Email_ShowtimeCancelledManualPreheader {
+            get {
+                return ResourceManager.GetString("Email_ShowtimeCancelledManualPreheader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Số tiền sẽ được hoàn.
+        /// </summary>
+        public static string Email_RefundWillBeAmountLabel {
+            get {
+                return ResourceManager.GetString("Email_RefundWillBeAmountLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hoàn tiền.
+        /// </summary>
+        public static string Email_BadgeRefunded {
+            get {
+                return ResourceManager.GetString("Email_BadgeRefunded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Không xuất được vé.
+        /// </summary>
+        public static string Email_TicketNotIssuedHeading {
+            get {
+                return ResourceManager.GetString("Email_TicketNotIssuedHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin chào <strong>{0}</strong>, thanh toán cho đơn đặt vé <strong>{1}</strong> đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Chúng tôi đã hoàn toàn bộ số tiền về phương thức thanh toán bạn đã dùng..
+        /// </summary>
+        public static string Email_SeatsExpiredCustomerRefundedBody {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredCustomerRefundedBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Chờ hoàn tiền.
+        /// </summary>
+        public static string Email_BadgeRefundPending {
+            get {
+                return ResourceManager.GetString("Email_BadgeRefundPending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Xin chào <strong>{0}</strong>, thanh toán cho đơn đặt vé <strong>{1}</strong> đã thành công nhưng ghế hết thời gian giữ chỗ trước khi vé được xuất. Rạp sẽ hoàn toàn bộ số tiền cho bạn sớm nhất..
+        /// </summary>
+        public static string Email_SeatsExpiredCustomerPendingBody {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredCustomerPendingBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cần hỗ trợ thì liên hệ trực tiếp rạp và cung cấp mã đặt vé ở trên..
+        /// </summary>
+        public static string Email_SeatsExpiredCustomerPendingNote {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredCustomerPendingNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đơn đặt vé {0} chưa xuất được vé, {1}.
+        /// </summary>
+        public static string Email_SeatsExpiredCustomerPreheader {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredCustomerPreheader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to đã hoàn tiền.
+        /// </summary>
+        public static string Email_StatusRefunded {
+            get {
+                return ResourceManager.GetString("Email_StatusRefunded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to chờ hoàn tiền.
+        /// </summary>
+        public static string Email_StatusRefundPending {
+            get {
+                return ResourceManager.GetString("Email_StatusRefundPending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đơn đặt vé.
+        /// </summary>
+        public static string Email_BookingLabel {
+            get {
+                return ResourceManager.GetString("Email_BookingLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Thanh toán.
+        /// </summary>
+        public static string Email_PaymentLabel {
+            get {
+                return ResourceManager.GetString("Email_PaymentLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã tự động hoàn tiền.
+        /// </summary>
+        public static string Email_BadgeAutoRefunded {
+            get {
+                return ResourceManager.GetString("Email_BadgeAutoRefunded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ghế hết hạn giữ ngay sau khi thanh toán.
+        /// </summary>
+        public static string Email_SeatsExpiredAdminHeading {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đơn đặt vé đã thanh toán thành công nhưng ghế bị hệ thống nhả do hết hạn giữ chỗ đúng lúc đó..
+        /// </summary>
+        public static string Email_SeatsExpiredAdminIntro {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hệ thống đã <strong>tự động hoàn tiền</strong> cho khách qua cổng thanh toán. Kiểm tra lại giao dịch hoàn tiền để chắc chắn..
+        /// </summary>
+        public static string Email_SeatsExpiredAdminAutoRefundNote {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminAutoRefundNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cần xử lý thủ công.
+        /// </summary>
+        public static string Email_BadgeManualRequired {
+            get {
+                return ResourceManager.GetString("Email_BadgeManualRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to <strong>Hoàn tiền tự động qua cổng thanh toán thất bại hoặc không khả dụng.</strong> Hoàn tiền thủ công cho khách..
+        /// </summary>
+        public static string Email_SeatsExpiredAdminManualCallout {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminManualCallout", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Đã tự động hoàn tiền cho đơn đặt vé #{0}.
+        /// </summary>
+        public static string Email_SeatsExpiredAdminAutoPreheader {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminAutoPreheader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cần hoàn tiền thủ công cho đơn đặt vé #{0}.
+        /// </summary>
+        public static string Email_SeatsExpiredAdminManualPreheader {
+            get {
+                return ResourceManager.GetString("Email_SeatsExpiredAdminManualPreheader", resourceCulture);
             }
         }
     

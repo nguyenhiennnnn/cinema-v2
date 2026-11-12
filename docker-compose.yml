@@ -81,7 +81,6 @@ services:
       Momo__RefundEndpoint: ${MOMO_REFUND_ENDPOINT:-https://test-payment.momo.vn/v2/gateway/api/refund}
 
       Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
-      Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY:-}
       Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
       Stripe__ReturnUrl: ${STRIPE_RETURN_URL:-http://localhost:5173/booking/result}
       Stripe__Currency: ${STRIPE_CURRENCY:-vnd}
@@ -90,7 +89,6 @@ services:
       Gemini__Model: ${GEMINI_MODEL:-gemini-2.5-flash}
 
       Google__ClientId: ${GOOGLE_CLIENT_ID:-}
-      Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
     volumes:
       - ./backend:/src
       - /src/Cinema.Api/bin

@@ -278,11 +278,7 @@ public class ReviewService : IReviewService
             catch (NotFoundException)
             {
                 results.Add(
-                    new BulkDeleteReviewsResultItem(
-                        reviewId,
-                        false,
-                        "Kh\u00f4ng t\u00ecm th\u1ea5y \u0111\u00e1nh gi\u00e1."
-                    )
+                    new BulkDeleteReviewsResultItem(reviewId, false, Messages.NotFound_Review)
                 );
             }
             catch (AppException ex)
@@ -293,15 +289,11 @@ public class ReviewService : IReviewService
             {
                 logger.LogWarning(
                     ex,
-                    "BulkDeleteReview th\u1ea5t b\u1ea1i ReviewId {ReviewId}",
+                    "BulkDeleteReview thất bại ReviewId {ReviewId}",
                     reviewId
                 );
                 results.Add(
-                    new BulkDeleteReviewsResultItem(
-                        reviewId,
-                        false,
-                        "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh."
-                    )
+                    new BulkDeleteReviewsResultItem(reviewId, false, Messages.Bulk_UnknownError)
                 );
             }
         }

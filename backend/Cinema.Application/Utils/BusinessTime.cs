@@ -1,3 +1,5 @@
+using Cinema.Shared.Resources;
+
 namespace Cinema.Application.Utils;
 
 public static class BusinessTime
@@ -12,15 +14,12 @@ public static class BusinessTime
     public static void Configure(string timeZoneId)
     {
         if (string.IsNullOrWhiteSpace(timeZoneId))
-            throw new InvalidOperationException(
-                "Brand:TimeZoneId không được để trống. Kiểm tra appsettings.json."
-            );
+            throw new InvalidOperationException(Messages.Config_TimeZoneIdRequired);
 
         _zone =
             ResolveZone(timeZoneId)
             ?? throw new InvalidOperationException(
-                $"Timezone '{timeZoneId}' (Brand:TimeZoneId) không hợp lệ hoặc không được hỗ trợ trên hệ thống này. "
-                    + "Dùng IANA ID hoặc Windows ID được hệ thống hỗ trợ."
+                string.Format(Messages.Config_TimeZoneInvalid, timeZoneId)
             );
 
         _ianaId = ToIanaId(_zone);
