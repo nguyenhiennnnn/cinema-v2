@@ -10,7 +10,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class BookingCancellationServiceTests : BookingServiceTestBase
+public class BookingCancellationServiceTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     private async Task<(Booking Booking, User Customer, Showtime Showtime)> SeedHeldBookingAsync(
         decimal basePrice = 100_000m,

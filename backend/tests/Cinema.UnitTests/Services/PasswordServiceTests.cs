@@ -1,4 +1,4 @@
-using Cinema.Application.DTOs.Auth;
+﻿using Cinema.Application.DTOs.Auth;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class PasswordServiceTests : AuthServiceTestBase
+public class PasswordServiceTests(PostgresContainerFixture fixture) : AuthServiceTestBase(fixture)
 {
     [Fact]
     public async Task ChangePasswordAsync_WrongCurrentPassword_ThrowsValidationAppException()

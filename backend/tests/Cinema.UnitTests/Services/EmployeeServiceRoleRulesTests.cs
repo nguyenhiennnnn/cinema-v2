@@ -1,4 +1,4 @@
-using Cinema.Application.DTOs.Employees;
+﻿using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Employees;
 using Cinema.Domain.Entities;
@@ -11,11 +11,11 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class EmployeeServiceRoleRulesTests : IDisposable
+public class EmployeeServiceRoleRulesTests(PostgresContainerFixture fixture) : IDisposable
 {
     private const int EmployeeRoleId = 3;
 
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
     public EmployeeServiceRoleRulesTests()
     {

@@ -1,4 +1,4 @@
-using Cinema.Application.DTOs.Auth;
+﻿using Cinema.Application.DTOs.Auth;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Exceptions;
@@ -11,7 +11,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class RegistrationServiceRegisterAndConfirmTests : AuthServiceTestBase
+public class RegistrationServiceRegisterAndConfirmTests(PostgresContainerFixture fixture) : AuthServiceTestBase(fixture)
 {
     [Fact]
     public async Task RegisterAsync_NewEmail_CreatesUserAndCustomerProfileAndQueuesVerificationEmail()
@@ -133,7 +133,7 @@ public class RegistrationServiceRegisterAndConfirmTests : AuthServiceTestBase
     }
 }
 
-public class RegistrationServiceStaffInviteTests : AuthServiceTestBase
+public class RegistrationServiceStaffInviteTests(PostgresContainerFixture fixture) : AuthServiceTestBase(fixture)
 {
     private static readonly TimeSpan InviteValidity = TimeSpan.FromHours(72);
 

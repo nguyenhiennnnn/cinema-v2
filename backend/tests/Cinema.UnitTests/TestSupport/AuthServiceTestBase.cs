@@ -14,7 +14,7 @@ namespace Cinema.UnitTests.TestSupport;
 
 public abstract class AuthServiceTestBase : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle;
 
     protected AppDbContext Db => _handle.Db;
     protected Mock<ITokenService> TokenServiceMock { get; } = new();
@@ -30,8 +30,9 @@ public abstract class AuthServiceTestBase : IDisposable
         );
     }
 
-    protected AuthServiceTestBase()
+    protected AuthServiceTestBase(PostgresContainerFixture fixture)
     {
+        _handle = new(fixture.MasterConnectionString);
         TokenServiceMock
             .Setup(t => t.GenerateOpaqueToken())
             .Returns(() => Guid.NewGuid().ToString("N"));

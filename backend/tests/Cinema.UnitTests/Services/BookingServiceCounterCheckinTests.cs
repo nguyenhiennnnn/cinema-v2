@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
+public class BookingServiceCounterHoldAndCheckoutTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     [Fact]
     public async Task CounterHoldSeatsAsync_ValidRequest_CreatesCounterChannelBookingAttributedToEmployee()
@@ -136,7 +136,7 @@ public class BookingServiceCounterHoldAndCheckoutTests : BookingServiceTestBase
     }
 }
 
-public class BookingServiceCheckinTests : BookingServiceTestBase
+public class BookingServiceCheckinTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     private async Task<(string QrCode, int BookingId)> SeedConfirmedTicketAsync(
         DateTime? startTime = null
@@ -245,7 +245,7 @@ public class BookingServiceCheckinTests : BookingServiceTestBase
     }
 }
 
-public class BookingServiceReverseLoyaltyTests : BookingServiceTestBase
+public class BookingServiceReverseLoyaltyTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     [Fact]
     public async Task ReverseLoyaltyAsync_CustomerHasEnoughPointsAndSpend_DeductsExactAmount()

@@ -1,4 +1,4 @@
-using Cinema.Application.BackgroundJobs;
+﻿using Cinema.Application.BackgroundJobs;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Services.Notifications;
@@ -19,9 +19,9 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class PaymentServiceStripeTests : IDisposable
+public class PaymentServiceStripeTests(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
     private readonly Mock<IBookingFulfillmentService> _bookingServiceMock = new();
     private readonly Mock<IPaymentGateway> _gatewayMock = new();
     private readonly Mock<IBackgroundJobClient> _backgroundJobClientMock = new();
@@ -253,7 +253,7 @@ public class PaymentServiceStripeTests : IDisposable
         );
     }
 
-    // ── Idempotency ─────────────────────────────────────────────────────────
+    // â”€â”€ Idempotency â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     [Fact]
     public async Task ProcessStripeWebhookAsync_PaymentAlreadySuccessful_IsIdempotentAndDoesNotReconfirmBooking()
@@ -545,7 +545,7 @@ public class PaymentServiceStripeTests : IDisposable
 
         await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
 
-        VerifyCustomerEmail("Đã hoàn tiền");
+        VerifyCustomerEmail("ÄÃ£ hoÃ n tiá»n");
     }
 
     [Fact]
@@ -568,7 +568,7 @@ public class PaymentServiceStripeTests : IDisposable
 
         await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
 
-        VerifyCustomerEmail("Chờ hoàn tiền");
+        VerifyCustomerEmail("Chá» hoÃ n tiá»n");
     }
 
     public void Dispose() => _handle.Dispose();

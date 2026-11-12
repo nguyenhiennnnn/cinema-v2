@@ -1,4 +1,4 @@
-using Cinema.Application.Interfaces;
+﻿using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Bookings;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -11,9 +11,9 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class SeatExpirationServiceTests : IDisposable
+public class SeatExpirationServiceTests(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
     private readonly Mock<IRealtimeNotifier> _realtimeNotifierMock = new();
 
     private AppDbContext Db => _handle.Db;

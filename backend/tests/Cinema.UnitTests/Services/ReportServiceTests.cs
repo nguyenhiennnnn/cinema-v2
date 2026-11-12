@@ -1,4 +1,4 @@
-using Cinema.Application.Services.Reports;
+﻿using Cinema.Application.Services.Reports;
 using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -9,9 +9,9 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class ReportServiceTests : IDisposable
+public class ReportServiceTests(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
     private ReportService CreateSut()
     {

@@ -8,7 +8,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class LoyaltyDiscountTests : BookingServiceTestBase
+public class LoyaltyDiscountTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     private async Task<HoldBookingResponse> HoldAsync(
         int userId,
@@ -163,7 +163,7 @@ public class LoyaltyDiscountTests : BookingServiceTestBase
     }
 }
 
-public class LoyaltyLedgerTests : BookingServiceTestBase
+public class LoyaltyLedgerTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     [Fact]
     public async Task ConfirmBookingAsync_CreatesLedgerEntryForBooking()
@@ -387,7 +387,7 @@ public class LoyaltyLedgerTests : BookingServiceTestBase
     }
 }
 
-public class LoyaltyExpiryServiceTests : BookingServiceTestBase
+public class LoyaltyExpiryServiceTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     private LoyaltyExpiryService CreateService() =>
         new(Db, NullLogger<LoyaltyExpiryService>.Instance);

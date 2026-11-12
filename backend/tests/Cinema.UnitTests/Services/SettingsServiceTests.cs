@@ -1,4 +1,4 @@
-using Cinema.Application.DTOs.Settings;
+﻿using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Services.Settings;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
@@ -9,9 +9,9 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class SettingsServiceTests : IDisposable
+public class SettingsServiceTests(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
     private SettingsService CreateSut()
     {
@@ -25,7 +25,7 @@ public class SettingsServiceTests : IDisposable
                     TimeZoneId = "Asia/Ho_Chi_Minh",
                     Locale = "vi-VN",
                     CurrencyCode = "VND",
-                    CurrencySymbol = "VNĐ",
+                    CurrencySymbol = "VNÄ",
                 }
             )
         );

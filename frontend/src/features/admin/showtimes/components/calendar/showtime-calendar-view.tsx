@@ -48,6 +48,7 @@ export const ShowtimeCalendarView = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // GET /admin/rooms chỉ dành cho Admin; Employee gọi sẽ bị 403 và hiện toast lỗi.
   const canFilterByRoom = useAuthRole() === Role.Admin;
   const rooms = useAdminRooms(
     { page: 1, pageSize: LOOKUP_PAGE_SIZE },
@@ -139,7 +140,10 @@ export const ShowtimeCalendarView = ({
           value={currentDay.date}
           onValueChange={(value) => setActiveDay(value as string)}
         >
-          <TabsList variant="line" className="flex-nowrap overflow-x-auto">
+          <TabsList
+            variant="line"
+            className="flex-nowrap overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             {days.map((day) => {
               const parsed = parseCalendarDay(day.date);
               const conflicts = layouts.get(day.date)?.conflictCount ?? 0;
@@ -150,7 +154,7 @@ export const ShowtimeCalendarView = ({
                   className="shrink-0 flex-col gap-0 leading-tight"
                 >
                   <span className="text-xs font-normal">
-                    {parsed ? formatWeekdayShort(parsed).toLowerCase() : "Ngày"}
+                    {parsed ? formatWeekdayShort(parsed) : "Ngày"}
                   </span>
                   <span className="t-code text-base">
                     {parsed ? day.date.slice(0, 5) : day.date}

@@ -10,9 +10,9 @@ using Moq;
 
 namespace Cinema.UnitTests.TestSupport;
 
-public abstract class ShowtimeServiceTestBase : IDisposable
+public abstract class ShowtimeServiceTestBase(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
     protected AppDbContext Db => _handle.Db;
     protected int RoomBufferMinutes { get; set; } = 15;

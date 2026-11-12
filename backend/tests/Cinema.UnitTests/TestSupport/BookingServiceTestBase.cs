@@ -10,9 +10,9 @@ using Moq;
 
 namespace Cinema.UnitTests.TestSupport;
 
-public abstract class BookingServiceTestBase : IDisposable
+public abstract class BookingServiceTestBase(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
     protected AppDbContext Db => _handle.Db;
     protected Mock<IRealtimeNotifier> RealtimeNotifierMock { get; } = new();

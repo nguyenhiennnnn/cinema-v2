@@ -1,4 +1,4 @@
-using Cinema.Application.DTOs.Catalog;
+﻿using Cinema.Application.DTOs.Catalog;
 using Cinema.Application.Services.Catalog;
 using Cinema.Shared.Exceptions;
 using Cinema.UnitTests.TestSupport;
@@ -7,9 +7,9 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class CatalogServiceQuickCreateTests : IDisposable
+public class CatalogServiceQuickCreateTests(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
     private CatalogService CreateSut()
     {
@@ -25,11 +25,11 @@ public class CatalogServiceQuickCreateTests : IDisposable
         var sut = CreateSut();
 
         var result = await sut.CreateGenreAsync(
-            new UpsertGenreRequest("  Thể   loại mới  "),
+            new UpsertGenreRequest("  Thá»ƒ   loáº¡i má»›i  "),
             CancellationToken.None
         );
 
-        result.Name.ShouldBe("Thể loại mới");
+        result.Name.ShouldBe("Thá»ƒ loáº¡i má»›i");
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class CatalogServiceQuickCreateTests : IDisposable
         var sut = CreateSut();
 
         await Should.ThrowAsync<ConflictAppException>(() =>
-            sut.CreateGenreAsync(new UpsertGenreRequest("  kinh   DỊ "), CancellationToken.None)
+            sut.CreateGenreAsync(new UpsertGenreRequest("  kinh   Dá»Š "), CancellationToken.None)
         );
     }
 

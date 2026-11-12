@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class BookingServiceLoyaltyTests : BookingServiceTestBase
+public class BookingServiceLoyaltyTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     private async Task<(int BronzeId, int SilverId)> ReplaceTiersAsync()
     {
@@ -172,7 +172,7 @@ public class BookingServiceLoyaltyTests : BookingServiceTestBase
     }
 }
 
-public class BookingServiceConfirmEmailTests : BookingServiceTestBase
+public class BookingServiceConfirmEmailTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     [Fact]
     public async Task ConfirmBookingAndGenerateTicketsAsync_UserBooking_EmailContainsMovieTitle()

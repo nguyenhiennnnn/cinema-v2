@@ -1,4 +1,4 @@
-using Cinema.Application.DTOs.Bookings;
+﻿using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Settings;
@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class BookingLimitsFromSettingsTests : BookingServiceTestBase
+public class BookingLimitsFromSettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     private async Task SetLimitsAsync(int maxSeats, int maxCombo)
     {
@@ -63,7 +63,7 @@ public class BookingLimitsFromSettingsTests : BookingServiceTestBase
     }
 }
 
-public class LoyaltyWindowSettingsTests : BookingServiceTestBase
+public class LoyaltyWindowSettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     [Fact]
     public async Task SumActiveAsync_UsesLoyaltyWindowMonthsFromSettings()
@@ -73,7 +73,7 @@ public class LoyaltyWindowSettingsTests : BookingServiceTestBase
         LoyaltyTestHelper.AddEntry(Db, customer.UserId, null, 40, DateTime.UtcNow.AddMonths(-5));
         await Db.SaveChangesAsync();
 
-        // Mặc định 12 tháng: cả hai dòng còn hiệu lực.
+        // Máº·c Ä‘á»‹nh 12 thÃ¡ng: cáº£ hai dÃ²ng cÃ²n hiá»‡u lá»±c.
         (
             await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)
         ).ShouldBe(140);
@@ -82,7 +82,7 @@ public class LoyaltyWindowSettingsTests : BookingServiceTestBase
         settings.LoyaltyWindowMonths = 3;
         await Db.SaveChangesAsync();
 
-        // Cửa sổ 3 tháng: dòng 5 tháng trước đã hết hạn.
+        // Cá»­a sá»• 3 thÃ¡ng: dÃ²ng 5 thÃ¡ng trÆ°á»›c Ä‘Ã£ háº¿t háº¡n.
         (
             await LoyaltyWindow.SumActiveAsync(Db, customer.UserId, DateTime.UtcNow, default)
         ).ShouldBe(100);
@@ -98,7 +98,7 @@ public class LoyaltyWindowSettingsTests : BookingServiceTestBase
     }
 }
 
-public class ShowtimePolicySettingsTests : BookingServiceTestBase
+public class ShowtimePolicySettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
 {
     [Fact]
     public void MovieEndCutoff_UsesGivenGraceDays()
@@ -129,9 +129,9 @@ public class ShowtimePolicySettingsTests : BookingServiceTestBase
     }
 }
 
-public class SettingsPolicyUpdateTests : IDisposable
+public class SettingsPolicyUpdateTests(PostgresContainerFixture fixture) : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
+    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
     private static UpdateSettingsRequest Request(
         int? roomBufferMinutes = null,
