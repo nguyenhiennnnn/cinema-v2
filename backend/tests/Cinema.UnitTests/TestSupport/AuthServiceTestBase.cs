@@ -14,7 +14,7 @@ namespace Cinema.UnitTests.TestSupport;
 
 public abstract class AuthServiceTestBase : IDisposable
 {
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
 
     protected AppDbContext Db => _handle.Db;
     protected Mock<ITokenService> TokenServiceMock { get; } = new();

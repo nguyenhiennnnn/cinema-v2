@@ -131,7 +131,7 @@ public class ShowtimePolicySettingsTests : BookingServiceTestBase
 
 public class SettingsPolicyUpdateTests : IDisposable
 {
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
 
     private static UpdateSettingsRequest Request(
         int? roomBufferMinutes = null,

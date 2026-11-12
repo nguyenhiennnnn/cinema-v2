@@ -9,7 +9,7 @@ namespace Cinema.UnitTests.Services;
 
 public class UserAdminServiceUserStatusTests : IDisposable
 {
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
 
     private UserAdminService CreateSut()
     {

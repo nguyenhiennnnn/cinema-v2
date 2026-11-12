@@ -15,7 +15,7 @@ public class EmployeeServiceRoleRulesTests : IDisposable
 {
     private const int EmployeeRoleId = 3;
 
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
 
     public EmployeeServiceRoleRulesTests()
     {

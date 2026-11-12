@@ -11,7 +11,7 @@ namespace Cinema.UnitTests.Services;
 
 public class RoomServiceSeatLayoutTests : IDisposable
 {
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
 
     private RoomService CreateSut()
     {

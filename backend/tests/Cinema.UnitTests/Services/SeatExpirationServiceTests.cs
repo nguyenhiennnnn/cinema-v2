@@ -13,7 +13,7 @@ namespace Cinema.UnitTests.Services;
 
 public class SeatExpirationServiceTests : IDisposable
 {
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
     private readonly Mock<IRealtimeNotifier> _realtimeNotifierMock = new();
 
     private AppDbContext Db => _handle.Db;

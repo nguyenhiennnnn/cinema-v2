@@ -11,7 +11,7 @@ namespace Cinema.UnitTests.Services;
 
 public class ReportServiceTests : IDisposable
 {
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
 
     private ReportService CreateSut()
     {

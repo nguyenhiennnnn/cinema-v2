@@ -12,7 +12,7 @@ namespace Cinema.UnitTests.TestSupport;
 
 public abstract class ShowtimeServiceTestBase : IDisposable
 {
-    private readonly SqliteAppDbContextHandle _handle = new();
+    private readonly PostgresAppDbContextHandle _handle = PostgresAppDbContextHandle.Create();
 
     protected AppDbContext Db => _handle.Db;
     protected int RoomBufferMinutes { get; set; } = 15;

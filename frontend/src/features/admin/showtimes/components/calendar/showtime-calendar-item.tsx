@@ -1,60 +1,125 @@
+import { TriangleAlert } from "lucide-react";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { getBusinessMinutesOfDay } from "@/lib/business-time";
-import { formatShowtimeHour, formatCurrency } from "@/lib/formatters";
-import { ShowtimeStatus } from "@/types/enum";
 import type { ShowtimeCalendarItemDto } from "@/features/admin/showtimes/types";
+import {
+  getFillPercent,
+  type PlacedShowtime,
+} from "@/features/admin/showtimes/utils/calendar-layout";
+import {
+  describeShowtime,
+  formatTimeRange,
+  getShowtimeBlockClass,
+  getShowtimeStatusMeta,
+  isCancelledShowtime,
+  SeatCount,
+  SeatFillBar,
+  ShowtimeTooltipBody,
+} from "./showtime-calendar-shared";
 
-const MINUTES_IN_DAY = 24 * 60;
-
-const statusStyles: Record<string, string> = {
-  [ShowtimeStatus.Scheduled]:
-    "bg-success/15 border-success/40 text-success hover:bg-success/25",
-  [ShowtimeStatus.Cancelled]:
-    "bg-destructive/15 border-destructive/40 text-destructive hover:bg-destructive/25",
-  [ShowtimeStatus.Completed]:
-    "bg-muted border-border text-muted-foreground hover:bg-muted/70",
-};
+export const LANE_HEIGHT = 88;
+const BLOCK_GAP = 2;
+const MIN_BLOCK_WIDTH = 56;
 
 interface ShowtimeCalendarItemProps {
-  showtime: ShowtimeCalendarItemDto;
+  placed: PlacedShowtime;
+  windowStart: number;
+  windowSpan: number;
   onClick?: (showtime: ShowtimeCalendarItemDto) => void;
 }
 
 export const ShowtimeCalendarItem = ({
-  showtime,
+  placed,
+  windowStart,
+  windowSpan,
   onClick,
 }: ShowtimeCalendarItemProps) => {
-  const start = getBusinessMinutesOfDay(showtime.startTime);
-  const rawEnd = getBusinessMinutesOfDay(showtime.endTime);
-  const end = rawEnd > start ? rawEnd : MINUTES_IN_DAY;
-
-  const leftPercent = (start / MINUTES_IN_DAY) * 100;
-  const widthPercent = Math.max(((end - start) / MINUTES_IN_DAY) * 100, 3);
-
-  const occupancyLabel = `${showtime.totalSeats - showtime.availableSeats}/${showtime.totalSeats} ghế`;
-
+  const { showtime, startMin, endMin, lane, conflict } = placed;
+  const meta = getShowtimeStatusMeta(showtime.status);
+  const StatusIcon = meta.icon;
+  const cancelled = isCancelledShowtime(showtime);
   const interactive = Boolean(onClick);
 
-  return (
-    <button
-      type="button"
-      onClick={interactive ? () => onClick?.(showtime) : undefined}
-      aria-disabled={!interactive}
-      tabIndex={interactive ? 0 : -1}
-      title={`${showtime.movieTitle} (${formatShowtimeHour(showtime.startTime)} - ${formatShowtimeHour(
-        showtime.endTime
-      )}), ${occupancyLabel}, ${formatCurrency(showtime.basePrice)}`}
-      style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
-      className={cn(
-        "absolute top-1 flex h-[calc(100%-0.5rem)] flex-col justify-center overflow-hidden cut-xs px-2 py-1 text-left text-xs leading-tight transition-colors",
-        statusStyles[showtime.status] ?? statusStyles[ShowtimeStatus.Scheduled],
-        !interactive && "cursor-default",
-      )}
-    >
-      <span className="truncate font-medium">{showtime.movieTitle}</span>
-      <span className="truncate opacity-80">
-        {formatShowtimeHour(showtime.startTime)}, {occupancyLabel}
+  const leftPercent = ((startMin - windowStart) / windowSpan) * 100;
+  const widthPercent = ((endMin - startMin) / windowSpan) * 100;
+
+  const sharedProps = {
+    "aria-label": describeShowtime(showtime, conflict),
+    style: {
+      left: `${leftPercent}%`,
+      width: `max(calc(${widthPercent}% - ${BLOCK_GAP}px), ${MIN_BLOCK_WIDTH}px)`,
+      top: lane * LANE_HEIGHT + 4,
+      height: LANE_HEIGHT - 8,
+    },
+    className: cn(
+      "group absolute z-10 flex flex-col justify-between gap-1 overflow-hidden cut-xs px-2 py-1 text-left text-xs transition-colors",
+      getShowtimeBlockClass(showtime, conflict),
+      interactive
+        ? "cursor-pointer hover:bg-foreground/20"
+        : "cursor-default",
+    ),
+  };
+
+  const body = (
+    <>
+      <span className="flex items-start justify-between gap-1">
+        <span
+          className={cn(
+            "line-clamp-2 text-[13px] leading-[1.2] font-medium",
+            cancelled && "line-through",
+            interactive && "group-hover:underline",
+          )}
+        >
+          {showtime.movieTitle}
+        </span>
+        <span className="flex shrink-0 items-center gap-0.5">
+          {conflict && !cancelled && (
+            <TriangleAlert className="size-3.5" aria-hidden />
+          )}
+          <StatusIcon className="size-3.5" aria-hidden />
+        </span>
       </span>
-    </button>
+      <span className="t-code truncate text-xs">{formatTimeRange(showtime)}</span>
+      {cancelled ? (
+        <span className="text-xs font-medium">{meta.label}</span>
+      ) : (
+        <span className="flex items-center gap-2">
+          <SeatFillBar
+            percent={getFillPercent(showtime)}
+            barClassName={meta.bar}
+          />
+          <SeatCount showtime={showtime} />
+        </span>
+      )}
+    </>
+  );
+
+  return (
+    <Tooltip>
+      {interactive ? (
+        <TooltipTrigger
+          render={<button type="button" />}
+          onClick={() => onClick?.(showtime)}
+          {...sharedProps}
+        >
+          {body}
+        </TooltipTrigger>
+      ) : (
+        <TooltipTrigger
+          render={<div role="group" tabIndex={0} />}
+          {...sharedProps}
+        >
+          {body}
+        </TooltipTrigger>
+      )}
+      <TooltipContent side="top" className="flex-col items-start gap-0.5">
+        <ShowtimeTooltipBody showtime={showtime} conflict={conflict} />
+      </TooltipContent>
+    </Tooltip>
   );
 };
