@@ -159,7 +159,6 @@ public class BookingHoldService(
         );
         var seatTotal = heldSeats.Sum(s => s.Price);
         var totalAmount = seatTotal + comboTotal;
-        // Giảm giá hạng thành viên chỉ áp dụng trên tiền vé, KHÔNG áp dụng cho combo.
         var discountAmount = await CalculateDiscountAmountAsync(
             bookingUserId,
             seatTotal,
@@ -267,8 +266,6 @@ public class BookingHoldService(
         if (!hasProfile)
             return 0m;
 
-        // Hạng tính thẳng từ sổ điểm trong cửa sổ 12 tháng (không tin profile.TierId là bản cache),
-        // nên điểm vừa hết hạn có hiệu lực ngay, không phải chờ job hằng giờ.
         var points = await LoyaltyWindow.SumActiveAsync(
             db,
             bookingUserId.Value,

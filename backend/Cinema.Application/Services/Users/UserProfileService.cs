@@ -77,8 +77,6 @@ public class UserProfileService(IAppDbContext db) : IUserProfileService
         CancellationToken cancellationToken
     )
     {
-        // Điểm/hạng tính trực tiếp từ sổ điểm 12 tháng để khớp với mức giảm giá khi đặt vé,
-        // không đọc profile.Points/TierId (bản cache, có thể cũ tới 1 giờ).
         var (points, currentTier) = await LoyaltyWindow.GetStandingAsync(
             db,
             user.UserId,

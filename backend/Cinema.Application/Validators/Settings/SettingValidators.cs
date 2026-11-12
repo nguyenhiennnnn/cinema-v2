@@ -98,7 +98,6 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
         DoubleRange(x => x.SchedulerHeatRatingWeight, "schedulerHeatRatingWeight", 0, 10);
         DoubleRange(x => x.SchedulerMaxRating, "schedulerMaxRating", 1, 10);
 
-        // Hai trọng số Heat: nếu cả hai cùng được gửi lên thì tổng phải > 0 (tránh Heat luôn bằng 0).
         RuleFor(x => x)
             .Must(x => x.SchedulerHeatSalesWeight!.Value + x.SchedulerHeatRatingWeight!.Value > 0)
             .When(x =>

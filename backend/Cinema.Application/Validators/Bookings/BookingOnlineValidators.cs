@@ -7,7 +7,6 @@ namespace Cinema.Application.Validators.Bookings;
 
 public class ComboSelectionRequestValidator : AbstractValidator<ComboSelectionRequest>
 {
-    // Mức tối đa của số lượng combo đọc từ CinemaSettings (BookingHoldService), không kiểm tra ở đây.
     public ComboSelectionRequestValidator()
     {
         RuleFor(x => x.ComboId).GreaterThan(0).WithMessage(Messages.Validation_ComboId_Positive);

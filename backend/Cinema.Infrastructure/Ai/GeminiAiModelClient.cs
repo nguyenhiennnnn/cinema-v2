@@ -7,10 +7,6 @@ using Microsoft.Extensions.Options;
 
 namespace Cinema.Infrastructure.Ai;
 
-/// <summary>
-/// Bộ chuyển đổi Gemini cho cổng <see cref="IAiModelClient"/>. Nơi duy nhất biết URL,
-/// header, cấu trúc JSON, tên kiểu của Gemini và cách lấy API key.
-/// </summary>
 public class GeminiAiModelClient(
     HttpClient httpClient,
     IOptions<GeminiOptions> options,
@@ -87,7 +83,6 @@ public class GeminiAiModelClient(
     private static JsonObject ToContent(AiMessage message) =>
         new()
         {
-            // Gemini chỉ có hai vai: "user" và "model"; kết quả hàm được gửi với vai "user".
             ["role"] = message.Role == AiMessageRole.Model ? "model" : "user",
             ["parts"] = new JsonArray(message.Parts.Select(ToPart).ToArray<JsonNode?>()),
         };
@@ -137,7 +132,6 @@ public class GeminiAiModelClient(
             ["description"] = tool.Description,
         };
 
-        // Gemini không chấp nhận "parameters" rỗng, nên chỉ khai báo khi có tham số.
         if (tool.Parameters.Count == 0)
             return declaration;
 

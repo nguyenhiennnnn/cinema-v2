@@ -209,8 +209,6 @@ public class BookingFulfillmentService(
         if (profile is null)
             return;
 
-        // Chỉ trừ vào đúng dòng điểm của booking đó: nếu dòng đã trượt khỏi cửa sổ 12 tháng
-        // thì hoàn tiền không làm giảm điểm của cửa sổ hiện tại.
         var entry = await db.LoyaltyPointEntries.FirstOrDefaultAsync(
             e => e.BookingId == bookingId,
             cancellationToken
@@ -262,7 +260,6 @@ public class BookingFulfillmentService(
 
         var oldTierId = profile.TierId;
         profile.TotalSpent += finalAmount;
-        // Entry mới chưa Save nên cộng thêm `earned` vào tổng các dòng đã lưu.
         await LoyaltyWindow.ResyncProfileAsync(db, profile, earned, now, cancellationToken);
 
         if (profile.TierId != oldTierId)

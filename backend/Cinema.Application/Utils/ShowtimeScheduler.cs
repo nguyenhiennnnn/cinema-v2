@@ -225,7 +225,6 @@ public static class ShowtimeScheduler
         return !intervals.Any(i => start < i.End && end > i.Start);
     }
 
-    // Làm tròn theo mốc 0h giờ VN (không phải 0h UTC) để step bất kỳ (vd 45) vẫn khớp giờ VN.
     private static DateTime LocalMidnight(DateTime value) =>
         DateTime.SpecifyKind(BusinessTime.StartOfDayUtc(BusinessTime.LocalDate(value)), value.Kind);
 

@@ -273,7 +273,6 @@ public class CatalogService(IAppDbContext db) : ICatalogService
         CancellationToken cancellationToken
     )
     {
-        // Tên người có thể trùng thật nên không đặt unique; tạo nhanh dùng lại bản ghi cùng tên nếu có.
         var name = NameNormalizer.Normalize(request.FullName);
         var key = name.ToLowerInvariant();
 
