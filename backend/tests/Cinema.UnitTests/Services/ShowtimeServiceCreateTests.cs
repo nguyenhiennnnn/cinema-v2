@@ -9,7 +9,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class ShowtimeServiceCreateTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture)
+public class ShowtimeServiceCreateTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     private static DateTime SafeStartTime(int daysFromNow = 1) =>
         BusinessTime.ToUtc(BusinessTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));
@@ -248,7 +248,7 @@ public class ShowtimeServiceCreateTests(PostgresContainerFixture fixture) : Show
     }
 }
 
-public class ShowtimeServiceUpdateAndDeleteTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture)
+public class ShowtimeServiceUpdateAndDeleteTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     private static DateTime SafeStartTime(int daysFromNow = 1) =>
         BusinessTime.ToUtc(BusinessTime.Today().AddDays(daysFromNow), new TimeOnly(14, 0));

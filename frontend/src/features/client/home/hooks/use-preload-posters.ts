@@ -14,5 +14,5 @@ export const usePreloadPosters = (movies: MovieListItemDto[]) => {
       img.decode?.().catch(() => { });
       return [img];
     });
-  }, [key]);
+  }, [key, movies]);
 };

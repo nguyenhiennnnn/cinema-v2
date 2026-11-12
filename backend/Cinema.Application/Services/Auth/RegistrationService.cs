@@ -22,8 +22,6 @@ public class RegistrationService(
     ILogger<RegistrationService> logger
 ) : IRegistrationService
 {
-    private const int StaffInviteExpirationHours = 72;
-
     public async Task<RegisterResponse> RegisterAsync(
         RegisterRequest request,
         CancellationToken cancellationToken
@@ -178,7 +176,7 @@ public class RegistrationService(
         await verificationTokenSender.IssueVerificationTokenAndSendEmailAsync(
             user,
             VerificationTokenPurpose.StaffInvite,
-            TimeSpan.FromHours(StaffInviteExpirationHours),
+            TimeSpan.FromHours(emailOptions.Value.StaffInviteExpirationHours),
             cancellationToken
         );
     }

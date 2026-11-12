@@ -1,5 +1,6 @@
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Infrastructure.Persistence.Seed;
@@ -13,9 +14,9 @@ public static class SeedData
         modelBuilder
             .Entity<Role>()
             .HasData(
-                new Role { RoleId = 1, RoleName = "Customer" },
-                new Role { RoleId = 2, RoleName = "Admin" },
-                new Role { RoleId = 3, RoleName = "Employee" }
+                new Role { RoleId = 1, RoleName = Roles.Customer },
+                new Role { RoleId = 2, RoleName = Roles.Admin },
+                new Role { RoleId = 3, RoleName = Roles.Employee }
             );
 
         modelBuilder

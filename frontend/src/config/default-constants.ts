@@ -51,6 +51,8 @@ export const QR_SCAN_REPEAT_GUARD_MS = 2500;
 export const COMBOBOX_BLUR_CLOSE_DELAY_MS = 150;
 export const GOOGLE_SDK_POLL_INTERVAL_MS = 100;
 export const SIGNALR_RECONNECT_DELAYS_MS = [0, 1000, 3000, 5000, 10000];
+export const HERO_INTERVAL_MS = 7000;
+export const HERO_TRANSITION_MS = 480;
 
 export const FORM_PENDING_LABEL = "Đang lưu...";
 export const FORM_CANCEL_LABEL = "Hủy";
@@ -58,6 +60,22 @@ export const FORM_CANCEL_LABEL = "Hủy";
 export const QUICK_CREATE_NAME_MAX_LENGTH = 50;
 export const QUICK_CREATE_AGE_RATING_MAX_LENGTH = 10;
 export const QUICK_CREATE_PERSON_NAME_MAX_LENGTH = 150;
+
+export const NAME_MAX_LENGTH = 100;
+export const PERSON_NAME_MAX_LENGTH = 255;
+export const IMAGE_URL_MAX_LENGTH = 500;
+export const AGE_RATING_CODE_MAX_LENGTH = 10;
+export const AGE_RATING_DESCRIPTION_MAX_LENGTH = 255;
+export const COMBO_NAME_MAX_LENGTH = 150;
+export const COMBO_DESCRIPTION_MAX_LENGTH = 500;
+export const MOVIE_TITLE_MAX_LENGTH = 200;
+
+export const SEAT_GRID_MAX_ROWS = 52;
+export const SEAT_GRID_MAX_COLS = 60;
+export const SHOWTIME_CLONE_MAX_SOURCE_DAYS = 31;
+export const AUTO_SCHEDULE_MAX_SHOWS_PER_MOVIE = 20;
+
+export const VN_PHONE_REGEX = /^(0|\+84)[0-9]{9,10}$/;
 
 export const URL_PLACEHOLDER = "https://...";
 export const YOUTUBE_EMBED_BASE_URL = "https://www.youtube.com/embed";

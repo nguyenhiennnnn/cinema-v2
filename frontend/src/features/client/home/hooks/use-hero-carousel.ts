@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { HERO_TRANSITION_MS } from "@/config/default-constants";
 
 export type HeroDirection = "next" | "prev";
 
@@ -6,9 +7,6 @@ export interface HeroLeaving {
   index: number;
   direction: HeroDirection;
 }
-
-export const HERO_INTERVAL_MS = 7000;
-export const HERO_TRANSITION_MS = 480;
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 

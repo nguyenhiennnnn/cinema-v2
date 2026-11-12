@@ -1,4 +1,4 @@
-﻿using Cinema.Application.Interfaces;
+using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Services.Notifications;
 using Cinema.Application.Services.Payments;
@@ -15,7 +15,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class PaymentServiceMomoTests(PostgresContainerFixture fixture) : IDisposable
+public class PaymentServiceMomoTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
     private readonly Mock<IBookingFulfillmentService> _bookingServiceMock = new();

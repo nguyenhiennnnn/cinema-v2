@@ -11,7 +11,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class BookingServiceSeatHoldTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
+public class BookingServiceSeatHoldTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     private (
         User EmployeeUser,

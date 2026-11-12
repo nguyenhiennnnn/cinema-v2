@@ -8,7 +8,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class ShowtimeLifecycleServiceTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture)
+public class ShowtimeLifecycleServiceTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     [Fact]
     public async Task CompleteEndedShowtimesAsync_OnlyScheduledShowtimesPastEndTimeBecomeCompleted()
@@ -86,7 +86,7 @@ public class ShowtimeLifecycleServiceTests(PostgresContainerFixture fixture) : S
     }
 }
 
-public class BookingServiceStopSellingTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
+public class BookingServiceStopSellingTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     [Fact]
     public async Task HoldSeatsAsync_WithinStopSellingWindow_ThrowsBusinessRuleException()

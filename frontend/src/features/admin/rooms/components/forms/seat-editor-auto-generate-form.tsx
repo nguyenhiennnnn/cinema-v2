@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { SEAT_GRID_MAX_ROWS, SEAT_GRID_MAX_COLS } from "@/config/default-constants";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormActions } from "@/components/common/form/form-actions";
@@ -14,8 +15,8 @@ import { parseAisleCols } from "@/features/admin/rooms/utils/parse-aisle-cols";
 const NONE_SEAT_TYPE_ID = 0;
 
 const autoGenerateFormSchema = z.object({
-  rows: z.coerce.number().int().min(1, "Tối thiểu 1 hàng").max(52, "Tối đa 52 hàng"),
-  cols: z.coerce.number().int().min(1, "Tối thiểu 1 cột").max(60, "Tối đa 60 cột"),
+  rows: z.coerce.number().int().min(1, "Tối thiểu 1 hàng").max(SEAT_GRID_MAX_ROWS, `Tối đa ${SEAT_GRID_MAX_ROWS} hàng`),
+  cols: z.coerce.number().int().min(1, "Tối thiểu 1 cột").max(SEAT_GRID_MAX_COLS, `Tối đa ${SEAT_GRID_MAX_COLS} cột`),
   standardSeatTypeId: z.coerce.number().int(),
   vipSeatTypeId: z.coerce.number().int(),
   vipRowCount: z.coerce.number().int().min(0, "Không hợp lệ"),
@@ -69,8 +70,8 @@ export const SeatEditorAutoGenerateForm = ({
   ];
 
   const onSubmit = (values: AutoGenerateFormValues) => {
-    const safeRows = Math.min(52, Math.max(1, values.rows || 1));
-    const safeCols = Math.min(60, Math.max(1, values.cols || 1));
+    const safeRows = Math.min(SEAT_GRID_MAX_ROWS, Math.max(1, values.rows || 1));
+    const safeCols = Math.min(SEAT_GRID_MAX_COLS, Math.max(1, values.cols || 1));
 
     onGenerate({
       rows: safeRows,

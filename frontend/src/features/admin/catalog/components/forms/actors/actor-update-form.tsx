@@ -7,7 +7,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateActor } from "@/features/admin/catalog/hooks/use-admin-actor";
 import type { ActorDto } from "@/features/admin/catalog/types";
-import { URL_PLACEHOLDER } from "@/config/default-constants";
+import { URL_PLACEHOLDER, PERSON_NAME_MAX_LENGTH, IMAGE_URL_MAX_LENGTH } from "@/config/default-constants";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
@@ -15,11 +15,11 @@ const actorFormSchema = z.object({
   fullName: z
     .string()
     .min(1, "Vui lòng nhập họ tên.")
-    .max(255, "Họ tên tối đa 255 ký tự."),
+    .max(PERSON_NAME_MAX_LENGTH, `Họ tên tối đa ${PERSON_NAME_MAX_LENGTH} ký tự.`),
   avatarUrl: z
     .string()
     .url("Đường dẫn ảnh không hợp lệ.")
-    .max(500, "Đường dẫn ảnh tối đa 500 ký tự.")
+    .max(IMAGE_URL_MAX_LENGTH, `Đường dẫn ảnh tối đa ${IMAGE_URL_MAX_LENGTH} ký tự.`)
     .optional()
     .or(z.literal("")),
 });

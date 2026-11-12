@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { NAME_MAX_LENGTH } from "@/config/default-constants";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -14,7 +15,7 @@ const positionFormSchema = z.object({
   name: z
     .string()
     .min(1, "Vui lòng nhập tên chức vụ.")
-    .max(100, "Tên chức vụ tối đa 100 ký tự."),
+    .max(NAME_MAX_LENGTH, `Tên chức vụ tối đa ${NAME_MAX_LENGTH} ký tự.`),
 });
 
 type PositionFormValues = z.infer<typeof positionFormSchema>;

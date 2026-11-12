@@ -1,4 +1,5 @@
 ﻿import { z } from "zod";
+import { MOVIE_TITLE_MAX_LENGTH } from "@/config/default-constants";
 
 export const castSchema = z.object({
   actorId: z.coerce.number({ message: "Vui lòng chọn diễn viên." }),
@@ -6,7 +7,7 @@ export const castSchema = z.object({
 });
 
 export const movieFormSchema = z.object({
-  title: z.string().min(1, "Vui lòng nhập tên phim.").max(200),
+  title: z.string().min(1, "Vui lòng nhập tên phim.").max(MOVIE_TITLE_MAX_LENGTH),
   originalTitle: z.string().optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
   directorId: z.coerce.number().optional(),

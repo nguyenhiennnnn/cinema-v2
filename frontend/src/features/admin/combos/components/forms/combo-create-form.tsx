@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { COMBO_NAME_MAX_LENGTH, COMBO_DESCRIPTION_MAX_LENGTH } from "@/config/default-constants";
 
 import {
   FieldGroup,
@@ -18,10 +19,10 @@ const comboFormSchema = z.object({
   name: z
     .string()
     .min(1, "Vui lòng nhập tên combo.")
-    .max(150, "Tên combo tối đa 150 ký tự."),
+    .max(COMBO_NAME_MAX_LENGTH, `Tên combo tối đa ${COMBO_NAME_MAX_LENGTH} ký tự.`),
   description: z
     .string()
-    .max(500, "Mô tả tối đa 500 ký tự.")
+    .max(COMBO_DESCRIPTION_MAX_LENGTH, `Mô tả tối đa ${COMBO_DESCRIPTION_MAX_LENGTH} ký tự.`)
     .optional()
     .or(z.literal("")),
   price: z.coerce

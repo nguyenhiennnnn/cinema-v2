@@ -1,6 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { PERSON_NAME_MAX_LENGTH } from "@/config/default-constants";
 import { Save, BadgeCheck } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,7 @@ const GENDER_OPTIONS = [
 ];
 
 const profileFormSchema = z.object({
-  fullName: z.string().min(1, "Vui lòng nhập họ tên.").max(255, "Họ tên tối đa 255 ký tự."),
+  fullName: z.string().min(1, "Vui lòng nhập họ tên.").max(PERSON_NAME_MAX_LENGTH, `Họ tên tối đa ${PERSON_NAME_MAX_LENGTH} ký tự.`),
   phone: z.string().max(20, "Số điện thoại tối đa 20 ký tự.").optional().or(z.literal("")),
   dateOfBirth: z.string().nullable().optional(),
   gender: z.string().nullable().optional(),

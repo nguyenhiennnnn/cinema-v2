@@ -1,4 +1,4 @@
-﻿using Cinema.Application.DTOs.Catalog;
+using Cinema.Application.DTOs.Catalog;
 using Cinema.Application.Services.Catalog;
 using Cinema.Shared.Exceptions;
 using Cinema.UnitTests.TestSupport;
@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class CatalogServiceQuickCreateTests(PostgresContainerFixture fixture) : IDisposable
+public class CatalogServiceQuickCreateTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 

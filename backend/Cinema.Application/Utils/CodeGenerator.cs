@@ -1,12 +1,12 @@
+using Cinema.Application.Options;
+
 namespace Cinema.Application.Utils;
 
 public static class CodeGenerator
 {
     private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    public const string DefaultBookingCodePrefix = "BK";
-
-    private static string _bookingCodePrefix = DefaultBookingCodePrefix;
+    private static string _bookingCodePrefix = BrandOptions.DefaultBookingCodePrefix;
 
     public static void Configure(string bookingCodePrefix)
     {

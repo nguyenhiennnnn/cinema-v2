@@ -1,4 +1,4 @@
-﻿using Cinema.Application.DTOs.Rooms;
+using Cinema.Application.DTOs.Rooms;
 using Cinema.Application.Services.Rooms;
 using Cinema.Domain.Entities;
 using Cinema.Domain.Enums;
@@ -9,7 +9,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class RoomServiceSeatLayoutTests(PostgresContainerFixture fixture) : IDisposable
+public class RoomServiceSeatLayoutTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 

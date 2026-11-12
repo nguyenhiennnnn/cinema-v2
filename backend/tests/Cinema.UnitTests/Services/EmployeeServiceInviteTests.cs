@@ -11,7 +11,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class EmployeeServiceInviteTests(PostgresContainerFixture fixture) : IDisposable
+public class EmployeeServiceInviteTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private const int EmployeeRoleId = 3;
 
@@ -23,13 +23,6 @@ public class EmployeeServiceInviteTests(PostgresContainerFixture fixture) : IDis
         Mapster.TypeAdapterConfig.GlobalSettings.Scan(
             typeof(Cinema.Application.MappingConfig.MapsterConfig).Assembly
         );
-    }
-
-    public EmployeeServiceInviteTests()
-    {
-        _handle.Db.Employees.RemoveRange(_handle.Db.Employees);
-        _handle.Db.Users.RemoveRange(_handle.Db.Users);
-        _handle.Db.SaveChanges();
     }
 
     private EmployeeService CreateSut()

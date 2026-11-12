@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { NAME_MAX_LENGTH } from "@/config/default-constants";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -14,7 +15,7 @@ const membershipTierFormSchema = z.object({
   tierName: z
     .string()
     .min(1, "Vui lòng nhập tên hạng.")
-    .max(100, "Tên hạng tối đa 100 ký tự."),
+    .max(NAME_MAX_LENGTH, `Tên hạng tối đa ${NAME_MAX_LENGTH} ký tự.`),
   minPoints: z.coerce
     .number({ message: "Điểm tối thiểu phải là số." })
     .int("Điểm tối thiểu phải là số nguyên.")

@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { AGE_RATING_CODE_MAX_LENGTH, AGE_RATING_DESCRIPTION_MAX_LENGTH } from "@/config/default-constants";
 
 import {
   FieldGroup,
@@ -16,10 +17,10 @@ const ageRatingFormSchema = z.object({
   code: z
     .string()
     .min(1, "Vui lòng nhập mã phân loại.")
-    .max(10, "Mã phân loại tối đa 10 ký tự."),
+    .max(AGE_RATING_CODE_MAX_LENGTH, `Mã phân loại tối đa ${AGE_RATING_CODE_MAX_LENGTH} ký tự.`),
   description: z
     .string()
-    .max(255, "Mô tả tối đa 255 ký tự.")
+    .max(AGE_RATING_DESCRIPTION_MAX_LENGTH, `Mô tả tối đa ${AGE_RATING_DESCRIPTION_MAX_LENGTH} ký tự.`)
     .optional()
     .or(z.literal("")),
 });

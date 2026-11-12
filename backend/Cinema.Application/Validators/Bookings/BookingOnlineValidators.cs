@@ -1,5 +1,6 @@
 using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.Utils;
+using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
@@ -49,7 +50,12 @@ public class HoldSeatsRequestValidator : AbstractValidator<HoldSeatsRequest>
 
 public class CheckoutRequestValidator : AbstractValidator<CheckoutRequest>
 {
-    private static readonly string[] ValidMethods = ["VNPay", "Momo", "Stripe"];
+    private static readonly string[] ValidMethods =
+    [
+        PaymentMethodNames.VnPay,
+        PaymentMethodNames.Momo,
+        PaymentMethodNames.Stripe,
+    ];
 
     public CheckoutRequestValidator()
     {

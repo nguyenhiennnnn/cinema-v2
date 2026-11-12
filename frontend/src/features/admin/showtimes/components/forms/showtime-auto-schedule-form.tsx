@@ -13,7 +13,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormDatePickerField } from "@/components/common/form/form-date-picker-field";
 import { SingleSelectField } from "@/components/common/form/single-select-field";
 import { getBusinessTodayDate } from "@/lib/business-time";
-import { SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { SEARCH_LOOKUP_PAGE_SIZE, AUTO_SCHEDULE_MAX_SHOWS_PER_MOVIE } from "@/config/default-constants";
 import { useBlockDialogClose } from "@/hooks/use-block-dialog-close";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { formatDayMonth } from "@/lib/cinema-format";
@@ -40,7 +40,7 @@ const formSchema = z.object({
           .number()
           .int("Số suất không hợp lệ.")
           .min(1, "Tối thiểu 1 suất.")
-          .max(20, "Tối đa 20 suất."),
+          .max(AUTO_SCHEDULE_MAX_SHOWS_PER_MOVIE, `Tối đa ${AUTO_SCHEDULE_MAX_SHOWS_PER_MOVIE} suất.`),
         basePrice: z.coerce.number().min(0, "Giá vé không hợp lệ.").optional(),
       }),
     )

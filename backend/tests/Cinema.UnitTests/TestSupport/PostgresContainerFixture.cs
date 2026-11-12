@@ -14,8 +14,7 @@ public sealed class PostgresContainerFixture : IDisposable
 
     public PostgresContainerFixture()
     {
-        _container = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
+        _container = new PostgreSqlBuilder("postgres:16-alpine")
             .Build();
 
         _container.StartAsync().GetAwaiter().GetResult();

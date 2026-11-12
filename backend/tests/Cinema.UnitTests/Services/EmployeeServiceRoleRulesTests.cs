@@ -11,18 +11,11 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class EmployeeServiceRoleRulesTests(PostgresContainerFixture fixture) : IDisposable
+public class EmployeeServiceRoleRulesTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private const int EmployeeRoleId = 3;
 
     private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
-
-    public EmployeeServiceRoleRulesTests()
-    {
-        _handle.Db.Employees.RemoveRange(_handle.Db.Employees);
-        _handle.Db.Users.RemoveRange(_handle.Db.Users);
-        _handle.Db.SaveChanges();
-    }
 
     private UserAdminService CreateUserAdminSut()
     {

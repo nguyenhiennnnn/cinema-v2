@@ -1,4 +1,4 @@
-﻿using Cinema.Application.Services.Dashboard;
+using Cinema.Application.Services.Dashboard;
 using Cinema.Application.Services.Reports;
 using Cinema.Application.Utils;
 using Cinema.Domain.Entities;
@@ -9,7 +9,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class DashboardServiceTests(PostgresContainerFixture fixture) : IDisposable
+public class DashboardServiceTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 

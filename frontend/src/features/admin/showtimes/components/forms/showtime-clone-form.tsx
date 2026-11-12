@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { SHOWTIME_CLONE_MAX_SOURCE_DAYS } from "@/config/default-constants";
 import { addDays, differenceInCalendarDays, parseISO, startOfWeek } from "date-fns";
 
 import { getBusinessTodayDate } from "@/lib/business-time";
@@ -18,7 +19,6 @@ import { useAdminCloneShowtimes } from "@/features/admin/showtimes/hooks/use-adm
 import type { BulkCreateShowtimesResponse } from "@/features/admin/showtimes/types";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 
-const MAX_SOURCE_DAYS = 31;
 
 const formSchema = z
   .object({
@@ -35,11 +35,11 @@ const formSchema = z
 
     if (differenceInCalendarDays(to, from) < 0) {
       ctx.addIssue({ code: "custom", path: ["sourceTo"], message: "Ngày kết thúc phải sau ngày bắt đầu." });
-    } else if (differenceInCalendarDays(to, from) + 1 > MAX_SOURCE_DAYS) {
+    } else if (differenceInCalendarDays(to, from) + 1 > SHOWTIME_CLONE_MAX_SOURCE_DAYS) {
       ctx.addIssue({
         code: "custom",
         path: ["sourceTo"],
-        message: `Tối đa ${MAX_SOURCE_DAYS} ngày mỗi lần nhân bản.`,
+        message: `Tối đa ${SHOWTIME_CLONE_MAX_SOURCE_DAYS} ngày mỗi lần nhân bản.`,
       });
     }
     if (differenceInCalendarDays(target, from) < 1) {

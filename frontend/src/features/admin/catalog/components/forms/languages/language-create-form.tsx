@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { NAME_MAX_LENGTH } from "@/config/default-constants";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -13,7 +14,7 @@ const languageFormSchema = z.object({
   name: z
     .string()
     .min(1, "Vui lòng nhập tên ngôn ngữ.")
-    .max(100, "Tên ngôn ngữ tối đa 100 ký tự."),
+    .max(NAME_MAX_LENGTH, `Tên ngôn ngữ tối đa ${NAME_MAX_LENGTH} ký tự.`),
 });
 
 type LanguageFormValues = z.infer<typeof languageFormSchema>;

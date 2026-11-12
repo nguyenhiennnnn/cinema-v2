@@ -22,5 +22,7 @@ public class BrandOptions
 
     public string PhoneRegex { get; set; } = DefaultPhoneRegex;
 
-    public string BookingCodePrefix { get; set; } = "BK";
+    public const string DefaultBookingCodePrefix = "BK";
+
+    public string BookingCodePrefix { get; set; } = DefaultBookingCodePrefix;
 }

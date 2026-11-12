@@ -1,4 +1,5 @@
 using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
 
@@ -21,9 +22,9 @@ public static class EnumConverters
     public static string ToDtoMethod(this PaymentMethod method) =>
         method switch
         {
-            PaymentMethod.VNPay => "VNPay",
-            PaymentMethod.Momo => "Momo",
-            PaymentMethod.Stripe => "Stripe",
+            PaymentMethod.VNPay => PaymentMethodNames.VnPay,
+            PaymentMethod.Momo => PaymentMethodNames.Momo,
+            PaymentMethod.Stripe => PaymentMethodNames.Stripe,
             _ => "Cash",
         };
 

@@ -17,6 +17,8 @@ public class EmailOptions
 
     public int PasswordResetExpirationMinutes { get; set; } = 30;
 
+    public int StaffInviteExpirationHours { get; set; } = 72;
+
     public string ResendApiKey { get; set; } = string.Empty;
 
     public string ResendFromAddress { get; set; } = string.Empty;

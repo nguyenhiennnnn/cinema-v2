@@ -1,4 +1,4 @@
-﻿using Cinema.Application.DTOs.Bookings;
+using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Settings;
@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class BookingLimitsFromSettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
+public class BookingLimitsFromSettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     private async Task SetLimitsAsync(int maxSeats, int maxCombo)
     {
@@ -63,7 +63,7 @@ public class BookingLimitsFromSettingsTests(PostgresContainerFixture fixture) : 
     }
 }
 
-public class LoyaltyWindowSettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
+public class LoyaltyWindowSettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     [Fact]
     public async Task SumActiveAsync_UsesLoyaltyWindowMonthsFromSettings()
@@ -98,7 +98,7 @@ public class LoyaltyWindowSettingsTests(PostgresContainerFixture fixture) : Book
     }
 }
 
-public class ShowtimePolicySettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
+public class ShowtimePolicySettingsTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     [Fact]
     public void MovieEndCutoff_UsesGivenGraceDays()
@@ -129,7 +129,7 @@ public class ShowtimePolicySettingsTests(PostgresContainerFixture fixture) : Boo
     }
 }
 
-public class SettingsPolicyUpdateTests(PostgresContainerFixture fixture) : IDisposable
+public class SettingsPolicyUpdateTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 

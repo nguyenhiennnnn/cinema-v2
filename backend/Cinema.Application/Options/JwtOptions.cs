@@ -10,4 +10,5 @@ public class JwtOptions
     public int AccessTokenExpirationSeconds { get; set; } = 3600;
     public int RefreshTokenExpirationDays { get; set; } = 30;
     public int SocketTokenExpirationSeconds { get; set; } = 300;
+    public int ClockSkewSeconds { get; set; } = 30;
 }

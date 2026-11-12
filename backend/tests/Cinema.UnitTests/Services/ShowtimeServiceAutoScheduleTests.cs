@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class ShowtimeServiceAutoScheduleTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture)
+public class ShowtimeServiceAutoScheduleTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     private static DateOnly TargetDay => BusinessTime.Today().AddDays(2);
 

@@ -8,7 +8,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class BookingHoldServiceTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture)
+public class BookingHoldServiceTests(PostgresContainerFixture fixture) : BookingServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     [Fact]
     public async Task HoldSeatsAsync_AvailableSeats_CreatesPendingBookingAndMarksSeatsHeld()

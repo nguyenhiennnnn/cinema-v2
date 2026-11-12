@@ -18,6 +18,7 @@ import {
 import { ShowtimeCalendarAgenda } from "./showtime-calendar-agenda";
 import { LANE_HEIGHT, ShowtimeCalendarItem } from "./showtime-calendar-item";
 
+import { NOW_TICK_INTERVAL_MS } from "@/config/default-constants";
 const MIN_HOUR_WIDTH = 88;
 const ROOM_COLUMN_WIDTH = 144;
 const GAP_LABEL_MIN_PERCENT = 6;
@@ -31,7 +32,7 @@ function useNowMinutes(enabled: boolean) {
   const [now, setNow] = useState(currentMinutes);
   useEffect(() => {
     if (!enabled) return;
-    const id = window.setInterval(() => setNow(currentMinutes()), 60_000);
+    const id = window.setInterval(() => setNow(currentMinutes()), NOW_TICK_INTERVAL_MS);
     return () => window.clearInterval(id);
   }, [enabled]);
   return now;

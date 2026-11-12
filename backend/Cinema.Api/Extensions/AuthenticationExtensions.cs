@@ -41,7 +41,7 @@ public static class AuthenticationExtensions
                         )
                     ),
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.FromSeconds(30),
+                    ClockSkew = TimeSpan.FromSeconds(jwtOptions.ClockSkewSeconds),
                 };
 
                 options.Events = new JwtBearerEvents

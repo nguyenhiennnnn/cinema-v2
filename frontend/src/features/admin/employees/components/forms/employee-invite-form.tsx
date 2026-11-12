@@ -9,7 +9,7 @@ import { FormDatePickerField } from "@/components/common/form/form-date-picker-f
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { getBusinessToday, getBusinessTodayDate } from "@/lib/business-time";
-import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { LOOKUP_PAGE_SIZE, NAME_MAX_LENGTH, VN_PHONE_REGEX } from "@/config/default-constants";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 import { useAdminInviteEmployee } from "@/features/admin/employees/hooks/use-admin-employee";
@@ -17,12 +17,12 @@ import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-posi
 import { usePositionQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
 
 const inviteFormSchema = z.object({
-  fullName: z.string().trim().min(1, "Vui lòng nhập họ tên.").max(100, "Họ tên tối đa 100 ký tự."),
+  fullName: z.string().trim().min(1, "Vui lòng nhập họ tên.").max(NAME_MAX_LENGTH, `Họ tên tối đa ${NAME_MAX_LENGTH} ký tự.`),
   email: z.string().trim().min(1, "Vui lòng nhập email.").email("Email không hợp lệ.").max(150),
   phone: z
     .string()
     .trim()
-    .regex(/^(0|\+84)[0-9]{9,10}$/, "Số điện thoại không hợp lệ.")
+    .regex(VN_PHONE_REGEX, "Số điện thoại không hợp lệ.")
     .optional()
     .or(z.literal("")),
   positionId: z.coerce.number().optional(),

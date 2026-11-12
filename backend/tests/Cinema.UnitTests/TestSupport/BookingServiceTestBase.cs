@@ -10,9 +10,9 @@ using Moq;
 
 namespace Cinema.UnitTests.TestSupport;
 
-public abstract class BookingServiceTestBase(PostgresContainerFixture fixture) : IDisposable
+public abstract class BookingServiceTestBase : IDisposable
 {
-    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
+    private readonly PostgresAppDbContextHandle _handle;
 
     protected AppDbContext Db => _handle.Db;
     protected Mock<IRealtimeNotifier> RealtimeNotifierMock { get; } = new();
@@ -20,8 +20,9 @@ public abstract class BookingServiceTestBase(PostgresContainerFixture fixture) :
     protected List<Mock<IPaymentGateway>> PaymentGatewayMocks { get; } = [];
     protected int HoldDurationMinutes { get; set; } = 15;
 
-    protected BookingServiceTestBase()
+    protected BookingServiceTestBase(PostgresContainerFixture fixture)
     {
+        _handle = new(fixture.MasterConnectionString);
         RealtimeNotifierMock
             .Setup(n =>
                 n.NotifySeatHeldAsync(

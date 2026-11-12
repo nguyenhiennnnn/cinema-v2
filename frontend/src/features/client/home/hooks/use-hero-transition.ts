@@ -1,7 +1,8 @@
 import { useCallback, useLayoutEffect, useRef, type RefObject } from "react";
 import type { MovieListItemDto } from "@/features/client/movies/types";
 import { buildClipFrames, measureInset, type Inset } from "../utils/hero-clip";
-import { HERO_TRANSITION_MS, type HeroDirection, type HeroLeaving } from "./use-hero-carousel";
+import { HERO_TRANSITION_MS } from "@/config/default-constants";
+import type { HeroDirection, HeroLeaving } from "./use-hero-carousel";
 
 const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const THUMB_CUT = 6;
@@ -82,7 +83,7 @@ export function useHeroTransition({
       animations.forEach((a) => a.cancel());
       if (strip) strip.style.willChange = "";
     };
-  }, [leaving, leavingMovieId, reducedMotion]);
+  }, [leaving, leavingMovieId, reducedMotion, backdropRef, heroRef, stripRef]);
 
   return { registerThumb, requestMove };
 }

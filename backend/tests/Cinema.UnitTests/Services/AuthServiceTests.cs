@@ -1,4 +1,4 @@
-﻿using Cinema.Application.DTOs.Auth;
+using Cinema.Application.DTOs.Auth;
 using Cinema.Domain.Entities;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Exceptions;
@@ -10,7 +10,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class AuthServiceLoginTests(PostgresContainerFixture fixture) : AuthServiceTestBase(fixture)
+public class AuthServiceLoginTests(PostgresContainerFixture fixture) : AuthServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     [Fact]
     public async Task LoginAsync_ValidCredentials_ReturnsTokensAndUserDto()
@@ -238,7 +238,7 @@ public class AuthServiceLoginTests(PostgresContainerFixture fixture) : AuthServi
     }
 }
 
-public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) : AuthServiceTestBase(fixture)
+public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) : AuthServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     private async Task<(User User, RefreshToken Token)> SeedActiveRefreshTokenAsync()
     {

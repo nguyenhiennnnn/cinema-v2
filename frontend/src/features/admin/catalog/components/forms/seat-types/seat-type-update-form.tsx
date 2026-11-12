@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { NAME_MAX_LENGTH } from "@/config/default-constants";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -14,7 +15,7 @@ const seatTypeFormSchema = z.object({
   name: z
     .string()
     .min(1, "Vui lòng nhập tên loại ghế.")
-    .max(100, "Tên loại ghế tối đa 100 ký tự."),
+    .max(NAME_MAX_LENGTH, `Tên loại ghế tối đa ${NAME_MAX_LENGTH} ký tự.`),
   priceMultiplier: z.coerce
     .number({ message: "Hệ số giá phải là số." })
     .min(0.1, "Hệ số giá tối thiểu là 0.1."),

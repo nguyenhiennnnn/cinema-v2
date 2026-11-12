@@ -18,7 +18,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class ShowtimeServiceFixesTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture)
+public class ShowtimeServiceFixesTests(PostgresContainerFixture fixture) : ShowtimeServiceTestBase(fixture), IClassFixture<PostgresContainerFixture>
 {
     private static DateTime Day(int daysFromNow, int hour = 14) =>
         BusinessTime.ToUtc(BusinessTime.Today().AddDays(daysFromNow), new TimeOnly(hour, 0));

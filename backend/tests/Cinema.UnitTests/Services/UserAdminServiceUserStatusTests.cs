@@ -1,4 +1,4 @@
-﻿using Cinema.Application.DTOs.Employees;
+using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Services.Employees;
 using Cinema.Domain.Entities;
 using Cinema.UnitTests.TestSupport;
@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class UserAdminServiceUserStatusTests(PostgresContainerFixture fixture) : IDisposable
+public class UserAdminServiceUserStatusTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
 
