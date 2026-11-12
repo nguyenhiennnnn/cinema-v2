@@ -67,6 +67,7 @@ const AdminBookingsPage = () => {
         columns={columns}
         data={bookings.data?.items ?? []}
         isLoading={bookings.isLoading}
+        isRefreshing={bookings.isPlaceholderData}
         totalItems={bookings.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

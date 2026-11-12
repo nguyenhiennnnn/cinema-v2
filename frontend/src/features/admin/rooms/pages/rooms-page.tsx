@@ -96,6 +96,7 @@ const AdminRoomsPage = () => {
         columns={columns}
         data={rooms.data?.items ?? []}
         isLoading={rooms.isLoading}
+        isRefreshing={rooms.isPlaceholderData}
         totalItems={rooms.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

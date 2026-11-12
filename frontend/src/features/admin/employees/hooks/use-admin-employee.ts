@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import type {
   CreateEmployeeRequest,
@@ -12,6 +12,7 @@ export function useAdminEmployees(params: AdminEmployeeListParams = {}) {
   return useQuery({
     queryKey: queryKeys.adminEmployees.list(params),
     queryFn: () => employeesAdminApi.getEmployees(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

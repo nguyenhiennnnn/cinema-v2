@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import type {
   AdminShowtimeListParams,
@@ -16,6 +16,7 @@ export function useAdminShowtimes(params: AdminShowtimeListParams) {
   return useQuery({
     queryKey: queryKeys.adminShowtimes.list(params),
     queryFn: () => showtimesAdminApi.getShowtimes(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

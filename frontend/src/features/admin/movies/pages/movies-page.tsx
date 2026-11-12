@@ -135,6 +135,7 @@ const AdminMoviesPage = () => {
         columns={columns}
         data={movies.data?.items ?? []}
         isLoading={movies.isLoading}
+        isRefreshing={movies.isPlaceholderData}
         totalItems={movies.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import type {
   AdminMovieListParams,
@@ -11,6 +11,7 @@ export function useAdminMovies(params: AdminMovieListParams) {
   return useQuery({
     queryKey: queryKeys.adminMovies.list(params),
     queryFn: () => moviesAdminApi.getMovies(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { CatalogListParams, UpsertPositionRequest } from "../types";
 import { queryKeys } from "@/api/query-keys";
 import { positionsAdminApi } from "../api/catalog-api";
@@ -7,6 +7,7 @@ export function useAdminPositions(params?: CatalogListParams) {
   return useQuery({
     queryKey: queryKeys.adminCatalog.positions(params),
     queryFn: () => positionsAdminApi.getAll(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

@@ -3,15 +3,20 @@ import { Ticket } from "lucide-react";
 import { ShowtimeGroupList } from "@/components/common/showtime-group-list";
 import type { WholeCinemaMovieDto } from "@/features/client/showtimes/types";
 import { ROUTES } from "@/config/routes";
+import { usePrefetchMovieDetail } from "@/features/client/movies/hooks/use-movies";
+import { usePrefetchIntent } from "@/hooks/use-prefetch-intent";
 
 interface ScheduleMovieRowProps {
   movie: WholeCinemaMovieDto;
 }
 
 export const ScheduleMovieRow = ({ movie }: ScheduleMovieRowProps) => {
+  const prefetchMovie = usePrefetchMovieDetail();
+  const prefetchProps = usePrefetchIntent(() => prefetchMovie(movie.movieId));
+
   return (
     <div className="flex flex-col gap-4 cut-md bg-card p-5 sm:flex-row">
-      <Link to={ROUTES.movies.detail(movie.movieId)} className="mx-auto aspect-2/3 w-28 shrink-0 overflow-hidden cut-sm bg-muted sm:mx-0">
+      <Link to={ROUTES.movies.detail(movie.movieId)} {...prefetchProps} className="mx-auto aspect-2/3 w-28 shrink-0 overflow-hidden cut-sm bg-muted sm:mx-0">
         {movie.moviePosterUrl ? (
           <img src={movie.moviePosterUrl} alt={movie.movieTitle} className="h-full w-full object-cover" />
         ) : (
@@ -22,7 +27,7 @@ export const ScheduleMovieRow = ({ movie }: ScheduleMovieRowProps) => {
       </Link>
 
       <div className="flex-1">
-        <Link to={ROUTES.movies.detail(movie.movieId)} className="t-h3 text-base text-foreground hover:underline md:text-lg">
+        <Link to={ROUTES.movies.detail(movie.movieId)} {...prefetchProps} className="t-h3 text-base text-foreground hover:underline md:text-lg">
           {movie.movieTitle}
         </Link>
 

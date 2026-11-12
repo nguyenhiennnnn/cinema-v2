@@ -108,6 +108,7 @@ const AdminCombosPage = () => {
         columns={columns}
         data={combos.data?.items ?? []}
         isLoading={combos.isLoading}
+        isRefreshing={combos.isPlaceholderData}
         totalItems={combos.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

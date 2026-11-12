@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import type { MovieListItemDto } from "@/features/client/movies/types";
 import type { HeroDirection } from "@/features/client/home/hooks/use-hero-carousel";
 import { ROUTES } from "@/config/routes";
+import { usePrefetchMovieDetail } from "@/features/client/movies/hooks/use-movies";
+import { usePrefetchIntent } from "@/hooks/use-prefetch-intent";
 
 interface HeroSlideProps {
   movie: MovieListItemDto;
@@ -37,6 +39,8 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
   const actionsReveal = reveal(4);
   const posterReveal = reveal(5);
   const href = ROUTES.movies.detail(movie.movieId);
+  const prefetchMovie = usePrefetchMovieDetail();
+  const prefetchProps = usePrefetchIntent(() => prefetchMovie(movie.movieId));
 
   return (
     <article
@@ -125,6 +129,7 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
         >
           <Link
             to={href}
+            {...prefetchProps}
             tabIndex={leaving ? -1 : undefined}
             className="cut-sm inline-flex h-12 items-center gap-2 bg-primary px-7 text-[15px] font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary/90"
           >
@@ -133,6 +138,7 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
           </Link>
           <Link
             to={href}
+            {...prefetchProps}
             tabIndex={leaving ? -1 : undefined}
             className="cut-sm inline-flex h-12 items-center gap-2 bg-scrim-foreground/12 px-7 text-[15px] font-medium text-scrim-foreground transition-colors duration-150 hover:bg-scrim-foreground/22"
           >
@@ -144,6 +150,7 @@ export const HeroSlide = ({ movie, position, total, phase, direction }: HeroSlid
 
       <Link
         to={href}
+        {...prefetchProps}
         tabIndex={leaving ? -1 : undefined}
         aria-label={movie.title}
         style={posterReveal.style}

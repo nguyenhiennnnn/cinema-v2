@@ -10,6 +10,8 @@ import { getBusinessTodayDate } from "@/lib/business-time";
 import { showtimeStatusOptions } from "@/lib/enum-options";
 import { toDateInputValue } from "@/lib/formatters";
 import { useAdminShowtimeCalendarParams } from "@/hooks/use-query-params";
+import { useAuthRole } from "@/stores/auth-store";
+import { Role } from "@/types/enum";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 
 import { useAdminShowtimesCalendar } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
@@ -38,7 +40,12 @@ export const ShowtimeCalendarView = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const rooms = useAdminRooms({ page: 1, pageSize: LOOKUP_PAGE_SIZE });
+  // GET /admin/rooms chỉ dành cho Admin; Employee gọi sẽ bị 403 và hiện toast lỗi.
+  const canFilterByRoom = useAuthRole() === Role.Admin;
+  const rooms = useAdminRooms(
+    { page: 1, pageSize: LOOKUP_PAGE_SIZE },
+    { enabled: canFilterByRoom },
+  );
 
   const queryParams = {
     from: params.from ?? "",
@@ -67,15 +74,17 @@ export const ShowtimeCalendarView = ({
           placeholder="Đến ngày"
           className="sm:w-44"
         />
-        <SelectField
-          value={params.roomId ?? null}
-          onChange={(value) => setParams({ roomId: value ? Number(value) : undefined })}
-          options={rooms.data?.items ?? []}
-          getOptionValue={(room) => room.roomId}
-          getOptionLabel={(room) => room.roomName}
-          placeholder="Phòng chiếu"
-          className="sm:w-44"
-        />
+        {canFilterByRoom && (
+          <SelectField
+            value={params.roomId ?? null}
+            onChange={(value) => setParams({ roomId: value ? Number(value) : undefined })}
+            options={rooms.data?.items ?? []}
+            getOptionValue={(room) => room.roomId}
+            getOptionLabel={(room) => room.roomName}
+            placeholder="Phòng chiếu"
+            className="sm:w-44"
+          />
+        )}
         <EnumSelectFilter
           value={params.status}
           onChange={(status) => setParams({ status })}

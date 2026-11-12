@@ -8,11 +8,15 @@ import type {
   UpdateSeatLayoutRequest,
 } from "../types";
 
-export function useAdminRooms(params?: RoomListParams) {
+export function useAdminRooms(
+  params?: RoomListParams,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: queryKeys.adminRooms.list(params),
     queryFn: () => roomsApi.getRooms(params),
     select: (res) => res.data,
+    enabled: options?.enabled ?? true,
   });
 }
 

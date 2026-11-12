@@ -128,6 +128,7 @@ const AdminEmployeesPage = () => {
         columns={columns}
         data={employees.data?.items ?? []}
         isLoading={employees.isLoading}
+        isRefreshing={employees.isPlaceholderData}
         totalItems={employees.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

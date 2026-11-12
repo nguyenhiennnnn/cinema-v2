@@ -8,6 +8,8 @@ import { MovieStatus } from "@/types/enum";
 import { cn } from "@/lib/utils";
 import type { MovieListItemDto } from "@/features/client/movies/types";
 import { ROUTES } from "@/config/routes";
+import { usePrefetchMovieDetail } from "@/features/client/movies/hooks/use-movies";
+import { usePrefetchIntent } from "@/hooks/use-prefetch-intent";
 
 interface MovieCardProps {
   movie: MovieListItemDto;
@@ -16,6 +18,8 @@ interface MovieCardProps {
 
 export const MovieCard = ({ movie, className }: MovieCardProps) => {
   const href = ROUTES.movies.detail(movie.movieId);
+  const prefetchMovie = usePrefetchMovieDetail();
+  const prefetchProps = usePrefetchIntent(() => prefetchMovie(movie.movieId));
   const genreText = movie.genres.slice(0, 2).join(", ");
   const durationText = formatDuration(movie.durationMinutes);
   const isNowShowing = movie.status === MovieStatus.NowShowing;
@@ -30,6 +34,7 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
     >
       <Link
         to={href}
+        {...prefetchProps}
         className="relative block aspect-2/3 w-full overflow-hidden cut-md bg-muted"
         aria-label={movie.title}
       >
@@ -56,7 +61,7 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
       <div className="flex flex-1 flex-col justify-between p-3.5">
         <div>
           <h3 className="t-h3 text-sm text-foreground line-clamp-2 group-hover:text-primary">
-            <Link to={href}>{movie.title}</Link>
+            <Link to={href} {...prefetchProps}>{movie.title}</Link>
           </h3>
           <p className="mt-1 line-clamp-1 text-[13px] text-muted-foreground">
             {genreText ? `${genreText}, ${durationText}` : durationText}
@@ -74,7 +79,7 @@ export const MovieCard = ({ movie, className }: MovieCardProps) => {
           <Button
             size="sm"
             className="mt-3 w-full"
-            render={<Link to={`${href}#showtimes`} />}
+            render={<Link to={`${href}#showtimes`} {...prefetchProps} />}
             nativeButton={false}
           >
             Mua vé

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { reviewsAdminApi } from "../api/reviews-admin-api";
 import { queryKeys } from "@/api/query-keys";
 import type { AdminReviewListParams, BulkDeleteReviewsRequest } from "../types";
@@ -7,6 +7,7 @@ export function useAdminReviews(params: AdminReviewListParams) {
   return useQuery({
     queryKey: queryKeys.adminReviews.list(params),
     queryFn: () => reviewsAdminApi.getReviews(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

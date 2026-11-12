@@ -86,6 +86,7 @@ const GenresPage = () => {
         columns={columns}
         data={genres.data?.items ?? []}
         isLoading={genres.isLoading}
+        isRefreshing={genres.isPlaceholderData}
         totalItems={genres.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

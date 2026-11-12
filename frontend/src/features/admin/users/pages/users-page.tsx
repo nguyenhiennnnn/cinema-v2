@@ -93,6 +93,7 @@ const AdminUsersPage = () => {
         columns={columns}
         data={users.data?.items ?? []}
         isLoading={users.isLoading}
+        isRefreshing={users.isPlaceholderData}
         totalItems={users.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

@@ -87,6 +87,7 @@ const PositionsPage = () => {
         columns={columns}
         data={positions.data?.items ?? []}
         isLoading={positions.isLoading}
+        isRefreshing={positions.isPlaceholderData}
         totalItems={positions.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

@@ -102,6 +102,7 @@ const ActorsPage = () => {
         columns={columns}
         data={actors.data?.items ?? []}
         isLoading={actors.isLoading}
+        isRefreshing={actors.isPlaceholderData}
         totalItems={actors.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

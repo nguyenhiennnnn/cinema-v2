@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { CatalogListParams, UpsertLanguageRequest } from "../types";
 import { queryKeys } from "@/api/query-keys";
 import { languagesAdminApi } from "../api/catalog-api";
@@ -7,6 +7,7 @@ export function useAdminLanguages(params?: CatalogListParams) {
   return useQuery({
     queryKey: queryKeys.adminCatalog.languages(params),
     queryFn: () => languagesAdminApi.getAll(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

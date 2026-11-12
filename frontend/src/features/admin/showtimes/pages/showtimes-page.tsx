@@ -244,7 +244,9 @@ const AdminShowtimesPage = () => {
         </TabsContent>
 
         <TabsContent value="calendar">
-          <ShowtimeCalendarView onSelectShowtime={handleSelectFromCalendar} />
+          <ShowtimeCalendarView
+            onSelectShowtime={canManage ? handleSelectFromCalendar : undefined}
+          />
         </TabsContent>
       </Tabs>
     </div>

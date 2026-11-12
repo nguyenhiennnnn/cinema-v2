@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { CatalogListParams, UpsertAgeRatingRequest } from "../types";
 import { queryKeys } from "@/api/query-keys";
 import { ageRatingsAdminApi } from "../api/catalog-api";
@@ -7,6 +7,7 @@ export function useAdminAgeRatings(params?: CatalogListParams) {
   return useQuery({
     queryKey: queryKeys.adminCatalog.ageRatings(params),
     queryFn: () => ageRatingsAdminApi.getAll(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

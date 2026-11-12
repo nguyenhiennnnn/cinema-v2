@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { ComboListParams, UpsertComboRequest } from "../types";
 import type { BulkStatusRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
@@ -8,6 +8,7 @@ export function useAdminCombos(params?: ComboListParams) {
   return useQuery({
     queryKey: queryKeys.adminCombos.list(params),
     queryFn: () => combosAdminApi.getCombos(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

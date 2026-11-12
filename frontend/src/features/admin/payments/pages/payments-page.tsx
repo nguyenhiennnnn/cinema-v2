@@ -76,6 +76,7 @@ const AdminPaymentsPage = () => {
         columns={columns}
         data={payments.data?.items ?? []}
         isLoading={payments.isLoading}
+        isRefreshing={payments.isPlaceholderData}
         totalItems={payments.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

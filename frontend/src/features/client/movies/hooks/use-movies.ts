@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { moviesApi } from "../api/movies-api";
 import { queryKeys } from "@/api/query-keys";
 import type {
@@ -22,6 +22,19 @@ export function useMovies(params: Omit<MovieListParams, "cursor">) {
       hasMore: data.pages.at(-1)?.data.hasMore ?? false,
     }),
   });
+}
+
+export function usePrefetchMovieDetail() {
+  const queryClient = useQueryClient();
+
+  return (movieId: number) => {
+    if (movieId <= 0) return;
+    void queryClient.prefetchQuery({
+      queryKey: queryKeys.movies.detail(movieId),
+      queryFn: () => moviesApi.getMovieDetail(movieId),
+      meta: { skipErrorToast: true },
+    });
+  };
 }
 
 export function useMovieDetail(movieId: number) {

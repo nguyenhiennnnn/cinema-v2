@@ -87,6 +87,7 @@ const MembershipTiersPage = () => {
         columns={columns}
         data={membershipTiers.data?.items ?? []}
         isLoading={membershipTiers.isLoading}
+        isRefreshing={membershipTiers.isPlaceholderData}
         totalItems={membershipTiers.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

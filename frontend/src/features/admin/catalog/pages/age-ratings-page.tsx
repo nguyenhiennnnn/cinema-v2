@@ -90,6 +90,7 @@ const AgeRatingsPage = () => {
         columns={columns}
         data={ageRatings.data?.items ?? []}
         isLoading={ageRatings.isLoading}
+        isRefreshing={ageRatings.isPlaceholderData}
         totalItems={ageRatings.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

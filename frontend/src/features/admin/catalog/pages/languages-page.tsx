@@ -90,6 +90,7 @@ const LanguagesPage = () => {
         columns={columns}
         data={languages.data?.items ?? []}
         isLoading={languages.isLoading}
+        isRefreshing={languages.isPlaceholderData}
         totalItems={languages.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

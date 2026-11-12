@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   features,
   type DataTableFeatures,
@@ -30,6 +31,7 @@ interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[];
   data: TData[];
   isLoading?: boolean;
+  isRefreshing?: boolean;
   totalItems: number;
   pagination: PaginationState;
   onPaginationChange: OnChangeFn<PaginationState>;
@@ -52,6 +54,7 @@ export const DataTable = <TData extends RowData>({
   columns,
   data,
   isLoading,
+  isRefreshing,
   totalItems,
   pagination,
   onPaginationChange,
@@ -128,7 +131,10 @@ export const DataTable = <TData extends RowData>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody
+            aria-busy={isRefreshing || undefined}
+            className={cn(isRefreshing && "opacity-60 transition-opacity")}
+          >
             {isLoading ? (
               Array.from({ length: pagination.pageSize }).map((_, i) => (
                 <TableRow key={i}>

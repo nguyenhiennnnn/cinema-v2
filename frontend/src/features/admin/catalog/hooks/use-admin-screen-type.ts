@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { CatalogListParams, UpsertScreenTypeRequest } from "../types";
 import { queryKeys } from "@/api/query-keys";
 import { screenTypesAdminApi } from "../api/catalog-api";
@@ -7,6 +7,7 @@ export function useAdminScreenTypes(params?: CatalogListParams) {
   return useQuery({
     queryKey: queryKeys.adminCatalog.screenTypes(params),
     queryFn: () => screenTypesAdminApi.getAll(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

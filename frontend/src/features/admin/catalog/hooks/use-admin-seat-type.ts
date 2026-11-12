@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { CatalogListParams, UpsertSeatTypeRequest } from "../types";
 import { queryKeys } from "@/api/query-keys";
 import { seatTypesAdminApi } from "../api/catalog-api";
@@ -7,6 +7,7 @@ export function useAdminSeatTypes(params?: CatalogListParams) {
   return useQuery({
     queryKey: queryKeys.adminCatalog.seatTypes(params),
     queryFn: () => seatTypesAdminApi.getAll(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

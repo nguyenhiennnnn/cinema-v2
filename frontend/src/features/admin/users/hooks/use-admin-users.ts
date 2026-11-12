@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { BulkStatusRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
 import type {
@@ -14,6 +14,7 @@ export function useAdminUsers(params: AdminUserListParams) {
   return useQuery({
     queryKey: queryKeys.adminUsers.list(params),
     queryFn: () => usersAdminApi.getUsers(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

@@ -104,6 +104,7 @@ const DirectorsPage = () => {
         columns={columns}
         data={directors.data?.items ?? []}
         isLoading={directors.isLoading}
+        isRefreshing={directors.isPlaceholderData}
         totalItems={directors.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

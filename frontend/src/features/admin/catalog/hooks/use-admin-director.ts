@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { PersonListParams, UpsertPersonRequest } from "../types";
 import type { BulkIdsRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
@@ -8,6 +8,7 @@ export function useAdminDirectors(params?: PersonListParams) {
   return useQuery({
     queryKey: queryKeys.adminCatalog.directors(params),
     queryFn: () => directorsAdminApi.getAll(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

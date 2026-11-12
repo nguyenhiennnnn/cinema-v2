@@ -91,6 +91,7 @@ const ScreenTypesPage = () => {
         columns={columns}
         data={screenTypes.data?.items ?? []}
         isLoading={screenTypes.isLoading}
+        isRefreshing={screenTypes.isPlaceholderData}
         totalItems={screenTypes.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

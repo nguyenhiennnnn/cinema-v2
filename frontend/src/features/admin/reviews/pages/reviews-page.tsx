@@ -101,6 +101,7 @@ const AdminReviewsPage = () => {
         columns={columns}
         data={reviews.data?.items ?? []}
         isLoading={reviews.isLoading}
+        isRefreshing={reviews.isPlaceholderData}
         totalItems={reviews.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

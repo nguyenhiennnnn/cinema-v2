@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import type {
   AdminBookingListParams,
@@ -12,6 +12,7 @@ export function useAdminBookings(params: AdminBookingListParams) {
   return useQuery({
     queryKey: queryKeys.adminBookings.list(params),
     queryFn: () => bookingsAdminApi.getBookings(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

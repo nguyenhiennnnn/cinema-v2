@@ -1,6 +1,7 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { showtimesApi } from "../api/showtimes-api";
 import { queryKeys } from "@/api/query-keys";
+import { getBusinessToday } from "@/lib/business-time";
 import {
   SEAT_SUGGESTIONS_GC_TIME_MS,
   SEAT_SUGGESTIONS_STALE_TIME_MS,
@@ -14,6 +15,19 @@ export function useSchedule(date: string, screenType?: string | null) {
     placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
+}
+
+export function usePrefetchSchedule() {
+  const queryClient = useQueryClient();
+
+  return () => {
+    const date = getBusinessToday();
+    void queryClient.prefetchQuery({
+      queryKey: queryKeys.showtimes.schedule(date, null),
+      queryFn: () => showtimesApi.getSchedule(date, null),
+      meta: { skipErrorToast: true },
+    });
+  };
 }
 
 export function useShowtimeSeats(showtimeId: number) {

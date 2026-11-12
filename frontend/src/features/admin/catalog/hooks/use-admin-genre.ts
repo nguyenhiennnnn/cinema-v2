@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import type { CatalogListParams, UpsertGenreRequest } from "../types";
 import { genresAdminApi } from "../api/catalog-api";
@@ -7,6 +7,7 @@ export function useAdminGenres(params?: CatalogListParams) {
   return useQuery({
     queryKey: queryKeys.adminCatalog.genres(params),
     queryFn: () => genresAdminApi.getAll(params),
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 }

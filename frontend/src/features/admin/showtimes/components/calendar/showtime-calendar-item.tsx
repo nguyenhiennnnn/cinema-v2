@@ -33,10 +33,14 @@ export const ShowtimeCalendarItem = ({
 
   const occupancyLabel = `${showtime.totalSeats - showtime.availableSeats}/${showtime.totalSeats} ghế`;
 
+  const interactive = Boolean(onClick);
+
   return (
     <button
       type="button"
-      onClick={() => onClick?.(showtime)}
+      onClick={interactive ? () => onClick?.(showtime) : undefined}
+      aria-disabled={!interactive}
+      tabIndex={interactive ? 0 : -1}
       title={`${showtime.movieTitle} (${formatShowtimeHour(showtime.startTime)} - ${formatShowtimeHour(
         showtime.endTime
       )}), ${occupancyLabel}, ${formatCurrency(showtime.basePrice)}`}
@@ -44,6 +48,7 @@ export const ShowtimeCalendarItem = ({
       className={cn(
         "absolute top-1 flex h-[calc(100%-0.5rem)] flex-col justify-center overflow-hidden cut-xs px-2 py-1 text-left text-xs leading-tight transition-colors",
         statusStyles[showtime.status] ?? statusStyles[ShowtimeStatus.Scheduled],
+        !interactive && "cursor-default",
       )}
     >
       <span className="truncate font-medium">{showtime.movieTitle}</span>

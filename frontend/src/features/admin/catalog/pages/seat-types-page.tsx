@@ -87,6 +87,7 @@ const SeatTypesPage = () => {
         columns={columns}
         data={seatTypes.data?.items ?? []}
         isLoading={seatTypes.isLoading}
+        isRefreshing={seatTypes.isPlaceholderData}
         totalItems={seatTypes.data?.totalItems ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
