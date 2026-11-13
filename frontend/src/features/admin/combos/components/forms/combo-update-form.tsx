@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { COMBO_NAME_MAX_LENGTH, COMBO_DESCRIPTION_MAX_LENGTH } from "@/config/default-constants";
+import { COMBO_NAME_MAX_LENGTH, COMBO_DESCRIPTION_MAX_LENGTH, FORM_SAVE_CHANGES_LABEL } from "@/config/default-constants";
 
 import {
   FieldGroup,
@@ -111,7 +111,7 @@ export const ComboUpdateForm = ({ combo, onSuccess }: ComboUpdateFormProps) => {
       <FormActions
         isPending={updateCombo.isPending}
         isDirty={form.formState.isDirty}
-        submitLabel="Lưu thay đổi"
+        submitLabel={FORM_SAVE_CHANGES_LABEL}
         onCancel={onSuccess}
       />
     </form>

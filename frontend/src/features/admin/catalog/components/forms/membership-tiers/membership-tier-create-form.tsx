@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { NAME_MAX_LENGTH } from "@/config/default-constants";
+import { NAME_MAX_LENGTH, PERCENT_MAX } from "@/config/default-constants";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -22,7 +22,7 @@ const membershipTierFormSchema = z.object({
   discountPercent: z.coerce
     .number({ message: "Phần trăm giảm giá phải là số." })
     .min(0, "Phần trăm giảm giá không được âm.")
-    .max(100, "Phần trăm giảm giá tối đa 100."),
+    .max(PERCENT_MAX, `Phần trăm giảm giá tối đa ${PERCENT_MAX}.`),
 });
 
 type MembershipTierFormValues = z.infer<typeof membershipTierFormSchema>;

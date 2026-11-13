@@ -13,7 +13,7 @@ import { useAdminMovieParams } from "@/hooks/use-query-params";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { stripNulls } from "@/lib/query-params";
 import { movieStatusOptions } from "@/lib/enum-options";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 
 import {
   useAdminMovies,
@@ -65,7 +65,7 @@ const AdminMoviesPage = () => {
   const handleDelete = (movie: AdminMovieListItemDto) => {
     openAlertDialog({
       title: `Xóa phim "${movie.title}"?`,
-      description: "Hành động này không thể hoàn tác. Toàn bộ suất chiếu và đánh giá liên quan có thể bị ảnh hưởng.",
+      description: `${IRREVERSIBLE_ACTION_MESSAGE} Toàn bộ suất chiếu và đánh giá liên quan có thể bị ảnh hưởng.`,
       confirmText: "Xóa phim",
       variant: "destructive",
       onConfirm: async () => {

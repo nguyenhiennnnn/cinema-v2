@@ -23,7 +23,7 @@ import type { ActorDto } from "../types";
 import { createActorColumns } from "../components/columns/actor-columns";
 import { ActorCreateForm } from "../components/forms/actors/actor-create-form";
 import { ActorUpdateForm } from "../components/forms/actors/actor-update-form";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const ActorsPage = () => {
@@ -62,7 +62,7 @@ const ActorsPage = () => {
   const handleDelete = (actor: ActorDto) => {
     openAlertDialog({
       title: `Xóa diễn viên "${actor.fullName}"?`,
-      description: "Hành động này không thể hoàn tác.",
+      description: IRREVERSIBLE_ACTION_MESSAGE,
       confirmText: "Xóa",
       variant: "destructive",
       onConfirm: async () => {

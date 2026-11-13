@@ -1,3 +1,4 @@
+using Cinema.Api.Extensions;
 using Cinema.Api.Filters;
 using Cinema.Api.Security;
 using Cinema.Application.DTOs.Auth;
@@ -20,7 +21,7 @@ public class AuthController(
 ) : AppControllerBase
 {
     [HttpPost("register")]
-    [EnableRateLimiting("auth")]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     public async Task<IActionResult> Register(
         [FromBody] RegisterRequest request,
         CancellationToken cancellationToken
@@ -43,7 +44,7 @@ public class AuthController(
     }
 
     [HttpPost("login")]
-    [EnableRateLimiting("auth")]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     [CsrfProtection]
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request,
@@ -56,7 +57,7 @@ public class AuthController(
     }
 
     [HttpPost("admin-login")]
-    [EnableRateLimiting("auth")]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     [CsrfProtection]
     public async Task<IActionResult> AdminLogin(
         [FromBody] LoginRequest request,
@@ -68,7 +69,7 @@ public class AuthController(
     }
 
     [HttpPost("google")]
-    [EnableRateLimiting("auth")]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     [CsrfProtection]
     public async Task<IActionResult> GoogleLogin(
         [FromBody] GoogleLoginRequest request,
@@ -80,7 +81,7 @@ public class AuthController(
     }
 
     [HttpPost("refresh")]
-    [EnableRateLimiting("auth")]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     [CsrfProtection]
     public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
     {
@@ -118,7 +119,7 @@ public class AuthController(
     }
 
     [HttpPost("forgot-password")]
-    [EnableRateLimiting("auth")]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     public async Task<IActionResult> ForgotPassword(
         [FromBody] ForgotPasswordRequest request,
         CancellationToken cancellationToken
@@ -129,7 +130,7 @@ public class AuthController(
     }
 
     [HttpPost("reset-password")]
-    [EnableRateLimiting("auth")]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     public async Task<IActionResult> ResetPassword(
         [FromBody] ResetPasswordRequest request,
         CancellationToken cancellationToken

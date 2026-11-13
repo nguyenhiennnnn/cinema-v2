@@ -41,6 +41,7 @@ function trackServerClock(
   syncServerClock(readDateHeader(response.headers), rttMs);
 }
 
+
 function installServerClockSync(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
     config._clockSentAt = performance.now();

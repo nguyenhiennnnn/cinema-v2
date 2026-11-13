@@ -7,7 +7,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 
 import { useAdminUpdateDirector } from "@/features/admin/catalog/hooks/use-admin-director";
 import type { DirectorDto } from "@/features/admin/catalog/types";
-import { URL_PLACEHOLDER, PERSON_NAME_MAX_LENGTH, IMAGE_URL_MAX_LENGTH } from "@/config/default-constants";
+import { URL_PLACEHOLDER, PERSON_NAME_MAX_LENGTH, IMAGE_URL_MAX_LENGTH, FORM_SAVE_CHANGES_LABEL } from "@/config/default-constants";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
@@ -88,7 +88,7 @@ export const DirectorUpdateForm = ({
       <FormActions
         isPending={updateDirector.isPending}
         isDirty={form.formState.isDirty}
-        submitLabel="Lưu thay đổi"
+        submitLabel={FORM_SAVE_CHANGES_LABEL}
         onCancel={onSuccess}
       />
     </form>

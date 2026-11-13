@@ -9,7 +9,7 @@ import { FormInputField } from "@/components/common/form/form-input-field";
 import { useAdminScreenTypes } from "@/features/admin/catalog/hooks/use-admin-screen-type";
 import { useScreenTypeQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
 import { useAdminCreateRoom } from "@/features/admin/rooms/hooks/use-admin-rooms";
-import { LOOKUP_PAGE_SIZE, NAME_MAX_LENGTH } from "@/config/default-constants";
+import { LOOKUP_PAGE_SIZE, NAME_MAX_LENGTH, ROOM_CREATE_MAX_ROWS, ROOM_CREATE_MAX_COLS } from "@/config/default-constants";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
@@ -17,8 +17,8 @@ import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 const roomFormSchema = z.object({
   roomName: z.string().min(1, "Vui lòng nhập tên phòng chiếu.").max(NAME_MAX_LENGTH),
   screenTypeId: z.coerce.number().optional(),
-  rows: z.coerce.number().int().min(1, "Số hàng phải lớn hơn 0.").max(50),
-  cols: z.coerce.number().int().min(1, "Số cột phải lớn hơn 0.").max(50),
+  rows: z.coerce.number().int().min(1, "Số hàng phải lớn hơn 0.").max(ROOM_CREATE_MAX_ROWS),
+  cols: z.coerce.number().int().min(1, "Số cột phải lớn hơn 0.").max(ROOM_CREATE_MAX_COLS),
 });
 
 type RoomFormValues = z.infer<typeof roomFormSchema>;

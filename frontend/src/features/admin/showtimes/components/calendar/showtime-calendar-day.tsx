@@ -19,6 +19,7 @@ import { ShowtimeCalendarAgenda } from "./showtime-calendar-agenda";
 import { LANE_HEIGHT, ShowtimeCalendarItem } from "./showtime-calendar-item";
 
 import { NOW_TICK_INTERVAL_MS } from "@/config/default-constants";
+
 const MIN_HOUR_WIDTH = 88;
 const ROOM_COLUMN_WIDTH = 144;
 const GAP_LABEL_MIN_PERCENT = 6;

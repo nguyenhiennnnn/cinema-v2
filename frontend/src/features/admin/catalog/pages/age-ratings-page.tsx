@@ -17,7 +17,7 @@ import { AgeRatingCreateForm } from "../components/forms/age-ratings/age-rating-
 import { AgeRatingUpdateForm } from "../components/forms/age-ratings/age-rating-update-form";
 import { useAdminListParams } from "@/hooks/use-query-params";
 import { useTablePagination } from "@/hooks/use-table-pagination";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 
 const AgeRatingsPage = () => {
   const [params, setParams] = useAdminListParams();
@@ -55,7 +55,7 @@ const AgeRatingsPage = () => {
   const handleDelete = (ageRating: AgeRatingDto) => {
     openAlertDialog({
       title: `Xóa phân loại "${ageRating.code}"?`,
-      description: "Hành động này không thể hoàn tác.",
+      description: IRREVERSIBLE_ACTION_MESSAGE,
       confirmText: "Xóa",
       variant: "destructive",
       onConfirm: async () => {

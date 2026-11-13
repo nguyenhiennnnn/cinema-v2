@@ -2,6 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
+import { FORM_CANCEL_LABEL } from "@/config/default-constants";
+
 interface BulkActionButtonProps {
   count: number;
   itemLabel?: string;
@@ -30,7 +32,7 @@ export const BulkActionButton = ({
       title: `${actionLabel} ${count} ${itemLabel}?`,
       description,
       confirmText: actionLabel,
-      cancelText: "Hủy",
+      cancelText: FORM_CANCEL_LABEL,
       variant: variant === "destructive" ? "destructive" : "default",
       onConfirm,
     });

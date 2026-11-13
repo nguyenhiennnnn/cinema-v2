@@ -1,6 +1,7 @@
 using Cinema.Api.Filters;
 using Cinema.Api.Middlewares;
 using Cinema.Infrastructure.Realtime;
+using Cinema.Shared.Constants;
 using Hangfire;
 using Serilog;
 
@@ -49,12 +50,12 @@ public static class ApiPipelineExtensions
         if (!app.Environment.IsEnvironment("Testing"))
         {
             app.MapHangfireDashboard(
-                "/admin/hangfire",
+                ApiPaths.HangfireDashboard,
                 new DashboardOptions { Authorization = [new HangfireAdminAuthorizationFilter()] }
             );
         }
 
-        app.MapHub<ShowtimeHub>("/hubs/showtimes");
+        app.MapHub<ShowtimeHub>(ApiPaths.ShowtimeHub);
 
         return app;
     }

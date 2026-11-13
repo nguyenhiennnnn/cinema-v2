@@ -13,7 +13,7 @@ import { useAdminMovies } from "@/features/admin/movies/hooks/use-admin-movies";
 import { useAdminRooms } from "@/features/admin/rooms/hooks/use-admin-rooms";
 import { useAdminUpdateShowtime } from "@/features/admin/showtimes/hooks/use-admin-showtimes";
 import type { AdminShowtimeDto } from "@/features/admin/showtimes/types";
-import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { LOOKUP_PAGE_SIZE, SEARCH_LOOKUP_PAGE_SIZE, FORM_SAVE_CHANGES_LABEL } from "@/config/default-constants";
 import { FormSearchSelectField } from "@/components/common/form/form-search-select-field";
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
@@ -122,7 +122,7 @@ export const ShowtimeUpdateForm = ({ showtime, onSuccess }: ShowtimeUpdateFormPr
       <FormActions
         isPending={updateShowtime.isPending}
         isDirty={form.formState.isDirty}
-        submitLabel="Lưu thay đổi"
+        submitLabel={FORM_SAVE_CHANGES_LABEL}
         onCancel={onSuccess}
       />
     </form>

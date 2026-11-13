@@ -11,7 +11,7 @@ import { SubmitButton } from "@/components/common/form/submit-button";
 import { FormSelectField } from "@/components/common/form/form-select-field";
 import { FormTimePickerField } from "@/components/common/form/form-time-picker-field";
 
-import { FORM_PENDING_LABEL } from "@/config/default-constants";
+import { FORM_PENDING_LABEL, PERCENT_MAX, SETTINGS_FIELD_MAX } from "@/config/default-constants";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { SeatGapRuleMode } from "@/types/enum";
 import { useAdminSettings, useAdminUpdateSettings } from "../hooks/use-admin-settings";
@@ -34,22 +34,22 @@ const settingsFormSchema = z.object({
   openingTime: z.string().optional().or(z.literal("")),
   closingTime: z.string().optional().or(z.literal("")),
   pointsPerAmount: z.coerce.number().min(0, "Giá trị không được âm."),
-  cancelRefundPercent: z.coerce.number().min(0).max(100, "Tối đa 100%."),
+  cancelRefundPercent: z.coerce.number().min(0).max(PERCENT_MAX, `Tối đa ${PERCENT_MAX}%.`),
   cancelDeadlineHours: z.coerce.number().min(0, "Giá trị không được âm."),
-  stopSellingMinutesBefore: z.coerce.number().min(0, "Giá trị không được âm.").max(1440, "Tối đa 1440 phút."),
+  stopSellingMinutesBefore: z.coerce.number().min(0, "Giá trị không được âm.").max(SETTINGS_FIELD_MAX.stopSellingMinutesBefore, `Tối đa ${SETTINGS_FIELD_MAX.stopSellingMinutesBefore} phút.`),
   seatGapRuleMode: z.enum([SeatGapRuleMode.Strict, SeatGapRuleMode.AllowEdge, SeatGapRuleMode.Off]),
-  roomBufferMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(120, "Tối đa 120."),
-  maxSeatsPerBooking: z.coerce.number().min(1, "Tối thiểu 1.").max(50, "Tối đa 50."),
-  maxComboQuantity: z.coerce.number().min(1, "Tối thiểu 1.").max(50, "Tối đa 50."),
-  loyaltyWindowMonths: z.coerce.number().min(1, "Tối thiểu 1.").max(120, "Tối đa 120."),
-  movieEndGraceDays: z.coerce.number().min(0, "Tối thiểu 0.").max(365, "Tối đa 365."),
-  showtimeLookaheadDays: z.coerce.number().min(1, "Tối thiểu 1.").max(60, "Tối đa 60."),
-  schedulerStepMinutes: z.coerce.number().min(1, "Tối thiểu 1.").max(60, "Tối đa 60."),
-  schedulerMinSameMovieGapMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(1440, "Tối đa 1440."),
-  schedulerHeatLookbackDays: z.coerce.number().min(1, "Tối thiểu 1.").max(365, "Tối đa 365."),
-  schedulerHeatSalesWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(10, "Tối đa 10."),
-  schedulerHeatRatingWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(10, "Tối đa 10."),
-  schedulerMaxRating: z.coerce.number().min(1, "Tối thiểu 1.").max(10, "Tối đa 10."),
+  roomBufferMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(SETTINGS_FIELD_MAX.roomBufferMinutes, `Tối đa ${SETTINGS_FIELD_MAX.roomBufferMinutes}.`),
+  maxSeatsPerBooking: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.maxSeatsPerBooking, `Tối đa ${SETTINGS_FIELD_MAX.maxSeatsPerBooking}.`),
+  maxComboQuantity: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.maxComboQuantity, `Tối đa ${SETTINGS_FIELD_MAX.maxComboQuantity}.`),
+  loyaltyWindowMonths: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.loyaltyWindowMonths, `Tối đa ${SETTINGS_FIELD_MAX.loyaltyWindowMonths}.`),
+  movieEndGraceDays: z.coerce.number().min(0, "Tối thiểu 0.").max(SETTINGS_FIELD_MAX.movieEndGraceDays, `Tối đa ${SETTINGS_FIELD_MAX.movieEndGraceDays}.`),
+  showtimeLookaheadDays: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.showtimeLookaheadDays, `Tối đa ${SETTINGS_FIELD_MAX.showtimeLookaheadDays}.`),
+  schedulerStepMinutes: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.schedulerStepMinutes, `Tối đa ${SETTINGS_FIELD_MAX.schedulerStepMinutes}.`),
+  schedulerMinSameMovieGapMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(SETTINGS_FIELD_MAX.schedulerMinSameMovieGapMinutes, `Tối đa ${SETTINGS_FIELD_MAX.schedulerMinSameMovieGapMinutes}.`),
+  schedulerHeatLookbackDays: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.schedulerHeatLookbackDays, `Tối đa ${SETTINGS_FIELD_MAX.schedulerHeatLookbackDays}.`),
+  schedulerHeatSalesWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(SETTINGS_FIELD_MAX.schedulerHeatSalesWeight, `Tối đa ${SETTINGS_FIELD_MAX.schedulerHeatSalesWeight}.`),
+  schedulerHeatRatingWeight: z.coerce.number().min(0, "Tối thiểu 0.").max(SETTINGS_FIELD_MAX.schedulerHeatRatingWeight, `Tối đa ${SETTINGS_FIELD_MAX.schedulerHeatRatingWeight}.`),
+  schedulerMaxRating: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.schedulerMaxRating, `Tối đa ${SETTINGS_FIELD_MAX.schedulerMaxRating}.`),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;

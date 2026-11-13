@@ -84,7 +84,7 @@ public static class AuthenticationExtensions
         var accessToken = context.Request.Query["access_token"];
         if (
             !string.IsNullOrEmpty(accessToken)
-            && context.HttpContext.Request.Path.StartsWithSegments("/hubs")
+            && context.HttpContext.Request.Path.StartsWithSegments(ApiPaths.HubsPrefix)
         )
             context.Token = accessToken;
         return Task.CompletedTask;

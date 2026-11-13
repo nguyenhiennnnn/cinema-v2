@@ -19,7 +19,7 @@ import { ScreenTypeCreateForm } from "../components/forms/screen-types/screen-ty
 import { ScreenTypeUpdateForm } from "../components/forms/screen-types/screen-type-update-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { useAdminListParams } from "@/hooks/use-query-params";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 
 const ScreenTypesPage = () => {
   const [params, setParams] = useAdminListParams();
@@ -56,7 +56,7 @@ const ScreenTypesPage = () => {
   const handleDelete = (screenType: ScreenTypeDto) => {
     openAlertDialog({
       title: `Xóa loại màn hình "${screenType.name}"?`,
-      description: "Hành động này không thể hoàn tác.",
+      description: IRREVERSIBLE_ACTION_MESSAGE,
       confirmText: "Xóa",
       variant: "destructive",
       onConfirm: async () => {

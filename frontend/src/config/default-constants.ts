@@ -56,12 +56,16 @@ export const HERO_TRANSITION_MS = 480;
 
 export const FORM_PENDING_LABEL = "Đang lưu...";
 export const FORM_CANCEL_LABEL = "Hủy";
+export const FORM_SAVE_CHANGES_LABEL = "Lưu thay đổi";
+export const IRREVERSIBLE_ACTION_MESSAGE = "Hành động này không thể hoàn tác.";
 
 export const QUICK_CREATE_NAME_MAX_LENGTH = 50;
 export const QUICK_CREATE_AGE_RATING_MAX_LENGTH = 10;
 export const QUICK_CREATE_PERSON_NAME_MAX_LENGTH = 150;
 
 export const NAME_MAX_LENGTH = 100;
+export const EMAIL_MAX_LENGTH = 150;
+export const PHONE_MAX_LENGTH = 20;
 export const PERSON_NAME_MAX_LENGTH = 255;
 export const IMAGE_URL_MAX_LENGTH = 500;
 export const AGE_RATING_CODE_MAX_LENGTH = 10;
@@ -70,6 +74,10 @@ export const COMBO_NAME_MAX_LENGTH = 150;
 export const COMBO_DESCRIPTION_MAX_LENGTH = 500;
 export const MOVIE_TITLE_MAX_LENGTH = 200;
 
+export const PERCENT_MAX = 100;
+export const ROOM_CREATE_MAX_ROWS = 50;
+export const ROOM_CREATE_MAX_COLS = 50;
+export const SEAT_SUGGESTION_MAX_COUNT = 10;
 export const SEAT_GRID_MAX_ROWS = 52;
 export const SEAT_GRID_MAX_COLS = 60;
 export const SHOWTIME_CLONE_MAX_SOURCE_DAYS = 31;
@@ -83,4 +91,20 @@ export const YOUTUBE_EMBED_BASE_URL = "https://www.youtube.com/embed";
 export const MOVIE_LIST_STATUS_QUERY = {
   nowShowing: "now-showing",
   comingSoon: "coming-soon",
+} as const;
+
+export const SETTINGS_FIELD_MAX = {
+  stopSellingMinutesBefore: 1440,
+  roomBufferMinutes: 120,
+  maxSeatsPerBooking: 50,
+  maxComboQuantity: 50,
+  loyaltyWindowMonths: 120,
+  movieEndGraceDays: 365,
+  showtimeLookaheadDays: 60,
+  schedulerStepMinutes: 60,
+  schedulerMinSameMovieGapMinutes: 1440,
+  schedulerHeatLookbackDays: 365,
+  schedulerHeatSalesWeight: 10,
+  schedulerHeatRatingWeight: 10,
+  schedulerMaxRating: 10,
 } as const;

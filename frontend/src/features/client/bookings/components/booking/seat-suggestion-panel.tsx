@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { ShowtimeSeatStatus } from "@/types/enum";
 
+import { SEAT_SUGGESTION_MAX_COUNT } from "@/config/default-constants";
 interface SeatSuggestionPanelProps {
   showtimeId: number;
   statusMap: Map<number, ShowtimeSeatStatus>;
@@ -43,7 +44,7 @@ export const SeatSuggestionPanel = ({
         <h3 className="font-heading text-sm font-semibold text-foreground">Gợi ý ghế liền kề</h3>
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground">Số người</span>
-          <ComboQuantityStepper value={count} max={10} onChange={(v) => setCount(Math.max(1, v))} />
+          <ComboQuantityStepper value={count} max={SEAT_SUGGESTION_MAX_COUNT} onChange={(v) => setCount(Math.max(1, v))} />
           <Button size="sm" onClick={request} disabled={query.isFetching}>
             <Sparkles className="size-4" />
             <span>{query.isFetching ? "Đang tìm..." : "Gợi ý"}</span>

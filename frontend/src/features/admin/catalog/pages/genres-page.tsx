@@ -16,7 +16,7 @@ import { GenreCreateForm } from "../components/forms/genres/genre-create-form";
 import { GenreUpdateForm } from "../components/forms/genres/genre-update-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { useAdminListParams } from "@/hooks/use-query-params";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 
 const GenresPage = () => {
   const [params, setParams] = useAdminListParams();
@@ -51,7 +51,7 @@ const GenresPage = () => {
   const handleDelete = (genre: GenreDto) => {
     openAlertDialog({
       title: `Xóa thể loại "${genre.name}"?`,
-      description: "Hành động này không thể hoàn tác.",
+      description: IRREVERSIBLE_ACTION_MESSAGE,
       confirmText: "Xóa",
       variant: "destructive",
       onConfirm: async () => {

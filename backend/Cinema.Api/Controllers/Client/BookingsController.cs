@@ -1,3 +1,4 @@
+using Cinema.Api.Extensions;
 using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.DTOs.Common;
@@ -20,7 +21,7 @@ public class BookingsController(
 ) : AppControllerBase
 {
     [HttpPost("hold")]
-    [EnableRateLimiting("booking-hold")]
+    [EnableRateLimiting(RateLimitingExtensions.BookingHoldPolicy)]
     public async Task<ActionResult<HoldBookingResponse>> HoldSeats(
         [FromBody] HoldSeatsRequest request,
         CancellationToken cancellationToken

@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Cinema.Shared.Results;
 using Microsoft.AspNetCore.Diagnostics;
@@ -14,7 +15,7 @@ public static class ApiErrorWriter
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    private static readonly string[] SkippedPathPrefixes = ["/admin/hangfire", "/swagger"];
+    private static readonly string[] SkippedPathPrefixes = [ApiPaths.HangfireDashboard, "/swagger"];
 
     public static Task WriteAsync(HttpContext context, ApiError error) =>
         WriteAsync(

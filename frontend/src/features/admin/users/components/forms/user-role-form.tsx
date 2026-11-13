@@ -11,6 +11,8 @@ import { FormEnumSelectField } from "@/components/common/form/form-enum-select-f
 import { FormActions } from "@/components/common/form/form-actions";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
+import { FORM_SAVE_CHANGES_LABEL } from "@/config/default-constants";
+
 const roleFormSchema = z.object({
   roleId: z.string().min(1, "Vui lòng chọn vai trò."),
 });
@@ -57,7 +59,7 @@ export const UserRoleForm = ({ user, onSuccess }: UserRoleFormProps) => {
       <FormActions
         isPending={updateRole.isPending}
         isDirty={form.formState.isDirty}
-        submitLabel="Lưu thay đổi"
+        submitLabel={FORM_SAVE_CHANGES_LABEL}
         onCancel={onSuccess}
       />
     </form>

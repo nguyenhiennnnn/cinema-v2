@@ -17,7 +17,7 @@ import { PositionCreateForm } from "../components/forms/positions/position-creat
 import { PositionUpdateForm } from "../components/forms/positions/position-update-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { useAdminListParams } from "@/hooks/use-query-params";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 
 const PositionsPage = () => {
   const [params, setParams] = useAdminListParams();
@@ -52,7 +52,7 @@ const PositionsPage = () => {
   const handleDelete = (position: PositionDto) => {
     openAlertDialog({
       title: `Xóa chức vụ "${position.name}"?`,
-      description: "Hành động này không thể hoàn tác.",
+      description: IRREVERSIBLE_ACTION_MESSAGE,
       confirmText: "Xóa",
       variant: "destructive",
       onConfirm: async () => {

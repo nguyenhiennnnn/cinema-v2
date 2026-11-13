@@ -17,7 +17,7 @@ import { MembershipTierCreateForm } from "../components/forms/membership-tiers/m
 import { MembershipTierUpdateForm } from "../components/forms/membership-tiers/membership-tier-update-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { useAdminListParams } from "@/hooks/use-query-params";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 
 const MembershipTiersPage = () => {
   const [params, setParams] = useAdminListParams();
@@ -52,7 +52,7 @@ const MembershipTiersPage = () => {
   const handleDelete = (tier: MembershipTierDto) => {
     openAlertDialog({
       title: `Xóa hạng "${tier.tierName}"?`,
-      description: "Hành động này không thể hoàn tác.",
+      description: IRREVERSIBLE_ACTION_MESSAGE,
       confirmText: "Xóa",
       variant: "destructive",
       onConfirm: async () => {

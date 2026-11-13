@@ -28,7 +28,7 @@ import {
 } from "@/features/admin/catalog/hooks/use-quick-create";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
-import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { LOOKUP_PAGE_SIZE, FORM_SAVE_CHANGES_LABEL } from "@/config/default-constants";
 
 import { useAdminMovieDetail, useAdminUpdateMovie } from "@/features/admin/movies/hooks/use-admin-movies";
 import type { AdminMovieListItemDto } from "@/features/admin/movies/types";
@@ -360,7 +360,7 @@ export const MovieUpdateForm = ({ movie, onSuccess }: MovieUpdateFormProps) => {
       <FormActions
         isPending={updateMovie.isPending}
         isDirty={form.formState.isDirty}
-        submitLabel="Lưu thay đổi"
+        submitLabel={FORM_SAVE_CHANGES_LABEL}
         onCancel={onSuccess}
       />
     </form>

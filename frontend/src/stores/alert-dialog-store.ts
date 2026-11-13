@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import { logDevError } from "@/lib/error";
 
+import { FORM_CANCEL_LABEL } from "@/config/default-constants";
+
 interface AlertDialogOptions {
   title: string;
   description?: string;
@@ -26,7 +28,7 @@ export const useAlertDialogStore = create<AlertDialogStore>((set, get) => ({
   title: "",
   description: undefined,
   confirmText: "Xác nhận",
-  cancelText: "Hủy",
+  cancelText: FORM_CANCEL_LABEL,
   variant: "default",
   onConfirm: () => {},
   onCancel: undefined,
@@ -34,7 +36,7 @@ export const useAlertDialogStore = create<AlertDialogStore>((set, get) => ({
     title,
     description,
     confirmText = "Xác nhận",
-    cancelText = "Hủy",
+    cancelText = FORM_CANCEL_LABEL,
     variant = "default",
     onConfirm,
     onCancel,

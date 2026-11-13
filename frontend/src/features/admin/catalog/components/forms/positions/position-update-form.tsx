@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { NAME_MAX_LENGTH } from "@/config/default-constants";
+import { NAME_MAX_LENGTH, FORM_SAVE_CHANGES_LABEL } from "@/config/default-constants";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
@@ -68,7 +68,7 @@ export const PositionUpdateForm = ({
       <FormActions
         isPending={updatePosition.isPending}
         isDirty={form.formState.isDirty}
-        submitLabel="Lưu thay đổi"
+        submitLabel={FORM_SAVE_CHANGES_LABEL}
         onCancel={onSuccess}
       />
     </form>

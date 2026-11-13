@@ -10,6 +10,8 @@ import { SeatEditorSelectionBar } from "./seat-editor-selection-bar";
 import { SeatEditorSizeInputs } from "./seat-editor-size-inputs";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 
+import { FORM_PENDING_LABEL } from "@/config/default-constants";
+
 interface SeatEditorToolbarProps {
   seatTypes: SeatTypeDto[] | undefined;
   brush: SeatEditorBrush;
@@ -138,7 +140,7 @@ export const SeatEditorToolbar = ({
 
         <Button onClick={onSave} disabled={isSaving || previewMode} className="ml-auto">
           <Save className="size-4" />
-          <span>{isSaving ? "Đang lưu..." : "Lưu sơ đồ ghế"}</span>
+          <span>{isSaving ? FORM_PENDING_LABEL : "Lưu sơ đồ ghế"}</span>
         </Button>
         {isDirty && (
           <span className="text-xs font-medium text-warning">Có thay đổi chưa lưu</span>

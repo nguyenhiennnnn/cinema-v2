@@ -8,6 +8,7 @@ public static class CorsExtensions
     private const string AllowedOriginsKey = "Cors:AllowedOrigins";
 
     private static readonly string[] ExposedHeaders = ["Date"];
+    private static readonly TimeSpan PreflightMaxAge = TimeSpan.FromMinutes(10);
 
     public static string[] GetCorsOrigins(this IConfiguration configuration) =>
         configuration.GetSection(AllowedOriginsKey).Get<string[]>() ?? [];
@@ -39,7 +40,7 @@ public static class CorsExtensions
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials()
-                        .SetPreflightMaxAge(TimeSpan.FromMinutes(10))
+                        .SetPreflightMaxAge(PreflightMaxAge)
             );
         });
     }

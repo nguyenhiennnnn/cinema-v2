@@ -22,7 +22,7 @@ import { DirectorCreateForm } from "../components/forms/directors/director-creat
 import { DirectorUpdateForm } from "../components/forms/directors/director-update-form";
 import { useAdminPersonParams } from "@/hooks/use-query-params";
 import { useTablePagination } from "@/hooks/use-table-pagination";
-import { DEFAULT_PAGE } from "@/config/default-constants";
+import { DEFAULT_PAGE, IRREVERSIBLE_ACTION_MESSAGE } from "@/config/default-constants";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const DirectorsPage = () => {
@@ -64,7 +64,7 @@ const DirectorsPage = () => {
   const handleDelete = (director: DirectorDto) => {
     openAlertDialog({
       title: `Xóa đạo diễn "${director.fullName}"?`,
-      description: "Hành động này không thể hoàn tác.",
+      description: IRREVERSIBLE_ACTION_MESSAGE,
       confirmText: "Xóa",
       variant: "destructive",
       onConfirm: async () => {

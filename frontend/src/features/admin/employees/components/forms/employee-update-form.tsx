@@ -11,7 +11,7 @@ import { useAdminUpdateEmployee } from "@/features/admin/employees/hooks/use-adm
 import { useAdminPositions } from "@/features/admin/catalog/hooks/use-admin-position";
 import { usePositionQuickCreate } from "@/features/admin/catalog/hooks/use-quick-create";
 import type { AdminEmployeeDto } from "@/features/admin/employees/types";
-import { LOOKUP_PAGE_SIZE } from "@/config/default-constants";
+import { LOOKUP_PAGE_SIZE, FORM_SAVE_CHANGES_LABEL } from "@/config/default-constants";
 import { getBusinessTodayDate } from "@/lib/business-time";
 import { FormSwitchField } from "@/components/common/form/form-switch-field";
 import { FormActions } from "@/components/common/form/form-actions";
@@ -98,7 +98,7 @@ export const EmployeeUpdateForm = ({ employee, onSuccess }: EmployeeUpdateFormPr
       <FormActions
         isPending={updateEmployee.isPending}
         isDirty={form.formState.isDirty}
-        submitLabel="Lưu thay đổi"
+        submitLabel={FORM_SAVE_CHANGES_LABEL}
         onCancel={onSuccess}
       />
     </form>
