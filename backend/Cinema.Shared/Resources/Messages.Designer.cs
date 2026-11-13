@@ -442,6 +442,15 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Yêu cầu bị từ chối do không vượt qua kiểm tra bảo mật (CSRF)..
+        /// </summary>
+        public static string Forbidden_CsrfRejected {
+            get {
+                return ResourceManager.GetString("Forbidden_CsrfRejected", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Tài khoản Customer không thể đăng nhập qua cổng quản trị..
         /// </summary>
         public static string Forbidden_CustomerCannotUseAdminPortal {

@@ -24,6 +24,9 @@ public class AuthService(
 ) : IAuthService
 {
     private readonly int _refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
+    private readonly TimeSpan _refreshReuseGrace = TimeSpan.FromSeconds(
+        Math.Max(0, jwtOptions.Value.RefreshTokenReuseGraceSeconds)
+    );
 
     private async Task<LoginUserDto> ToLoginUserDtoAsync(
         User user,
@@ -43,7 +46,7 @@ public class AuthService(
         return dto with { MembershipTierName = tier?.TierName, Points = points };
     }
 
-    public async Task<LoginResponse> LoginAsync(
+    public async Task<AuthResult<LoginResponse>> LoginAsync(
         LoginRequest request,
         bool adminOnly,
         CancellationToken cancellationToken
@@ -95,15 +98,13 @@ public class AuthService(
 
         var userDto = await ToLoginUserDtoAsync(user, cancellationToken);
 
-        return new LoginResponse(
-            accessToken.AccessToken,
-            refreshToken,
-            accessToken.ExpiresIn,
-            userDto
+        return new AuthResult<LoginResponse>(
+            new LoginResponse(accessToken.AccessToken, accessToken.ExpiresIn, userDto),
+            refreshToken
         );
     }
 
-    public async Task<LoginResponse> GoogleLoginAsync(
+    public async Task<AuthResult<LoginResponse>> GoogleLoginAsync(
         GoogleLoginRequest request,
         CancellationToken cancellationToken
     )
@@ -205,20 +206,21 @@ public class AuthService(
         var refreshToken = await IssueRefreshTokenAsync(user.UserId, cancellationToken);
         var userDto = await ToLoginUserDtoAsync(user, cancellationToken);
 
-        return new LoginResponse(
-            accessToken.AccessToken,
-            refreshToken,
-            accessToken.ExpiresIn,
-            userDto
+        return new AuthResult<LoginResponse>(
+            new LoginResponse(accessToken.AccessToken, accessToken.ExpiresIn, userDto),
+            refreshToken
         );
     }
 
-    public async Task<RefreshResponse> RefreshAsync(
-        RefreshRequest request,
+    public async Task<AuthResult<RefreshResponse>> RefreshAsync(
+        string? refreshToken,
         CancellationToken cancellationToken
     )
     {
-        var tokenHash = tokenService.HashOpaqueToken(request.RefreshToken);
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            throw new UnauthorizedAppException(Messages.Unauthorized_RefreshTokenInvalid);
+
+        var tokenHash = tokenService.HashOpaqueToken(refreshToken);
 
         var existing = await db
             .RefreshTokens.Include(rt => rt.User)
@@ -233,15 +235,25 @@ public class AuthService(
         if (existing is null)
             throw new UnauthorizedAppException(Messages.Unauthorized_RefreshTokenInvalid);
 
+        var now = DateTime.UtcNow;
+        var isGraceReplay = false;
+
         if (existing.IsRevoked)
         {
-            if (existing.ReplacedByTokenId is not null)
-                await RevokeTokenChainAsync(existing.ReplacedByTokenId, cancellationToken);
+            isGraceReplay = await IsBenignReplayAsync(existing, now, cancellationToken);
 
-            throw new UnauthorizedAppException(Messages.Unauthorized_RefreshTokenExpiredOrRevoked);
+            if (!isGraceReplay)
+            {
+                if (existing.ReplacedByTokenId is not null)
+                    await RevokeTokenChainAsync(existing.ReplacedByTokenId, cancellationToken);
+
+                throw new UnauthorizedAppException(
+                    Messages.Unauthorized_RefreshTokenExpiredOrRevoked
+                );
+            }
         }
 
-        if (existing.ExpiresAt <= DateTime.UtcNow)
+        if (existing.ExpiresAt <= now)
             throw new UnauthorizedAppException(Messages.Unauthorized_RefreshTokenExpiredOrRevoked);
 
         if (!existing.User.IsActive)
@@ -251,31 +263,56 @@ public class AuthService(
             throw new ForbiddenAppException(Messages.Forbidden_EmailNotVerified);
 
         var accessToken = tokenService.GenerateAccessToken(existing.User);
-        var newRefreshTokenValue = tokenService.GenerateOpaqueToken();
-        var newRefreshTokenEntity = new RefreshToken
-        {
-            UserId = existing.UserId,
-            TokenHash = tokenService.HashOpaqueToken(newRefreshTokenValue),
-            ExpiresAt = DateTime.UtcNow.AddDays(_refreshTokenExpirationDays),
-            IsRevoked = false,
-            CreatedAt = DateTime.UtcNow,
-        };
 
-        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        db.RefreshTokens.Add(newRefreshTokenEntity);
-        existing.Revoke();
-        await db.SaveChangesAsync(cancellationToken);
-        existing.ReplacedByTokenId = newRefreshTokenEntity.RefreshTokenId;
-        await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        string? newRefreshTokenValue = null;
+        if (!isGraceReplay)
+        {
+            newRefreshTokenValue = tokenService.GenerateOpaqueToken();
+            var newRefreshTokenEntity = new RefreshToken
+            {
+                UserId = existing.UserId,
+                TokenHash = tokenService.HashOpaqueToken(newRefreshTokenValue),
+                ExpiresAt = now.AddDays(_refreshTokenExpirationDays),
+                IsRevoked = false,
+                CreatedAt = now,
+            };
+
+            await using var transaction = await db.Database.BeginTransactionAsync(
+                cancellationToken
+            );
+            db.RefreshTokens.Add(newRefreshTokenEntity);
+            existing.Revoke(now);
+            await db.SaveChangesAsync(cancellationToken);
+            existing.ReplacedByTokenId = newRefreshTokenEntity.RefreshTokenId;
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         var userDto = await ToLoginUserDtoAsync(existing.User, cancellationToken);
 
-        return new RefreshResponse(
-            accessToken.AccessToken,
-            newRefreshTokenValue,
-            userDto,
-            accessToken.ExpiresIn
+        return new AuthResult<RefreshResponse>(
+            new RefreshResponse(accessToken.AccessToken, userDto, accessToken.ExpiresIn),
+            newRefreshTokenValue
+        );
+    }
+
+    private async Task<bool> IsBenignReplayAsync(
+        RefreshToken revoked,
+        DateTime now,
+        CancellationToken cancellationToken
+    )
+    {
+        if (
+            _refreshReuseGrace <= TimeSpan.Zero
+            || revoked.ReplacedByTokenId is null
+            || revoked.RevokedAt is null
+            || now - revoked.RevokedAt.Value > _refreshReuseGrace
+        )
+            return false;
+
+        return await db.RefreshTokens.AnyAsync(
+            rt => rt.RefreshTokenId == revoked.ReplacedByTokenId && !rt.IsRevoked,
+            cancellationToken
         );
     }
 
@@ -302,18 +339,21 @@ public class AuthService(
     }
 
     public async Task<MessageResponse> LogoutAsync(
-        LogoutRequest request,
+        string? refreshToken,
         CancellationToken cancellationToken
     )
     {
-        var tokenHash = tokenService.HashOpaqueToken(request.RefreshToken);
-        var existing = await db.RefreshTokens.FirstOrDefaultAsync(
-            rt => rt.TokenHash == tokenHash,
-            cancellationToken
-        );
+        if (!string.IsNullOrWhiteSpace(refreshToken))
+        {
+            var tokenHash = tokenService.HashOpaqueToken(refreshToken);
+            var existing = await db.RefreshTokens.FirstOrDefaultAsync(
+                rt => rt.TokenHash == tokenHash,
+                cancellationToken
+            );
 
-        if (existing is not null && existing.Revoke())
-            await db.SaveChangesAsync(cancellationToken);
+            if (existing is not null && existing.Revoke())
+                await db.SaveChangesAsync(cancellationToken);
+        }
 
         return new MessageResponse(Messages.Success_LoggedOut);
     }

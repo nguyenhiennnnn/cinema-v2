@@ -1,5 +1,8 @@
+using Cinema.Api.Filters;
+using Cinema.Api.Security;
 using Cinema.Application.DTOs.Auth;
 using Cinema.Application.Interfaces;
+using Cinema.Shared.Exceptions;
 using Cinema.Shared.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +15,8 @@ namespace Cinema.Api.Controllers.Client;
 public class AuthController(
     IAuthService authService,
     IRegistrationService registrationService,
-    IPasswordService passwordService
+    IPasswordService passwordService,
+    RefreshCookie refreshCookie
 ) : AppControllerBase
 {
     [HttpPost("register")]
@@ -40,6 +44,7 @@ public class AuthController(
 
     [HttpPost("login")]
     [EnableRateLimiting("auth")]
+    [CsrfProtection]
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken
@@ -47,50 +52,69 @@ public class AuthController(
     {
         var result = await authService.LoginAsync(request, adminOnly: false, cancellationToken);
 
-        return Ok(result);
+        return RespondWithSession(result);
     }
 
     [HttpPost("admin-login")]
     [EnableRateLimiting("auth")]
+    [CsrfProtection]
     public async Task<IActionResult> AdminLogin(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken
     )
     {
         var result = await authService.LoginAsync(request, adminOnly: true, cancellationToken);
-        return Ok(result);
+        return RespondWithSession(result);
     }
 
     [HttpPost("google")]
     [EnableRateLimiting("auth")]
+    [CsrfProtection]
     public async Task<IActionResult> GoogleLogin(
         [FromBody] GoogleLoginRequest request,
         CancellationToken cancellationToken
     )
     {
         var result = await authService.GoogleLoginAsync(request, cancellationToken);
-        return Ok(result);
+        return RespondWithSession(result);
     }
 
     [HttpPost("refresh")]
     [EnableRateLimiting("auth")]
-    public async Task<IActionResult> Refresh(
-        [FromBody] RefreshRequest request,
-        CancellationToken cancellationToken
-    )
+    [CsrfProtection]
+    public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
     {
-        var result = await authService.RefreshAsync(request, cancellationToken);
-        return Ok(result);
+        try
+        {
+            var result = await authService.RefreshAsync(
+                refreshCookie.Read(Request),
+                cancellationToken
+            );
+            return RespondWithSession(result);
+        }
+        catch (UnauthorizedAppException)
+        {
+            refreshCookie.Clear(Response);
+            throw;
+        }
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout(
-        [FromBody] LogoutRequest request,
-        CancellationToken cancellationToken
-    )
+    [CsrfProtection]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
-        var result = await authService.LogoutAsync(request, cancellationToken);
-        return Ok(result);
+        try
+        {
+            var result = await authService.LogoutAsync(
+                refreshCookie.Read(Request),
+                cancellationToken
+            );
+            return Ok(result);
+        }
+        finally
+        {
+            refreshCookie.Clear(Response);
+        }
     }
 
     [HttpPost("forgot-password")]
@@ -142,5 +166,13 @@ public class AuthController(
     {
         var result = await authService.GetMeAsync(CurrentUserId, cancellationToken);
         return Ok(result);
+    }
+
+    private OkObjectResult RespondWithSession<T>(AuthResult<T> result)
+    {
+        if (result.RefreshToken is not null)
+            refreshCookie.Write(Response, result.RefreshToken);
+
+        return Ok(result.Response);
     }
 }

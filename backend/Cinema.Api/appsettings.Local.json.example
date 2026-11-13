@@ -5,6 +5,12 @@
   "Cors": {
     "AllowedOrigins": ["http://localhost:5173"]
   },
+  "Auth": {
+    "RefreshCookie": {
+      "SameSite": "Lax",
+      "Secure": false
+    }
+  },
   "App": {
     "ApiBaseUrl": "http://localhost:8080",
     "FrontendBaseUrl": "http://localhost:5173"

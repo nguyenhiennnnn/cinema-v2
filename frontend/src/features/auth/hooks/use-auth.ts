@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { authApi } from "../api/auth-api";
 import { queryClient } from "@/api/query-client";
-import { useAuthStore, refreshTokenStorage, type AuthUser } from "@/stores/auth-store";
+import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import type {
   LoginRequest,
   GoogleLoginRequest,
@@ -51,8 +51,7 @@ export function useLogin() {
     meta: { skipErrorToast: true },
     mutationFn: (body: LoginRequest) => authApi.login(body),
     onSuccess: async (res) => {
-      const { accessToken, refreshToken, user } = res.data;
-      refreshTokenStorage.set(refreshToken);
+      const { accessToken, user } = res.data;
       useAuthStore.getState().setCredentials(accessToken, mapLoginUserToAuthUser(user));
       await hydrateUserFromMe();
     },
@@ -64,8 +63,7 @@ export function useAdminLogin() {
     meta: { skipErrorToast: true },
     mutationFn: (body: LoginRequest) => authApi.adminLogin(body),
     onSuccess: async (res) => {
-      const { accessToken, refreshToken, user } = res.data;
-      refreshTokenStorage.set(refreshToken);
+      const { accessToken, user } = res.data;
       useAuthStore.getState().setCredentials(accessToken, mapLoginUserToAuthUser(user));
       await hydrateUserFromMe();
     },
@@ -77,8 +75,7 @@ export function useGoogleLogin() {
     meta: { skipErrorToast: true },
     mutationFn: (body: GoogleLoginRequest) => authApi.googleLogin(body),
     onSuccess: async (res) => {
-      const { accessToken, refreshToken, user } = res.data;
-      refreshTokenStorage.set(refreshToken);
+      const { accessToken, user } = res.data;
       useAuthStore.getState().setCredentials(accessToken, mapLoginUserToAuthUser(user));
       await hydrateUserFromMe();
     },
@@ -95,10 +92,7 @@ export function useRegister() {
 export function useLogout() {
   return useMutation({
     meta: { skipSuccessToast: true },
-    mutationFn: () => {
-      const rt = refreshTokenStorage.get() ?? "";
-      return authApi.logout({ refreshToken: rt });
-    },
+    mutationFn: () => authApi.logout(),
     onSettled: () => {
       useAuthStore.getState().logout();
       queryClient.clear();

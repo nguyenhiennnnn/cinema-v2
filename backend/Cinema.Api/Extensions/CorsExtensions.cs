@@ -1,3 +1,5 @@
+using Cinema.Application.Options;
+
 namespace Cinema.Api.Extensions;
 
 public static class CorsExtensions
@@ -16,28 +18,28 @@ public static class CorsExtensions
     )
     {
         var corsOrigins = configuration.GetCorsOrigins();
+        if (corsOrigins.Length == 0)
+        {
+            var frontend = configuration
+                .BindSection<AppUrlOptions>(AppUrlOptions.SectionName)
+                .FrontendBaseUrl;
+            corsOrigins = Uri.TryCreate(frontend, UriKind.Absolute, out var uri)
+                ? [uri.GetLeftPart(UriPartial.Authority)]
+                : [];
+        }
 
         return services.AddCors(options =>
         {
             options.AddPolicy(
                 PolicyName,
                 policy =>
-                {
-                    if (corsOrigins.Length > 0)
-                        policy
-                            .WithOrigins(corsOrigins)
-                            .WithExposedHeaders(ExposedHeaders)
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
-                    else
-                        policy
-                            .WithExposedHeaders(ExposedHeaders)
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .SetIsOriginAllowed(_ => true)
-                            .AllowCredentials();
-                }
+                    policy
+                        .WithOrigins(corsOrigins)
+                        .WithExposedHeaders(ExposedHeaders)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .SetPreflightMaxAge(TimeSpan.FromMinutes(10))
             );
         });
     }

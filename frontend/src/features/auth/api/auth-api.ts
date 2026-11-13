@@ -7,9 +7,7 @@ import type {
   LoginRequest,
   LoginResponse,
   GoogleLoginRequest,
-  RefreshRequest,
   RefreshResponse,
-  LogoutRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
   ResendConfirmationEmailRequest,
@@ -35,11 +33,9 @@ export const authApi = {
   googleLogin: (body: GoogleLoginRequest) =>
     apiPost<ApiResponse<LoginResponse>>(ENDPOINTS.auth.google, body),
 
-  refresh: (body: RefreshRequest) =>
-    apiPost<ApiResponse<RefreshResponse>>(ENDPOINTS.auth.refresh, body),
+  refresh: () => apiPost<ApiResponse<RefreshResponse>>(ENDPOINTS.auth.refresh),
 
-  logout: (body: LogoutRequest) =>
-    apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.logout, body),
+  logout: () => apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.logout),
 
   forgotPassword: (body: ForgotPasswordRequest) =>
     apiPost<ApiResponse<MessageResponse>>(ENDPOINTS.auth.forgotPassword, body),

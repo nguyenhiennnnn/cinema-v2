@@ -42,6 +42,14 @@ services:
         value: "30"
       - key: Jwt__SocketTokenExpirationSeconds
         value: "300"
+      - key: Jwt__RefreshTokenReuseGraceSeconds
+        value: "10"
+
+      # ── Refresh token cookie ─────────────────────────────────────────────
+      - key: Auth__RefreshCookie__SameSite
+        value: None
+      - key: Auth__RefreshCookie__Secure
+        value: "true"
 
       # ── CORS / URLs ──────────────────────────────────────────────────────
       - key: Cors__AllowedOrigins__0

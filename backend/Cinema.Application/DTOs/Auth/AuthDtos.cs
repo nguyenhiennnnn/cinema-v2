@@ -23,23 +23,11 @@ public record LoginUserDto(
     bool IsEmailConfirmed
 );
 
-public record LoginResponse(
-    string AccessToken,
-    string RefreshToken,
-    int ExpiresIn,
-    LoginUserDto User
-);
+public record LoginResponse(string AccessToken, int ExpiresIn, LoginUserDto User);
 
-public record RefreshRequest(string RefreshToken);
+public record RefreshResponse(string AccessToken, LoginUserDto User, int ExpiresIn);
 
-public record RefreshResponse(
-    string AccessToken,
-    string RefreshToken,
-    LoginUserDto User,
-    int ExpiresIn
-);
-
-public record LogoutRequest(string RefreshToken);
+public record AuthResult<T>(T Response, string? RefreshToken);
 
 public record ForgotPasswordRequest(string Email);
 

@@ -172,6 +172,9 @@
   <data name="Forbidden_AdminCannotUseGoogleLogin" xml:space="preserve">
     <value>Tài khoản quản trị không thể đăng nhập bằng Google.</value>
   </data>
+  <data name="Forbidden_CsrfRejected" xml:space="preserve">
+    <value>Yêu cầu bị từ chối do không vượt qua kiểm tra bảo mật (CSRF).</value>
+  </data>
   <data name="Forbidden_CustomerCannotUseAdminPortal" xml:space="preserve">
     <value>Tài khoản Customer không thể đăng nhập qua cổng quản trị.</value>
   </data>

@@ -1,4 +1,5 @@
 using Cinema.Api.Extensions;
+using Cinema.Api.Security;
 using Cinema.Application;
 using Cinema.Application.Options;
 using Cinema.Infrastructure;
@@ -32,6 +33,7 @@ builder
     .AddJsonProtocol(options => options.PayloadSerializerOptions.AddCinemaConverters());
 
 builder.Services.AddCorsPolicy(configuration);
+builder.Services.AddRefreshCookie(configuration);
 builder.Services.AddRateLimiting(configuration);
 
 builder.ValidateProductionOptions();

@@ -37,27 +37,11 @@ public class GoogleLoginRequestValidator : AbstractValidator<GoogleLoginRequest>
     }
 }
 
-public class RefreshRequestValidator : AbstractValidator<RefreshRequest>
-{
-    public RefreshRequestValidator()
-    {
-        RuleFor(x => x.RefreshToken).NotEmpty();
-    }
-}
-
 public class ConfirmEmailRequestValidator : AbstractValidator<ConfirmEmailRequest>
 {
     public ConfirmEmailRequestValidator()
     {
         RuleFor(x => x.Token).NotEmpty();
-    }
-}
-
-public class LogoutRequestValidator : AbstractValidator<LogoutRequest>
-{
-    public LogoutRequestValidator()
-    {
-        RuleFor(x => x.RefreshToken).NotEmpty();
     }
 }
 

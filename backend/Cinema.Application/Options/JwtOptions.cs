@@ -9,6 +9,7 @@ public class JwtOptions
     public string Secret { get; set; } = string.Empty;
     public int AccessTokenExpirationSeconds { get; set; } = 3600;
     public int RefreshTokenExpirationDays { get; set; } = 30;
+    public int RefreshTokenReuseGraceSeconds { get; set; } = 10;
     public int SocketTokenExpirationSeconds { get; set; } = 300;
     public int ClockSkewSeconds { get; set; } = 30;
 }

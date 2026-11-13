@@ -5,11 +5,8 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios";
-import {
-  useAuthStore,
-  refreshTokenStorage,
-  type AuthUser,
-} from "@/stores/auth-store";
+import { useAuthStore, type AuthUser } from "@/stores/auth-store";
+import { sessionHint } from "@/lib/session-hint";
 import { logDevError } from "@/lib/error";
 import { syncServerClock } from "@/lib/server-clock";
 import { ENV } from "@/config/env";
@@ -65,17 +62,26 @@ const BASE_URL = ENV.API_BASE_URL;
 
 const AUTH_REFRESH_URL = `${BASE_URL}${ENDPOINTS.auth.refresh}`;
 
+const CSRF_HEADERS = { "X-Requested-With": "XMLHttpRequest" };
+const REFRESH_LOCK_NAME = "perfo:auth-refresh";
+
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: API_TIMEOUT_MS,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
+    ...CSRF_HEADERS,
   },
 });
 
 installServerClockSync(apiClient);
 
-const refreshClient = axios.create();
+const refreshClient = axios.create({
+  timeout: API_TIMEOUT_MS,
+  withCredentials: true,
+  headers: CSRF_HEADERS,
+});
 installServerClockSync(refreshClient);
 
 apiClient.interceptors.request.use((config) => {
@@ -90,42 +96,38 @@ type RetryableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
 let refreshPromise: Promise<string> | null = null;
 
-export async function refreshAccessToken(): Promise<string> {
-  if (refreshPromise) {
-    return refreshPromise;
+async function requestNewAccessToken(): Promise<string> {
+  const { data } = await refreshClient.post<{
+    data: {
+      accessToken: string;
+      user?: AuthUser;
+    };
+  }>(AUTH_REFRESH_URL);
+
+  const newAccessToken = data.data.accessToken;
+
+  if (data.data.user) {
+    useAuthStore.getState().setCredentials(newAccessToken, data.data.user);
+  } else {
+    useAuthStore.getState().setAccessToken(newAccessToken);
   }
 
-  const refreshToken = refreshTokenStorage.get();
-  if (!refreshToken) {
-    throw new Error("No refresh token available");
+  return newAccessToken;
+}
+
+function runExclusiveAcrossTabs<T>(task: () => Promise<T>): Promise<T> {
+  const locks = typeof navigator === "undefined" ? undefined : navigator.locks;
+  return locks ? locks.request(REFRESH_LOCK_NAME, task) : task();
+}
+
+export function refreshAccessToken(): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = runExclusiveAcrossTabs(requestNewAccessToken).finally(
+      () => {
+        refreshPromise = null;
+      },
+    );
   }
-
-  refreshPromise = (async () => {
-    try {
-      const { data } = await refreshClient.post<{
-        data: {
-          accessToken: string;
-          refreshToken: string;
-          user?: AuthUser;
-        };
-      }>(AUTH_REFRESH_URL, { refreshToken });
-
-      const newAccessToken = data.data.accessToken;
-      const newRefreshToken = data.data.refreshToken ?? refreshToken;
-
-      refreshTokenStorage.set(newRefreshToken);
-      if (data.data.user) {
-        useAuthStore.getState().setCredentials(newAccessToken, data.data.user);
-      } else {
-        useAuthStore.getState().setAccessToken(newAccessToken);
-      }
-
-      return newAccessToken;
-    } finally {
-      refreshPromise = null;
-    }
-  })();
-
   return refreshPromise;
 }
 
@@ -170,9 +172,7 @@ apiClient.interceptors.response.use(
       !originalRequest._retry &&
       !isAuthExcludedUrl(originalRequest.url)
     ) {
-      const refreshToken = refreshTokenStorage.get();
-
-      if (!refreshToken) {
+      if (!sessionHint.has()) {
         useAuthStore.getState().logout();
         redirectToLogin();
         return Promise.reject(error);

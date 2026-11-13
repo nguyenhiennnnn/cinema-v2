@@ -13,11 +13,10 @@ export const BRAND = {
   adminEmailPlaceholder: "admin@perfo.vn",
   siteUrl: ENV.SITE_URL,
   storageKeys: {
-    refreshToken: "perfo_refresh_token",
+    sessionHint: "perfo_session",
     theme: "vite-ui-theme",
   },
   legacyStorageKeys: {
-    refreshToken: "cinema_refresh_token",
-    obsolete: ["cinema_auth"],
+    purge: ["perfo_refresh_token", "cinema_refresh_token", "cinema_auth"],
   },
 } as const;

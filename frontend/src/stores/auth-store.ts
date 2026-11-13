@@ -1,26 +1,9 @@
 import { create } from "zustand";
 import type { Role } from "@/types/enum";
 import { queryClient } from "@/api/query-client";
-import { BRAND } from "@/config/brand";
+import { sessionHint } from "@/lib/session-hint";
 
-const REFRESH_TOKEN_KEY = BRAND.storageKeys.refreshToken;
-
-const migrateLegacyStorage = () => {
-  const legacyToken = localStorage.getItem(
-    BRAND.legacyStorageKeys.refreshToken,
-  );
-  if (legacyToken !== null) {
-    if (!localStorage.getItem(REFRESH_TOKEN_KEY)) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, legacyToken);
-    }
-    localStorage.removeItem(BRAND.legacyStorageKeys.refreshToken);
-  }
-  BRAND.legacyStorageKeys.obsolete.forEach((key) =>
-    localStorage.removeItem(key),
-  );
-};
-
-migrateLegacyStorage();
+sessionHint.purgeLegacy();
 
 export interface AuthUser {
   userId: number;
@@ -46,20 +29,16 @@ interface AuthStore {
   setInitialized: () => void;
 }
 
-export const refreshTokenStorage = {
-  get: (): string | null => localStorage.getItem(REFRESH_TOKEN_KEY),
-  set: (token: string) => localStorage.setItem(REFRESH_TOKEN_KEY, token),
-  remove: () => localStorage.removeItem(REFRESH_TOKEN_KEY),
-};
-
 export const useAuthStore = create<AuthStore>()((set) => ({
   accessToken: null,
   user: null,
   isInitialized: false,
   isAuthenticated: false,
 
-  setCredentials: (accessToken, user) =>
-    set({ accessToken, user, isAuthenticated: true }),
+  setCredentials: (accessToken, user) => {
+    sessionHint.set();
+    set({ accessToken, user, isAuthenticated: true });
+  },
 
   setAccessToken: (token) => set({ accessToken: token }),
 
@@ -69,7 +48,7 @@ export const useAuthStore = create<AuthStore>()((set) => ({
     })),
 
   logout: () => {
-    refreshTokenStorage.remove();
+    sessionHint.clear();
     queryClient.clear();
     set({ accessToken: null, user: null, isAuthenticated: false });
   },

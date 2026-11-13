@@ -54,7 +54,7 @@ public class AuthEndpointsTests(CinemaApiFactory factory) : IntegrationTestBase(
     }
 
     [Fact]
-    public async Task Login_ConfirmedCustomerWithCorrectPassword_ReturnsAccessAndRefreshTokens()
+    public async Task Login_ConfirmedCustomerWithCorrectPassword_ReturnsAccessTokenAndSetsRefreshCookie()
     {
         var (_, email, password) = await IntegrationTestDataSeeder.CreateConfirmedCustomerAsync(
             Factory.Services
@@ -65,9 +65,81 @@ public class AuthEndpointsTests(CinemaApiFactory factory) : IntegrationTestBase(
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var login = await ReadDataAsync<LoginResponseDto>(response);
         login.AccessToken.ShouldNotBeNullOrWhiteSpace();
-        login.RefreshToken.ShouldNotBeNullOrWhiteSpace();
         login.User.Email.ShouldBe(email);
+
+        var setCookie = response
+            .Headers.GetValues("Set-Cookie")
+            .Single(c => c.StartsWith("perfo_refresh_token="));
+        setCookie.ShouldContain("httponly", Case.Insensitive);
+        setCookie.ShouldContain("path=/api/v1/auth", Case.Insensitive);
+        (await response.Content.ReadAsStringAsync()).ShouldNotContain("refreshToken", Case.Insensitive);
     }
+
+    [Fact]
+    public async Task Login_WithoutCsrfHeader_Returns403()
+    {
+        var (_, email, password) = await IntegrationTestDataSeeder.CreateConfirmedCustomerAsync(
+            Factory.Services
+        );
+        using var client = Factory.CreateClient();
+
+        var response = await client.PostAsJsonAsync("/api/v1/auth/login", new { email, password });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Login_FromDisallowedOrigin_Returns403()
+    {
+        var (_, email, password) = await IntegrationTestDataSeeder.CreateConfirmedCustomerAsync(
+            Factory.Services
+        );
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/login")
+        {
+            Content = JsonContent.Create(new { email, password }),
+        };
+        request.Headers.Add("Origin", "https://evil.example");
+
+        var response = await Client.SendAsync(request);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Refresh_WithCookieFromLogin_ReturnsNewAccessTokenAndRotatesCookie()
+    {
+        var (_, email, password) = await IntegrationTestDataSeeder.CreateConfirmedCustomerAsync(
+            Factory.Services
+        );
+        var login = await Client.PostAsJsonAsync("/api/v1/auth/login", new { email, password });
+        var cookie = login
+            .Headers.GetValues("Set-Cookie")
+            .Single(c => c.StartsWith("perfo_refresh_token="))
+            .Split(';')[0];
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/refresh");
+        request.Headers.Add("Cookie", cookie);
+
+        var response = await Client.SendAsync(request);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var data = await ReadDataAsync<RefreshResponseDto>(response);
+        data.AccessToken.ShouldNotBeNullOrWhiteSpace();
+        response
+            .Headers.GetValues("Set-Cookie")
+            .Single(c => c.StartsWith("perfo_refresh_token="))
+            .Split(';')[0]
+            .ShouldNotBe(cookie);
+    }
+
+    [Fact]
+    public async Task Refresh_WithoutCookie_Returns401()
+    {
+        var response = await Client.PostAsync("/api/v1/auth/refresh", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    private record RefreshResponseDto(string AccessToken, int ExpiresIn);
 
     [Fact]
     public async Task Login_WrongPassword_Returns401()

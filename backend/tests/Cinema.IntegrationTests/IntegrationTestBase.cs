@@ -20,6 +20,7 @@ public abstract class IntegrationTestBase(CinemaApiFactory factory) : IAsyncLife
     {
         await Factory.ResetDatabaseAsync();
         Client = Factory.CreateClient();
+        Client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
     }
 
     public Task DisposeAsync()
@@ -71,7 +72,6 @@ public abstract class IntegrationTestBase(CinemaApiFactory factory) : IAsyncLife
 
     protected record LoginResponseDto(
         string AccessToken,
-        string RefreshToken,
         int ExpiresIn,
         LoginUserDto User
     );

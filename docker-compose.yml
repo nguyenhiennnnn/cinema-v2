@@ -24,6 +24,9 @@ services:
       App__ApiBaseUrl: ${API_BASE_URL:-http://localhost:8080}
       App__FrontendBaseUrl: ${FRONTEND_BASE_URL:-http://localhost:5173}
 
+      Auth__RefreshCookie__SameSite: ${REFRESH_COOKIE_SAMESITE:-Lax}
+      Auth__RefreshCookie__Secure: ${REFRESH_COOKIE_SECURE:-false}
+
       Jwt__Secret: ${JWT_SECRET:?JWT_SECRET is required — set it in .env}
       Jwt__Issuer: ${JWT_ISSUER:-Perfo}
       Jwt__Audience: ${JWT_AUDIENCE:-Perfo.Client}

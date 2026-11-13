@@ -23,12 +23,14 @@ public class AuthServiceLoginTests(PostgresContainerFixture fixture) : AuthServi
             .Returns(PasswordVerificationResult.Success);
         var sut = CreateAuthService();
 
-        var response = await sut.LoginAsync(
+        var result = await sut.LoginAsync(
             new LoginRequest("login@test.local", "correct-password"),
             adminOnly: false,
             CancellationToken.None
         );
 
+        var response = result.Response;
+        result.RefreshToken.ShouldNotBeNullOrWhiteSpace();
         response.AccessToken.ShouldBe("fake-jwt");
         response.User.UserId.ShouldBe(user.UserId);
         response.User.Role.ShouldBe(Roles.Customer);
@@ -182,13 +184,14 @@ public class AuthServiceLoginTests(PostgresContainerFixture fixture) : AuthServi
         var (admin, _) = TestDataSeeder.AddEmployee(Db, email: "boss@test.local");
         AllowPassword();
 
-        var response = await CreateAuthService()
+        var result = await CreateAuthService()
             .LoginAsync(
                 new LoginRequest("boss@test.local", "pw"),
                 adminOnly: true,
                 CancellationToken.None
             );
 
+        var response = result.Response;
         response.User.UserId.ShouldBe(admin.UserId);
         response.User.Role.ShouldBe(Roles.Admin);
     }
@@ -267,7 +270,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         var sut = CreateAuthService();
 
         var response = await sut.RefreshAsync(
-            new RefreshRequest("refresh-raw"),
+            "refresh-raw",
             CancellationToken.None
         );
 
@@ -282,13 +285,89 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         ).ShouldBe(1);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task RefreshAsync_MissingToken_ThrowsUnauthorized(string? token)
+    {
+        var sut = CreateAuthService();
+
+        await Should.ThrowAsync<UnauthorizedAppException>(() =>
+            sut.RefreshAsync(token, CancellationToken.None)
+        );
+    }
+
+    [Fact]
+    public async Task RefreshAsync_ReplayWithinGraceWindow_ReturnsAccessTokenWithoutRotating()
+    {
+        var (user, oldToken) = await SeedActiveRefreshTokenAsync();
+        var replacement = new RefreshToken
+        {
+            UserId = user.UserId,
+            TokenHash = "hash:replacement",
+            ExpiresAt = DateTime.UtcNow.AddDays(10),
+            CreatedAt = DateTime.UtcNow,
+        };
+        Db.RefreshTokens.Add(replacement);
+        await Db.SaveChangesAsync();
+        oldToken.IsRevoked = true;
+        oldToken.RevokedAt = DateTime.UtcNow;
+        oldToken.ReplacedByTokenId = replacement.RefreshTokenId;
+        await Db.SaveChangesAsync();
+        var sut = CreateAuthService();
+
+        var result = await sut.RefreshAsync("refresh-raw", CancellationToken.None);
+
+        result.RefreshToken.ShouldBeNull();
+        result.Response.AccessToken.ShouldBe("fake-jwt");
+        (await Db.RefreshTokens.CountAsync(rt => rt.UserId == user.UserId)).ShouldBe(2);
+        (
+            await Db
+                .RefreshTokens.AsNoTracking()
+                .SingleAsync(rt => rt.RefreshTokenId == replacement.RefreshTokenId)
+        )
+            .IsRevoked.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task RefreshAsync_ReplayAfterGraceWindow_RevokesReplacementAndThrows()
+    {
+        var (user, oldToken) = await SeedActiveRefreshTokenAsync();
+        var replacement = new RefreshToken
+        {
+            UserId = user.UserId,
+            TokenHash = "hash:replacement",
+            ExpiresAt = DateTime.UtcNow.AddDays(10),
+            CreatedAt = DateTime.UtcNow,
+        };
+        Db.RefreshTokens.Add(replacement);
+        await Db.SaveChangesAsync();
+        oldToken.IsRevoked = true;
+        oldToken.RevokedAt = DateTime.UtcNow.AddMinutes(-1);
+        oldToken.ReplacedByTokenId = replacement.RefreshTokenId;
+        await Db.SaveChangesAsync();
+        var sut = CreateAuthService();
+
+        await Should.ThrowAsync<UnauthorizedAppException>(() =>
+            sut.RefreshAsync("refresh-raw", CancellationToken.None)
+        );
+
+        (
+            await Db
+                .RefreshTokens.AsNoTracking()
+                .SingleAsync(rt => rt.RefreshTokenId == replacement.RefreshTokenId)
+        )
+            .IsRevoked.ShouldBeTrue();
+    }
+
     [Fact]
     public async Task RefreshAsync_UnknownToken_ThrowsUnauthorized()
     {
         var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
-            sut.RefreshAsync(new RefreshRequest("nonexistent"), CancellationToken.None)
+            sut.RefreshAsync("nonexistent", CancellationToken.None)
         );
     }
 
@@ -301,7 +380,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
-            sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
+            sut.RefreshAsync("refresh-raw", CancellationToken.None)
         );
     }
 
@@ -328,6 +407,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         Db.RefreshTokens.Add(third);
         await Db.SaveChangesAsync();
         oldToken.IsRevoked = true;
+        oldToken.RevokedAt = DateTime.UtcNow.AddMinutes(-5);
         oldToken.ReplacedByTokenId = second.RefreshTokenId;
         second.IsRevoked = true;
         second.ReplacedByTokenId = third.RefreshTokenId;
@@ -335,7 +415,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
-            sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
+            sut.RefreshAsync("refresh-raw", CancellationToken.None)
         );
 
         var reloadedThird = await Db
@@ -362,7 +442,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
-            sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
+            sut.RefreshAsync("refresh-raw", CancellationToken.None)
         );
 
         (
@@ -381,7 +461,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         var sut = CreateAuthService();
 
         await Should.ThrowAsync<UnauthorizedAppException>(() =>
-            sut.RefreshAsync(new RefreshRequest("refresh-raw"), CancellationToken.None)
+            sut.RefreshAsync("refresh-raw", CancellationToken.None)
         );
     }
 
@@ -391,7 +471,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         var (_, token) = await SeedActiveRefreshTokenAsync();
         var sut = CreateAuthService();
 
-        await sut.LogoutAsync(new LogoutRequest("refresh-raw"), CancellationToken.None);
+        await sut.LogoutAsync("refresh-raw", CancellationToken.None);
 
         var reloaded = await Db.RefreshTokens.SingleAsync(rt =>
             rt.RefreshTokenId == token.RefreshTokenId
@@ -405,7 +485,7 @@ public class AuthServiceRefreshAndLogoutTests(PostgresContainerFixture fixture) 
         var sut = CreateAuthService();
 
         var result = await sut.LogoutAsync(
-            new LogoutRequest("never-issued"),
+            "never-issued",
             CancellationToken.None
         );
 

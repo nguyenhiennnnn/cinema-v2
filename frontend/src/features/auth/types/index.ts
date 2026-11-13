@@ -39,24 +39,14 @@ export interface LoginUserDto {
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
   expiresIn: number;
   user: LoginUserDto;
-}
-
-export interface RefreshRequest {
-  refreshToken: string;
 }
 
 export interface RefreshResponse {
   accessToken: string;
-  refreshToken: string;
   user: LoginUserDto;
   expiresIn: number;
-}
-
-export interface LogoutRequest {
-  refreshToken: string;
 }
 
 export interface ForgotPasswordRequest {
