@@ -36,6 +36,7 @@ export const CounterSeatPanel = ({
         statusMap={statusMap}
         selectedIds={selectedIds}
         onToggle={(seat) => onToggleSeat(seat.showtimeSeatId)}
+        fitWidth
       />
     </div>
   );

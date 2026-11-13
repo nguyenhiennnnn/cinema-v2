@@ -1,8 +1,7 @@
 import { rowLabelToIndex, seatCellKey } from "@/components/common/seat-map/seat-map-types";
 import type { EditorCell, ValidationIssue } from "../types/seat-editor";
 
-const increment = (map: Map<string, number>, key: string) =>
-  map.set(key, (map.get(key) ?? 0) + 1);
+const cellKeyOf = (c: EditorCell) => seatCellKey(c.seatRow, c.seatNumber);
 
 function validateBounds(list: EditorCell[], rows: number, cols: number): ValidationIssue[] {
   return list
@@ -13,6 +12,7 @@ function validateBounds(list: EditorCell[], rows: number, cols: number): Validat
     .map((c) => ({
       level: "error",
       message: `Ghế ${c.seatRow}${c.seatNumber} nằm ngoài kích thước phòng đã khai báo (${rows} hàng x ${cols} cột).`,
+      cellKeys: [cellKeyOf(c)],
     }));
 }
 
@@ -20,9 +20,13 @@ function validateDuplicates(list: EditorCell[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const seenKeys = new Set<string>();
   list.forEach((c) => {
-    const key = seatCellKey(c.seatRow, c.seatNumber);
+    const key = cellKeyOf(c);
     if (seenKeys.has(key)) {
-      issues.push({ level: "error", message: `Ghế ${c.seatRow}${c.seatNumber} bị trùng vị trí.` });
+      issues.push({
+        level: "error",
+        message: `Ghế ${c.seatRow}${c.seatNumber} bị trùng vị trí.`,
+        cellKeys: [key],
+      });
     }
     seenKeys.add(key);
   });
@@ -38,11 +42,13 @@ function validateCouples(list: EditorCell[]): ValidationIssue[] {
   });
 
   groups.forEach((group) => {
+    const cellKeys = group.map(cellKeyOf);
     if (group.length !== 2) {
       const where = group[0] ? `hàng ${group[0].seatRow}` : "";
       issues.push({
         level: "error",
         message: `Có cặp ghế đôi ${where} gồm ${group.length} ghế thay vì 2 (ghế đôi bị lẻ).`,
+        cellKeys,
       });
       return;
     }
@@ -51,6 +57,7 @@ function validateCouples(list: EditorCell[]): ValidationIssue[] {
       issues.push({
         level: "warning",
         message: `Cặp ghế đôi hàng ${a.seatRow} (${a.seatNumber} - ${b.seatNumber}) không liền kề nhau.`,
+        cellKeys,
       });
     }
   });
@@ -59,19 +66,20 @@ function validateCouples(list: EditorCell[]): ValidationIssue[] {
 
 function validateAisles(list: EditorCell[], cols: number): ValidationIssue[] {
   if (cols <= 1) return [];
-  const activeByRow = new Map<string, number>();
-  const aisleByRow = new Map<string, number>();
+  const activeByRow = new Map<string, string[]>();
+  const aisleRows = new Set<string>();
   list.forEach((c) => {
-    if (c.isAisle) increment(aisleByRow, c.seatRow);
-    else if (c.isActive) increment(activeByRow, c.seatRow);
+    if (c.isAisle) aisleRows.add(c.seatRow);
+    else if (c.isActive) activeByRow.set(c.seatRow, [...(activeByRow.get(c.seatRow) ?? []), cellKeyOf(c)]);
   });
 
   const issues: ValidationIssue[] = [];
-  activeByRow.forEach((activeCount, rowLabel) => {
-    if (activeCount > 0 && !aisleByRow.has(rowLabel)) {
+  activeByRow.forEach((keys, rowLabel) => {
+    if (keys.length > 0 && !aisleRows.has(rowLabel)) {
       issues.push({
         level: "warning",
         message: `Hàng ${rowLabel} không có ô lối đi nào — ghế trong hàng có thể bị "mồ côi", không có lối vào/ra.`,
+        cellKeys: keys,
       });
     }
   });

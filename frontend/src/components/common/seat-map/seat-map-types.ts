@@ -8,7 +8,7 @@ export type SeatCellState =
   | "inactive"
   | "aisle";
 
-export type SeatMark = "suggested" | "range" | "pending";
+export type SeatMark = "suggested" | "range" | "pending" | "issue";
 
 export interface SeatCellData {
   seatRow: string;

@@ -49,6 +49,26 @@ export function useSeatEditorState({
 
   const clearSelection = () => setSelectedKeys(new Set());
   const setSelectionKeys = (keys: string[]) => setSelectedKeys(new Set(keys));
+  const selectAll = () => setSelectedKeys(new Set(cells.keys()));
+  const toggleKeys = (keys: string[]) =>
+    setSelectedKeys((prev) => {
+      const allSelected = keys.length > 0 && keys.every((k) => prev.has(k));
+      const next = new Set(prev);
+      keys.forEach((k) => (allSelected ? next.delete(k) : next.add(k)));
+      return next;
+    });
+  const selectRow = (rowLabel: string) =>
+    toggleKeys(
+      Array.from(cells.values())
+        .filter((c) => c.seatRow === rowLabel)
+        .map((c) => seatCellKey(c.seatRow, c.seatNumber)),
+    );
+  const selectCol = (col: number) =>
+    toggleKeys(
+      Array.from(cells.values())
+        .filter((c) => c.seatNumber === col)
+        .map((c) => seatCellKey(c.seatRow, c.seatNumber)),
+    );
   const resetTransientState = () => {
     setPendingCoupleKey(null);
     clearSelection();
@@ -121,15 +141,40 @@ export function useSeatEditorState({
     if (brush.type === "pairCouple") {
       return "Không thể ghép ghế đôi hàng loạt — hãy chọn từng cặp ghế bằng công cụ ghép ghế đôi.";
     }
+    const solidBrush: Exclude<SeatEditorBrush, { type: "pairCouple" }> = brush;
+
+    const selected = Array.from(selectedKeys)
+      .map((key) => ({ key, cell: cells.get(key) }))
+      .filter((entry): entry is { key: string; cell: EditorCell } => !!entry.cell);
 
     const next = new Map(cells);
-    selectedKeys.forEach((key) => {
-      const current = next.get(key);
-      if (current) next.set(key, applyBrushToCell(current, brush));
-    });
+    if (solidBrush.type === "toggleActive") {
+      const targetActive = !selected.some(({ cell }) => cell.isActive && !cell.isAisle);
+      selected.forEach(({ key, cell }) => {
+        if (!cell.isAisle) next.set(key, { ...cell, isActive: targetActive });
+      });
+    } else if (solidBrush.type === "toggleAisle") {
+      const targetAisle = selected.some(({ cell }) => !cell.isAisle);
+      selected.forEach(({ key, cell }) => {
+        if (cell.isAisle !== targetAisle) next.set(key, applyBrushToCell(cell, solidBrush));
+      });
+    } else {
+      selected.forEach(({ key, cell }) => next.set(key, applyBrushToCell(cell, solidBrush)));
+    }
     commitCells(next);
     clearSelection();
     return null;
+  };
+
+  const disableSelection = () => {
+    if (selectedKeys.size === 0) return;
+    const next = new Map(cells);
+    selectedKeys.forEach((key) => {
+      const cell = next.get(key);
+      if (cell && !cell.isAisle) next.set(key, { ...cell, isActive: false });
+    });
+    commitCells(next);
+    clearSelection();
   };
 
   const copyRow = (rowLabel: string) => {
@@ -184,7 +229,11 @@ export function useSeatEditorState({
     selectedKeys,
     setSelectionKeys,
     clearSelection,
+    selectAll,
+    selectRow,
+    selectCol,
     applyBrushToSelection,
+    disableSelection,
 
     copiedRow,
     copyRow,

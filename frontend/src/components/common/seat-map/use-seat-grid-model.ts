@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import {
   generateRowLabel,
+  rowLabelToIndex,
   seatCellKey,
   type SeatCellData,
   type SeatGridCell,
@@ -18,16 +19,10 @@ export function useSeatGridModel({
   cells,
 }: UseSeatGridModelParams) {
   return useMemo(() => {
-    const maxRowFromCells =
-      cells.length > 0
-        ? Math.max(
-            ...cells.map((c) =>
-              c.seatRow && c.seatRow.length > 0
-                ? c.seatRow.charCodeAt(0) - 64
-                : 0,
-            ),
-          )
-        : 0;
+    const maxRowFromCells = cells.reduce(
+      (max, c) => (c.seatRow ? Math.max(max, rowLabelToIndex(c.seatRow) + 1) : max),
+      0,
+    );
     const finalRowCount =
       maxRowFromCells > 0 ? Math.min(rowsCount, maxRowFromCells) : rowsCount;
 
@@ -40,17 +35,23 @@ export function useSeatGridModel({
       map.set(seatCellKey(cell.seatRow, cell.seatNumber), { ...cell });
     }
 
+    const byCouple = new Map<string, SeatCellData[]>();
+    for (const cell of cells) {
+      if (!cell.coupleId) continue;
+      const groupKey = `${cell.coupleId}|${cell.seatRow}`;
+      const group = byCouple.get(groupKey);
+      if (group) group.push(cell);
+      else byCouple.set(groupKey, [cell]);
+    }
+
     const processedKeys = new Set<string>();
     for (const cell of cells) {
       const key = seatCellKey(cell.seatRow, cell.seatNumber);
       if (!cell.coupleId || processedKeys.has(key)) continue;
 
-      const partner = cells.find(
-        (c) =>
-          c.coupleId === cell.coupleId &&
-          c.seatRow === cell.seatRow &&
-          c.seatNumber !== cell.seatNumber,
-      );
+      const partner = byCouple
+        .get(`${cell.coupleId}|${cell.seatRow}`)
+        ?.find((c) => c.seatNumber !== cell.seatNumber);
 
       if (partner) {
         const [first, second] = [cell, partner].sort(

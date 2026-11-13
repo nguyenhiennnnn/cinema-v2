@@ -18,9 +18,14 @@ import { useSeatEditorState } from "../hooks/use-seat-editor-state";
 import { SeatEditorToolbar } from "../components/seat-editor-toolbar";
 import { SeatEditorGrid } from "../components/seat-editor-grid";
 import { SeatEditorValidationPanel } from "../components/seat-editor-validation-panel";
+import { SeatEditorSelectionBar } from "../components/seat-editor-selection-bar";
+import { SeatEditorStats } from "../components/seat-editor-stats";
+import { useSeatEditorShortcuts } from "../hooks/use-seat-editor-shortcuts";
+import { useUnsavedChangesGuard } from "../hooks/use-unsaved-changes-guard";
+import { describeBrush } from "../utils/seat-editor-labels";
 import type { AdminRoomDto, SeatDto } from "../types";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
-import type { SeatEditorBrush, ValidationIssue } from "../types/seat-editor";
+import type { SeatEditorBrush } from "../types/seat-editor";
 import { ROUTES } from "@/config/routes";
 
 const SeatEditorReady = ({
@@ -39,7 +44,8 @@ const SeatEditorReady = ({
   const [previewMode, setPreviewMode] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [isPickingCopySource, setIsPickingCopySource] = useState(false);
-  const [validationIssues, setValidationIssues] = useState<ValidationIssue[] | null>(null);
+  const [validationOpen, setValidationOpen] = useState(false);
+  const [focusedIssue, setFocusedIssue] = useState<number | null>(null);
 
   const defaultSeatTypeId = useMemo(() => {
     if (seatTypes.length === 0) return null;
@@ -58,6 +64,23 @@ const SeatEditorReady = ({
     initialSeats: seats,
     defaultSeatTypeId,
   });
+
+  useUnsavedChangesGuard(editor.isDirty);
+
+  const validationIssues = validationOpen ? editor.validate() : null;
+  const focusedIssueIndex =
+    validationIssues && focusedIssue !== null && validationIssues[focusedIssue] ? focusedIssue : null;
+
+  const issueKeys = new Set<string>();
+  if (validationIssues) {
+    const visible = focusedIssueIndex !== null ? [validationIssues[focusedIssueIndex]] : validationIssues;
+    visible.forEach((issue) => issue.cellKeys?.forEach((key) => issueKeys.add(key)));
+  }
+
+  const closeValidation = () => {
+    setValidationOpen(false);
+    setFocusedIssue(null);
+  };
 
   const handleCellClick = (rowLabel: string, col: number) => {
     const warning = editor.applyBrush(rowLabel, col, brush);
@@ -78,7 +101,7 @@ const SeatEditorReady = ({
       setIsPickingCopySource(false);
       editor.cancelCopyRow();
       editor.clearSelection();
-      setValidationIssues(null);
+      closeValidation();
     }
     setPreviewMode((v) => !v);
   };
@@ -123,12 +146,68 @@ const SeatEditorReady = ({
           type: "success",
         });
       }
+      return;
     }
+    setSelectionMode(true);
+    editor.selectRow(rowLabel);
+  };
+
+  const handleColLabelClick = (col: number) => {
+    if (isPickingCopySource || editor.copiedRow) return;
+    setSelectionMode(true);
+    editor.selectCol(col);
   };
 
   const handleValidate = () => {
-    setValidationIssues(editor.validate());
+    setFocusedIssue(null);
+    setValidationOpen(true);
   };
+
+  const handleFocusIssue = (index: number) => {
+    const next = focusedIssue === index ? null : index;
+    setFocusedIssue(next);
+    const keys = validationIssues?.[index]?.cellKeys ?? [];
+    if (next === null) return;
+    requestAnimationFrame(() => {
+      for (const key of keys) {
+        const el = document.querySelector<HTMLElement>(`[data-seat-key="${key}"]`);
+        if (el) {
+          el.scrollIntoView({ block: "center", behavior: "smooth" });
+          break;
+        }
+      }
+    });
+  };
+
+  const handleEscape = () => {
+    if (isPickingCopySource || editor.copiedRow) {
+      handleCancelCopyRow();
+    } else if (editor.selectedKeys.size > 0) {
+      editor.clearSelection();
+    } else if (selectionMode) {
+      handleToggleSelectionMode();
+    } else if (validationOpen) {
+      closeValidation();
+    }
+  };
+
+  useSeatEditorShortcuts({
+    enabled: !previewMode,
+    seatTypes,
+    hasSelection: editor.selectedKeys.size > 0,
+    onSelectBrush: setBrush,
+    onUndo: editor.undo,
+    onRedo: editor.redo,
+    onSave: () => {
+      if (!updateSeatLayout.isPending) void handleSave();
+    },
+    onSelectAll: () => {
+      setSelectionMode(true);
+      editor.selectAll();
+    },
+    onDisableSelection: editor.disableSelection,
+    onEscape: handleEscape,
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -150,9 +229,6 @@ const SeatEditorReady = ({
         onTogglePreview={handleTogglePreview}
         selectionMode={selectionMode}
         onToggleSelectionMode={handleToggleSelectionMode}
-        selectedCount={editor.selectedKeys.size}
-        onApplyToSelection={handleApplyToSelection}
-        onClearSelection={editor.clearSelection}
         isPickingCopySource={isPickingCopySource}
         copySourceRow={editor.copiedRow?.sourceRow ?? null}
         onStartCopyRow={handleStartCopyRow}
@@ -163,8 +239,15 @@ const SeatEditorReady = ({
       />
 
       {validationIssues && (
-        <SeatEditorValidationPanel issues={validationIssues} onClose={() => setValidationIssues(null)} />
+        <SeatEditorValidationPanel
+          issues={validationIssues}
+          focusedIndex={focusedIssueIndex}
+          onFocusIssue={handleFocusIssue}
+          onClose={closeValidation}
+        />
       )}
+
+      <SeatEditorStats cellMap={editor.cellMap} seatTypes={seatTypes} />
 
       <SeatEditorGrid
         rows={editor.rows}
@@ -173,14 +256,30 @@ const SeatEditorReady = ({
         seatTypes={seatTypes}
         pendingCoupleKey={editor.pendingCoupleKey}
         onCellClick={handleCellClick}
+        activeBrush={brush}
+        issueKeys={issueKeys}
         previewMode={previewMode}
         selectionMode={selectionMode}
         selectedKeys={editor.selectedKeys}
         onSelectionChange={editor.setSelectionKeys}
-        onRowLabelClick={isPickingCopySource || editor.copiedRow ? handleRowLabelClick : undefined}
+        onRowLabelClick={handleRowLabelClick}
+        onColLabelClick={handleColLabelClick}
         copySourceRow={editor.copiedRow?.sourceRow ?? null}
         isPickingCopySource={isPickingCopySource}
       />
+
+      {selectionMode && !previewMode && (
+        <SeatEditorSelectionBar
+          className="sticky bottom-4 z-20 shadow-lg"
+          selectedCount={editor.selectedKeys.size}
+          brushLabel={describeBrush(brush, seatTypes).label}
+          onApply={handleApplyToSelection}
+          onClear={editor.clearSelection}
+          onSelectAll={editor.selectAll}
+          onDisable={editor.disableSelection}
+        />
+      )}
+
       <Button variant="outline" className="w-fit" onClick={() => navigate(ROUTES.admin.rooms)}>
         <ArrowLeft className="size-4" />
         <span>Quay lại danh sách phòng chiếu</span>

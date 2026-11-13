@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SeatKindIcon } from "./seat-kind-icon";
 import type { SeatCellState, SeatVisualKind } from "./seat-map-types";
 
 export interface SeatLegendItem {
@@ -33,7 +34,12 @@ export const SeatLegend = ({ items, className }: { items: SeatLegendItem[]; clas
             <span className="seat__label">{item.state === "inactive" ? "1" : null}</span>
           </span>
           <span className="flex flex-col leading-tight">
-            <span className="whitespace-nowrap text-[13px] text-foreground/90">{item.label}</span>
+            <span className="flex items-center gap-1 whitespace-nowrap text-[13px] text-foreground/90">
+              {item.label}
+              {item.state === "available" && (
+                <SeatKindIcon kind={item.type} className="size-3 text-muted-foreground" />
+              )}
+            </span>
             {item.hint && (
               <span className="t-code whitespace-nowrap text-[11px] text-muted-foreground">{item.hint}</span>
             )}

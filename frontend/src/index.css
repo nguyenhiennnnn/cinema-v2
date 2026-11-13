@@ -656,6 +656,10 @@
   .seat[data-mark="pending"] {
     outline-color: var(--couple);
   }
+  .seat[data-mark="issue"] {
+    outline-color: var(--destructive);
+    background: color-mix(in oklch, var(--destructive) 20%, var(--seat-bg));
+  }
   .seat[data-mark="range"] {
     background: color-mix(in oklch, var(--primary) 16%, var(--seat-bg));
   }

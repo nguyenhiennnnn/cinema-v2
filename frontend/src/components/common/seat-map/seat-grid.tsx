@@ -12,6 +12,9 @@ interface SeatGridProps {
   onRowLabelClick?: (rowLabel: string) => void;
   rowLabelClassName?: (rowLabel: string) => string | undefined;
   rowLabelTitle?: (rowLabel: string) => string | undefined;
+  showColLabels?: boolean;
+  onColLabelClick?: (col: number) => void;
+  colLabelClassName?: (col: number) => string | undefined;
   fitWidth?: boolean;
   compactAisles?: boolean;
   curve?: number;
@@ -20,6 +23,8 @@ interface SeatGridProps {
 const MAX_TILT_DEG = 2.5;
 
 const ROW_LABEL = "t-code w-6 shrink-0 text-center text-[13px] text-muted-foreground";
+
+const COL_LABEL = "t-code h-6 text-center text-[11px] leading-6 text-muted-foreground transition-colors";
 
 export const SeatGrid = ({
   rowLabels,
@@ -30,6 +35,9 @@ export const SeatGrid = ({
   onRowLabelClick,
   rowLabelClassName,
   rowLabelTitle,
+  showColLabels = false,
+  onColLabelClick,
+  colLabelClassName,
   fitWidth = false,
   compactAisles = false,
   curve = 6,
@@ -83,6 +91,35 @@ export const SeatGrid = ({
         }
       >
         <CinemaScreen className="mx-8 mb-4" />
+
+        {showColLabels && (
+          <div className="flex items-center gap-2">
+            <span className="w-6 shrink-0" aria-hidden />
+            <div
+              className={cn("grid", fitWidth ? "gap-(--fit-gap)" : "gap-1.5")}
+              style={{ gridTemplateColumns: columnTemplate }}
+            >
+              {Array.from({ length: cols }, (_, i) => i + 1).map((col) =>
+                onColLabelClick ? (
+                  <button
+                    key={col}
+                    type="button"
+                    onClick={() => onColLabelClick(col)}
+                    title={`Chọn cả cột ${col}`}
+                    className={cn(COL_LABEL, "hover:bg-muted hover:text-foreground", colLabelClassName?.(col))}
+                  >
+                    {col}
+                  </button>
+                ) : (
+                  <span key={col} className={COL_LABEL} aria-hidden>
+                    {col}
+                  </span>
+                ),
+              )}
+            </div>
+            <span className="w-6 shrink-0" aria-hidden />
+          </div>
+        )}
 
         {rowLabels.map((rowLabel) => (
           <div key={rowLabel} role="group" aria-label={`Hàng ${rowLabel}`} className="flex items-center gap-2">

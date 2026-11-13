@@ -16,6 +16,7 @@ export type SeatEditorBrush =
 export interface ValidationIssue {
   level: "error" | "warning";
   message: string;
+  cellKeys?: string[];
 }
 
 export interface AutoGenerateOptions {

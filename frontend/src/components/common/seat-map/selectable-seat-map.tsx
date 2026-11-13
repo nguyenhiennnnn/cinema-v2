@@ -5,6 +5,8 @@ import type {
 } from "@/features/client/showtimes/types";
 import { formatCurrency } from "@/lib/formatters";
 import type { SeatLegendItem } from "./seat-legend";
+import { seatTypeLabel } from "./seat-kind";
+import { STATUS_LEGEND_ITEMS, TYPE_LEGEND_ITEMS } from "./seat-legend-items";
 import { SeatButton } from "./seat-button";
 import { SeatGrid } from "./seat-grid";
 import { SeatMapFrame } from "./seat-map-frame";
@@ -40,22 +42,13 @@ const STATE_TEXT: Record<SeatCellState, string> = {
   aisle: "lối đi",
 };
 
-const LEGEND: SeatLegendItem[] = [
-  { label: "Thường", state: "available", type: "standard", group: "type" },
-  { label: "VIP", state: "available", type: "vip", group: "type" },
-  { label: "Ghế đôi", state: "available", type: "couple", group: "type" },
-  { label: "Đang chọn", state: "selected", type: "standard", group: "status" },
-  { label: "Đang giữ", state: "held", type: "standard", group: "status" },
-  { label: "Đã bán", state: "booked", type: "standard", group: "status" },
-];
-
 const buildLegend = (seats: ShowtimeSeatItemDto[]): SeatLegendItem[] => {
   const priceByKind = new Map<SeatVisualKind, number>();
   for (const seat of seats) {
     const kind = resolveSeatVisualKind(seat.seatType);
     if (!priceByKind.has(kind) && seat.price != null) priceByKind.set(kind, seat.price);
   }
-  return LEGEND.map((item) => {
+  return [...TYPE_LEGEND_ITEMS, ...STATUS_LEGEND_ITEMS].map((item) => {
     const price = item.group === "type" && item.type ? priceByKind.get(item.type) : undefined;
     return price != null ? { ...item, hint: `${formatCurrency(price)}/ghế` } : item;
   }).filter((item) => item.group !== "type" || item.hint || item.type === "standard");
@@ -142,7 +135,7 @@ export const SelectableSeatMap = ({
                   price: cell.price ?? 0,
                 })
               }
-              title={`${code}${cell.seatTypeName ? `, ${cell.seatTypeName}` : ""}`}
+              title={`${code}${cell.seatTypeName ? `, ${seatTypeLabel(cell.seatTypeName)}` : ""}`}
             />
           );
         }}

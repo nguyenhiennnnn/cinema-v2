@@ -6,9 +6,9 @@ import { SeatEditorAutoGenerateForm } from "./forms/seat-editor-auto-generate-fo
 import { SeatEditorBrushTools } from "./seat-editor-brush-tools";
 import { SeatEditorCopyRowBar } from "./seat-editor-copy-row-bar";
 import { SeatEditorHistoryButtons } from "./seat-editor-history-buttons";
-import { SeatEditorSelectionBar } from "./seat-editor-selection-bar";
 import { SeatEditorSizeInputs } from "./seat-editor-size-inputs";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
+import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
 import { FORM_PENDING_LABEL } from "@/config/default-constants";
 
@@ -33,9 +33,6 @@ interface SeatEditorToolbarProps {
 
   selectionMode: boolean;
   onToggleSelectionMode: () => void;
-  selectedCount: number;
-  onApplyToSelection: () => void;
-  onClearSelection: () => void;
 
   isPickingCopySource: boolean;
   copySourceRow: string | null;
@@ -66,9 +63,6 @@ export const SeatEditorToolbar = ({
   onTogglePreview,
   selectionMode,
   onToggleSelectionMode,
-  selectedCount,
-  onApplyToSelection,
-  onClearSelection,
   isPickingCopySource,
   copySourceRow,
   onStartCopyRow,
@@ -82,6 +76,17 @@ export const SeatEditorToolbar = ({
 
   const openDialog = useDialogOpen();
   const closeDialog = useDialogClose();
+  const openAlert = useAlertDialogOpen();
+
+  const handleGenerate = (options: AutoGenerateOptions) => {
+    openAlert({
+      title: "Thay thế toàn bộ sơ đồ ghế?",
+      description: `Layout mới ${options.rows} hàng × ${options.cols} cột sẽ ghi đè sơ đồ hiện tại. Bạn vẫn có thể Hoàn tác (Ctrl+Z) sau khi tạo.`,
+      variant: "destructive",
+      confirmText: "Tạo layout",
+      onConfirm: () => onAutoGenerate(options),
+    });
+  };
 
   const handleOpen = () => {
     openDialog({
@@ -95,7 +100,7 @@ export const SeatEditorToolbar = ({
           cols={cols}
           seatTypes={seatTypes}
           defaultSeatTypeId={defaultSeatTypeId}
-          onGenerate={onAutoGenerate}
+          onGenerate={handleGenerate}
           onDone={closeDialog}
         />
       ),
@@ -103,8 +108,8 @@ export const SeatEditorToolbar = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 bg-card p-4">
-      <div className="flex flex-wrap items-end gap-4">
+    <>
+      <div className="sticky top-16 z-20 flex flex-wrap items-end gap-4 bg-card p-4 shadow-sm">
         <SeatEditorSizeInputs
           rows={rows}
           cols={cols}
@@ -138,17 +143,25 @@ export const SeatEditorToolbar = ({
           <span>Kiểm tra layout</span>
         </Button>
 
-        <Button onClick={onSave} disabled={isSaving || previewMode} className="ml-auto">
-          <Save className="size-4" />
-          <span>{isSaving ? FORM_PENDING_LABEL : "Lưu sơ đồ ghế"}</span>
-        </Button>
-        {isDirty && (
-          <span className="text-xs font-medium text-warning">Có thay đổi chưa lưu</span>
-        )}
+        <div className="ml-auto flex items-center gap-3">
+          {isDirty && (
+            <span className="flex items-center gap-1.5 text-xs font-medium text-warning">
+              <span className="size-2 rounded-full bg-warning" aria-hidden />
+              Có thay đổi chưa lưu
+            </span>
+          )}
+          <Button onClick={onSave} disabled={isSaving || previewMode} title="Lưu (Ctrl+S)">
+            <Save className="size-4" />
+            <span>{isSaving ? FORM_PENDING_LABEL : "Lưu sơ đồ ghế"}</span>
+            {isDirty && !isSaving && (
+              <span className="size-1.5 rounded-full bg-primary-foreground" aria-hidden />
+            )}
+          </Button>
+        </div>
       </div>
 
       {!previewMode && (
-        <>
+        <div className="flex flex-col gap-3 bg-card p-4">
           <SeatEditorBrushTools
             seatTypes={seatTypes}
             brush={brush}
@@ -160,14 +173,6 @@ export const SeatEditorToolbar = ({
             onOpenAutoGenerate={handleOpen}
           />
 
-          {selectionMode && (
-            <SeatEditorSelectionBar
-              selectedCount={selectedCount}
-              onApply={onApplyToSelection}
-              onClear={onClearSelection}
-            />
-          )}
-
           {isCopyActive && (
             <SeatEditorCopyRowBar
               isPickingSource={isPickingCopySource}
@@ -175,8 +180,8 @@ export const SeatEditorToolbar = ({
               onCancel={onCancelCopyRow}
             />
           )}
-        </>
+        </div>
       )}
-    </div>
+    </>
   );
-}
+};
