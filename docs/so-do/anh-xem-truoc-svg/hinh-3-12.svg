@@ -1,1 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" data-diagram-type="DESCRIPTION" style="width:626px;height:323px;background:#FFFFFF;" width="626.563px" height="323.438px" viewBox="0 0 626 323" zoomAndPan="magnify" preserveAspectRatio="none" contentStyleType="text/css"><?plantuml 1.2026.9?><defs/><g font-family="sans-serif" lengthAdjust="spacing"><!--cluster PK--><g class="cluster" data-qualified-name="PK" id="ent0003" data-source-line="16"><rect x="209.375" y="60.938" width="395.313" height="160.938" fill="#FFF" style="stroke:#000;stroke-width:1.563;" rx="3.906" ry="3.906"/><text x="221.505" y="85.254" fill="#000" font-size="21.875" textLength="371.053" font-weight="700" font-family="'Times New Roman'">Package Soát vé (SV) — 1 use case</text></g><!--entity UC_SV_01--><g class="entity" data-qualified-name="PK.UC_SV_01" id="ent0004" data-source-line="17"><ellipse cx="407.226" cy="156.514" rx="74.413" ry="40.108" fill="#FFF" style="stroke:#000;stroke-width:0.781;"/><text x="355.123" y="153.975" fill="#000" font-size="21.875" textLength="104.205" font-family="'Times New Roman'">UC-SV-01</text><text x="368.331" y="180.443" fill="#000" font-size="21.875" textLength="77.791" font-family="'Times New Roman'">Soát vé</text></g><!--entity A_NV--><g class="entity" data-qualified-name="A_NV" id="ent0001" data-source-line="14"><ellipse cx="74.679" cy="21.875" rx="12.5" ry="12.5" fill="#FFF" style="stroke:#000;stroke-width:0.781;"/><path d="M74.679,34.375 L74.679,76.563 M54.366,46.875 L94.991,46.875 M74.679,76.563 L54.366,100 M74.679,76.563 L94.991,100" style="stroke:#000;stroke-width:0.781;" fill="none"/><text x="22.656" y="123.535" fill="#000" font-size="21.875" textLength="104.045" font-family="'Times New Roman'">Nhân viên</text></g><!--entity A_QTV--><g class="entity" data-qualified-name="A_QTV" id="ent0002" data-source-line="15"><ellipse cx="74.941" cy="196.875" rx="12.5" ry="12.5" fill="#FFF" style="stroke:#000;stroke-width:0.781;"/><path d="M74.941,209.375 L74.941,251.563 M54.629,221.875 L95.254,221.875 M74.941,251.563 L54.629,275 M74.941,251.563 L95.254,275" style="stroke:#000;stroke-width:0.781;" fill="none"/><text x="9.375" y="298.535" fill="#000" font-size="21.875" textLength="131.133" font-family="'Times New Roman'">Quản trị viên</text></g><!--link A_NV to UC_SV_01--><g class="link" data-entity-1="ent0001" data-entity-2="ent0004" id="lnk5" data-source-line="19" data-link-type="association"><path d="M127.953,82.422 C185.047,97.609 277.375,122.172 339.703,138.75" style="stroke:#000;stroke-width:1.563;" fill="none" id="A_NV-UC_SV_01"/></g><!--link A_QTV to UC_SV_01--><g class="link" data-entity-1="ent0002" data-entity-2="ent0004" id="lnk6" data-source-line="20" data-link-type="association"><path d="M140.766,226.672 C198.156,211.406 281.891,189.125 339.75,173.734" style="stroke:#000;stroke-width:1.563;" fill="none" id="A_QTV-UC_SV_01"/></g><?plantuml-src XP11Ji9068NtFSLBLxfeqYuy092uCMd0GjsOa4dxqqwOpZGpKmWn9kxTUW5rfKVGPK-29v6M02KOMSvxt__cVx-WcOLLq3pBBLAkAR5SISVCkIoPPWK4bsHN9Q5KOjKyEfx9MQgMN6QOCM6wJaepLWbxhQGDMK5mnxmWWv2Mk5K5asw7BLaoPnb5TYK8pG9CPk8ehEG8hloEqjDQBGTAA8s-s8ntB9POfViRBTEgakaMkikvfHD8wPJqtocLeOGPEfUpm_v9sXSwbtK0JzBQTU66UVqciU3rftJ137hJCDvveshzzIvXzVhx-GWPZMDd7mrtk3qs8bM_MYpg3rn4yIL-dbuGD7NGz6b7XpTuSB2h27SoyABOyuDxkPzjkSbW6iLJFt0UdMOXUDv1Qh_lAhy0?></g></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="329.6875px" preserveAspectRatio="none" style="width:571px;height:329px;" version="1.1" viewBox="0 0 571 329" width="571.875px" zoomAndPan="magnify"><defs/><g><!--cluster PK--><rect fill="#FFFFFF" height="154.6875" style="stroke: #000000; stroke-width: 2.34375;" width="362.5" x="192.1875" y="71.0156"/><text fill="#000000" font-family="Times New Roman" font-size="21.875" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="337.5" x="204.6875" y="94.563">Package Soát vé (SV) — 1 use case</text><ellipse cx="372.6585" cy="163.202" fill="#FFFFFF" rx="65.9867" ry="38.1395" style="stroke: #000000; stroke-width: 2.34375;"/><text fill="#000000" font-family="Times New Roman" font-size="21.875" lengthAdjust="spacingAndGlyphs" textLength="92.1875" x="326.5648" y="160.835">UC-SV-01</text><text fill="#000000" font-family="Times New Roman" font-size="21.875" lengthAdjust="spacingAndGlyphs" textLength="65.625" x="339.846" y="185.9891">Soát vé</text><!--entity A_NV--><ellipse cx="66.4063" cy="27.9688" fill="#FFFFFF" rx="12.5" ry="12.5" style="stroke: #000000; stroke-width: 3.125;"/><path d="M66.4063,40.4688 L66.4063,82.6563 M46.0938,52.9688 L86.7188,52.9688 M66.4063,82.6563 L46.0938,106.0938 M66.4063,82.6563 L86.7188,106.0938 " fill="none" style="stroke: #000000; stroke-width: 3.125;"/><text fill="#000000" font-family="Times New Roman" font-size="21.875" lengthAdjust="spacingAndGlyphs" textLength="89.0625" x="21.875" y="131.2036">Nhân viên</text><!--entity A_QTV--><ellipse cx="66.4063" cy="206.0938" fill="#FFFFFF" rx="12.5" ry="12.5" style="stroke: #000000; stroke-width: 3.125;"/><path d="M66.4063,218.5938 L66.4063,260.7813 M46.0938,231.0938 L86.7188,231.0938 M66.4063,260.7813 L46.0938,284.2188 M66.4063,260.7813 L86.7188,284.2188 " fill="none" style="stroke: #000000; stroke-width: 3.125;"/><text fill="#000000" font-family="Times New Roman" font-size="21.875" lengthAdjust="spacingAndGlyphs" textLength="114.0625" x="9.375" y="309.3286">Quản trị viên</text><!--link A_NV to UC_SV_01--><path d="M111.4063,86.9063 C164.4375,102.4844 254.3438,128.9063 313.2188,146.2031 " fill="none" id="A_NV-UC_SV_01" style="stroke: #000000; stroke-width: 1.5625;"/><!--link A_QTV to UC_SV_01--><path d="M123.5625,235.9375 C177.2344,220.1563 258.1719,196.375 312.75,180.3438 " fill="none" id="A_QTV-UC_SV_01" style="stroke: #000000; stroke-width: 1.5625;"/><!--
+@startuml
+left to right direction
+skinparam linetype polyline
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam dpi 150
+skinparam ArrowColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam usecaseBackgroundColor White
+skinparam usecaseBorderColor Black
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+actor "Nhân viên" as A_NV
+actor "Quản trị viên" as A_QTV
+rectangle "Package Soát vé (SV) — 1 use case" as PK {
+  usecase "UC-SV-01\nSoát vé" as UC_SV_01
+}
+A_NV - - UC_SV_01
+A_QTV - - UC_SV_01
+@enduml
+
+PlantUML version 1.2019.06(Sat May 25 00:10:25 ICT 2019)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Java Version: 21.0.2+13-LTS-58
+Operating System: Windows 11
+OS Version: 10.0
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

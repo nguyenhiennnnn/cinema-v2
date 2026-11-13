@@ -8,30 +8,33 @@ skinparam ParticipantPadding 12
 skinparam dpi 150
 autonumber
 participant "axios.ts (interceptor)" as SPA
-participant "AuthController" as C
+participant "CsrfProtectionFilter\n& AuthController" as C
 participant "AuthService" as S
 participant "IAppDbContext" as DB
 SPA -> SPA : yêu cầu nhận 401, chưa _retry, không thuộc AUTH_EXCLUDED_URLS
 SPA -> SPA : refreshAccessToken() dùng chung một refreshPromise
-SPA -> C : POST /api/v1/auth/refresh (refresh token)
-C -> S : IAuthService.RefreshAsync
+SPA -> C : POST /api/v1/auth/refresh\n[Header: X-Requested-With: XMLHttpRequest]\n[Cookie: perfo_refresh_token (HttpOnly, Secure, Lax)]
+C -> C : [CsrfProtection] xác thực X-Requested-With & Whitelist Origin
+C -> S : IAuthService.RefreshAsync(rawToken từ Cookie)
 S -> DB : băm token, tìm RefreshToken kèm User, Role, Employee, Tier
 alt không tìm thấy
 S --> SPA : 401 Unauthorized_RefreshTokenInvalid
 else đã thu hồi
-note over S, DB : phát hiện dùng lại (Hình 4.45)
+note over S, DB : phát hiện dùng lại & kiểm tra Grace Window (Hình 4.45)
 S --> SPA : 401 Unauthorized_RefreshTokenExpiredOrRevoked
 else hết hạn
 S --> SPA : 401 Unauthorized_RefreshTokenExpiredOrRevoked
 else tài khoản bị khóa hoặc email chưa xác nhận
 S --> SPA : 403 Forbidden
 else hợp lệ
-S -> S : phát hành access token mới và refresh token mới
+S -> S : phát hành access token mới và refresh token mới xoay vòng
 S -> DB : BeginTransaction
 S -> DB : thêm token mới, token cũ IsRevoked=true, RevokedAt, SaveChanges
 S -> DB : existing.ReplacedByTokenId = token mới, SaveChanges, Commit
-S --> SPA : RefreshResponse (accessToken, refreshToken, user, expiresIn)
-SPA -> SPA : lưu token mới (store và localStorage), gửi lại yêu cầu gốc một lần
+S --> C : TokenResult (accessToken, refreshToken mới, user, expiresIn)
+C -> C : RefreshCookie.Append (ghi đè cookie HttpOnly với token mới)
+C --> SPA : 200 OK: RefreshResponse (accessToken, user, expiresIn)\n[Set-Cookie: perfo_refresh_token; HttpOnly; Secure; SameSite=Lax]
+SPA -> SPA : cập nhật accessToken vào store, gửi lại yêu cầu gốc một lần
 end
-note over SPA : nếu làm mới lỗi do không có phản hồi, 401 hoặc 403 thì đăng xuất và chuyển về trang đăng nhập
+note over SPA : nếu làm mới lỗi do không có phản hồi, 401 hoặc 403 thì đăng xuất và xóa trạng thái
 @enduml

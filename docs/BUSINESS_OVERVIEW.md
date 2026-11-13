@@ -82,7 +82,7 @@ Actor: khách vãng lai (chưa đăng nhập), khách hàng (`Customer`), nhân 
 | Múi giờ & Vùng | `BusinessTime` (mặc định `Asia/Ho_Chi_Minh` / UTC+7), `BrandOptions` (`Locale`, `CurrencyCode`, `CurrencySymbol`) | Chuẩn hóa thời gian và tiền tệ kinh doanh |
 | API doc | Swashbuckle (chỉ hiển thị khi `ASPNETCORE_ENVIRONMENT=Development`, theo comment trong `Program.cs`) | Swagger 2 doc: `client`, `admin` |
 | Frontend | React 19, `react-router` 7, TanStack Query 5, TanStack Table, Zustand 5, axios, react-hook-form + zod 3, `@microsoft/signalr` 10, recharts, tailwindcss 4, vite 8, `jsqr` (đọc QR bằng camera) | SPA |
-| Test | xUnit (`Cinema.UnitTests`, `Cinema.IntegrationTests` - 523 test gồm 466 unit test và 57 integration test pass 100%), Playwright (đã cấu hình nhưng chưa có spec, xem [13](#s13)) | Kiểm thử |
+| Test | xUnit (`Cinema.UnitTests`, `Cinema.IntegrationTests` - 532 bài test gồm 420 test methods / 471 ca chạy unit test và 61 integration test pass 100% qua 55 tệp test), Playwright cho E2E | Kiểm thử |
 | Triển khai | Docker (`backend/Dockerfile`, `frontend/Dockerfile`), `docker-compose.yml`, `render.yaml` (Render: web service Docker + static site + PostgreSQL) | Chạy dev/prod |
 
 Lưu ý: comment trong `Program.cs` còn nhắc SQL Server và MediatR, nhưng code thực tế dùng PostgreSQL (`UsePostgreSqlStorage` cho Hangfire) và không dùng MediatR; một số script trong `package.json` (`docker:logs:db`, `docker:exec:db`) vẫn trỏ về `sqlserver`. Đây là phần còn sót, không phản ánh runtime hiện tại.
@@ -183,8 +183,9 @@ Không có `FallbackPolicy`: endpoint không gắn `[Authorize]` là **công kha
 |---|---|---|
 | Access token | JWT HS256 (`SecurityAlgorithms.HmacSha256`), `Jwt:AccessTokenExpirationSeconds` mặc định 3600 s | `JwtTokenService.BuildToken`, `appsettings.json` |
 | Claims | `AppClaimTypes.UserId`, `AppClaimTypes.Role`, `ClaimTypes.Role`, `sub`, `email`, và `AppClaimTypes.EmployeeId` nếu user có hồ sơ `Employee` | `JwtTokenService.BuildBaseClaims` |
-| Refresh token | Chuỗi ngẫu nhiên (`GenerateOpaqueToken`), lưu **hash SHA-256 hex hoa**; hạn `Jwt:RefreshTokenExpirationDays` mặc định 30 ngày | `JwtTokenService.HashOpaqueToken`, `AuthService.RefreshAsync` |
-| Xoay vòng refresh token | `RefreshAsync` cấp token mới, đánh dấu cũ thu hồi và nối `ReplacedByTokenId`; nếu dùng lại token đã thu hồi → thu hồi cả chuỗi (`RevokeTokenChainAsync`) và trả 401 | `AuthService.RefreshAsync` |
+| Refresh token | Chuỗi ngẫu nhiên (`GenerateOpaqueToken`), lưu **hash SHA-256 hex hoa**; hạn `Jwt:RefreshTokenExpirationDays` mặc định 30 ngày; luân chuyển an toàn qua cookie HttpOnly `perfo_refresh_token` (`Secure`, `SameSite=Lax`, path `/api/v1/auth`) triệt tiêu rủi ro XSS | `JwtTokenService.HashOpaqueToken`, `AuthService.RefreshAsync`, `RefreshCookie.cs` |
+| Xoay vòng refresh token | `RefreshAsync` nhận token từ cookie, cấp token mới và ghi đè cookie; tích hợp cửa sổ ân hạn Grace Window (`IsBenignReplayAsync`): nếu token vừa thu hồi được gửi lại trong thời gian ngắn (do nhiều tab song song), chỉ cấp Access Token mới mà không thu hồi chuỗi; ngoài cửa sổ mới thu hồi cả chuỗi (`RevokeTokenChainAsync`) và trả 401 | `AuthService.RefreshAsync`, `RefreshCookie.cs` |
+| Bảo vệ CSRF | Bộ lọc `[CsrfProtection]` (`CsrfProtectionFilter.cs`) bảo vệ toàn bộ endpoint xác thực thay đổi trạng thái (`/login`, `/admin-login`, `/google`, `/refresh`, `/logout`), bắt buộc header `X-Requested-With: XMLHttpRequest` và kiểm tra Whitelist Origin | `CsrfProtectionFilter.cs`, `AuthenticationExtensions.cs` |
 | Socket token | JWT riêng cho SignalR, `Jwt:SocketTokenExpirationSeconds` mặc định 300 s, lấy qua `POST /auth/socket-token` | `AuthService.GenerateSocketTokenAsync` |
 | Xác nhận email | Token hash lưu `UserVerificationToken`, hạn `Email:EmailConfirmationExpirationHours` = 24 giờ | `AuthService.RegisterAsync`, `ConfirmEmailAsync` |
 | Đặt lại mật khẩu | Hạn `Email:PasswordResetExpirationMinutes` = 30 phút, dùng một lần | `AuthService.ForgotPasswordAsync`, `ResetPasswordAsync` |
@@ -784,7 +785,7 @@ sequenceDiagram
 | AUTH-03 | Cổng khách chỉ cho `Customer` | `/auth/login` với role khác | 403 "Vui lòng đăng nhập qua cổng quản trị" | `AuthService.LoginAsync(adminOnly=false)` |
 | AUTH-04 | Cổng admin **không kiểm tra role** | `/auth/admin-login` | Mọi role đều nhận token (policy chặn sau) | `AuthService.LoginAsync(adminOnly=true)` |
 | AUTH-05 | Phải kích hoạt và xác thực email | `IsActive=false` hoặc `EmailConfirmed=false` | Từ chối đăng nhập/refresh | `LoginAsync`, `RefreshAsync` |
-| AUTH-06 | Quay vòng refresh token; dùng lại token đã thu hồi thu hồi cả chuỗi | Refresh | 401 | `RefreshAsync`, `RevokeTokenChainAsync` |
+| AUTH-06 | Quay vòng refresh token qua cookie HttpOnly; kiểm tra cửa sổ ân hạn Grace Window (`IsBenignReplayAsync`) tránh lỗi race condition nhiều tab; phát hiện replay attack ngoài ân hạn sẽ thu hồi toàn bộ chuỗi token (`RevokeTokenChainAsync`) | Refresh | 401 | `RefreshAsync`, `IsBenignReplayAsync`, `RevokeTokenChainAsync`, `RefreshCookie.cs` |
 | AUTH-07 | Token xác thực email hạn 24 giờ, đặt lại mật khẩu 30 phút, dùng một lần | — | Token hết hạn/đã dùng bị từ chối | `ConfirmEmailAsync`, `ResetPasswordAsync`; `Options/EmailOptions` |
 | AUTH-08 | Đặt lại mật khẩu thu hồi mọi refresh token còn hiệu lực của user; đổi mật khẩu yêu cầu email đã xác thực và mật khẩu hiện tại đúng (không thấy thu hồi token trong `ChangePasswordAsync`) | `/auth/reset-password`, `/users/me/change-password` | 400 "Token hết hạn, đã dùng hoặc không hợp lệ." / "Mật khẩu hiện tại không đúng." / 403 chưa xác thực email | `Services/Auth/AuthService.cs::ResetPasswordAsync`, `ChangePasswordAsync` |
 | AUTH-09 | Google: email phải được Google xác thực; liên kết tài khoản cùng email; chỉ role `Customer` | `/auth/google` | 401/403 | `GoogleLoginAsync`; `Infrastructure/Auth/GoogleAuthService.cs` |
@@ -916,6 +917,9 @@ sequenceDiagram
 | ROOM-05b | Không xóa phòng đang có suất chiếu sắp tới | `DELETE /admin/rooms/{id}` | 422 "Phòng đang có suất chiếu sắp tới, không thể xoá." (có kiểm tra thêm `hasAnyShowtimes`; nhánh xử lý phòng từng có suất: xem `DeleteRoomAsync`) | `RoomService.DeleteRoomAsync` |
 | ROOM-05c | Sửa sơ đồ ghế không được đụng ghế đang được đặt/giữ ở suất sắp tới; ghế đôi và tham chiếu loại ghế phải hợp lệ | `PUT /admin/rooms/{id}/seats` | 409 "Không thể thay đổi ghế đang được đặt hoặc giữ ở suất chiếu sắp tới."; 400 "Dữ liệu ghế đôi không hợp lệ." / "Dữ liệu tham chiếu không hợp lệ." | `RoomService.UpdateSeatLayoutAsync` |
 | ROOM-06 | Ghế `IsAisle` hoặc `IsActive=false` không sinh `ShowtimeSeat` | Tạo suất | — | `ShowtimeService.CreateShowtimeAsync` |
+
+**Trình soạn sơ đồ ghế nâng cấp (Seat Editor UI):**
+Giao diện thiết kế sơ đồ ghế (`/admin/rooms/{id}/seats`) tích hợp bộ công cụ cọ vẽ Brush Tools (Select, Standard, VIP, Couple, Aisle, Inactive) với phím tắt nhanh `1..6`; thay đổi kích thước hàng/cột trực tiếp qua Size Inputs; tích hợp Bảng Validation Panel tự động kiểm tra tính hợp lệ của sơ đồ (tổng ghế, số ghế theo loại, bắt buộc ghế đôi chẵn cặp theo `CoupleId`, phát hiện ghế cô lập); hỗ trợ phím tắt hoàn tác `Ctrl+Z` (Undo) và `Ctrl+Y` (Redo); cùng cơ chế guard bảo vệ chống mất dữ liệu khi rời trang chưa lưu (`use-unsaved-changes-guard.ts`).
 
 **Endpoint**
 
@@ -1115,7 +1119,7 @@ Email xác nhận ghi "có mặt trước 15 phút" trong khi mở check-in là 
 | CT-05 | Thành công: `Payment` `Cash` `Success` (lưu `AmountReceived`, `ChangeGiven`), xác nhận booking, sinh vé | — | — | `CounterBookingService.CounterCheckoutAsync`, `BookingFulfillmentService.ConfirmBookingAndGenerateTicketsAsync` |
 | CT-06 | **Hủy đơn Pending tại quầy**: Khi khách đổi ý hoặc không hoàn tất thanh toán, nhân viên có thể chủ động hủy đơn pending để nhả ghế tức thì qua `POST /admin/bookings/{id}/counter-cancel`. Hệ thống chuyển `Booking.Status` sang `Cancelled`, gọi `BookingSeatReleaser.ReleaseBookingSeatsAsync` (`ExecuteUpdateAsync`) trả ghế về `Available`, đồng thời phát sự kiện SignalR `seat.released`. Thao tác này giải tỏa trạng thái pending giúp nhân viên quầy có thể phục vụ khách tiếp theo ngay lập tức | Booking kênh `Counter`, `Pending`, đúng nhân viên tạo | `Cancelled`, nhả ghế tức thì | `AdminCounterController.CounterCancel`, `CounterBookingService.CounterCancelAsync`, `BookingSeatReleaser.cs` |
 
-Giao diện quầy tính tổng tạm tính chỉ từ ghế (không gồm combo); số tiền chính thức lấy từ phản hồi giữ ghế (`use-counter-flow.ts`).
+Giao diện quầy tính tổng tạm tính chỉ từ ghế (không gồm combo); số tiền chính thức lấy từ phản hồi giữ ghế (`use-counter-flow.ts`). Luồng bán vé quầy được bảo vệ bởi guard an toàn chống reset trạng thái của đơn đặt vé quầy đã hoàn tất thanh toán (tránh mất thông tin vé và mã QR vừa in). Đồng thời áp dụng ràng buộc an toàn giới hạn tối đa 5 đơn giữ vé quầy đang chờ thanh toán (Pending) cho mỗi nhân viên.
 
 **Endpoint Bán vé tại quầy & Soát vé (`AdminCounterController`):**
 
@@ -1817,7 +1821,7 @@ Nhân viên gõ tay URL admin-only vẫn vào được khung trang; mọi API t�
 | Quầy bán vé (`features/admin/counter`) | Admin, Employee | Tra cứu hội viên (SĐT/từ khóa), chọn suất → ghế → khách/hội viên → combo → thu tiền mặt | `GET /admin/users/customers`, `POST /admin/bookings/counter-hold`, `/{id}/counter-checkout` | Form khách báo rõ % giảm chỉ áp trên vé; tổng tạm tính chỉ cộng ghế; tiền nhận phải ≥ tổng | Loading/in vé |
 | Soát vé (`features/admin/checkin`) | Admin, Employee | Quét QR bằng camera (`jsqr`, `use-qr-camera-scanner`) hoặc nhập mã; âm thanh kết quả | `POST /admin/bookings/checkin` | Mã bắt buộc | Quét/kết quả thành công/lỗi |
 | Suất chiếu (`features/admin/showtimes`) | Admin, Employee xem; ghi chỉ Admin | Lịch, tạo, sửa, hủy; tạo hàng loạt; tự động xếp lịch (xem trước/áp dụng); nhân bản; hủy hàng loạt | `/admin/showtimes/*` | `startTime`, `fromDate/toDate`, `daysOfWeek` ≥ 1, giờ chiếu, ngày bắt đầu/kết thúc nhân bản bắt buộc | Loading/danh sách bỏ qua (`skipped`) |
-| Phòng/ghế | Admin | Tạo/sửa phòng, trình soạn sơ đồ ghế, tự sinh lưới | `/admin/rooms/*` | Tên phòng bắt buộc, tối đa **100** ký tự ở client (server ≤ **50**: lệch) | — |
+| Phòng/ghế | Admin | Tạo/sửa phòng, trình soạn sơ đồ ghế (hỗ trợ cọ vẽ brush `1..6`, `Ctrl+Z`/`Ctrl+Y`, size inputs, validation panel, unsaved changes guard) | `/admin/rooms/*` | Tên phòng bắt buộc, tối đa **100** ký tự ở client (server ≤ **50**: lệch) | — |
 | Phim | Admin/Staff xem | CRUD phim, diễn viên, đạo diễn (kèm xóa hàng loạt), tải ảnh/video | `/admin/movies/*`, `/admin/uploads/*` | Tiêu đề ≤ 200, ≥ 1 thể loại, trạng thái bắt buộc | — |
 | Combo, Danh mục, Nhân viên, Khách hàng, Đánh giá, Thanh toán | Admin | CRUD/xem (hỗ trợ xóa hàng loạt đánh giá, cập nhật trạng thái hàng loạt cho combo và user) | `/admin/*` tương ứng | Combo: tên ≤ 150, mô tả ≤ 500; vai trò bắt buộc ở form đổi role | — |
 | Báo cáo, Dashboard | Admin | Biểu đồ (recharts) | `/admin/reports/*`, `/admin/dashboard/*` | Khoảng ngày | — |
@@ -1830,7 +1834,7 @@ Form đăng nhập: email hợp lệ, mật khẩu ≥ 6 ký tự (server yêu c
 | Chủ đề | Cách làm | Nguồn |
 |---|---|---|
 | Auth | Store Zustand `auth-store.ts` (`isInitialized`, `isAuthenticated`, `user` với `role`); khởi tạo bằng refresh token | `stores/auth-store.ts` |
-| HTTP | `axios` với interceptor tự refresh access token khi `401` và thử lại yêu cầu | `api/axios.ts` |
+| HTTP | `axios` tự động đính kèm header `X-Requested-With: XMLHttpRequest` (đáp ứng bộ lọc `[CsrfProtection]` backend); interceptor tự động gọi refresh token qua HttpOnly cookie khi nhận `401` với `refreshPromise` dùng chung và thử lại yêu cầu | `api/axios.ts` |
 | Cache server-state | TanStack Query (`api/query-client.ts`, khóa trong `api/query-keys.ts`); mutation vô hiệu hóa khóa liên quan | `features/*/hooks` |
 | UI toàn cục | Store dialog/alert/sheet (Zustand) | `stores/*` |
 | Realtime | `lib/signalr.ts` dựng kết nối tới `/hubs/showtimes`; `use-showtime-hub.ts` gọi `JoinShowtime/LeaveShowtime`; `use-realtime-seat-map.ts` nhận `seat.held`, `seat.booked`, `seat.released`, `hold.expired` và ghi vào cache sơ đồ ghế; tên sự kiện khớp backend | `hooks/` |
@@ -1905,13 +1909,13 @@ Theo `docker-compose.yml`/`.env.example`: `docker compose up` (PostgreSQL 16 + A
 
 # 13. Kiểm thử
 
-Nguồn: `backend/tests/Cinema.UnitTests` (xUnit), `backend/tests/Cinema.IntegrationTests` (xUnit, host thử nghiệm). Đếm theo kết quả thực thi xUnit thực tế: **523 test** (466 unit test trong `Cinema.UnitTests` và 57 integration test trong `Cinema.IntegrationTests`) thuộc **47 file test**. 100% test đều vượt qua (0 failed, 0 skipped).
+Nguồn: `backend/tests/Cinema.UnitTests` (xUnit), `backend/tests/Cinema.IntegrationTests` (xUnit, host thử nghiệm). Đếm theo kết quả thực thi xUnit thực tế: **532 bài test backend** (420 test methods / 471 ca chạy unit test trong `Cinema.UnitTests` và 61 integration test trong `Cinema.IntegrationTests`) thuộc **55 file test**. 100% test đều vượt qua (0 failed, 0 skipped).
 
 ## 13.1 Tóm tắt theo module
 
 | Module | File test (số test) | Hành vi được bảo vệ (theo tên test/nội dung đọc) | Vùng chưa có test |
 |---|---|---|---|
-| Xác thực | `AuthServiceTests` (28), `JwtTokenServiceTests` (9), `AuthValidatorsTests` (15), `AuthEndpointsTests` (11, tích hợp) | Đăng ký/đăng nhập, xác thực email, refresh/quay vòng token qua `RefreshTokenRevocation`, đặt lại mật khẩu, JWT claims, kiểm tra allow-list cổng quản trị (Admin/Employee), chặn nhân viên bị vô hiệu hóa hồ sơ (`user.Employee is { IsActive: true }`), validator | Đăng nhập Google end-to-end; rate limit `auth` |
+| Xác thực | `AuthServiceTests` (22), `RegistrationServiceTests` (7), `PasswordServiceTests` (6), `JwtTokenServiceTests` (9), `AuthValidatorsTests` (15), `AuthEndpointsTests` (15, tích hợp) | Đăng ký/đăng nhập, xác thực email, refresh xoay vòng token qua HttpOnly cookie, cửa sổ ân hạn Grace Window chống race condition, thu hồi chuỗi token khi phát hiện replay attack, đặt lại mật khẩu, JWT claims, allow-list cổng quản trị, kiểm tra bộ lọc CSRF (`X-Requested-With` và CORS Whitelist), chặn nhân viên bị vô hiệu hóa hồ sơ | Đăng nhập Google end-to-end; rate limit `auth` |
 | Đặt vé/giữ ghế & Hủy | `BookingServiceTests` (22), `BookingServiceSeatHoldTests` (6), `BookingCancellationServiceTests` (3), `BookingValidatorsTests` (20), `BookingFlowEndpointsTests` (6) | Giữ ghế tạo booking `Pending`, xung đột ghế rollback toàn bộ (có test đồng thời), một khách một booking `Pending` mỗi suất, giảm giá theo hạng (chỉ trên vé ghế, không giảm combo), checkout (chủ sở hữu, hết hạn, cổng chưa cấu hình), xác nhận idempotent, ghế không còn giữ → hủy booking, hủy đơn online và hoàn tiền qua cổng (`BookingCancellationService`), nhả ghế tức thì bằng `BookingSeatReleaser` (`ExecuteUpdateAsync`), hoàn tiền làm tròn theo % cấu hình (mặc định 100%), `ProcessPaymentFailure` (giữ Pending nếu hold còn hạn để retry, release ghế nếu hold đã hết) | `GetBookingsAdminAsync` lọc nâng cao |
 | Quầy/soát vé | `BookingServiceCounterCheckinTests` (18), `AdminBookingsEndpointsTests` (9) | Giữ ghế quầy (khách vãng lai dùng tên/phone request; khách có `UserId` dùng thông tin tài khoản nếu role `Customer` và đang hoạt động, chặn nếu inactive hoặc sai role hoặc 404), thu tiền mặt và tính tiền thối, thiếu tiền → 422 và booking vẫn `Pending`, check-in hợp lệ trong cửa sổ động (`CheckInOpenMinutes`) / đã check-in 409 / QR lạ 404 / trước giờ mở cửa 422 / suất đã kết thúc 422, hủy đơn pending tại quầy nhả ghế tức thì qua `CounterBookingService.CounterCancelAsync` | Xung đột ghế giữa quầy và online |
 | Điểm thành viên & Cửa sổ 12 tháng | `LoyaltyWindowTests` (19), `BookingServiceLoyaltyTests` (4) | Cửa sổ trượt 12 tháng (`LoyaltyWindow`), điểm cũ > 12 tháng không tính vào hạng, điểm mới trong hạn áp dụng hạng ngay cả khi cache trống; bỏ qua cache cũ khi sổ cái trống; đảo điểm giảm hạng khi hoàn tiền; hoàn một phần chỉ chạm entry của chính booking đó; giảm giá chỉ trên vé ghế; làm tròn giá giảm; booking không có sổ cái vẫn giảm `TotalSpent`; `RecalculateAllAsync` dọn sạch điểm hết hạn và đồng bộ lại cache profile & tier idempotent | Đảo điểm khi hủy suất chiếu hàng loạt (chỉ được kiểm gián tiếp qua `ShowtimeRefundJob`) |
@@ -2058,7 +2062,7 @@ Những hành vi đã đối chiếu với test:
 | Tích hợp ngoài, cấu hình | Cao | Bổ sung `BrandOptions` (`TimeZoneId`, `Locale`, `CurrencyCode`, `CurrencySymbol`) |
 | Frontend | Trung bình | Cập nhật các trang quản lý và luồng đặt vé |
 | Seed | Trung bình | Số lượng dữ liệu mẫu đếm từ mã khai báo |
-| Kiểm thử | Cao | 523 test (47 file test: 466 unit test trong `Cinema.UnitTests`, 57 integration test trong `Cinema.IntegrationTests`) đối chiếu trực tiếp |
+| Kiểm thử | Cao | 532 test (55 file test: 471 ca chạy unit test trong `Cinema.UnitTests`, 61 integration test trong `Cinema.IntegrationTests`) đối chiếu trực tiếp |
 
 ## A.4 Tổng hợp điểm lệch/rủi ro phát hiện từ code
 

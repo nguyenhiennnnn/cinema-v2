@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import {
   counterFlowReducer,
   initialCounterStep,
@@ -13,11 +13,19 @@ export type { CounterStep };
 export function useCounterFlow() {
   const [step, dispatch] = useReducer(counterFlowReducer, initialCounterStep);
 
+  const stepRef = useRef(step);
+
+  useEffect(() => {
+    stepRef.current = step;
+  }, [stepRef, step]);
+
   const selection = useCounterSelection();
   const hold = useCounterHoldFlow({
     showtimeId: selection.showtimeId,
     initialSeats: selection.showtimeSeats.data?.seats,
-    onHoldExpired: () => resetLocalFlow(),
+    onHoldExpired: () => {
+      if (stepRef.current !== "done") resetLocalFlow();
+    },
   });
   const checkout = useCounterCheckoutFlow(hold.holdResult);
 
@@ -31,7 +39,10 @@ export function useCounterFlow() {
   };
 
   const toggleSeat = (showtimeSeatId: number) =>
-    selection.toggleSeat(showtimeSeatId, hold.seatStatusMap.get(showtimeSeatId));
+    selection.toggleSeat(
+      showtimeSeatId,
+      hold.seatStatusMap.get(showtimeSeatId),
+    );
 
   const holdSeats = async () => {
     const request = selection.buildHoldRequest();
@@ -58,7 +69,7 @@ export function useCounterFlow() {
   };
 
   const resetFlow = async () => {
-    if (!(await hold.cancelHold())) return;
+    if (step !== "done" && !(await hold.cancelHold())) return;
     resetLocalFlow();
   };
 
