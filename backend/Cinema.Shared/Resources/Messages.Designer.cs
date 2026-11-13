@@ -4654,6 +4654,537 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Email_SeatsExpiredAdminManualPreheader", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to format phải là xlsx hoặc csv..
+        /// </summary>
+        public static string Export_InvalidFormat {
+            get {
+                return ResourceManager.GetString("Export_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tổng.
+        /// </summary>
+        public static string Export_Total {
+            get {
+                return ResourceManager.GetString("Export_Total", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Doanh thu.
+        /// </summary>
+        public static string Export_SheetRevenue {
+            get {
+                return ResourceManager.GetString("Export_SheetRevenue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phim bán chạy.
+        /// </summary>
+        public static string Export_SheetTopMovies {
+            get {
+                return ResourceManager.GetString("Export_SheetTopMovies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hiệu suất nhân viên.
+        /// </summary>
+        public static string Export_SheetEmployeePerformance {
+            get {
+                return ResourceManager.GetString("Export_SheetEmployeePerformance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kỳ.
+        /// </summary>
+        public static string Export_ColPeriod {
+            get {
+                return ResourceManager.GetString("Export_ColPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Doanh thu vé (VND).
+        /// </summary>
+        public static string Export_ColTicketRevenue {
+            get {
+                return ResourceManager.GetString("Export_ColTicketRevenue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Doanh thu combo (VND).
+        /// </summary>
+        public static string Export_ColComboRevenue {
+            get {
+                return ResourceManager.GetString("Export_ColComboRevenue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tổng doanh thu (VND).
+        /// </summary>
+        public static string Export_ColTotalRevenue {
+            get {
+                return ResourceManager.GetString("Export_ColTotalRevenue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số đơn.
+        /// </summary>
+        public static string Export_ColBookingCount {
+            get {
+                return ResourceManager.GetString("Export_ColBookingCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã phim.
+        /// </summary>
+        public static string Export_ColMovieId {
+            get {
+                return ResourceManager.GetString("Export_ColMovieId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên phim.
+        /// </summary>
+        public static string Export_ColMovieTitle {
+            get {
+                return ResourceManager.GetString("Export_ColMovieTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số vé bán.
+        /// </summary>
+        public static string Export_ColTicketsSold {
+            get {
+                return ResourceManager.GetString("Export_ColTicketsSold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Doanh thu (VND).
+        /// </summary>
+        public static string Export_ColRevenue {
+            get {
+                return ResourceManager.GetString("Export_ColRevenue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã nhân viên.
+        /// </summary>
+        public static string Export_ColEmployeeId {
+            get {
+                return ResourceManager.GetString("Export_ColEmployeeId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Họ tên.
+        /// </summary>
+        public static string Export_ColEmployeeName {
+            get {
+                return ResourceManager.GetString("Export_ColEmployeeName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dữ liệu xuất vượt quá {0} dòng. Hãy thu hẹp bộ lọc rồi thử lại..
+        /// </summary>
+        public static string Export_TooManyRows {
+            get {
+                return ResourceManager.GetString("Export_TooManyRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chờ xử lý.
+        /// </summary>
+        public static string Export_StatusPending {
+            get {
+                return ResourceManager.GetString("Export_StatusPending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đã xác nhận.
+        /// </summary>
+        public static string Export_StatusConfirmed {
+            get {
+                return ResourceManager.GetString("Export_StatusConfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hủy.
+        /// </summary>
+        public static string Export_StatusCancelled {
+            get {
+                return ResourceManager.GetString("Export_StatusCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hết hạn.
+        /// </summary>
+        public static string Export_StatusExpired {
+            get {
+                return ResourceManager.GetString("Export_StatusExpired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thành công.
+        /// </summary>
+        public static string Export_StatusSuccess {
+            get {
+                return ResourceManager.GetString("Export_StatusSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thất bại.
+        /// </summary>
+        public static string Export_StatusFailed {
+            get {
+                return ResourceManager.GetString("Export_StatusFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hoàn tiền.
+        /// </summary>
+        public static string Export_StatusRefunded {
+            get {
+                return ResourceManager.GetString("Export_StatusRefunded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đã lên lịch.
+        /// </summary>
+        public static string Export_StatusScheduled {
+            get {
+                return ResourceManager.GetString("Export_StatusScheduled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đã hoàn thành.
+        /// </summary>
+        public static string Export_StatusCompleted {
+            get {
+                return ResourceManager.GetString("Export_StatusCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trực tuyến.
+        /// </summary>
+        public static string Export_ChannelOnline {
+            get {
+                return ResourceManager.GetString("Export_ChannelOnline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tại quầy.
+        /// </summary>
+        public static string Export_ChannelCounter {
+            get {
+                return ResourceManager.GetString("Export_ChannelCounter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tiền mặt.
+        /// </summary>
+        public static string Export_MethodCash {
+            get {
+                return ResourceManager.GetString("Export_MethodCash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đặt vé.
+        /// </summary>
+        public static string Export_SheetBookings {
+            get {
+                return ResourceManager.GetString("Export_SheetBookings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thanh toán.
+        /// </summary>
+        public static string Export_SheetPayments {
+            get {
+                return ResourceManager.GetString("Export_SheetPayments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu.
+        /// </summary>
+        public static string Export_SheetShowtimes {
+            get {
+                return ResourceManager.GetString("Export_SheetShowtimes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã booking.
+        /// </summary>
+        public static string Export_ColBookingCode {
+            get {
+                return ResourceManager.GetString("Export_ColBookingCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Khách hàng.
+        /// </summary>
+        public static string Export_ColCustomer {
+            get {
+                return ResourceManager.GetString("Export_ColCustomer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số điện thoại.
+        /// </summary>
+        public static string Export_ColPhone {
+            get {
+                return ResourceManager.GetString("Export_ColPhone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu.
+        /// </summary>
+        public static string Export_ColShowtime {
+            get {
+                return ResourceManager.GetString("Export_ColShowtime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ghế.
+        /// </summary>
+        public static string Export_ColSeats {
+            get {
+                return ResourceManager.GetString("Export_ColSeats", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Combo.
+        /// </summary>
+        public static string Export_ColCombos {
+            get {
+                return ResourceManager.GetString("Export_ColCombos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tổng tiền (VND).
+        /// </summary>
+        public static string Export_ColTotalAmount {
+            get {
+                return ResourceManager.GetString("Export_ColTotalAmount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giảm giá (VND).
+        /// </summary>
+        public static string Export_ColDiscount {
+            get {
+                return ResourceManager.GetString("Export_ColDiscount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thành tiền (VND).
+        /// </summary>
+        public static string Export_ColFinalAmount {
+            get {
+                return ResourceManager.GetString("Export_ColFinalAmount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trạng thái.
+        /// </summary>
+        public static string Export_ColStatus {
+            get {
+                return ResourceManager.GetString("Export_ColStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kênh.
+        /// </summary>
+        public static string Export_ColChannel {
+            get {
+                return ResourceManager.GetString("Export_ColChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nhân viên tạo.
+        /// </summary>
+        public static string Export_ColCreatedBy {
+            get {
+                return ResourceManager.GetString("Export_ColCreatedBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày tạo.
+        /// </summary>
+        public static string Export_ColCreatedAt {
+            get {
+                return ResourceManager.GetString("Export_ColCreatedAt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phương thức.
+        /// </summary>
+        public static string Export_ColPaymentMethod {
+            get {
+                return ResourceManager.GetString("Export_ColPaymentMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã giao dịch.
+        /// </summary>
+        public static string Export_ColTransactionId {
+            get {
+                return ResourceManager.GetString("Export_ColTransactionId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số tiền (VND).
+        /// </summary>
+        public static string Export_ColAmount {
+            get {
+                return ResourceManager.GetString("Export_ColAmount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày thanh toán.
+        /// </summary>
+        public static string Export_ColPaidAt {
+            get {
+                return ResourceManager.GetString("Export_ColPaidAt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã giao dịch hoàn tiền.
+        /// </summary>
+        public static string Export_ColRefundTransactionId {
+            get {
+                return ResourceManager.GetString("Export_ColRefundTransactionId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số tiền hoàn (VND).
+        /// </summary>
+        public static string Export_ColRefundedAmount {
+            get {
+                return ResourceManager.GetString("Export_ColRefundedAmount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày hoàn tiền.
+        /// </summary>
+        public static string Export_ColRefundedAt {
+            get {
+                return ResourceManager.GetString("Export_ColRefundedAt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phòng chiếu.
+        /// </summary>
+        public static string Export_ColRoom {
+            get {
+                return ResourceManager.GetString("Export_ColRoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loại màn hình.
+        /// </summary>
+        public static string Export_ColScreenType {
+            get {
+                return ResourceManager.GetString("Export_ColScreenType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giờ bắt đầu.
+        /// </summary>
+        public static string Export_ColStartTime {
+            get {
+                return ResourceManager.GetString("Export_ColStartTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giờ kết thúc.
+        /// </summary>
+        public static string Export_ColEndTime {
+            get {
+                return ResourceManager.GetString("Export_ColEndTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá cơ bản (VND).
+        /// </summary>
+        public static string Export_ColBasePrice {
+            get {
+                return ResourceManager.GetString("Export_ColBasePrice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ghế đã bán.
+        /// </summary>
+        public static string Export_ColSeatsSold {
+            get {
+                return ResourceManager.GetString("Export_ColSeatsSold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tổng ghế.
+        /// </summary>
+        public static string Export_ColSeatsTotal {
+            get {
+                return ResourceManager.GetString("Export_ColSeatsTotal", resourceCulture);
+            }
+        }
     
     }
 }

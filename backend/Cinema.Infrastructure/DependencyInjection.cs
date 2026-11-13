@@ -2,6 +2,7 @@ using Cinema.Application.Interfaces;
 using Cinema.Infrastructure.Ai;
 using Cinema.Infrastructure.Auth;
 using Cinema.Infrastructure.Email;
+using Cinema.Infrastructure.Export;
 using Cinema.Infrastructure.FileStorage;
 using Cinema.Infrastructure.Payments;
 using Cinema.Infrastructure.Persistence;
@@ -59,6 +60,7 @@ public static class DependencyInjection
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
         services.AddScoped<IFileStorage, CloudinaryFileStorage>();
+        services.AddSingleton<IExportWriter, ExportWriter>();
 
         services.AddHttpClient("Resend");
         services.AddScoped<ResendEmailService>();

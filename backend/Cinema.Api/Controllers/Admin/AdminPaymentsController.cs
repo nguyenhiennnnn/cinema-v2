@@ -1,4 +1,5 @@
 ﻿using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
 using Cinema.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,10 @@ namespace Cinema.Api.Controllers.Admin;
 [ApiController]
 [Route("api/v1/admin/payments")]
 [Authorize]
-public class AdminPaymentsController(IPaymentAdminService paymentAdminService) : ControllerBase
+public class AdminPaymentsController(
+    IPaymentAdminService paymentAdminService,
+    IPaymentExportService paymentExportService
+) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.AdminOnly)]
@@ -26,6 +30,23 @@ public class AdminPaymentsController(IPaymentAdminService paymentAdminService) :
             cancellationToken
         );
         return Ok(result);
+    }
+
+    [HttpGet("export")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> ExportPayments(
+        [FromQuery] AdminPaymentListFilter filter,
+        [FromQuery] string? format,
+        CancellationToken cancellationToken
+    )
+    {
+        var exportFormat = ExportFormats.Parse(format);
+        var file = await paymentExportService.ExportPaymentsAsync(
+            filter,
+            exportFormat,
+            cancellationToken
+        );
+        return File(file.Content, file.ContentType, file.FileName);
     }
 
     [HttpGet("{id:int}")]

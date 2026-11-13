@@ -7,7 +7,7 @@ public static class CorsExtensions
     public const string PolicyName = "Default";
     private const string AllowedOriginsKey = "Cors:AllowedOrigins";
 
-    private static readonly string[] ExposedHeaders = ["Date"];
+    private static readonly string[] ExposedHeaders = ["Date", "Content-Disposition"];
     private static readonly TimeSpan PreflightMaxAge = TimeSpan.FromMinutes(10);
 
     public static string[] GetCorsOrigins(this IConfiguration configuration) =>

@@ -41,11 +41,13 @@ public static class DependencyInjection
         services.AddScoped<IShowtimeBatchService, ShowtimeBatchService>();
         services.AddScoped<IShowtimeAutoScheduleService, ShowtimeAutoScheduleService>();
         services.AddScoped<IShowtimeQueryService, ShowtimeQueryService>();
+        services.AddScoped<IShowtimeExportService, ShowtimeExportService>();
         services.AddScoped<IShowtimeLifecycleService, ShowtimeLifecycleService>();
         services.AddScoped<BookingSeatReleaser>();
         services.AddScoped<IBookingHoldPolicy, OnlineHoldPolicy>();
         services.AddScoped<IBookingHoldPolicy, CounterHoldPolicy>();
         services.AddScoped<IBookingQueryService, BookingQueryService>();
+        services.AddScoped<IBookingExportService, BookingExportService>();
         services.AddScoped<IBookingFulfillmentService, BookingFulfillmentService>();
         services.AddScoped<IBookingCancellationService, BookingCancellationService>();
         services.AddScoped<IBookingHoldService, BookingHoldService>();
@@ -55,10 +57,12 @@ public static class DependencyInjection
         services.AddScoped<IComboService, ComboService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IPaymentAdminService, PaymentAdminService>();
+        services.AddScoped<IPaymentExportService, PaymentExportService>();
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IReportExportService, ReportExportService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IUserAdminService, UserAdminService>();

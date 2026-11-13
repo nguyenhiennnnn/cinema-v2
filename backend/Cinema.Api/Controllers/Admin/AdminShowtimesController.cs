@@ -1,6 +1,7 @@
 using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Utils;
 using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,8 @@ public class AdminShowtimesController(
     IShowtimeCancellationService showtimeCancellationService,
     IShowtimeBatchService showtimeBatchService,
     IShowtimeAutoScheduleService showtimeAutoScheduleService,
-    IShowtimeQueryService showtimeQueryService
+    IShowtimeQueryService showtimeQueryService,
+    IShowtimeExportService showtimeExportService
 ) : ControllerBase
 {
     [HttpGet]
@@ -31,6 +33,23 @@ public class AdminShowtimesController(
         return Ok(
             await showtimeService.GetShowtimesAdminAsync(filter, page, pageSize, cancellationToken)
         );
+    }
+
+    [HttpGet("export")]
+    [Authorize(Policy = Policies.StaffOnly)]
+    public async Task<IActionResult> ExportShowtimes(
+        [FromQuery] AdminShowtimeListFilter filter,
+        [FromQuery] string? format,
+        CancellationToken cancellationToken
+    )
+    {
+        var exportFormat = ExportFormats.Parse(format);
+        var file = await showtimeExportService.ExportShowtimesAsync(
+            filter,
+            exportFormat,
+            cancellationToken
+        );
+        return File(file.Content, file.ContentType, file.FileName);
     }
 
     [HttpGet("calendar")]

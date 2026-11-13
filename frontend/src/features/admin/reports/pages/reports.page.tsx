@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/common/page-header";
+import { ExportButton } from "@/components/common/export-button";
+import { ENDPOINTS } from "@/api/endpoints";
 import { getDefaultReportRange } from "../utils/default-range";
 import { useRevenueReport, useTopMoviesReport, useEmployeePerformanceReport } from "../hooks/use-reports";
 import { ReportsFilterBar } from "../components/reports-filter-bar";
@@ -53,11 +55,44 @@ const AdminReportsPage = () => {
 
       <RevenueSummaryCards summary={revenueReport?.summary} isLoading={isRevenueLoading} />
 
-      <RevenueReportChart items={revenueReport?.items} isLoading={isRevenueLoading} />
+      <RevenueReportChart
+        items={revenueReport?.items}
+        isLoading={isRevenueLoading}
+        action={
+          <ExportButton
+            endpoint={ENDPOINTS.admin.reports.revenueExport}
+            params={{ fromDate, toDate, groupBy }}
+            fallbackFilename="revenue"
+            disabled={!hasValidRange}
+          />
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <TopMoviesReportTable movies={topMovies} isLoading={isTopMoviesLoading} />
-        <EmployeePerformanceTable employees={employeePerformance} isLoading={isEmployeeLoading} />
+        <TopMoviesReportTable
+          movies={topMovies}
+          isLoading={isTopMoviesLoading}
+          action={
+            <ExportButton
+              endpoint={ENDPOINTS.admin.reports.topMoviesExport}
+              params={{ fromDate, toDate, limit: TOP_MOVIES_REPORT_LIMIT }}
+              fallbackFilename="top-movies"
+              disabled={!hasValidRange}
+            />
+          }
+        />
+        <EmployeePerformanceTable
+          employees={employeePerformance}
+          isLoading={isEmployeeLoading}
+          action={
+            <ExportButton
+              endpoint={ENDPOINTS.admin.reports.employeePerformanceExport}
+              params={{ fromDate, toDate }}
+              fallbackFilename="employee-performance"
+              disabled={!hasValidRange}
+            />
+          }
+        />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { Trophy } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { ReactNode } from "react";
+import { Card, CardAction, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
@@ -9,14 +10,16 @@ import type { TopMovieDto } from "../types";
 interface TopMoviesReportTableProps {
   movies: TopMovieDto[] | undefined;
   isLoading: boolean;
+  action?: ReactNode;
 }
 
-export const TopMoviesReportTable = ({ movies, isLoading }: TopMoviesReportTableProps) => {
+export const TopMoviesReportTable = ({ movies, isLoading, action }: TopMoviesReportTableProps) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Phim bán chạy nhất</CardTitle>
         <CardDescription>Xếp hạng theo số vé và doanh thu</CardDescription>
+        {action && <CardAction>{action}</CardAction>}
       </CardHeader>
       <CardContent>
         {isLoading ? (

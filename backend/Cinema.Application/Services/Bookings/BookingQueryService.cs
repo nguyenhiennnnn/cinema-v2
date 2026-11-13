@@ -100,32 +100,7 @@ public class BookingQueryService(IAppDbContext db, IOptions<BookingOptions> book
         pageSize =
             pageSize <= 0 ? _options.DefaultPageSize : Math.Min(pageSize, _options.MaxPageSize);
 
-        var query = db.Bookings.AsQueryable();
-
-        if (
-            !string.IsNullOrWhiteSpace(filter.Status)
-            && Enum.TryParse<BookingStatus>(filter.Status, out var st)
-        )
-            query = query.Where(b => b.Status == st);
-        if (
-            !string.IsNullOrWhiteSpace(filter.Channel)
-            && Enum.TryParse<BookingChannel>(filter.Channel, out var ch)
-        )
-            query = query.Where(b => b.Channel == ch);
-        if (filter.FromDate is not null)
-            query = query.Where(b =>
-                b.CreatedAt >= BusinessTime.StartOfDayUtc(filter.FromDate.Value)
-            );
-        if (filter.ToDate is not null)
-            query = query.Where(b =>
-                b.CreatedAt < BusinessTime.StartOfNextDayUtc(filter.ToDate.Value)
-            );
-        if (!string.IsNullOrWhiteSpace(filter.Search))
-            query = query.Where(b =>
-                b.BookingCode.Contains(filter.Search)
-                || b.CustomerName.Contains(filter.Search)
-                || (b.CustomerPhone != null && b.CustomerPhone.Contains(filter.Search))
-            );
+        var query = db.Bookings.AsQueryable().ApplyAdminFilter(filter);
 
         query = query.OrderByDescending(b => b.CreatedAt);
 

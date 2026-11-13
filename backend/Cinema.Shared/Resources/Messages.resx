@@ -1706,4 +1706,182 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
   <data name="Email_SeatsExpiredAdminManualPreheader" xml:space="preserve">
     <value>Cần hoàn tiền thủ công cho đơn đặt vé #{0}</value>
   </data>
+  <data name="Export_InvalidFormat" xml:space="preserve">
+    <value>format phải là xlsx hoặc csv.</value>
+  </data>
+  <data name="Export_Total" xml:space="preserve">
+    <value>Tổng</value>
+  </data>
+  <data name="Export_SheetRevenue" xml:space="preserve">
+    <value>Doanh thu</value>
+  </data>
+  <data name="Export_SheetTopMovies" xml:space="preserve">
+    <value>Phim bán chạy</value>
+  </data>
+  <data name="Export_SheetEmployeePerformance" xml:space="preserve">
+    <value>Hiệu suất nhân viên</value>
+  </data>
+  <data name="Export_ColPeriod" xml:space="preserve">
+    <value>Kỳ</value>
+  </data>
+  <data name="Export_ColTicketRevenue" xml:space="preserve">
+    <value>Doanh thu vé (VND)</value>
+  </data>
+  <data name="Export_ColComboRevenue" xml:space="preserve">
+    <value>Doanh thu combo (VND)</value>
+  </data>
+  <data name="Export_ColTotalRevenue" xml:space="preserve">
+    <value>Tổng doanh thu (VND)</value>
+  </data>
+  <data name="Export_ColBookingCount" xml:space="preserve">
+    <value>Số đơn</value>
+  </data>
+  <data name="Export_ColMovieId" xml:space="preserve">
+    <value>Mã phim</value>
+  </data>
+  <data name="Export_ColMovieTitle" xml:space="preserve">
+    <value>Tên phim</value>
+  </data>
+  <data name="Export_ColTicketsSold" xml:space="preserve">
+    <value>Số vé bán</value>
+  </data>
+  <data name="Export_ColRevenue" xml:space="preserve">
+    <value>Doanh thu (VND)</value>
+  </data>
+  <data name="Export_ColEmployeeId" xml:space="preserve">
+    <value>Mã nhân viên</value>
+  </data>
+  <data name="Export_ColEmployeeName" xml:space="preserve">
+    <value>Họ tên</value>
+  </data>
+  <data name="Export_TooManyRows" xml:space="preserve">
+    <value>Dữ liệu xuất vượt quá {0} dòng. Hãy thu hẹp bộ lọc rồi thử lại.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Export_TooManyRows, ...)</comment>
+  </data>
+  <data name="Export_StatusPending" xml:space="preserve">
+    <value>Chờ xử lý</value>
+  </data>
+  <data name="Export_StatusConfirmed" xml:space="preserve">
+    <value>Đã xác nhận</value>
+  </data>
+  <data name="Export_StatusCancelled" xml:space="preserve">
+    <value>Đã hủy</value>
+  </data>
+  <data name="Export_StatusExpired" xml:space="preserve">
+    <value>Hết hạn</value>
+  </data>
+  <data name="Export_StatusSuccess" xml:space="preserve">
+    <value>Thành công</value>
+  </data>
+  <data name="Export_StatusFailed" xml:space="preserve">
+    <value>Thất bại</value>
+  </data>
+  <data name="Export_StatusRefunded" xml:space="preserve">
+    <value>Đã hoàn tiền</value>
+  </data>
+  <data name="Export_StatusScheduled" xml:space="preserve">
+    <value>Đã lên lịch</value>
+  </data>
+  <data name="Export_StatusCompleted" xml:space="preserve">
+    <value>Đã hoàn thành</value>
+  </data>
+  <data name="Export_ChannelOnline" xml:space="preserve">
+    <value>Trực tuyến</value>
+  </data>
+  <data name="Export_ChannelCounter" xml:space="preserve">
+    <value>Tại quầy</value>
+  </data>
+  <data name="Export_MethodCash" xml:space="preserve">
+    <value>Tiền mặt</value>
+  </data>
+  <data name="Export_SheetBookings" xml:space="preserve">
+    <value>Đặt vé</value>
+  </data>
+  <data name="Export_SheetPayments" xml:space="preserve">
+    <value>Thanh toán</value>
+  </data>
+  <data name="Export_SheetShowtimes" xml:space="preserve">
+    <value>Suất chiếu</value>
+  </data>
+  <data name="Export_ColBookingCode" xml:space="preserve">
+    <value>Mã booking</value>
+  </data>
+  <data name="Export_ColCustomer" xml:space="preserve">
+    <value>Khách hàng</value>
+  </data>
+  <data name="Export_ColPhone" xml:space="preserve">
+    <value>Số điện thoại</value>
+  </data>
+  <data name="Export_ColShowtime" xml:space="preserve">
+    <value>Suất chiếu</value>
+  </data>
+  <data name="Export_ColSeats" xml:space="preserve">
+    <value>Ghế</value>
+  </data>
+  <data name="Export_ColCombos" xml:space="preserve">
+    <value>Combo</value>
+  </data>
+  <data name="Export_ColTotalAmount" xml:space="preserve">
+    <value>Tổng tiền (VND)</value>
+  </data>
+  <data name="Export_ColDiscount" xml:space="preserve">
+    <value>Giảm giá (VND)</value>
+  </data>
+  <data name="Export_ColFinalAmount" xml:space="preserve">
+    <value>Thành tiền (VND)</value>
+  </data>
+  <data name="Export_ColStatus" xml:space="preserve">
+    <value>Trạng thái</value>
+  </data>
+  <data name="Export_ColChannel" xml:space="preserve">
+    <value>Kênh</value>
+  </data>
+  <data name="Export_ColCreatedBy" xml:space="preserve">
+    <value>Nhân viên tạo</value>
+  </data>
+  <data name="Export_ColCreatedAt" xml:space="preserve">
+    <value>Ngày tạo</value>
+  </data>
+  <data name="Export_ColPaymentMethod" xml:space="preserve">
+    <value>Phương thức</value>
+  </data>
+  <data name="Export_ColTransactionId" xml:space="preserve">
+    <value>Mã giao dịch</value>
+  </data>
+  <data name="Export_ColAmount" xml:space="preserve">
+    <value>Số tiền (VND)</value>
+  </data>
+  <data name="Export_ColPaidAt" xml:space="preserve">
+    <value>Ngày thanh toán</value>
+  </data>
+  <data name="Export_ColRefundTransactionId" xml:space="preserve">
+    <value>Mã giao dịch hoàn tiền</value>
+  </data>
+  <data name="Export_ColRefundedAmount" xml:space="preserve">
+    <value>Số tiền hoàn (VND)</value>
+  </data>
+  <data name="Export_ColRefundedAt" xml:space="preserve">
+    <value>Ngày hoàn tiền</value>
+  </data>
+  <data name="Export_ColRoom" xml:space="preserve">
+    <value>Phòng chiếu</value>
+  </data>
+  <data name="Export_ColScreenType" xml:space="preserve">
+    <value>Loại màn hình</value>
+  </data>
+  <data name="Export_ColStartTime" xml:space="preserve">
+    <value>Giờ bắt đầu</value>
+  </data>
+  <data name="Export_ColEndTime" xml:space="preserve">
+    <value>Giờ kết thúc</value>
+  </data>
+  <data name="Export_ColBasePrice" xml:space="preserve">
+    <value>Giá cơ bản (VND)</value>
+  </data>
+  <data name="Export_ColSeatsSold" xml:space="preserve">
+    <value>Ghế đã bán</value>
+  </data>
+  <data name="Export_ColSeatsTotal" xml:space="preserve">
+    <value>Tổng ghế</value>
+  </data>
 </root>

@@ -1,5 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/common/page-header";
+import { ExportButton } from "@/components/common/export-button";
+import { ENDPOINTS } from "@/api/endpoints";
 import { DataTable } from "@/components/common/data-table/data-table";
 import { useDialogOpen } from "@/stores/dialog-store";
 
@@ -20,7 +22,8 @@ const AdminPaymentsPage = () => {
   const [params, setParams] = useAdminPaymentParams();
   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
 
-  const payments = useAdminPayments(stripNulls({ ...params, search: useDebouncedValue(params.search) }));
+  const listParams = stripNulls({ ...params, search: useDebouncedValue(params.search) });
+  const payments = useAdminPayments(listParams);
   const openDialog = useDialogOpen();
 
   const handleViewDetail = (payment: AdminPaymentListItemDto) => {
@@ -38,6 +41,20 @@ const AdminPaymentsPage = () => {
       <PageHeader
         title="Thanh toán"
         description="Theo dõi giao dịch, trạng thái thanh toán và hoàn tiền."
+        action={
+          <ExportButton
+            endpoint={ENDPOINTS.admin.payments.export}
+            params={{
+              search: listParams.search || undefined,
+              status: listParams.status,
+              paymentMethod: listParams.paymentMethod,
+              fromDate: listParams.fromDate,
+              toDate: listParams.toDate,
+            }}
+            fallbackFilename="payments"
+            size="default"
+          />
+        }
       />
 
       <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 gap-3 md:grid-cols-5">

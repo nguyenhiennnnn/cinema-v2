@@ -2,7 +2,8 @@
 
 import { Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts";
 import { TrendingUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { ReactNode } from "react";
+import { Card, CardAction, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -25,14 +26,16 @@ const chartConfig = {
 interface RevenueReportChartProps {
   items: RevenueReportItemDto[] | undefined;
   isLoading: boolean;
+  action?: ReactNode;
 }
 
-export const RevenueReportChart = ({ items, isLoading }: RevenueReportChartProps) => {
+export const RevenueReportChart = ({ items, isLoading, action }: RevenueReportChartProps) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Biểu đồ doanh thu</CardTitle>
         <CardDescription>Doanh thu vé, combo và số đơn theo kỳ báo cáo</CardDescription>
+        {action && <CardAction>{action}</CardAction>}
       </CardHeader>
       <CardContent>
         {isLoading ? (

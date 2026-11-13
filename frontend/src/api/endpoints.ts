@@ -64,8 +64,11 @@ export const ENDPOINTS = {
     },
     reports: {
       revenue: "/admin/reports/revenue",
+      revenueExport: "/admin/reports/revenue/export",
       topMovies: "/admin/reports/top-movies",
+      topMoviesExport: "/admin/reports/top-movies/export",
       employeePerformance: "/admin/reports/employee-performance",
+      employeePerformanceExport: "/admin/reports/employee-performance/export",
     },
     users: {
       root: "/admin/users",
@@ -77,6 +80,7 @@ export const ENDPOINTS = {
     },
     bookings: {
       root: "/admin/bookings",
+      export: "/admin/bookings/export",
       byId: (id: number) => `/admin/bookings/${id}`,
       counterHold: "/admin/bookings/counter-hold",
       counterCheckout: (id: number) => `/admin/bookings/${id}/counter-checkout`,
@@ -102,6 +106,7 @@ export const ENDPOINTS = {
     },
     payments: {
       root: "/admin/payments",
+      export: "/admin/payments/export",
       byId: (id: number) => `/admin/payments/${id}`,
     },
     reviews: {
@@ -116,6 +121,7 @@ export const ENDPOINTS = {
     },
     showtimes: {
       root: "/admin/showtimes",
+      export: "/admin/showtimes/export",
       byId: (id: number) => `/admin/showtimes/${id}`,
       bulk: "/admin/showtimes/bulk",
       autoSchedulePreview: "/admin/showtimes/auto-schedule/preview",

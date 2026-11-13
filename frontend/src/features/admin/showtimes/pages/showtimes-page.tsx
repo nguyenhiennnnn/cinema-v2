@@ -2,6 +2,8 @@ import { useState } from "react";
 import { CalendarPlus, Copy, Plus, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
+import { ExportButton } from "@/components/common/export-button";
+import { ENDPOINTS } from "@/api/endpoints";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { DataTable } from "@/components/common/data-table/data-table";
@@ -214,6 +216,18 @@ const AdminShowtimesPage = () => {
               options={showtimeStatusOptions}
               placeholder="Trạng thái suất chiếu"
               className="sm:w-52"
+            />
+            <ExportButton
+              endpoint={ENDPOINTS.admin.showtimes.export}
+              params={{
+                movieId: params.movieId,
+                roomId: params.roomId,
+                date: params.date,
+                status: params.status,
+              }}
+              fallbackFilename="showtimes"
+              size="default"
+              className="h-10"
             />
           </div>
 

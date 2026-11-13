@@ -1,5 +1,6 @@
 import { Users } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { ReactNode } from "react";
+import { Card, CardAction, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
@@ -9,14 +10,16 @@ import type { EmployeePerformanceDto } from "../types";
 interface EmployeePerformanceTableProps {
   employees: EmployeePerformanceDto[] | undefined;
   isLoading: boolean;
+  action?: ReactNode;
 }
 
-export const EmployeePerformanceTable = ({ employees, isLoading }: EmployeePerformanceTableProps) => {
+export const EmployeePerformanceTable = ({ employees, isLoading, action }: EmployeePerformanceTableProps) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Hiệu suất nhân viên</CardTitle>
         <CardDescription>Số vé, số đơn và doanh thu theo nhân viên</CardDescription>
+        {action && <CardAction>{action}</CardAction>}
       </CardHeader>
       <CardContent>
         {isLoading ? (

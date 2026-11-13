@@ -2,6 +2,8 @@ import { useNavigate } from "react-router";
 
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/common/page-header";
+import { ExportButton } from "@/components/common/export-button";
+import { ENDPOINTS } from "@/api/endpoints";
 import { DataTable } from "@/components/common/data-table/data-table";
 
 import { useAdminBookingParams } from "@/hooks/use-query-params";
@@ -22,7 +24,8 @@ const AdminBookingsPage = () => {
   const { pagination, onPaginationChange } = useTablePagination(params, setParams);
   const navigate = useNavigate();
 
-  const bookings = useAdminBookings(stripNulls({ ...params, search: useDebouncedValue(params.search) }));
+  const listParams = stripNulls({ ...params, search: useDebouncedValue(params.search) });
+  const bookings = useAdminBookings(listParams);
 
   const handleViewDetail = (booking: AdminBookingListItemDto) => {
     navigate(ROUTES.admin.bookingDetail(booking.bookingId));
@@ -35,6 +38,20 @@ const AdminBookingsPage = () => {
       <PageHeader
         title="Đặt vé"
         description="Theo dõi đơn đặt vé, kênh bán và trạng thái xử lý."
+        action={
+          <ExportButton
+            endpoint={ENDPOINTS.admin.bookings.export}
+            params={{
+              search: listParams.search || undefined,
+              status: listParams.status,
+              channel: listParams.channel,
+              fromDate: listParams.fromDate,
+              toDate: listParams.toDate,
+            }}
+            fallbackFilename="bookings"
+            size="default"
+          />
+        }
       />
 
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
