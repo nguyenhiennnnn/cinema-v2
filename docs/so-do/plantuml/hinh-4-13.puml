@@ -9,32 +9,41 @@ skinparam ranksep 55
 left to right direction
 hide circle
 hide empty members
-class AdminBookingsController <<Controller>> {
+
+class AdminCounterController <<Controller>> {
   +Checkin(request : CheckinRequest) : ActionResult<CheckinResponse>
 }
-interface IBookingService {
-  +CheckinAsync(request : CheckinRequest) : CheckinResponse
+
+interface ICounterBookingService {
+  +CheckinAsync(request : CheckinRequest) : Task<CheckinResponse>
 }
-class BookingService <<Service>>
+
+class CounterBookingService <<Service>>
 class CheckinRequestValidator <<Validator>>
+
 interface IAppDbContext {
   +DbSet
   +SaveChangesAsync
 }
+
 class BookingTicket <<Entity>>
 class Booking <<Entity>>
 class Showtime <<Entity>>
 class CinemaSettings <<Entity>>
+
 class CheckinRequest <<DTO>>
 class CheckinResponse <<DTO>>
-AdminBookingsController ..> IBookingService
-BookingService ..|> IBookingService
-BookingService ..> BookingTicket
-BookingService ..> Booking
-BookingService ..> Showtime
-BookingService ..> CinemaSettings
-BookingService ..> CheckinRequest
-BookingService ..> CheckinResponse
+
+AdminCounterController ..> ICounterBookingService
+CounterBookingService ..|> ICounterBookingService
+
+CounterBookingService ..> BookingTicket
+CounterBookingService ..> Booking
+CounterBookingService ..> Showtime
+CounterBookingService ..> CinemaSettings
+CounterBookingService ..> CheckinRequest
+CounterBookingService ..> CheckinResponse
+
 CheckinRequestValidator ..> CheckinRequest
-BookingService ..> IAppDbContext
+CounterBookingService ..> IAppDbContext
 @enduml

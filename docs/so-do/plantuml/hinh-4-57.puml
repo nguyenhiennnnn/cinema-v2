@@ -7,32 +7,33 @@ skinparam maxMessageSize 300
 skinparam ParticipantPadding 12
 skinparam dpi 150
 autonumber
-actor "Quản trị viên" as QT
-participant "AdminShowtimesController" as C
-participant "ShowtimeCancellationService" as S
-participant "IBookingService" as B
+
+actor "Nhân viên / Quản trị viên" as NV
+participant "AdminCounterController" as C
+participant "CounterBookingService" as S
 participant "IAppDbContext" as DB
-participant "Hangfire" as H
-QT -> C : xóa (hủy) suất chiếu
-C -> S : IShowtimeCancellationService.DeleteShowtimeAsync(showtimeId)
-S -> DB : kiểm tra tồn tại, Scheduled, chưa bắt đầu
-S -> DB : BeginTransaction, Showtime = Cancelled
-S -> DB : nạp Booking Pending và Confirmed kèm Payment, User
-loop mỗi booking
-S -> DB : chọn Payment Success mới nhất, Booking = Cancelled
-alt booking vốn Pending
-S -> DB : các Payment Pending → Failed
-else booking Confirmed và có tài khoản
-S -> B : ReverseLoyaltyAsync(userId, bookingId, FinalAmount)
+participant "IRealtimeNotifier" as N
+
+NV -> C : POST /api/v1/admin/bookings/counter-hold (StaffOnly)
+alt tài khoản không có hồ sơ nhân viên
+C --> NV : Rule_NoEmployeeProfileForCounterBooking
 end
-alt Payment là tiền mặt
-S -> S : manualRefundCount++ (email ShowtimeCancelledManualRefund)
-else cổng trực tuyến
-S -> S : thêm vào refundPaymentIds
+C -> S : CounterHoldSeatsAsync(employeeId, employeeUserId, request)
+S -> DB : LoadSeatSlotsAsync, ValidateSelection (SeatGapRuleMode.Off)
+S -> DB : xác định khách (UserId khách thành viên hoặc tên, số điện thoại nhập tay)
+S -> S : CreateHoldBookingAsync (channel = Counter, holder = nhân viên)
+S -> DB : giữ ghế nguyên tử, tạo Booking Pending
+S -> N : NotifySeatHeldAsync
+S --> NV : CounterHoldResponse
+NV -> C : POST /api/v1/admin/bookings/{bookingId}/counter-checkout (AmountReceived)
+C -> S : CounterCheckoutAsync
+S -> DB : kiểm tra Booking kênh Counter, Pending, chưa hết hạn
+alt AmountReceived nhỏ hơn FinalAmount
+S --> NV : Rule_AmountReceivedInsufficient
 end
-end
-S -> DB : ghế Held của suất → Available (cập nhật hàng loạt), Commit
-S -> H : Enqueue SendEmailJob cho từng email
-S -> H : Enqueue ShowtimeRefundJob.RunAsync(paymentId) cho từng thanh toán cần hoàn
-S --> C : DeleteShowtimeResponse (showtimeId, Cancelled, manualRefundCount, số booking hoàn tự động)
+S -> DB : BeginTransaction, thêm Payment (Cash, Success, AmountReceived, ChangeGiven)
+S -> S : ConfirmBookingAndGenerateTicketsAsync (phát vé, ghi sổ điểm nếu có tài khoản)
+S -> DB : Commit
+S -> N : thông báo ghế đã bán
+S --> NV : CounterCheckoutResponse (bookingId, Confirmed, change)
 @enduml

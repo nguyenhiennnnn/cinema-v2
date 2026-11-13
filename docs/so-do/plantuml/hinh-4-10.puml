@@ -9,66 +9,78 @@ skinparam ranksep 55
 left to right direction
 hide circle
 hide empty members
+
 class BookingsController <<Controller>> {
   +Checkout(bookingId : int, request : CheckoutRequest) : ActionResult<CheckoutResponse>
 }
+
 class PaymentsController <<Controller>> {
   +VnPayIpn() : IActionResult
   +MomoIpn() : IActionResult
   +StripeWebhook() : IActionResult
 }
-interface IBookingService {
+
+interface IBookingCheckoutService {
   +CheckoutAsync(userId : int, bookingId : int, request : CheckoutRequest) : CheckoutResponse
-  +ConfirmBookingAndGenerateTicketsAsync(bookingId : int) : void
-  +ProcessPaymentFailureAsync(bookingId : int) : void
-  +ReverseLoyaltyAsync(userId : int, bookingId : int, finalAmount : decimal) : void
 }
+
+interface IBookingFulfillmentService {
+  +ConfirmBookingAndGenerateTicketsAsync(bookingId : int) : Task
+  +ProcessPaymentFailureAsync(bookingId : int) : Task
+}
+
 interface IPaymentService {
   +ProcessVnPayIpnAsync(parameters : IReadOnlyDictionary<string, string>) : VnPayIpnResult
   +ProcessMomoIpnAsync(parameters : IReadOnlyDictionary<string, string>) : MomoIpnResult
   +ProcessStripeWebhookAsync(jsonPayload : string, stripeSignature : string?) : StripeWebhookResult
 }
+
 interface IPaymentGateway {
-  +string : MethodName
+  +MethodName : string
   +CreatePaymentAsync(request : CreatePaymentRequest) : CreatePaymentResult
   +VerifyCallback(queryOrFormParams : IReadOnlyDictionary<string, string>) : GatewayCallbackResult
   +VerifyWebhook(rawBody : string, signatureHeader : string?) : GatewayCallbackResult
   +RefundAsync(request : RefundRequest) : RefundResult
 }
-class BookingService <<Service>>
+
+class BookingCheckoutService <<Service>>
+class BookingFulfillmentService <<Service>>
 class PaymentService <<Service>>
 class VnPayGateway <<Gateway>>
 class MomoGateway <<Gateway>>
 class StripeGateway <<Gateway>> {
   +VerifyWebhook(rawBody : string, signatureHeader : string?) : GatewayCallbackResult
 }
+
 class ShowtimeRefundJob <<Job>> {
   +RunAsync(paymentId : int, context : PerformContext?) : void
 }
+
 class SendEmailJob <<Job>> {
   +RunAsync(toEmail : string, subject : string, htmlbody : string) : void
 }
+
 class HmacSigner <<Utility>> {
   +Sha256Hex(key : string, data : string) : string
   +Sha512Hex(key : string, data : string) : string
 }
+
 class EmailTemplates <<Utility>> {
   +BookingConfirmed(brand : BrandOptions, customerName : string, bookingCode : string, movieTitle : string, seatCount : int) : string
   +BookingCancelledRefunded(brand : BrandOptions, customerName : string, bookingCode : string, refundAmount : decimal) : string
   +SeatsExpiredAfterPayment(brand : BrandOptions, autoRefunded : bool, bookingId : int, paymentId : int, amount : decimal) : string
-  +SeatsExpiredAfterPaymentCustomer(brand : BrandOptions, customerName : string, bookingCode : string, autoRefunded : bool, amount : decimal) : string
 }
-class QrCodeHelper <<Utility>> {
-  +GenerateDataUri(content : string) : string
-}
+
 class CodeGenerator <<Utility>> {
   +GeneratePaymentTransactionId(bookingCode : string) : string
   +GenerateTicketQrPayload(bookingCode : string, seatRow : string, seatNumber : int) : string
 }
+
 class SeatsNoLongerHeldException <<Exception>>
 class VnPayOptions <<Options>>
 class MomoOptions <<Options>>
 class StripeOptions <<Options>>
+
 class GatewayCallbackResult <<record>>
 class CreatePaymentRequest <<record>>
 class CreatePaymentResult <<record>>
@@ -78,39 +90,57 @@ class StripeWebhookResult <<record>>
 class RefundRequest <<record>>
 class RefundResult <<record>>
 class CheckoutRequestValidator <<Validator>>
+
 interface IAppDbContext {
   +DbSet
   +SaveChangesAsync
 }
+
 class CheckoutRequest <<DTO>>
-BookingsController ..> IBookingService
+
+BookingsController ..> IBookingCheckoutService
 PaymentsController ..> IPaymentService
-BookingService ..|> IBookingService
+
+BookingCheckoutService ..|> IBookingCheckoutService
+BookingFulfillmentService ..|> IBookingFulfillmentService
 PaymentService ..|> IPaymentService
+
 VnPayGateway ..|> IPaymentGateway
 MomoGateway ..|> IPaymentGateway
 StripeGateway ..|> IPaymentGateway
-PaymentService ..> IBookingService
+
+PaymentService ..> IBookingFulfillmentService
 PaymentService ..> IPaymentGateway
 PaymentService ..> SendEmailJob
 PaymentService ..> EmailTemplates
 PaymentService ..> SeatsNoLongerHeldException
-BookingService ..> IPaymentGateway
-BookingService ..> SeatsNoLongerHeldException
-BookingService ..> CodeGenerator
+
+BookingCheckoutService ..> IPaymentGateway
+BookingCheckoutService ..> CodeGenerator
+
+BookingFulfillmentService ..> CodeGenerator
+BookingFulfillmentService ..> SeatsNoLongerHeldException
+
 VnPayGateway ..> HmacSigner
 VnPayGateway ..> VnPayOptions
 MomoGateway ..> HmacSigner
 MomoGateway ..> MomoOptions
 StripeGateway ..> StripeOptions
+
 IPaymentGateway ..> GatewayCallbackResult
 IPaymentGateway ..> CreatePaymentRequest
 IPaymentGateway ..> CreatePaymentResult
 IPaymentGateway ..> RefundRequest
 IPaymentGateway ..> RefundResult
+
 IPaymentService ..> VnPayIpnResult
 IPaymentService ..> MomoIpnResult
 IPaymentService ..> StripeWebhookResult
+
 ShowtimeRefundJob ..> IPaymentGateway
 CheckoutRequestValidator ..> CheckoutRequest
+
+BookingCheckoutService ..> IAppDbContext
+BookingFulfillmentService ..> IAppDbContext
+PaymentService ..> IAppDbContext
 @enduml

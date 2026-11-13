@@ -1,4 +1,4 @@
-using Cinema.Application.DTOs.Settings;
+﻿using Cinema.Application.DTOs.Settings;
 using Cinema.Application.Services.Settings;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
@@ -25,7 +25,7 @@ public class SettingsServiceTests(PostgresContainerFixture fixture) : IDisposabl
                     TimeZoneId = "Asia/Ho_Chi_Minh",
                     Locale = "vi-VN",
                     CurrencyCode = "VND",
-                    CurrencySymbol = "VNÄ",
+                    CurrencySymbol = "VNĐ",
                 }
             )
         );

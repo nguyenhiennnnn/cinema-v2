@@ -9,72 +9,107 @@ skinparam ranksep 55
 left to right direction
 hide circle
 hide empty members
-class AdminBookingsController <<Controller>> {
+
+class AdminCounterController <<Controller>> {
   +CounterHoldSeats(request : CounterHoldRequest) : ActionResult<CounterHoldResponse>
   +CounterCheckout(bookingId : int, request : CounterCheckoutRequest) : ActionResult<CounterCheckoutResponse>
+  +CounterCancel(bookingId : int) : ActionResult<CancelBookingResponse>
 }
+
 class AdminUsersController <<Controller>> {
   +SearchCustomers(q : string?) : IActionResult
 }
-interface IBookingService {
-  +CounterHoldSeatsAsync(employeeId : int, employeeUserId : int, request : CounterHoldRequest) : CounterHoldResponse
-  +CounterCheckoutAsync(bookingId : int, request : CounterCheckoutRequest) : CounterCheckoutResponse
+
+interface ICounterBookingService {
+  +CounterHoldSeatsAsync(employeeId : int, employeeUserId : int, request : CounterHoldRequest) : Task<CounterHoldResponse>
+  +CounterCheckoutAsync(bookingId : int, request : CounterCheckoutRequest) : Task<CounterCheckoutResponse>
+  +CounterCancelAsync(bookingId : int, employeeId : int) : Task<CancelBookingResponse>
 }
+
+interface IBookingHoldPolicy {
+  +HoldDurationMinutes : int
+  +Channel : BookingChannel
+}
+
 interface IUserAdminService {
   +SearchCustomersForCounterAsync(query : string?) : List<CustomerLookupItemDto>
 }
-class BookingService <<Service>>
+
+class CounterBookingService <<Service>>
+class CounterHoldPolicy <<Policy>>
+class BookingHoldService <<Service>>
+class BookingCheckoutService <<Service>>
+class BookingSeatReleaser <<Service>>
 class UserAdminService <<Service>>
+
 class SeatLayoutRules <<Utility>> {
   +LoadSeatSlotsAsync(db : IAppDbContext, showtimeId : int) : List<SeatSlot>
   +ValidateSelection(seats : IReadOnlyList<SeatSlot>, selectedSeatIds : ICollection<int>, gapRuleMode : SeatGapRuleMode) : string?
 }
+
 class QrCodeHelper <<Utility>> {
   +GenerateDataUri(content : string) : string
 }
+
 class CodeGenerator <<Utility>> {
   +GenerateTicketQrPayload(bookingCode : string, seatRow : string, seatNumber : int) : string
 }
+
 class LoyaltyWindow <<Utility>> {
   +GetStandingsAsync(db : IAppDbContext, userIds : IReadOnlyCollection<int>, utcNow : DateTime) : Dictionary<int, Tuple>
 }
+
 class BookingOptions <<Options>>
 class CounterHoldRequestValidator <<Validator>>
 class CounterCheckoutRequestValidator <<Validator>>
+
 interface IAppDbContext {
   +DbSet
   +SaveChangesAsync
 }
+
 class Booking <<Entity>>
 class BookingTicket <<Entity>>
 class Payment <<Entity>>
 class Employee <<Entity>>
 class User <<Entity>>
+
 class CounterHoldRequest <<DTO>>
 class CounterHoldResponse <<DTO>>
 class CounterCheckoutRequest <<DTO>>
 class CounterCheckoutResponse <<DTO>>
 class CustomerLookupItemDto <<DTO>>
-AdminBookingsController ..> IBookingService
+
+AdminCounterController ..> ICounterBookingService
 AdminUsersController ..> IUserAdminService
-BookingService ..|> IBookingService
+
+CounterBookingService ..|> ICounterBookingService
+CounterHoldPolicy ..|> IBookingHoldPolicy
 UserAdminService ..|> IUserAdminService
-BookingService ..> SeatLayoutRules
-BookingService ..> CodeGenerator
-BookingService ..> BookingOptions
-BookingService ..> Booking
-BookingService ..> BookingTicket
-BookingService ..> Payment
-BookingService ..> Employee
-BookingService ..> User
+
+CounterBookingService ..> IBookingHoldPolicy
+CounterBookingService ..> BookingHoldService
+CounterBookingService ..> BookingCheckoutService
+CounterBookingService ..> BookingSeatReleaser
+CounterBookingService ..> SeatLayoutRules
+CounterBookingService ..> CodeGenerator
+CounterBookingService ..> BookingOptions
+CounterBookingService ..> Booking
+CounterBookingService ..> BookingTicket
+CounterBookingService ..> Payment
+CounterBookingService ..> Employee
+CounterBookingService ..> User
+
 UserAdminService ..> User
 UserAdminService ..> BookingOptions
 UserAdminService ..> LoyaltyWindow
 UserAdminService ..> CustomerLookupItemDto
+
 CounterHoldRequestValidator ..> CounterHoldRequest
 CounterCheckoutRequestValidator ..> CounterCheckoutRequest
-IBookingService ..> CounterHoldResponse
-IBookingService ..> CounterCheckoutResponse
-BookingService ..> IAppDbContext
+ICounterBookingService ..> CounterHoldResponse
+ICounterBookingService ..> CounterCheckoutResponse
+
+CounterBookingService ..> IAppDbContext
 UserAdminService ..> IAppDbContext
 @enduml

@@ -7,13 +7,15 @@ skinparam maxMessageSize 300
 skinparam ParticipantPadding 12
 skinparam dpi 150
 autonumber
+
 participant "Cổng thanh toán (VNPay, MoMo, Stripe)" as G
 participant "PaymentsController" as C
 participant "PaymentService" as P
-participant "BookingService" as B
+participant "BookingFulfillmentService" as B
 participant "IAppDbContext" as DB
 participant "IRealtimeNotifier" as N
 participant "Hangfire (SendEmailJob)" as H
+
 G -> C : IPN / webhook (kết quả thanh toán thành công)
 C -> P : ProcessVnPayIpnAsync / ProcessMomoIpnAsync / ProcessStripeWebhookAsync
 P -> DB : ghi kết quả thanh toán (Payment = Success, PaidAt, GatewayTransactionId)

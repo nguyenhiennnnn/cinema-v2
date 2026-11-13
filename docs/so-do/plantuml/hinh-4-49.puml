@@ -7,11 +7,13 @@ skinparam maxMessageSize 300
 skinparam ParticipantPadding 12
 skinparam dpi 150
 autonumber
+
 actor "Khách hàng" as K
 participant "BookingsController" as C
-participant "BookingService" as S
+participant "BookingCheckoutService" as S
 participant "IAppDbContext" as DB
 participant "IPaymentGateway (VNPay, MoMo, Stripe)" as G
+
 K -> C : POST /api/v1/bookings/{bookingId}/checkout (PaymentMethod)
 C -> S : CheckoutAsync(userId, bookingId, request)
 S -> DB : tìm Booking

@@ -9,104 +9,170 @@ skinparam ranksep 55
 left to right direction
 hide circle
 hide empty members
+
 class BookingsController <<Controller>> {
   +HoldSeats(request : HoldSeatsRequest) : ActionResult<HoldBookingResponse>
-  +GetMyBookings(status : string?, cursor : string?, limit : int?) : ActionResult<CursorPageResultOfBookingListItemDto>
+  +GetMyBookings(status : string?, cursor : string?, limit : int?) : ActionResult<CursorPageResult<BookingListItemDto>>
   +GetBookingDetail(bookingId : int) : ActionResult<BookingDetailDto>
+  +Checkout(bookingId : int, request : CheckoutRequest) : ActionResult<CheckoutResponse>
   +CancelBooking(bookingId : int) : ActionResult<CancelBookingResponse>
 }
+
 class ShowtimesController <<Controller>> {
   +GetSeats(showtimeId : int) : IActionResult
   +GetSeatSuggestions(showtimeId : int, count : int) : IActionResult
 }
+
 class CombosController <<Controller>> {
   +GetCombos() : IActionResult
   +GetSuggestions(showtimeId : int, seatCount : int) : IActionResult
 }
-interface IBookingService {
+
+interface IBookingHoldService {
   +HoldSeatsAsync(userId : int, request : HoldSeatsRequest) : HoldBookingResponse
+}
+
+interface IBookingCheckoutService {
+  +CheckoutAsync(userId : int, bookingId : int, request : CheckoutRequest) : CheckoutResponse
+}
+
+interface IBookingQueryService {
   +GetMyBookingsAsync(userId : int, status : string?, cursor : string?, limit : int) : CursorPageResult<BookingListItemDto>
   +GetBookingDetailAsync(userId : int, bookingId : int) : BookingDetailDto
-  +CancelBookingAsync(userId : int, bookingId : int) : CancelBookingResponse
-  +CalculateRefundEligibilityAsync(showtimeStartTime : DateTime, paidAmount : decimal) : RefundEligibility
-  +ReverseLoyaltyAsync(userId : int, bookingId : int, finalAmount : decimal) : void
 }
+
+interface IBookingCancellationService {
+  +CancelBookingAsync(userId : int, bookingId : int) : CancelBookingResponse
+}
+
+interface IBookingHoldPolicy {
+  +HoldDurationMinutes : int
+  +Channel : BookingChannel
+}
+
 interface IShowtimeQueryService {
   +GetShowtimeSeatsAsync(showtimeId : int) : ShowtimeSeatsResponseDto
   +GetSeatSuggestionsAsync(showtimeId : int, count : int) : List<SeatSuggestionDto>
 }
+
 interface IComboService {
   +GetActiveCombosAsync() : List<ComboDto>
   +GetComboSuggestionsAsync(showtimeId : int, seatCount : int) : List<ComboSuggestionDto>
 }
+
 interface IRealtimeNotifier {
   +NotifySeatHeldAsync(showtimeId : int, seatIds : List<int>, heldByUserId : int, heldUntil : DateTime) : void
   +NotifySeatReleasedAsync(showtimeId : int, seatIds : List<int>) : void
   +NotifySeatBookedAsync(showtimeId : int, seatIds : List<int>) : void
   +NotifyHoldExpiredAsync(showtimeId : int, bookingId : int, seatIds : List<int>) : void
 }
-class BookingService <<Service>>
+
+class BookingHoldService <<Service>>
+class BookingCheckoutService <<Service>>
+class BookingQueryService <<Service>>
+class BookingCancellationService <<Service>>
+class OnlineHoldPolicy <<Policy>>
+class BookingSeatReleaser <<Service>>
 class ShowtimeQueryService <<Service>>
 class ComboService <<Service>>
 class SignalRRealtimeNotifier <<Service>>
+
 class ShowtimeHub <<Hub>> {
   +JoinShowtime(showtimeId : int) : void
   +LeaveShowtime(showtimeId : int) : void
 }
+
 class SeatLayoutRules <<Utility>> {
   +LoadSeatSlotsAsync(db : IAppDbContext, showtimeId : int) : List<SeatSlot>
   +LoadSeatGapRuleModeAsync(db : IAppDbContext) : SeatGapRuleMode
   +Suggest(seats : IReadOnlyList<SeatSlot>, cols : int, count : int, top : int) : List<SeatSuggestionDto>
   +ValidateSelection(seats : IReadOnlyList<SeatSlot>, selectedSeatIds : ICollection<int>, gapRuleMode : SeatGapRuleMode) : string?
 }
+
 class SeatSlot <<record>>
+
 class LoyaltyWindow <<Utility>> {
   +SumActiveAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : int
   +ResolveTierAsync(db : IAppDbContext, points : int) : MembershipTier?
   +PointsFor(finalAmount : decimal, pointsPerAmount : decimal) : int
   +ResyncProfileAsync(db : IAppDbContext, profile : CustomerProfile, pendingNewPoints : int, utcNow : DateTime) : void
 }
+
 class SeatConflictException <<Exception>>
 class BookingOptions <<Options>>
 class HoldSeatsRequestValidator <<Validator>>
+class CheckoutRequestValidator <<Validator>>
+
 interface IAppDbContext {
   +DbSet
   +SaveChangesAsync
 }
+
 class Booking <<Entity>>
 class BookingTicket <<Entity>>
 class BookingCombo <<Entity>>
 class ShowtimeSeat <<Entity>>
 class Combo <<Entity>>
+
 class HoldSeatsRequest <<DTO>>
+class HoldBookingResponse <<DTO>>
+class CheckoutRequest <<DTO>>
+class CheckoutResponse <<DTO>>
+class CancelBookingResponse <<DTO>>
 class ShowtimeSeatsResponseDto <<DTO>>
 class SeatSuggestionDto <<DTO>>
 class ComboSuggestionDto <<DTO>>
-BookingsController ..> IBookingService
+
+BookingsController ..> IBookingHoldService
+BookingsController ..> IBookingCheckoutService
+BookingsController ..> IBookingQueryService
+BookingsController ..> IBookingCancellationService
+
 ShowtimesController ..> IShowtimeQueryService
 CombosController ..> IComboService
-BookingService ..|> IBookingService
+
+BookingHoldService ..|> IBookingHoldService
+BookingCheckoutService ..|> IBookingCheckoutService
+BookingQueryService ..|> IBookingQueryService
+BookingCancellationService ..|> IBookingCancellationService
+OnlineHoldPolicy ..|> IBookingHoldPolicy
+
 ShowtimeQueryService ..|> IShowtimeQueryService
 ComboService ..|> IComboService
 SignalRRealtimeNotifier ..|> IRealtimeNotifier
-BookingService ..> IRealtimeNotifier
-BookingService ..> SeatLayoutRules
-BookingService ..> SeatConflictException
-BookingService ..> BookingOptions
-BookingService ..> Booking
-BookingService ..> BookingTicket
-BookingService ..> BookingCombo
-BookingService ..> ShowtimeSeat
-BookingService ..> LoyaltyWindow
+
+BookingHoldService ..> IBookingHoldPolicy
+BookingHoldService ..> IRealtimeNotifier
+BookingHoldService ..> SeatLayoutRules
+BookingHoldService ..> SeatConflictException
+BookingHoldService ..> BookingSeatReleaser
+BookingHoldService ..> BookingOptions
+BookingHoldService ..> Booking
+BookingHoldService ..> BookingTicket
+BookingHoldService ..> BookingCombo
+BookingHoldService ..> ShowtimeSeat
+BookingHoldService ..> LoyaltyWindow
+
+BookingCheckoutService ..> Booking
+BookingCheckoutService ..> LoyaltyWindow
+BookingCancellationService ..> Booking
+BookingCancellationService ..> BookingSeatReleaser
+
 ShowtimeQueryService ..> SeatLayoutRules
 ShowtimeQueryService ..> ShowtimeSeatsResponseDto
 ShowtimeQueryService ..> SeatSuggestionDto
 ComboService ..> Combo
 ComboService ..> ComboSuggestionDto
+
 SignalRRealtimeNotifier ..> ShowtimeHub
 HoldSeatsRequestValidator ..> HoldSeatsRequest
+CheckoutRequestValidator ..> CheckoutRequest
 SeatLayoutRules ..> SeatSlot
-BookingService ..> IAppDbContext
+
+BookingHoldService ..> IAppDbContext
+BookingCheckoutService ..> IAppDbContext
+BookingQueryService ..> IAppDbContext
+BookingCancellationService ..> IAppDbContext
 ShowtimeQueryService ..> IAppDbContext
 ComboService ..> IAppDbContext
 @enduml

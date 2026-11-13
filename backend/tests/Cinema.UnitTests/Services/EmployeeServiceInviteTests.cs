@@ -11,11 +11,11 @@ using Shouldly;
 
 namespace Cinema.UnitTests.Services;
 
-public class EmployeeServiceInviteTests(PostgresContainerFixture fixture) : IDisposable, IClassFixture<PostgresContainerFixture>
+public class EmployeeServiceInviteTests : IDisposable, IClassFixture<PostgresContainerFixture>
 {
     private const int EmployeeRoleId = 3;
 
-    private readonly PostgresAppDbContextHandle _handle = new(fixture.MasterConnectionString);
+    private readonly PostgresAppDbContextHandle _handle;
     private readonly Mock<IRegistrationService> _registrationMock = new();
 
     static EmployeeServiceInviteTests()
@@ -23,6 +23,14 @@ public class EmployeeServiceInviteTests(PostgresContainerFixture fixture) : IDis
         Mapster.TypeAdapterConfig.GlobalSettings.Scan(
             typeof(Cinema.Application.MappingConfig.MapsterConfig).Assembly
         );
+    }
+
+    public EmployeeServiceInviteTests(PostgresContainerFixture fixture)
+    {
+        _handle = new(fixture.MasterConnectionString);
+        _handle.Db.Employees.RemoveRange(_handle.Db.Employees);
+        _handle.Db.Users.RemoveRange(_handle.Db.Users);
+        _handle.Db.SaveChanges();
     }
 
     private EmployeeService CreateSut()

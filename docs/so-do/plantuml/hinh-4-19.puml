@@ -9,6 +9,7 @@ skinparam ranksep 55
 left to right direction
 hide circle
 hide empty members
+
 class AdminUsersController <<Controller>> {
   +GetUsers(roleId : int?, search : string?, page : int, pageSize : int) : IActionResult
   +GetAdminUsers(search : string?, availableOnly : bool) : IActionResult
@@ -17,56 +18,75 @@ class AdminUsersController <<Controller>> {
   +UpdateRole(id : int, request : UpdateUserRoleRequest) : IActionResult
   +BulkUpdateStatus(request : BulkStatusRequest) : IActionResult
 }
+
 class AdminEmployeesController <<Controller>> {
   +GetEmployees(positionId : int?, page : int, pageSize : int) : IActionResult
   +Create(request : CreateEmployeeRequest) : IActionResult
+  +Invite(request : InviteEmployeeRequest) : IActionResult
+  +ResendInvite(id : int) : IActionResult
   +Update(id : int, request : UpdateEmployeeRequest) : IActionResult
 }
+
 interface IUserAdminService {
   +GetUsersAdminAsync(roleId : int?, search : string?, page : int, pageSize : int) : OffsetPageResult<AdminUserListItemDto>
   +GetAdminUsersForSelectAsync(search : string?, availableOnly : bool) : List<AdminUserSelectDto>
   +SearchCustomersForCounterAsync(query : string?) : List<CustomerLookupItemDto>
-  +UpdateUserStatusAsync(userId : int, request : UpdateUserStatusRequest) : UpdateUserStatusResponse
+  +UpdateUserStatusAsync(userId : int, request : UpdateUserStatusRequest, currentUserId : int) : UpdateUserStatusResponse
   +BulkUpdateUserStatusAsync(request : BulkStatusRequest, currentUserId : int) : BulkActionResponse
-  +UpdateUserRoleAsync(userId : int, request : UpdateUserRoleRequest) : UpdateUserRoleResponse
+  +UpdateUserRoleAsync(userId : int, request : UpdateUserRoleRequest, currentUserId : int) : UpdateUserRoleResponse
 }
+
 interface IEmployeeService {
   +GetEmployeesAdminAsync(positionId : int?, page : int, pageSize : int) : OffsetPageResult<AdminEmployeeDto>
-  +CreateEmployeeAsync(request : CreateEmployeeRequest) : AdminEmployeeDto
-  +UpdateEmployeeAsync(employeeId : int, request : UpdateEmployeeRequest) : AdminEmployeeDto
+  +CreateEmployeeAsync(request : CreateEmployeeRequest, currentUserId : int) : AdminEmployeeDto
+  +InviteEmployeeAsync(request : InviteEmployeeRequest) : AdminEmployeeDto
+  +ResendEmployeeInviteAsync(employeeId : int) : AdminEmployeeDto
+  +UpdateEmployeeAsync(employeeId : int, request : UpdateEmployeeRequest, currentUserId : int) : AdminEmployeeDto
 }
+
 interface IVerificationTokenSender {
   +IssueAndSendAsync(user : User, purpose : VerificationPurpose) : void
 }
+
 class UserAdminService <<Service>>
 class EmployeeService <<Service>>
 class VerificationTokenSender <<Service>>
+
 class BulkOperation <<Utility>> {
   +RunAsync(ids : IEnumerable<int>, action : Func<int, Task>, onUnexpected : Action<int, Exception>?) : BulkActionResponse
   +Build(results : List<BulkActionResultItem>) : BulkActionResponse
 }
+
 class BookingOptions <<Options>>
 class UpdateUserRoleRequestValidator <<Validator>>
 class CreateEmployeeRequestValidator <<Validator>>
+class InviteEmployeeRequestValidator <<Validator>>
+
 interface IAppDbContext {
   +DbSet
   +SaveChangesAsync
 }
+
 class User <<Entity>>
 class Role <<Entity>>
 class Employee <<Entity>>
 class Position <<Entity>>
+
 class AdminUserListItemDto <<DTO>>
 class AdminUserSelectDto <<DTO>>
 class CustomerLookupItemDto <<DTO>>
 class UpdateUserRoleRequest <<DTO>>
 class CreateEmployeeRequest <<DTO>>
+class InviteEmployeeRequest <<DTO>>
 class AdminEmployeeDto <<DTO>>
+
 AdminUsersController ..> IUserAdminService
 AdminEmployeesController ..> IEmployeeService
+
 UserAdminService ..|> IUserAdminService
 EmployeeService ..|> IEmployeeService
 VerificationTokenSender ..|> IVerificationTokenSender
+
 EmployeeService ..> IVerificationTokenSender
 UserAdminService ..> BookingOptions
 UserAdminService ..> BulkOperation
@@ -76,13 +96,18 @@ UserAdminService ..> Employee
 UserAdminService ..> AdminUserListItemDto
 UserAdminService ..> AdminUserSelectDto
 UserAdminService ..> CustomerLookupItemDto
+
 EmployeeService ..> User
 EmployeeService ..> Role
 EmployeeService ..> Employee
 EmployeeService ..> Position
 EmployeeService ..> AdminEmployeeDto
+EmployeeService ..> InviteEmployeeRequest
+
 UpdateUserRoleRequestValidator ..> UpdateUserRoleRequest
 CreateEmployeeRequestValidator ..> CreateEmployeeRequest
+InviteEmployeeRequestValidator ..> InviteEmployeeRequest
+
 UserAdminService ..> IAppDbContext
 EmployeeService ..> IAppDbContext
 @enduml

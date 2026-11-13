@@ -9,35 +9,43 @@ skinparam ranksep 55
 left to right direction
 hide circle
 hide empty members
+
 class AdminBookingsController <<Controller>> {
-  +GetBookings(filter : AdminBookingListFilter, page : int, pageSize : int) : ActionResult<OffsetPageResultOfAdminBookingListItemDto>
+  +GetBookings(filter : AdminBookingListFilter, page : int, pageSize : int) : ActionResult<OffsetPageResult<AdminBookingListItemDto>>
   +GetBookingDetail(bookingId : int) : ActionResult<AdminBookingDetailDto>
 }
-interface IBookingService {
-  +GetBookingsAdminAsync(filter : AdminBookingListFilter, page : int, pageSize : int) : OffsetPageResult<AdminBookingListItemDto>
-  +GetBookingDetailAdminAsync(bookingId : int) : AdminBookingDetailDto
-  .. rút gọn 2/14 phương thức ..
+
+interface IBookingQueryService {
+  +GetBookingsAdminAsync(filter : AdminBookingListFilter, page : int, pageSize : int) : Task<OffsetPageResult<AdminBookingListItemDto>>
+  +GetBookingDetailAdminAsync(bookingId : int) : Task<AdminBookingDetailDto>
 }
-class BookingService <<Service>>
+
+class BookingQueryService <<Service>>
 class AdminBookingListFilter <<record>>
+
 interface IAppDbContext {
   +DbSet
   +SaveChangesAsync
 }
+
 class Booking <<Entity>>
 class BookingTicket <<Entity>>
 class BookingCombo <<Entity>>
 class Payment <<Entity>>
+
 class AdminBookingListItemDto <<DTO>>
 class AdminBookingDetailDto <<DTO>>
-AdminBookingsController ..> IBookingService
-BookingService ..|> IBookingService
-BookingService ..> AdminBookingListFilter
-BookingService ..> Booking
-BookingService ..> BookingTicket
-BookingService ..> BookingCombo
-BookingService ..> Payment
-BookingService ..> AdminBookingListItemDto
-BookingService ..> AdminBookingDetailDto
-BookingService ..> IAppDbContext
+
+AdminBookingsController ..> IBookingQueryService
+BookingQueryService ..|> IBookingQueryService
+
+BookingQueryService ..> AdminBookingListFilter
+BookingQueryService ..> Booking
+BookingQueryService ..> BookingTicket
+BookingQueryService ..> BookingCombo
+BookingQueryService ..> Payment
+BookingQueryService ..> AdminBookingListItemDto
+BookingQueryService ..> AdminBookingDetailDto
+
+BookingQueryService ..> IAppDbContext
 @enduml

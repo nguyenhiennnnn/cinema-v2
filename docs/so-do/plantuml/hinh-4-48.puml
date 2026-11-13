@@ -7,13 +7,15 @@ skinparam maxMessageSize 300
 skinparam ParticipantPadding 12
 skinparam dpi 150
 autonumber
+
 actor "Khách hàng" as K
 participant "BookingsController" as C
 participant "ValidationActionFilter" as V
-participant "BookingService" as S
+participant "BookingHoldService" as S
 participant "SeatLayoutRules" as R
 participant "IAppDbContext" as DB
 participant "IRealtimeNotifier" as N
+
 K -> C : POST /api/v1/bookings/hold (giới hạn booking-hold)
 C -> V : HoldSeatsRequestValidator
 V --> C : hợp lệ

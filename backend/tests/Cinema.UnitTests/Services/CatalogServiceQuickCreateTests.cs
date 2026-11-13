@@ -25,11 +25,11 @@ public class CatalogServiceQuickCreateTests(PostgresContainerFixture fixture) : 
         var sut = CreateSut();
 
         var result = await sut.CreateGenreAsync(
-            new UpsertGenreRequest("  Thá»ƒ   loáº¡i má»›i  "),
+            new UpsertGenreRequest("  Thể   loại mới  "),
             CancellationToken.None
         );
 
-        result.Name.ShouldBe("Thá»ƒ loáº¡i má»›i");
+        result.Name.ShouldBe("Thể loại mới");
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class CatalogServiceQuickCreateTests(PostgresContainerFixture fixture) : 
         var sut = CreateSut();
 
         await Should.ThrowAsync<ConflictAppException>(() =>
-            sut.CreateGenreAsync(new UpsertGenreRequest("  kinh   Dá»Š "), CancellationToken.None)
+            sut.CreateGenreAsync(new UpsertGenreRequest("  kinh   DỊ "), CancellationToken.None)
         );
     }
 

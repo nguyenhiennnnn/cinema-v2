@@ -9,59 +9,85 @@ skinparam ranksep 55
 left to right direction
 hide circle
 hide empty members
+
 class AiController <<Controller>> {
   +Chat(request : AiChatRequest) : ActionResult<AiChatResponse>
 }
+
 interface IAiAssistantService {
-  +ChatAsync(userId : int?, request : AiChatRequest) : AiChatResponse
+  +ChatAsync(userId : int?, request : AiChatRequest) : Task<AiChatResponse>
 }
-class GeminiAiAssistantService <<Service>>
+
+interface IAiModelClient {
+  +GenerateReplyAsync(systemPrompt : string, history : IReadOnlyList<AiChatMessageDto>, declarations : JsonArray, toolExecutor : Func<string, JsonObject?, Task<ToolResult>>, cancellationToken : CancellationToken) : Task<AiModelReply>
+}
+
+class AiAssistantService <<Service>>
+class AiSystemPromptBuilder <<Service>>
+class GeminiAiModelClient <<Adapter>>
+
 class AiToolExecutor <<Service>> {
   +BuildFunctionDeclarations(isAuthenticated : bool) : JsonArray
-  +ExecuteAsync(name : string, args : JsonObject?, userId : int?) : ToolResult
+  +ExecuteAsync(name : string, args : JsonObject?, userId : int?) : Task<ToolResult>
   +SearchShowtimes
   +GetSeatAvailability
   +GetMyBookings
 }
+
 class ToolResult <<record>>
+class AiModelReply <<record>>
 class GeminiOptions <<Options>>
 class BrandOptions <<Options>>
 class AiChatRequestValidator <<Validator>>
 class ChatMessageDtoValidator <<Validator>>
+
 class LoyaltyWindow <<Utility>> {
   +GetStandingAsync(db : IAppDbContext, userId : int, utcNow : DateTime) : Tuple
 }
+
 interface IAppDbContext {
   +DbSet
   +SaveChangesAsync
 }
+
 class Movie <<Entity>>
 class Combo <<Entity>>
 class CinemaSettings <<Entity>>
 class Showtime <<Entity>>
 class ShowtimeSeat <<Entity>>
 class Booking <<Entity>>
+
 class AiChatRequest <<DTO>>
 class AiChatResponse <<DTO>>
 class ChatMessageDto <<DTO>>
 class AiCardDto <<DTO>>
+
 AiController ..> IAiAssistantService
-GeminiAiAssistantService ..|> IAiAssistantService
-GeminiAiAssistantService ..> AiToolExecutor
-GeminiAiAssistantService ..> GeminiOptions
-GeminiAiAssistantService ..> BrandOptions
-GeminiAiAssistantService ..> Movie
-GeminiAiAssistantService ..> Combo
-GeminiAiAssistantService ..> CinemaSettings
-GeminiAiAssistantService ..> LoyaltyWindow
+AiAssistantService ..|> IAiAssistantService
+GeminiAiModelClient ..|> IAiModelClient
+
+AiAssistantService ..> IAiModelClient
+AiAssistantService ..> AiSystemPromptBuilder
+AiAssistantService ..> AiToolExecutor
+AiAssistantService ..> GeminiOptions
+AiAssistantService ..> BrandOptions
+
+AiSystemPromptBuilder ..> CinemaSettings
+AiSystemPromptBuilder ..> LoyaltyWindow
+
 AiToolExecutor ..> Showtime
 AiToolExecutor ..> ShowtimeSeat
 AiToolExecutor ..> Booking
+AiToolExecutor ..> Movie
+AiToolExecutor ..> Combo
 AiToolExecutor --> ToolResult
 ToolResult ..> AiCardDto
+
 AiChatRequestValidator ..> AiChatRequest
 ChatMessageDtoValidator ..> ChatMessageDto
 IAiAssistantService ..> AiChatResponse
-GeminiAiAssistantService ..> IAppDbContext
+
+GeminiAiModelClient ..> GeminiOptions
+AiAssistantService ..> IAppDbContext
 AiToolExecutor ..> IAppDbContext
 @enduml

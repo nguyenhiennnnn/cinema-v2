@@ -1,4 +1,4 @@
-using Cinema.Application.BackgroundJobs;
+﻿using Cinema.Application.BackgroundJobs;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Options;
 using Cinema.Application.Services.Notifications;
@@ -545,7 +545,7 @@ public class PaymentServiceStripeTests(PostgresContainerFixture fixture) : IDisp
 
         await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
 
-        VerifyCustomerEmail("ÄÃ£ hoÃ n tiá»n");
+        VerifyCustomerEmail("Đã hoàn tiền");
     }
 
     [Fact]
@@ -568,7 +568,7 @@ public class PaymentServiceStripeTests(PostgresContainerFixture fixture) : IDisp
 
         await sut.ProcessStripeWebhookAsync("{}", "sig-header", CancellationToken.None);
 
-        VerifyCustomerEmail("Chá» hoÃ n tiá»n");
+        VerifyCustomerEmail("Chờ hoàn tiền");
     }
 
     public void Dispose() => _handle.Dispose();
