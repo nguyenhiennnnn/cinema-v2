@@ -98,3 +98,28 @@ export const DayOfWeek = {
   Sun: "Sun",
 } as const;
 export type DayOfWeek = (typeof DayOfWeek)[keyof typeof DayOfWeek];
+
+export const ImportExportJobType = {
+  Import: "Import",
+  Export: "Export",
+} as const;
+export type ImportExportJobType =
+  (typeof ImportExportJobType)[keyof typeof ImportExportJobType];
+
+export const ImportExportJobStatus = {
+  Queued: "Queued",
+  Running: "Running",
+  Completed: "Completed",
+  Failed: "Failed",
+} as const;
+export type ImportExportJobStatus =
+  (typeof ImportExportJobStatus)[keyof typeof ImportExportJobStatus];
+
+export const ImportExportModule = {
+  Movies: "movies",
+  Showtimes: "showtimes",
+  Bookings: "bookings",
+  Payments: "payments",
+} as const;
+export type ImportExportModule =
+  (typeof ImportExportModule)[keyof typeof ImportExportModule];

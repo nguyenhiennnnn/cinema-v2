@@ -420,6 +420,44 @@ namespace Cinema.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ImportExportJobs",
+                columns: table => new
+                {
+                    JobId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Type = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Module = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Format = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Queued"),
+                    Progress = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    TotalRows = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    SuccessRows = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    FailedRows = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    FileName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    StoragePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    FileUrl = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    ErrorMessage = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    CreatedByUserId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()"),
+                    StartedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    CompletedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportExportJobs", x => x.JobId);
+                    table.CheckConstraint("CK_ImportExportJobs_Progress", "\"Progress\" >= 0 AND \"Progress\" <= 100");
+                    table.CheckConstraint("CK_ImportExportJobs_Rows", "\"TotalRows\" >= 0 AND \"SuccessRows\" >= 0 AND \"FailedRows\" >= 0");
+                    table.CheckConstraint("CK_ImportExportJobs_Status", "\"Status\" IN ('Queued','Running','Completed','Failed')");
+                    table.CheckConstraint("CK_ImportExportJobs_Type", "\"Type\" IN ('Import','Export')");
+                    table.ForeignKey(
+                        name: "FK_ImportExportJobs_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefreshTokens",
                 columns: table => new
                 {
@@ -1432,6 +1470,22 @@ namespace Cinema.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ImportExportJobs_ExpiresAt_HasFile",
+                table: "ImportExportJobs",
+                column: "ExpiresAt",
+                filter: "\"StoragePath\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ImportExportJobs_Type_Module_Status",
+                table: "ImportExportJobs",
+                columns: new[] { "Type", "Module", "Status" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ImportExportJobs_User_CreatedAt",
+                table: "ImportExportJobs",
+                columns: new[] { "CreatedByUserId", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Languages_Name",
                 table: "Languages",
                 column: "Name",
@@ -1642,6 +1696,9 @@ namespace Cinema.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "CustomerProfiles");
+
+            migrationBuilder.DropTable(
+                name: "ImportExportJobs");
 
             migrationBuilder.DropTable(
                 name: "LoyaltyPointEntries");

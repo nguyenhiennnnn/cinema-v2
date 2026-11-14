@@ -6,8 +6,15 @@ import {
   BookingChannel,
   PaymentMethod,
   Role,
+  ImportExportJobStatus,
 } from "@/types/enum";
-import { CheckCircle2, Clock, XCircle, type LucideIcon } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  Loader2,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 import type { badgeVariants } from "@/components/ui/badge";
 import type { VariantProps } from "class-variance-authority";
 
@@ -98,6 +105,18 @@ export const paymentStatusMap: Record<PaymentStatus, BadgeItem> = {
   [PaymentStatus.Success]: { label: "Đã thanh toán", variant: "success", icon: CheckCircle2 },
   [PaymentStatus.Failed]: { label: "Thất bại", variant: "destructive", icon: XCircle },
   [PaymentStatus.Refunded]: { label: "Đã hoàn tiền", variant: "outline", icon: XCircle },
+};
+
+export const importExportJobStatusMap: Record<ImportExportJobStatus, BadgeItem> = {
+  [ImportExportJobStatus.Queued]: { label: "Đang chờ", variant: "secondary", icon: Clock },
+  [ImportExportJobStatus.Running]: {
+    label: "Đang xử lý",
+    variant: "warning",
+    icon: Loader2,
+    className: "[&>svg]:animate-spin motion-reduce:[&>svg]:animate-none",
+  },
+  [ImportExportJobStatus.Completed]: { label: "Hoàn thành", variant: "success", icon: CheckCircle2 },
+  [ImportExportJobStatus.Failed]: { label: "Thất bại", variant: "destructive", icon: XCircle },
 };
 
 export const bookingChannelMap: Record<BookingChannel, BadgeItem> = {

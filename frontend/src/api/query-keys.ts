@@ -134,6 +134,15 @@ export const queryKeys = {
       ["admin", "reports", "employee-performance", params] as const,
   },
 
+  adminImportExport: {
+    all: () => ["admin", "import-export"] as const,
+    lists: () => ["admin", "import-export", "list"] as const,
+    list: (params: object) =>
+      ["admin", "import-export", "list", params] as const,
+    detail: (jobId: string) =>
+      ["admin", "import-export", "detail", jobId] as const,
+  },
+
   adminCatalog: {
     all: () => ["admin", "catalog"] as const,
     genres: (params?: object) =>

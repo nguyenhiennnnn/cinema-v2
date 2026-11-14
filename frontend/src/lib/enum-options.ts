@@ -1,5 +1,8 @@
 import {
   BookingStatus,
+  ImportExportJobStatus,
+  ImportExportJobType,
+  ImportExportModule,
   MovieStatus,
   PaymentMethod,
   PaymentStatus,
@@ -58,4 +61,23 @@ export const showtimeStatusOptions = toOptions(ShowtimeStatus, {
   Scheduled: "Đã lên lịch",
   Cancelled: "Đã hủy",
   Completed: "Đã hoàn thành",
+});
+
+export const importExportJobTypeOptions = toOptions(ImportExportJobType, {
+  Import: "Nhập dữ liệu",
+  Export: "Xuất dữ liệu",
+});
+
+export const importExportJobStatusOptions = toOptions(ImportExportJobStatus, {
+  Queued: "Đang chờ",
+  Running: "Đang xử lý",
+  Completed: "Hoàn thành",
+  Failed: "Thất bại",
+});
+
+export const importExportModuleOptions = toOptions(ImportExportModule, {
+  movies: "Phim",
+  showtimes: "Suất chiếu",
+  bookings: "Đặt vé",
+  payments: "Thanh toán",
 });

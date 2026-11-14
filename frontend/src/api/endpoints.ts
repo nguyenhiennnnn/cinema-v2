@@ -78,9 +78,15 @@ export const ENDPOINTS = {
       bulkStatus: "/admin/users/bulk/status",
       role: (id: number) => `/admin/users/${id}/role`,
     },
+    importExport: {
+      jobs: "/admin/import-export/jobs",
+      jobById: (id: string) => `/admin/import-export/jobs/${id}`,
+      jobDownload: (id: string) => `/admin/import-export/jobs/${id}/download`,
+    },
     bookings: {
       root: "/admin/bookings",
       export: "/admin/bookings/export",
+      exportJobs: "/admin/bookings/export-jobs",
       byId: (id: number) => `/admin/bookings/${id}`,
       counterHold: "/admin/bookings/counter-hold",
       counterCheckout: (id: number) => `/admin/bookings/${id}/counter-checkout`,
@@ -110,6 +116,7 @@ export const ENDPOINTS = {
     payments: {
       root: "/admin/payments",
       export: "/admin/payments/export",
+      exportJobs: "/admin/payments/export-jobs",
       byId: (id: number) => `/admin/payments/${id}`,
     },
     reviews: {
@@ -125,6 +132,7 @@ export const ENDPOINTS = {
     showtimes: {
       root: "/admin/showtimes",
       export: "/admin/showtimes/export",
+      exportJobs: "/admin/showtimes/export-jobs",
       byId: (id: number) => `/admin/showtimes/${id}`,
       bulk: "/admin/showtimes/bulk",
       autoSchedulePreview: "/admin/showtimes/auto-schedule/preview",

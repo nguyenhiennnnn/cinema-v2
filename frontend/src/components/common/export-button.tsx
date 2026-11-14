@@ -10,6 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EXPORT_TIMEOUT_MS } from "@/config/default-constants";
+import { importExportApi } from "@/features/admin/import-export/api/import-export-api";
+import { trackImportExportJob } from "@/features/admin/import-export/lib/job-sync";
+import { extractApiError } from "@/lib/error";
 import {
   getFilenameFromContentDisposition,
   normalizeBlobError,
@@ -26,8 +29,11 @@ const FORMAT_OPTIONS: { value: ExportFormat; label: string }[] = [
   { value: "csv", label: "CSV (.csv)" },
 ];
 
+const BACKGROUND_EXPORT_STATUS = 422;
+
 interface ExportButtonProps {
   endpoint: string;
+  jobEndpoint?: string;
   params?: ExportParams;
   fallbackFilename: string;
   label?: string;
@@ -38,6 +44,7 @@ interface ExportButtonProps {
 
 export const ExportButton = ({
   endpoint,
+  jobEndpoint,
   params,
   fallbackFilename,
   label = "Xuất file",
@@ -47,7 +54,7 @@ export const ExportButton = ({
 }: ExportButtonProps) => {
   const { mutate, isPending } = useMutation({
     meta: { errorTitle: "Không thể xuất báo cáo", skipSuccessToast: true },
-    mutationFn: async (format: ExportFormat) => {
+    mutationFn: async (format: ExportFormat): Promise<string | null> => {
       try {
         const response = await apiClient.get<Blob>(endpoint, {
           params: { ...params, format },
@@ -59,9 +66,25 @@ export const ExportButton = ({
             response.headers["content-disposition"],
           ) ?? `${fallbackFilename}.${format}`;
         saveBlob(response.data, filename);
+        return null;
       } catch (error) {
-        throw await normalizeBlobError(error);
+        const normalized = await normalizeBlobError(error);
+        if (
+          jobEndpoint &&
+          extractApiError(normalized).statusCode === BACKGROUND_EXPORT_STATUS
+        ) {
+          const accepted = await importExportApi.createExportJob(
+            jobEndpoint,
+            params ?? {},
+            format,
+          );
+          return accepted.data.jobId;
+        }
+        throw normalized;
       }
+    },
+    onSuccess: (jobId) => {
+      if (jobId) void trackImportExportJob(jobId);
     },
   });
 

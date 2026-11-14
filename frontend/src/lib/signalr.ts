@@ -7,6 +7,9 @@ export const SignalREvents = {
   SeatBooked: "seat.booked",
   SeatReleased: "seat.released",
   HoldExpired: "hold.expired",
+  ImportExportJobProgress: "import-export-job.progress",
+  ImportExportJobCompleted: "import-export-job.completed",
+  ImportExportJobFailed: "import-export-job.failed",
 } as const;
 
 export type SignalREventName =

@@ -25,6 +25,7 @@ const AdminEmployeesPage = lazyRoute(() => import("@/features/admin/employees/pa
 const AdminRoomSeatsPage = lazyRoute(() => import("@/features/admin/rooms/pages/room-seats-page"));
 const AdminCombosPage = lazyRoute(() => import("@/features/admin/combos/pages/combos-page"));
 const AdminReviewsPage = lazyRoute(() => import("@/features/admin/reviews/pages/reviews-page"));
+const AdminImportExportHistoryPage = lazyRoute(() => import("@/features/admin/import-export/pages/import-export-history-page"));
 const AdminSettingsPage = lazyRoute(() => import("@/features/admin/settings/pages/settings-page"));
 const CatalogHubPage = lazyRoute(() => import("@/features/admin/catalog/pages/catalog-hub-page"));
 const GenresPage = lazyRoute(() => import("@/features/admin/catalog/pages/genres-page"));
@@ -84,6 +85,7 @@ export const adminRoutes: RouteObject[] = [
           { path: "rooms/:id/seats", lazy: AdminRoomSeatsPage },
           { path: "combos", lazy: AdminCombosPage },
           { path: "reviews", lazy: AdminReviewsPage },
+          { path: "import-export", lazy: AdminImportExportHistoryPage },
           { path: "settings", lazy: AdminSettingsPage },
           { path: "catalog", lazy: CatalogHubPage },
           { path: "catalog/genres", lazy: GenresPage },

@@ -136,6 +136,20 @@ export const useAdminPaymentParams = (
   options?: Parameters<typeof useQueryStates<typeof adminPaymentParsers>>[1],
 ) => useQueryStates(adminPaymentParsers, options);
 
+const adminImportExportJobParsers = {
+  page: parseAsInteger.withDefault(DEFAULT_PAGE),
+  pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
+  type: parseAsString,
+  module: parseAsString,
+  status: parseAsString,
+};
+
+export const useAdminImportExportJobParams = (
+  options?: Parameters<
+    typeof useQueryStates<typeof adminImportExportJobParsers>
+  >[1],
+) => useQueryStates(adminImportExportJobParsers, options);
+
 const adminPersonParsers = {
   page: parseAsInteger.withDefault(DEFAULT_PAGE),
   pageSize: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),

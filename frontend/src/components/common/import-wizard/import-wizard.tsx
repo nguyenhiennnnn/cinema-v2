@@ -5,15 +5,17 @@ import {
   useDiscardConfirm,
   useUnsavedChangesGuard,
 } from "@/components/common/modal-guard";
+import { trackImportExportJob } from "@/features/admin/import-export/lib/job-sync";
 import { cn } from "@/lib/utils";
 import type { ImportApplyResponse, ImportPreviewResponse } from "@/types/import";
 
+import { ImportBackgroundStep } from "./import-background-step";
 import { ImportFileStep } from "./import-file-step";
 import { ImportPreviewStep } from "./import-preview-step";
 import { ImportResultStep } from "./import-result-step";
 import type { ImportWizardConfig } from "./import-wizard-types";
 
-type WizardStep = "file" | "preview" | "result";
+type WizardStep = "file" | "preview" | "result" | "background";
 
 const STEPS: { id: WizardStep; label: string }[] = [
   { id: "file", label: "Chọn file" },
@@ -32,6 +34,7 @@ export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
   const [step, setStep] = useState<WizardStep>("file");
   const [preview, setPreview] = useState<ImportPreviewResponse | null>(null);
   const [result, setResult] = useState<ImportApplyResponse | null>(null);
+  const [backgroundJobId, setBackgroundJobId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const isPreviewing = step === "preview";
@@ -41,11 +44,14 @@ export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
   const restart = (nextNotice: string | null = null) => {
     setPreview(null);
     setResult(null);
+    setBackgroundJobId(null);
     setNotice(nextNotice);
     setStep("file");
   };
 
-  const currentIndex = STEPS.findIndex((item) => item.id === step);
+  const currentIndex = STEPS.findIndex(
+    (item) => item.id === (step === "background" ? "result" : step),
+  );
 
   return (
     <div className="space-y-5">
@@ -103,8 +109,14 @@ export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
           key={preview.previewId}
           config={config}
           preview={preview}
-          onApplied={(next) => {
-            setResult(next);
+          onApplied={(outcome) => {
+            if (outcome.mode === "background") {
+              setBackgroundJobId(outcome.jobId);
+              setStep("background");
+              void trackImportExportJob(outcome.jobId);
+              return;
+            }
+            setResult(outcome.result);
             setStep("result");
           }}
           onExpired={() => restart(EXPIRED_NOTICE)}
@@ -116,6 +128,15 @@ export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
         <ImportResultStep
           config={config}
           result={result}
+          onRestart={() => restart()}
+          onClose={onClose}
+        />
+      )}
+
+      {step === "background" && backgroundJobId && (
+        <ImportBackgroundStep
+          config={config}
+          jobId={backgroundJobId}
           onRestart={() => restart()}
           onClose={onClose}
         />

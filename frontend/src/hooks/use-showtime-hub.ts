@@ -1,14 +1,7 @@
-import {
-  HubConnectionBuilder,
-  HubConnectionState,
-  LogLevel,
-  type HubConnection,
-} from "@microsoft/signalr";
+import { HubConnectionState, type HubConnection } from "@microsoft/signalr";
 import { useEffect, useRef, useCallback } from "react";
-import { useAuthStore } from "@/stores/auth-store";
-import { authApi } from "@/features/auth/api/auth-api";
+import { createHubConnection } from "@/lib/signalr-connection";
 import {
-  SIGNALR_HUB_URL,
   SignalREvents,
   type SeatHeldPayload,
   type SeatBookedPayload,
@@ -16,7 +9,6 @@ import {
   type HoldExpiredPayload,
 } from "@/lib/signalr";
 import { ENV } from "@/config/env";
-import { SIGNALR_RECONNECT_DELAYS_MS } from "@/config/default-constants";
 
 export interface ShowtimeHubCallbacks {
   onSeatHeld?: (payload: SeatHeldPayload) => void;
@@ -52,22 +44,7 @@ export function useShowtimeHub(
   useEffect(() => {
     if (!showtimeId) return;
 
-    const connection = new HubConnectionBuilder()
-      .withUrl(SIGNALR_HUB_URL, {
-        accessTokenFactory: async () => {
-          try {
-            const res = await authApi.getSocketToken();
-            return res.data.token;
-          } catch {
-            return useAuthStore.getState().accessToken ?? "";
-          }
-        },
-      })
-      .withAutomaticReconnect(SIGNALR_RECONNECT_DELAYS_MS)
-      .configureLogging(
-        ENV.IS_DEV ? LogLevel.Information : LogLevel.Warning,
-      )
-      .build();
+    const connection = createHubConnection();
 
     connection.on(SignalREvents.SeatHeld, (payload: SeatHeldPayload) =>
       onSeatHeldRef.current?.(payload),

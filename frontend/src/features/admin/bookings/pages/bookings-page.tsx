@@ -41,6 +41,7 @@ const AdminBookingsPage = () => {
         action={
           <ExportButton
             endpoint={ENDPOINTS.admin.bookings.export}
+            jobEndpoint={ENDPOINTS.admin.bookings.exportJobs}
             params={{
               search: listParams.search || undefined,
               status: listParams.status,

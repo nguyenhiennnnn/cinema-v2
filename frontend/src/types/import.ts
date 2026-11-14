@@ -25,3 +25,7 @@ export interface ImportApplyRequest {
 }
 
 export type ImportApplyResponse = BulkActionResponse;
+
+export type ImportApplyOutcome =
+  | { mode: "completed"; result: ImportApplyResponse }
+  | { mode: "background"; jobId: string };

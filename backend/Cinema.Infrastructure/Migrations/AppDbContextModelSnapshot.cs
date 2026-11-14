@@ -1120,6 +1120,110 @@ namespace Cinema.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Cinema.Domain.Entities.ImportExportJob", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("FailedRows")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("FileUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Progress")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Queued");
+
+                    b.Property<string>("StoragePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("SuccessRows")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("TotalRows")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("JobId");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("IX_ImportExportJobs_ExpiresAt_HasFile")
+                        .HasFilter("\"StoragePath\" IS NOT NULL");
+
+                    b.HasIndex("CreatedByUserId", "CreatedAt")
+                        .HasDatabaseName("IX_ImportExportJobs_User_CreatedAt");
+
+                    b.HasIndex("Type", "Module", "Status")
+                        .HasDatabaseName("IX_ImportExportJobs_Type_Module_Status");
+
+                    b.ToTable("ImportExportJobs", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ImportExportJobs_Progress", "\"Progress\" >= 0 AND \"Progress\" <= 100");
+
+                            t.HasCheckConstraint("CK_ImportExportJobs_Rows", "\"TotalRows\" >= 0 AND \"SuccessRows\" >= 0 AND \"FailedRows\" >= 0");
+
+                            t.HasCheckConstraint("CK_ImportExportJobs_Status", "\"Status\" IN ('Queued','Running','Completed','Failed')");
+
+                            t.HasCheckConstraint("CK_ImportExportJobs_Type", "\"Type\" IN ('Import','Export')");
+                        });
+                });
+
             modelBuilder.Entity("Cinema.Domain.Entities.Language", b =>
                 {
                     b.Property<int>("LanguageId")
@@ -5049,6 +5153,17 @@ namespace Cinema.Infrastructure.Migrations
                     b.Navigation("Position");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Cinema.Domain.Entities.ImportExportJob", b =>
+                {
+                    b.HasOne("Cinema.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("Cinema.Domain.Entities.LoyaltyPointEntry", b =>

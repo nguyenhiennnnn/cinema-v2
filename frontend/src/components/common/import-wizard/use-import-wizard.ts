@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiClient, apiPost, apiUpload } from "@/api/axios";
+import { apiClient, apiUpload } from "@/api/axios";
 import { EXPORT_TIMEOUT_MS, IMPORT_TIMEOUT_MS } from "@/config/default-constants";
 import {
   getFilenameFromContentDisposition,
@@ -7,7 +7,9 @@ import {
   saveBlob,
 } from "@/lib/download";
 import type { ApiResponse } from "@/types/api";
+import type { ImportExportJobAccepted } from "@/types/import-export";
 import type {
+  ImportApplyOutcome,
   ImportApplyRequest,
   ImportApplyResponse,
   ImportPreviewResponse,
@@ -85,13 +87,14 @@ export function useImportApply(config: ImportWizardConfig) {
       skipSuccessToast: true,
       errorTitle: "Không thể nhập dữ liệu",
     },
-    mutationFn: async (body: ImportApplyRequest) => {
-      const res = await apiPost<ApiResponse<ImportApplyResponse>>(
-        `${config.baseUrl}/apply`,
-        body,
-        { timeout: IMPORT_TIMEOUT_MS },
-      );
-      return res.data;
+    mutationFn: async (body: ImportApplyRequest): Promise<ImportApplyOutcome> => {
+      const res = await apiClient.post<
+        ApiResponse<ImportApplyResponse | ImportExportJobAccepted>
+      >(`${config.baseUrl}/apply`, body, { timeout: IMPORT_TIMEOUT_MS });
+      const data = res.data.data;
+      return "jobId" in data
+        ? { mode: "background", jobId: data.jobId }
+        : { mode: "completed", result: data };
     },
   });
 }

@@ -24,7 +24,7 @@ import { useBlockDialogClose } from "@/hooks/use-block-dialog-close";
 import { extractApiError } from "@/lib/error";
 import { cn } from "@/lib/utils";
 import type {
-  ImportApplyResponse,
+  ImportApplyOutcome,
   ImportPreviewResponse,
   ImportPreviewRow,
 } from "@/types/import";
@@ -67,7 +67,7 @@ const buildColumns = (config: ImportWizardConfig): PreviewColumn[] => [
 interface ImportPreviewStepProps {
   config: ImportWizardConfig;
   preview: ImportPreviewResponse;
-  onApplied: (result: ImportApplyResponse) => void;
+  onApplied: (outcome: ImportApplyOutcome) => void;
   onExpired: () => void;
   onBack: () => void;
 }

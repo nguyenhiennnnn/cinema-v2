@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Outlet } from "react-router";
 import { cn } from "@/lib/utils";
+import { useImportExportJobHub } from "@/hooks/use-import-export-job-hub";
+import { JobProgressPanel } from "@/features/admin/import-export/components/job-progress-panel";
 import { AdminSidebar } from "./admin-sidebar";
 import { AdminTopbar } from "./admin-topbar";
 
 const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  useImportExportJobHub();
 
   return (
     <div className="min-h-screen bg-background">
@@ -21,6 +24,7 @@ const AdminLayout = () => {
           <Outlet />
         </main>
       </div>
+      <JobProgressPanel />
     </div>
   );
 };

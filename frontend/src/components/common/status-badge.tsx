@@ -7,6 +7,7 @@ import type {
   PaymentStatus,
   BookingChannel,
   PaymentMethod,
+  ImportExportJobStatus,
 } from "@/types/enum";
 import {
   activeStatusConfigMap,
@@ -15,6 +16,7 @@ import {
   bookingStatusMap,
   defaultAgeRatingConfig,
   defaultSeatTypeConfig,
+  importExportJobStatusMap,
   movieStatusMap,
   paymentMethodMap,
   paymentStatusMap,
@@ -136,6 +138,13 @@ export const BookingStatusBadge = ({ status, className }: StatusBadgeProps<Booki
 
 export const PaymentStatusBadge = ({ status, className }: StatusBadgeProps<PaymentStatus>) => (
   <MappedBadge value={status} map={paymentStatusMap} className={className} />
+);
+
+export const ImportExportJobStatusBadge = ({
+  status,
+  className,
+}: StatusBadgeProps<ImportExportJobStatus>) => (
+  <MappedBadge value={status} map={importExportJobStatusMap} className={className} />
 );
 
 export const BookingChannelBadge = ({

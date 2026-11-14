@@ -13,6 +13,7 @@ import {
   ShieldAlert,
   MessageSquare,
   Layers,
+  History,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -129,6 +130,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     label: "Hệ thống & danh mục",
     items: [
       { to: ROUTES.admin.catalog, label: "Trung tâm danh mục", icon: Layers, roles: [Role.Admin] },
+      {
+        to: ROUTES.admin.importExportHistory,
+        label: "Lịch sử Import/Export",
+        icon: History,
+        roles: [Role.Admin],
+      },
       {
         to: ROUTES.admin.settings,
         label: "Cài đặt hệ thống",

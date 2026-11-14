@@ -61,6 +61,7 @@ export const ROUTES = {
     bookingDetail: (bookingId: number | string) =>
       `/admin/bookings/${bookingId}`,
     roomSeats: (roomId: number | string) => `/admin/rooms/${roomId}/seats`,
+    importExportHistory: "/admin/import-export",
     settings: "/admin/settings",
   },
 } as const;

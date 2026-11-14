@@ -235,6 +235,7 @@ const AdminShowtimesPage = () => {
             />
             <ExportButton
               endpoint={ENDPOINTS.admin.showtimes.export}
+              jobEndpoint={ENDPOINTS.admin.showtimes.exportJobs}
               params={{
                 movieId: params.movieId,
                 roomId: params.roomId,

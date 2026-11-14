@@ -44,6 +44,7 @@ const AdminPaymentsPage = () => {
         action={
           <ExportButton
             endpoint={ENDPOINTS.admin.payments.export}
+            jobEndpoint={ENDPOINTS.admin.payments.exportJobs}
             params={{
               search: listParams.search || undefined,
               status: listParams.status,
