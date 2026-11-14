@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarPlus, Copy, Plus, Sparkles } from "lucide-react";
+import { CalendarPlus, Copy, Plus, Sparkles, Upload } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { ExportButton } from "@/components/common/export-button";
@@ -34,6 +34,8 @@ import { ShowtimeBulkCreateForm } from "../components/forms/showtime-bulk-create
 import { ShowtimeCloneForm } from "../components/forms/showtime-clone-form";
 import { ShowtimeAutoScheduleForm } from "../components/forms/showtime-auto-schedule-form";
 import { ShowtimeCalendarView } from "../components/calendar/showtime-calendar-view";
+import { ImportWizard } from "@/components/common/import-wizard/import-wizard";
+import { showtimeImportConfig } from "../config/showtime-import-config";
 import { useAuthRole } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
 
@@ -142,6 +144,16 @@ const AdminShowtimesPage = () => {
     });
   };
 
+  const handleImport = () => {
+    openDialog({
+      title: showtimeImportConfig.title,
+      description: showtimeImportConfig.description,
+      size: "xl",
+      className: "sm:max-w-5xl",
+      content: <ImportWizard config={showtimeImportConfig} onClose={closeDialog} />,
+    });
+  };
+
   const handleSelectFromCalendar = (showtime: ShowtimeCalendarItemDto) => {
     const mapped: AdminShowtimeDto = {
       showtimeId: showtime.showtimeId,
@@ -175,6 +187,10 @@ const AdminShowtimesPage = () => {
         action={
           canManage ? (
             <div className="flex gap-2">
+              <Button variant="outline" onClick={handleImport}>
+                <Upload className="size-4" />
+                <span>Import</span>
+              </Button>
               <Button variant="outline" onClick={handleAutoSchedule}>
                 <Sparkles className="size-4" />
                 <span>Tự động xếp lịch</span>

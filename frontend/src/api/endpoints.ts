@@ -131,6 +131,7 @@ export const ENDPOINTS = {
       autoScheduleApply: "/admin/showtimes/auto-schedule/apply",
       clone: "/admin/showtimes/clone",
       calendar: "/admin/showtimes/calendar",
+      import: "/admin/showtimes/import",
     },
     genres: {
       root: "/admin/genres",

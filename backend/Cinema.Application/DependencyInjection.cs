@@ -1,4 +1,5 @@
 using Cinema.Application.DTOs.Movies;
+using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Ai;
 using Cinema.Application.Services.Auth;
@@ -39,6 +40,7 @@ public static class DependencyInjection
         services.AddMemoryCache();
         services.AddSingleton<IImportSessionStore, ImportSessionStore>();
         services.AddScoped<IImportProcessor<MovieImportRow>, MovieImportProcessor>();
+        services.AddScoped<IImportProcessor<ShowtimeImportRow>, ShowtimeImportProcessor>();
         services.AddScoped(typeof(IImportService<>), typeof(ImportService<>));
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<ISeatExpirationService, SeatExpirationService>();

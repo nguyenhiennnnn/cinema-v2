@@ -1,8 +1,10 @@
 using Cinema.Api.Filters;
+using Cinema.Application.DTOs.Import;
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Exceptions;
 using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +20,9 @@ public class AdminShowtimesController(
     IShowtimeBatchService showtimeBatchService,
     IShowtimeAutoScheduleService showtimeAutoScheduleService,
     IShowtimeQueryService showtimeQueryService,
-    IShowtimeExportService showtimeExportService
-) : ControllerBase
+    IShowtimeExportService showtimeExportService,
+    IImportService<ShowtimeImportRow> showtimeImportService
+) : AppControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.StaffOnly)]
@@ -135,4 +138,60 @@ public class AdminShowtimesController(
         [FromBody] BulkDeleteShowtimesRequest request,
         CancellationToken cancellationToken
     ) => Ok(await showtimeBatchService.BulkDeleteShowtimesAsync(request, cancellationToken));
+
+    [HttpGet("import/template")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> DownloadImportTemplate(CancellationToken cancellationToken)
+    {
+        var file = await showtimeImportService.GetTemplateAsync(cancellationToken);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
+
+    [HttpPost("import/preview")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(ImportLimits.MaxRequestBytes)]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> PreviewImport(
+        IFormFile? file = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (file is null || file.Length == 0)
+            throw new ValidationAppException(
+                Messages.Invalid_UploadFileMissing,
+                new Dictionary<string, string[]> { ["file"] = [Messages.Invalid_FileEmpty] }
+            );
+
+        await using var stream = file.OpenReadStream();
+        var result = await showtimeImportService.PreviewAsync(
+            CurrentUserId,
+            file.FileName,
+            stream,
+            cancellationToken
+        );
+
+        return Ok(result);
+    }
+
+    [HttpPost("import/apply")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> ApplyImport(
+        [FromBody] ImportApplyRequest request,
+        CancellationToken cancellationToken
+    ) => Ok(await showtimeImportService.ApplyAsync(CurrentUserId, request, cancellationToken));
+
+    [HttpGet("import/errors/{previewId}")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> DownloadImportErrors(
+        string previewId,
+        CancellationToken cancellationToken
+    )
+    {
+        var file = await showtimeImportService.GetErrorFileAsync(
+            CurrentUserId,
+            previewId,
+            cancellationToken
+        );
+        return File(file.Content, file.ContentType, file.FileName);
+    }
 }

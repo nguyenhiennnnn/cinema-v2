@@ -5887,6 +5887,267 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Validation_PreviewId_MaxLength64", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu.
+        /// </summary>
+        public static string Import_SheetShowtimes {
+            get {
+                return ResourceManager.GetString("Import_SheetShowtimes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phim.
+        /// </summary>
+        public static string Import_LabelMovie {
+            get {
+                return ResourceManager.GetString("Import_LabelMovie", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phòng chiếu.
+        /// </summary>
+        public static string Import_LabelRoom {
+            get {
+                return ResourceManager.GetString("Import_LabelRoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trạng thái phim.
+        /// </summary>
+        public static string Import_LabelMovieStatus {
+            get {
+                return ResourceManager.GetString("Import_LabelMovieStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loại màn hình.
+        /// </summary>
+        public static string Import_LabelScreenType {
+            get {
+                return ResourceManager.GetString("Import_LabelScreenType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đang chiếu.
+        /// </summary>
+        public static string Import_StatusNowShowing {
+            get {
+                return ResourceManager.GetString("Import_StatusNowShowing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sắp chiếu.
+        /// </summary>
+        public static string Import_StatusComingSoon {
+            get {
+                return ResourceManager.GetString("Import_StatusComingSoon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Có.
+        /// </summary>
+        public static string Import_Yes {
+            get {
+                return ResourceManager.GetString("Import_Yes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không.
+        /// </summary>
+        public static string Import_No {
+            get {
+                return ResourceManager.GetString("Import_No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chưa được xử lý do lỗi hệ thống ở dòng trước đó..
+        /// </summary>
+        public static string Import_NotProcessed {
+            get {
+                return ResourceManager.GetString("Import_NotProcessed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mỗi dòng tạo một suất chiếu mới cùng sơ đồ ghế của phòng; dòng vi phạm quy tắc hoặc trùng lịch sẽ bị bỏ qua kèm lý do, các dòng hợp lệ vẫn được tạo..
+        /// </summary>
+        public static string Import_Note_Showtime_Create {
+            get {
+                return ResourceManager.GetString("Import_Note_Showtime_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên Phim và Phòng phải khớp với sheet "Danh mục" (không phân biệt hoa thường); chỉ nhận phim đang chiếu/sắp chiếu và phòng đang hoạt động..
+        /// </summary>
+        public static string Import_Note_Showtime_Lookup {
+            get {
+                return ResourceManager.GetString("Import_Note_Showtime_Lookup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hãy xóa các dòng ví dụ trong sheet "Suất chiếu" trước khi nhập dữ liệu thật..
+        /// </summary>
+        public static string Import_Note_Showtime_Examples {
+            get {
+                return ResourceManager.GetString("Import_Note_Showtime_Examples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên phim của suất chiếu..
+        /// </summary>
+        public static string Import_Showtime_Movie_Desc {
+            get {
+                return ResourceManager.GetString("Import_Showtime_Movie_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên phim đang chiếu hoặc sắp chiếu, khớp với sheet "Danh mục"..
+        /// </summary>
+        public static string Import_Showtime_Movie_Format {
+            get {
+                return ResourceManager.GetString("Import_Showtime_Movie_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên phòng chiếu..
+        /// </summary>
+        public static string Import_Showtime_Room_Desc {
+            get {
+                return ResourceManager.GetString("Import_Showtime_Room_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên phòng đang hoạt động, khớp với sheet "Danh mục"..
+        /// </summary>
+        public static string Import_Showtime_Room_Format {
+            get {
+                return ResourceManager.GetString("Import_Showtime_Room_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thời gian bắt đầu chiếu..
+        /// </summary>
+        public static string Import_Showtime_StartTime_Desc {
+            get {
+                return ResourceManager.GetString("Import_Showtime_StartTime_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dd/MM/yyyy HH:mm, ví dụ 21/11/2026 18:30; phải ở tương lai..
+        /// </summary>
+        public static string Import_Showtime_StartTime_Format {
+            get {
+                return ResourceManager.GetString("Import_Showtime_StartTime_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá vé cơ bản của suất chiếu (VND)..
+        /// </summary>
+        public static string Import_Showtime_BasePrice_Desc {
+            get {
+                return ResourceManager.GetString("Import_Showtime_BasePrice_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số lớn hơn 0, không dùng dấu phân cách hàng nghìn, ví dụ 90000..
+        /// </summary>
+        public static string Import_Showtime_BasePrice_Format {
+            get {
+                return ResourceManager.GetString("Import_Showtime_BasePrice_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cho phép suất chiếu kết thúc sau giờ đóng cửa của rạp..
+        /// </summary>
+        public static string Import_Showtime_AllowAfterHours_Desc {
+            get {
+                return ResourceManager.GetString("Import_Showtime_AllowAfterHours_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Có hoặc Không; để trống được hiểu là Không..
+        /// </summary>
+        public static string Import_Showtime_AllowAfterHours_Format {
+            get {
+                return ResourceManager.GetString("Import_Showtime_AllowAfterHours_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không được để trống..
+        /// </summary>
+        public static string Invalid_ImportRequired {
+            get {
+                return ResourceManager.GetString("Invalid_ImportRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thời gian phải theo định dạng dd/MM/yyyy HH:mm..
+        /// </summary>
+        public static string Invalid_ImportDateTimeFormat {
+            get {
+                return ResourceManager.GetString("Invalid_ImportDateTimeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá trị phải là số, dùng dấu chấm làm dấu thập phân và không dùng dấu phân cách hàng nghìn..
+        /// </summary>
+        public static string Invalid_ImportDecimal {
+            get {
+                return ResourceManager.GetString("Invalid_ImportDecimal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá trị phải là "Có" hoặc "Không"..
+        /// </summary>
+        public static string Invalid_ImportBoolean {
+            get {
+                return ResourceManager.GetString("Invalid_ImportBoolean", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá vé cơ bản phải lớn hơn 0 và không vượt quá {0}..
+        /// </summary>
+        public static string Invalid_ImportBasePriceRange {
+            get {
+                return ResourceManager.GetString("Invalid_ImportBasePriceRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trùng khung giờ chiếu trong cùng phòng với dòng {0} trong file..
+        /// </summary>
+        public static string Invalid_ImportShowtimeOverlapInFile {
+            get {
+                return ResourceManager.GetString("Invalid_ImportShowtimeOverlapInFile", resourceCulture);
+            }
+        }
     
     }
 }

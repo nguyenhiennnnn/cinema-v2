@@ -2128,4 +2128,93 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
   <data name="Validation_PreviewId_MaxLength64" xml:space="preserve">
     <value>previewId tối đa 64 ký tự.</value>
   </data>
+  <data name="Import_SheetShowtimes" xml:space="preserve">
+    <value>Suất chiếu</value>
+  </data>
+  <data name="Import_LabelMovie" xml:space="preserve">
+    <value>Phim</value>
+  </data>
+  <data name="Import_LabelRoom" xml:space="preserve">
+    <value>Phòng chiếu</value>
+  </data>
+  <data name="Import_LabelMovieStatus" xml:space="preserve">
+    <value>Trạng thái phim</value>
+  </data>
+  <data name="Import_LabelScreenType" xml:space="preserve">
+    <value>Loại màn hình</value>
+  </data>
+  <data name="Import_StatusNowShowing" xml:space="preserve">
+    <value>Đang chiếu</value>
+  </data>
+  <data name="Import_StatusComingSoon" xml:space="preserve">
+    <value>Sắp chiếu</value>
+  </data>
+  <data name="Import_Yes" xml:space="preserve">
+    <value>Có</value>
+  </data>
+  <data name="Import_No" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="Import_NotProcessed" xml:space="preserve">
+    <value>Chưa được xử lý do lỗi hệ thống ở dòng trước đó.</value>
+  </data>
+  <data name="Import_Note_Showtime_Create" xml:space="preserve">
+    <value>Mỗi dòng tạo một suất chiếu mới cùng sơ đồ ghế của phòng; dòng vi phạm quy tắc hoặc trùng lịch sẽ bị bỏ qua kèm lý do, các dòng hợp lệ vẫn được tạo.</value>
+  </data>
+  <data name="Import_Note_Showtime_Lookup" xml:space="preserve">
+    <value>Tên Phim và Phòng phải khớp với sheet "Danh mục" (không phân biệt hoa thường); chỉ nhận phim đang chiếu/sắp chiếu và phòng đang hoạt động.</value>
+  </data>
+  <data name="Import_Note_Showtime_Examples" xml:space="preserve">
+    <value>Hãy xóa các dòng ví dụ trong sheet "Suất chiếu" trước khi nhập dữ liệu thật.</value>
+  </data>
+  <data name="Import_Showtime_Movie_Desc" xml:space="preserve">
+    <value>Tên phim của suất chiếu.</value>
+  </data>
+  <data name="Import_Showtime_Movie_Format" xml:space="preserve">
+    <value>Tên phim đang chiếu hoặc sắp chiếu, khớp với sheet "Danh mục".</value>
+  </data>
+  <data name="Import_Showtime_Room_Desc" xml:space="preserve">
+    <value>Tên phòng chiếu.</value>
+  </data>
+  <data name="Import_Showtime_Room_Format" xml:space="preserve">
+    <value>Tên phòng đang hoạt động, khớp với sheet "Danh mục".</value>
+  </data>
+  <data name="Import_Showtime_StartTime_Desc" xml:space="preserve">
+    <value>Thời gian bắt đầu chiếu.</value>
+  </data>
+  <data name="Import_Showtime_StartTime_Format" xml:space="preserve">
+    <value>dd/MM/yyyy HH:mm, ví dụ 21/11/2026 18:30; phải ở tương lai.</value>
+  </data>
+  <data name="Import_Showtime_BasePrice_Desc" xml:space="preserve">
+    <value>Giá vé cơ bản của suất chiếu (VND).</value>
+  </data>
+  <data name="Import_Showtime_BasePrice_Format" xml:space="preserve">
+    <value>Số lớn hơn 0, không dùng dấu phân cách hàng nghìn, ví dụ 90000.</value>
+  </data>
+  <data name="Import_Showtime_AllowAfterHours_Desc" xml:space="preserve">
+    <value>Cho phép suất chiếu kết thúc sau giờ đóng cửa của rạp.</value>
+  </data>
+  <data name="Import_Showtime_AllowAfterHours_Format" xml:space="preserve">
+    <value>Có hoặc Không; để trống được hiểu là Không.</value>
+  </data>
+  <data name="Invalid_ImportRequired" xml:space="preserve">
+    <value>Không được để trống.</value>
+  </data>
+  <data name="Invalid_ImportDateTimeFormat" xml:space="preserve">
+    <value>Thời gian phải theo định dạng dd/MM/yyyy HH:mm.</value>
+  </data>
+  <data name="Invalid_ImportDecimal" xml:space="preserve">
+    <value>Giá trị phải là số, dùng dấu chấm làm dấu thập phân và không dùng dấu phân cách hàng nghìn.</value>
+  </data>
+  <data name="Invalid_ImportBoolean" xml:space="preserve">
+    <value>Giá trị phải là "Có" hoặc "Không".</value>
+  </data>
+  <data name="Invalid_ImportBasePriceRange" xml:space="preserve">
+    <value>Giá vé cơ bản phải lớn hơn 0 và không vượt quá {0}.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportBasePriceRange, ...)</comment>
+  </data>
+  <data name="Invalid_ImportShowtimeOverlapInFile" xml:space="preserve">
+    <value>Trùng khung giờ chiếu trong cùng phòng với dòng {0} trong file.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportShowtimeOverlapInFile, ...)</comment>
+  </data>
 </root>
