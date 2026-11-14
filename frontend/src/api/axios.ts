@@ -252,3 +252,28 @@ export async function apiUpload<T>(
   });
   return data;
 }
+
+/**
+ * Gửi POST không chờ phản hồi, sống sót khi trang đang đóng hoặc tải lại (pagehide).
+ * Dùng fetch keepalive thay cho sendBeacon vì sendBeacon không đặt được header
+ * Authorization và X-Requested-With, nên sẽ không qua được xác thực và CSRF.
+ * Không có bước refresh token ở đây: nếu access token đã hết hạn thì request bị
+ * từ chối và server dựa vào thời hạn giữ để tự nhả.
+ */
+export function apiPostKeepalive(url: string): void {
+  const { accessToken } = useAuthStore.getState();
+  if (!accessToken) return;
+  try {
+    void fetch(`${BASE_URL}${url}`, {
+      method: "POST",
+      keepalive: true,
+      credentials: "include",
+      headers: {
+        ...CSRF_HEADERS,
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }).catch(() => undefined);
+  } catch {
+    // trình duyệt từ chối keepalive: bỏ qua, dựa vào thời hạn giữ
+  }
+}

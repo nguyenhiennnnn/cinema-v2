@@ -411,9 +411,6 @@
   <data name="Rule_BookingNotPendingOrHoldExpired" xml:space="preserve">
     <value>Booking không ở trạng thái Pending hoặc đã hết hạn giữ ghế.</value>
   </data>
-  <data name="Rule_CounterPendingLimit" xml:space="preserve">
-    <value>Bạn đang giữ tối đa 5 đơn bán tại quầy chưa thanh toán. Hãy thanh toán hoặc huỷ bớt đơn trước khi giữ ghế mới.</value>
-  </data>
   <data name="Rule_OnlyCounterPendingCancellable" xml:space="preserve">
     <value>Chỉ có thể huỷ đơn bán tại quầy đang ở trạng thái Pending.</value>
   </data>

@@ -7,6 +7,7 @@ import {
 import { useCounterSelection } from "./use-counter-selection";
 import { useCounterHoldFlow } from "./use-counter-hold";
 import { useCounterCheckoutFlow } from "./use-counter-checkout";
+import { useCounterLeaveCancel } from "./use-counter-leave-cancel";
 
 export type { CounterStep };
 
@@ -19,6 +20,9 @@ export function useCounterFlow() {
     stepRef.current = step;
   }, [stepRef, step]);
 
+  const leave = useCounterLeaveCancel({
+    onRestoredAfterCancel: () => resetLocalFlow(),
+  });
   const selection = useCounterSelection();
   const hold = useCounterHoldFlow({
     showtimeId: selection.showtimeId,
@@ -26,8 +30,19 @@ export function useCounterFlow() {
     onHoldExpired: () => {
       if (stepRef.current !== "done") resetLocalFlow();
     },
+    leave,
   });
   const checkout = useCounterCheckoutFlow(hold.holdResult);
+
+  // Đang thanh toán hoặc đã xong thì không hủy khi rời trang; server cũng chỉ hủy đơn Pending.
+  const cancellableBookingId =
+    step !== "done" && !checkout.isCheckingOut
+      ? (hold.holdResult?.bookingId ?? null)
+      : null;
+  const { setCancellableBookingId } = leave;
+  useEffect(() => {
+    setCancellableBookingId(cancellableBookingId);
+  }, [setCancellableBookingId, cancellableBookingId]);
 
   const setStep = (next: CounterStep) =>
     dispatch({ type: "SET_STEP", step: next });

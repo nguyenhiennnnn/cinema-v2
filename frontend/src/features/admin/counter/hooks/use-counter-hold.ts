@@ -10,17 +10,20 @@ import type {
   CounterHoldResponse,
 } from "@/features/admin/bookings/types";
 import type { ShowtimeSeatItemDto } from "@/features/client/showtimes/types";
+import type { CounterLeaveCancel } from "./use-counter-leave-cancel";
 
 interface UseCounterHoldFlowParams {
   showtimeId: number | null;
   initialSeats: ShowtimeSeatItemDto[] | undefined;
   onHoldExpired: () => void;
+  leave: CounterLeaveCancel;
 }
 
 export function useCounterHoldFlow({
   showtimeId,
   initialSeats,
   onHoldExpired,
+  leave,
 }: UseCounterHoldFlowParams) {
   const [holdResult, setHoldResult] = useState<CounterHoldResponse | null>(
     null,
@@ -54,12 +57,14 @@ export function useCounterHoldFlow({
     request: CounterHoldRequest,
     onHeld: () => void,
   ) => {
-    await counterHold.mutateAsync(request, {
-      onSuccess: (res) => {
-        setHoldResult(res.data);
-        onHeld();
-      },
-    });
+    const res = await counterHold.mutateAsync(request);
+    if (leave.hasLeft()) {
+      // Nhân viên đã rời trang trước khi server trả lời: hủy đơn vừa tạo.
+      await leave.cancelQuietly(res.data.bookingId);
+      return;
+    }
+    setHoldResult(res.data);
+    onHeld();
   };
 
   const clearHold = () => setHoldResult(null);

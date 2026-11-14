@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "@/api/axios";
+import { apiGet, apiPost, apiPostKeepalive } from "@/api/axios";
 import type { ApiResponse, OffsetPageResult } from "@/types/api";
 import type {
   AdminBookingListParams,
@@ -29,6 +29,9 @@ export const bookingsAdminApi = {
 
   counterCancel: (bookingId: number) =>
     apiPost<ApiResponse<CancelBookingResponse>>(ENDPOINTS.admin.bookings.counterCancel(bookingId)),
+
+  counterCancelKeepalive: (bookingId: number) =>
+    apiPostKeepalive(ENDPOINTS.admin.bookings.counterCancel(bookingId)),
 
   checkin: (body: CheckinRequest) =>
     apiPost<ApiResponse<CheckinResponse>>(ENDPOINTS.admin.bookings.checkin, body),

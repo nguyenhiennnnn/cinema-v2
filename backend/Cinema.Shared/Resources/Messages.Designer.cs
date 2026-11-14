@@ -1117,15 +1117,6 @@ namespace Cinema.Shared.Resources {
         }
 
         /// <summary>
-        ///   Tra cứu một chuỗi được bản địa hóa tương tự Bạn đang giữ tối đa 5 đơn bán tại quầy chưa thanh toán.
-        /// </summary>
-        public static string Rule_CounterPendingLimit {
-            get {
-                return ResourceManager.GetString("Rule_CounterPendingLimit", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Tra cứu một chuỗi được bản địa hóa tương tự Chỉ có thể huỷ đơn bán tại quầy đang ở trạng thái Pending.
         /// </summary>
         public static string Rule_OnlyCounterPendingCancellable {

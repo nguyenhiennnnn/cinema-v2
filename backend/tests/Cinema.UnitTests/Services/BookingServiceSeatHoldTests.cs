@@ -261,63 +261,30 @@ public class BookingServiceSeatHoldTests(PostgresContainerFixture fixture) : Boo
     }
 
     [Fact]
-    public async Task CounterHoldSeatsAsync_SixthPendingCounterBookingOfSameEmployee_ThrowsConflict()
+    public async Task CounterHoldSeatsAsync_MoreThanFivePendingCounterBookingsOfSameEmployee_IsNotBlocked()
     {
-        var (user, employee, showtime, seats) = SeedCounter(6);
+        const int holdCount = 7;
+        var (user, employee, showtime, seats) = SeedCounter(holdCount);
         var sut = CreateCounterSut();
-        for (var i = 0; i < 5; i++)
-            await sut.CounterHoldSeatsAsync(
+
+        for (var i = 0; i < holdCount; i++)
+        {
+            var response = await sut.CounterHoldSeatsAsync(
                 employee.EmployeeId,
                 user.UserId,
                 HoldRequest(showtime, seats[i]),
                 CancellationToken.None
             );
+            response.Status.ShouldBe("Pending");
+        }
 
-        var ex = await Should.ThrowAsync<ConflictAppException>(() =>
-            sut.CounterHoldSeatsAsync(
-                employee.EmployeeId,
-                user.UserId,
-                HoldRequest(showtime, seats[5]),
-                CancellationToken.None
-            )
-        );
-
-        ex.Message.ShouldBe(Messages.Rule_CounterPendingLimit);
         (
-            await Db
-                .ShowtimeSeats.AsNoTracking()
-                .SingleAsync(ss => ss.ShowtimeSeatId == seats[5].ShowtimeSeatId)
-        ).Status.ShouldBe(ShowtimeSeatStatus.Available);
-    }
-
-    [Fact]
-    public async Task CounterHoldSeatsAsync_CancellingOnePendingFreesSlotUnderLimit()
-    {
-        var (user, employee, showtime, seats) = SeedCounter(6);
-        var sut = CreateCounterSut();
-        var first = await sut.CounterHoldSeatsAsync(
-            employee.EmployeeId,
-            user.UserId,
-            HoldRequest(showtime, seats[0]),
-            CancellationToken.None
-        );
-        for (var i = 1; i < 5; i++)
-            await sut.CounterHoldSeatsAsync(
-                employee.EmployeeId,
-                user.UserId,
-                HoldRequest(showtime, seats[i]),
-                CancellationToken.None
-            );
-        await sut.CounterCancelAsync(first.BookingId, employee.EmployeeId, CancellationToken.None);
-
-        var next = await sut.CounterHoldSeatsAsync(
-            employee.EmployeeId,
-            user.UserId,
-            HoldRequest(showtime, seats[5]),
-            CancellationToken.None
-        );
-
-        next.Status.ShouldBe("Pending");
+            await Db.Bookings.CountAsync(b =>
+                b.Channel == BookingChannel.Counter
+                && b.Status == BookingStatus.Pending
+                && b.CreatedByEmployeeId == employee.EmployeeId
+            )
+        ).ShouldBe(holdCount);
     }
 
     [Fact]
