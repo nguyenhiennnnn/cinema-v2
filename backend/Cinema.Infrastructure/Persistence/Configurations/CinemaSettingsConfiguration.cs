@@ -20,6 +20,11 @@ public class CinemaSettingsConfiguration : IEntityTypeConfiguration<CinemaSettin
         builder.Property(x => x.Email).HasMaxLength(150);
         builder.Property(x => x.TaxCode).HasMaxLength(50);
         builder.Property(x => x.LogoUrl).HasMaxLength(255);
+        builder
+            .Property(x => x.DefaultEmployeePassword)
+            .HasMaxLength(100)
+            .IsRequired()
+            .HasDefaultValue(CinemaSettings.DefaultEmployeePasswordValue);
         builder.Property(x => x.OpeningTime).HasColumnType("time");
         builder.Property(x => x.ClosingTime).HasColumnType("time");
         builder.Property(x => x.UpdatedAt).HasColumnType("timestamp without time zone");

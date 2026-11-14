@@ -38,7 +38,8 @@ public record AdminEmployeeDto(
     string? PositionName,
     DateOnly? HireDate,
     bool IsActive,
-    bool IsPendingActivation = false
+    bool IsPendingActivation = false,
+    bool MustChangePassword = false
 );
 
 public record CreateEmployeeRequest(
@@ -54,6 +55,15 @@ public record InviteEmployeeRequest(
     string? Phone,
     int? PositionId,
     DateOnly? JoiningDate
+);
+
+public record CreateEmployeeDirectRequest(
+    string FullName,
+    string Email,
+    string? Phone,
+    int? PositionId,
+    DateOnly? JoiningDate,
+    string TemporaryPassword
 );
 
 public record UpdateEmployeeRequest(int? PositionId, DateOnly? HireDate, bool IsActive);

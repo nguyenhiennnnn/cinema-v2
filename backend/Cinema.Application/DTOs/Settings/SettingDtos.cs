@@ -39,6 +39,21 @@ public record CinemaSettingsDto(
     public string CurrencySymbol { get; init; } = string.Empty;
 }
 
+/// <summary>
+/// Chỉ trả qua endpoint admin. TUYỆT ĐỐI không dùng cho endpoint công khai
+/// (GET /api/v1/settings) vì chứa mật khẩu mặc định của nhân viên.
+/// </summary>
+public record AdminCinemaSettingsDto : CinemaSettingsDto
+{
+    public AdminCinemaSettingsDto(CinemaSettingsDto source, string defaultEmployeePassword)
+        : base(source)
+    {
+        DefaultEmployeePassword = defaultEmployeePassword;
+    }
+
+    public string DefaultEmployeePassword { get; init; }
+}
+
 public record UpdateSettingsRequest(
     string Name,
     string Address,
@@ -66,5 +81,6 @@ public record UpdateSettingsRequest(
     int? SchedulerHeatLookbackDays = null,
     double? SchedulerHeatSalesWeight = null,
     double? SchedulerHeatRatingWeight = null,
-    double? SchedulerMaxRating = null
+    double? SchedulerMaxRating = null,
+    string? DefaultEmployeePassword = null
 );

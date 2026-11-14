@@ -16,7 +16,7 @@ public class AdminSettingsController(ISettingsService settingsService) : Control
     [HttpGet]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken) =>
-        Ok(await settingsService.GetSettingsAsync(cancellationToken));
+        Ok(await settingsService.GetAdminSettingsAsync(cancellationToken));
 
     [HttpPut]
     [SuccessMessage(nameof(Messages.Success_SettingsUpdated))]

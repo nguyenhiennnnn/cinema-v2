@@ -49,7 +49,22 @@ public class PasswordService(
                 }
             );
 
+        var sameAsCurrent = passwordHasher.VerifyHashedPassword(
+            user,
+            user.PasswordHash,
+            request.NewPassword
+        );
+        if (sameAsCurrent != PasswordVerificationResult.Failed)
+            throw new ValidationAppException(
+                Messages.Invalid_NewPasswordSameAsCurrent,
+                new Dictionary<string, string[]>
+                {
+                    ["newPassword"] = [Messages.Invalid_NewPasswordSameAsCurrent],
+                }
+            );
+
         user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
+        user.MustChangePassword = false;
         user.UpdatedAt = DateTime.UtcNow;
 
         var revokedCount = await db.RevokeActiveTokensAsync(userId, cancellationToken);
@@ -137,6 +152,7 @@ public class PasswordService(
             verificationToken.User,
             request.NewPassword
         );
+        verificationToken.User.MustChangePassword = false;
         verificationToken.User.UpdatedAt = DateTime.UtcNow;
 
         var revokedCount = await db.RevokeActiveTokensAsync(

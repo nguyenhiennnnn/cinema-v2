@@ -29,6 +29,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Gender).HasConversion<string>().HasMaxLength(10);
         builder.Property(x => x.IsActive).HasDefaultValue(true);
         builder.Property(x => x.EmailConfirmed).HasDefaultValue(false);
+        builder.Property(x => x.MustChangePassword).HasDefaultValue(false);
         builder
             .Property(x => x.CreatedAt)
             .HasColumnType("timestamp without time zone")

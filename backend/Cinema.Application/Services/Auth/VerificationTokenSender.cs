@@ -60,7 +60,7 @@ public class VerificationTokenSender(
         {
             VerificationTokenPurpose.EmailConfirmation => "auth/confirm-email",
             VerificationTokenPurpose.PasswordReset => "auth/reset-password",
-            VerificationTokenPurpose.StaffInvite => "auth/reset-password",
+            VerificationTokenPurpose.StaffInvite => "admin/reset-password",
             _ => throw new ArgumentOutOfRangeException(nameof(purpose), purpose, null),
         };
 }

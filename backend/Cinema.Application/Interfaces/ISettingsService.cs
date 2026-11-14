@@ -5,7 +5,8 @@ namespace Cinema.Application.Interfaces;
 public interface ISettingsService
 {
     Task<CinemaSettingsDto> GetSettingsAsync(CancellationToken cancellationToken);
-    Task<CinemaSettingsDto> UpdateSettingsAsync(
+    Task<AdminCinemaSettingsDto> GetAdminSettingsAsync(CancellationToken cancellationToken);
+    Task<AdminCinemaSettingsDto> UpdateSettingsAsync(
         UpdateSettingsRequest request,
         CancellationToken cancellationToken
     );

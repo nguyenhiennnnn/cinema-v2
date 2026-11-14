@@ -6,6 +6,7 @@ public class ApiResponse
     public object? Data { get; init; }
     public string? Message { get; init; }
     public IDictionary<string, string[]>? Errors { get; init; }
+    public string? ErrorCode { get; init; }
 
     public static ApiResponse SuccessResponse(object? data, string? message = null) =>
         new()
@@ -17,12 +18,14 @@ public class ApiResponse
 
     public static ApiResponse ErrorResponse(
         string message,
-        IDictionary<string, string[]>? errors = null
+        IDictionary<string, string[]>? errors = null,
+        string? errorCode = null
     ) =>
         new()
         {
             Success = false,
             Message = message,
             Errors = errors,
+            ErrorCode = errorCode,
         };
 }

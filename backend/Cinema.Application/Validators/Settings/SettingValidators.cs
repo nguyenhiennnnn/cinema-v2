@@ -1,5 +1,6 @@
 using System.Globalization;
 using Cinema.Application.DTOs.Settings;
+using Cinema.Application.Validators.Auth;
 using Cinema.Domain.Enums;
 using Cinema.Shared.Resources;
 using FluentValidation;
@@ -79,6 +80,12 @@ public class UpdateSettingsRequestValidator : AbstractValidator<UpdateSettingsRe
             .Must(v => Enum.TryParse<SeatGapRuleMode>(v, out _) && !int.TryParse(v, out _))
             .When(x => x.SeatGapRuleMode is not null)
             .WithMessage(Messages.Validation_SeatGapRuleMode_Invalid);
+
+        RuleFor(x => x.DefaultEmployeePassword!)
+            .StrongPassword()
+            .MaximumLength(100)
+            .WithMessage(Messages.Validation_DefaultEmployeePassword_MaxLength100)
+            .When(x => x.DefaultEmployeePassword is not null);
 
         IntRange(x => x.RoomBufferMinutes, "roomBufferMinutes", 0, 120);
         IntRange(x => x.MaxSeatsPerBooking, "maxSeatsPerBooking", 1, 50);

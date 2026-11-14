@@ -66,6 +66,24 @@ public class AdminEmployeesController(IEmployeeService employeeService) : AppCon
             await employeeService.InviteEmployeeAsync(request, cancellationToken)
         );
 
+    [HttpPost("direct")]
+    [SuccessMessage(nameof(Messages.Success_EmployeeCreatedDirect))]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> CreateDirect(
+        [FromBody] CreateEmployeeDirectRequest request,
+        CancellationToken cancellationToken
+    ) =>
+        StatusCode(
+            StatusCodes.Status201Created,
+            await employeeService.CreateEmployeeDirectAsync(request, cancellationToken)
+        );
+
+    [HttpPost("{id:int}/reset-password")]
+    [SuccessMessage(nameof(Messages.Success_EmployeePasswordReset))]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> ResetPassword(int id, CancellationToken cancellationToken) =>
+        Ok(await employeeService.ResetEmployeePasswordAsync(id, CurrentUserId, cancellationToken));
+
     [HttpPost("{id:int}/resend-invite")]
     [SuccessMessage(nameof(Messages.Success_EmployeeInviteResent))]
     [Authorize(Policy = Policies.AdminOnly)]

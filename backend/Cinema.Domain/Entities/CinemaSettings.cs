@@ -15,6 +15,8 @@ public class CinemaSettings
     public TimeOnly? ClosingTime { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
+    public string DefaultEmployeePassword { get; set; } = DefaultEmployeePasswordValue;
+
     public decimal PointsPerAmount { get; set; } = 10000m;
 
     public decimal CancelRefundPercent { get; set; } = 100m;
@@ -23,6 +25,7 @@ public class CinemaSettings
 
     public int StopSellingMinutesBefore { get; set; }
 
+    public const string DefaultEmployeePasswordValue = "Employee@123";
     public const int DefaultHoldDurationMinutes = 15;
     public const int DefaultCheckInOpenMinutes = 30;
 

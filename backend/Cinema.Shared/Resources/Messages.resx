@@ -1881,4 +1881,31 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
   <data name="Export_ColSeatsTotal" xml:space="preserve">
     <value>Tổng ghế</value>
   </data>
+  <data name="Success_EmployeeCreatedDirect" xml:space="preserve">
+    <value>Đã tạo nhân viên. Tài khoản dùng được ngay và sẽ phải đổi mật khẩu ở lần đăng nhập đầu tiên.</value>
+  </data>
+  <data name="Success_EmployeePasswordReset" xml:space="preserve">
+    <value>Đã đặt lại mật khẩu nhân viên về mật khẩu mặc định. Nhân viên sẽ phải đổi mật khẩu khi đăng nhập.</value>
+  </data>
+  <data name="Rule_CannotResetOwnPassword" xml:space="preserve">
+    <value>Không thể tự đặt lại mật khẩu của chính mình bằng chức năng này.</value>
+  </data>
+  <data name="Rule_OnlyEmployeePasswordCanBeReset" xml:space="preserve">
+    <value>Chỉ có thể đặt lại mật khẩu cho tài khoản có role Employee.</value>
+  </data>
+  <data name="Rule_CannotResetInactiveEmployeePassword" xml:space="preserve">
+    <value>Không thể đặt lại mật khẩu của nhân viên đã bị vô hiệu hóa.</value>
+  </data>
+  <data name="Rule_DefaultEmployeePasswordNotConfigured" xml:space="preserve">
+    <value>Chưa cấu hình mật khẩu mặc định cho nhân viên trong cài đặt.</value>
+  </data>
+  <data name="Invalid_NewPasswordSameAsCurrent" xml:space="preserve">
+    <value>Mật khẩu mới không được trùng với mật khẩu hiện tại.</value>
+  </data>
+  <data name="Forbidden_PasswordChangeRequired" xml:space="preserve">
+    <value>Bạn cần đổi mật khẩu trước khi tiếp tục sử dụng hệ thống.</value>
+  </data>
+  <data name="Validation_DefaultEmployeePassword_MaxLength100" xml:space="preserve">
+    <value>Mật khẩu mặc định cho nhân viên tối đa 100 ký tự.</value>
+  </data>
 </root>

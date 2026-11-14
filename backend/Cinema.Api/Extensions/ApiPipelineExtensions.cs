@@ -38,6 +38,7 @@ public static class ApiPipelineExtensions
             app.UseRateLimiter();
 
         app.UseAuthentication();
+        app.UseMiddleware<PasswordChangeRequiredMiddleware>();
         app.UseAuthorization();
 
         return app;

@@ -34,7 +34,12 @@ public class EmployeeServiceRoleRulesTests : IDisposable, IClassFixture<Postgres
     private EmployeeService CreateEmployeeSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new EmployeeService(_handle.Db, Mock.Of<IRegistrationService>());
+        return new EmployeeService(
+            _handle.Db,
+            Mock.Of<IRegistrationService>(),
+            new Microsoft.AspNetCore.Identity.PasswordHasher<User>(),
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<EmployeeService>.Instance
+        );
     }
 
     private User AddAdmin(string email)

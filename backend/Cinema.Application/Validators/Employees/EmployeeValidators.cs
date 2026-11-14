@@ -1,5 +1,6 @@
 using Cinema.Application.DTOs.Employees;
 using Cinema.Application.Utils;
+using Cinema.Application.Validators.Auth;
 using Cinema.Shared.Resources;
 using FluentValidation;
 
@@ -54,6 +55,39 @@ public class InviteEmployeeRequestValidator : AbstractValidator<InviteEmployeeRe
             .GreaterThan(0)
             .When(x => x.PositionId is not null)
             .WithMessage(Messages.Validation_PositionId_Positive);
+    }
+}
+
+public class CreateEmployeeDirectRequestValidator : AbstractValidator<CreateEmployeeDirectRequest>
+{
+    public CreateEmployeeDirectRequestValidator()
+    {
+        RuleFor(x => x.FullName)
+            .NotEmpty()
+            .WithMessage(Messages.Validation_FullName_Required)
+            .MaximumLength(100);
+
+        RuleFor(x => x.Email)
+            .NotEmpty()
+            .WithMessage(Messages.Validation_Email_Required)
+            .EmailAddress()
+            .WithMessage(Messages.Validation_Email_Invalid)
+            .MaximumLength(150)
+            .WithMessage(Messages.Validation_Email_MaxLength150);
+
+        RuleFor(x => x.Phone)
+            .Matches(PhoneRules.Pattern)
+            .When(x => !string.IsNullOrEmpty(x.Phone))
+            .WithMessage(Messages.Validation_Phone_Invalid)
+            .MaximumLength(20)
+            .WithMessage(Messages.Validation_Phone_MaxLength20);
+
+        RuleFor(x => x.PositionId)
+            .GreaterThan(0)
+            .When(x => x.PositionId is not null)
+            .WithMessage(Messages.Validation_PositionId_Positive);
+
+        RuleFor(x => x.TemporaryPassword).StrongPassword();
     }
 }
 

@@ -36,7 +36,12 @@ public class EmployeeServiceInviteTests : IDisposable, IClassFixture<PostgresCon
     private EmployeeService CreateSut()
     {
         _handle.Db.ChangeTracker.Clear();
-        return new EmployeeService(_handle.Db, _registrationMock.Object);
+        return new EmployeeService(
+            _handle.Db,
+            _registrationMock.Object,
+            new Microsoft.AspNetCore.Identity.PasswordHasher<User>(),
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<EmployeeService>.Instance
+        );
     }
 
     private UserAdminService CreateUserAdminSut()

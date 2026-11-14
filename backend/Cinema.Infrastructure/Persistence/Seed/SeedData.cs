@@ -197,6 +197,7 @@ public static class SeedData
                     OpeningTime = new TimeOnly(8, 0),
                     ClosingTime = new TimeOnly(23, 59),
                     PointsPerAmount = 10000m,
+                    DefaultEmployeePassword = CinemaSettings.DefaultEmployeePasswordValue,
                 }
             );
 

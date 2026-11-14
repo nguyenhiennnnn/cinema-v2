@@ -60,6 +60,9 @@ public class JwtTokenService(IOptions<JwtOptions> jwtOptions) : ITokenService
         if (user.Employee is not null)
             claims.Add(new Claim(AppClaimTypes.EmployeeId, user.Employee.EmployeeId.ToString()));
 
+        if (user.MustChangePassword)
+            claims.Add(new Claim(AppClaimTypes.MustChangePassword, "true"));
+
         return claims;
     }
 

@@ -20,6 +20,15 @@ public interface IEmployeeService
         InviteEmployeeRequest request,
         CancellationToken cancellationToken
     );
+    Task<AdminEmployeeDto> CreateEmployeeDirectAsync(
+        CreateEmployeeDirectRequest request,
+        CancellationToken cancellationToken
+    );
+    Task<AdminEmployeeDto> ResetEmployeePasswordAsync(
+        int employeeId,
+        int currentUserId,
+        CancellationToken cancellationToken
+    );
     Task<AdminEmployeeDto> ResendEmployeeInviteAsync(
         int employeeId,
         CancellationToken cancellationToken

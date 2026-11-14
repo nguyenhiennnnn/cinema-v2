@@ -28,7 +28,20 @@ public class SettingsService(IAppDbContext db, IOptions<BrandOptions> brandOptio
         return ToDto(settings);
     }
 
-    public async Task<CinemaSettingsDto> UpdateSettingsAsync(
+    public async Task<AdminCinemaSettingsDto> GetAdminSettingsAsync(
+        CancellationToken cancellationToken
+    )
+    {
+        var settings =
+            await db.CinemaSettings.FirstOrDefaultAsync(
+                s => s.Id == AppDbContextExtensions.CinemaSettingsId,
+                cancellationToken
+            ) ?? throw new NotFoundException(Messages.NotFound_CinemaSettings);
+
+        return ToAdminDto(settings);
+    }
+
+    public async Task<AdminCinemaSettingsDto> UpdateSettingsAsync(
         UpdateSettingsRequest request,
         CancellationToken cancellationToken
     )
@@ -88,12 +101,17 @@ public class SettingsService(IAppDbContext db, IOptions<BrandOptions> brandOptio
             settings.SchedulerMaxRating = schedulerMaxRating;
         if (settings.SchedulerHeatSalesWeight + settings.SchedulerHeatRatingWeight <= 0)
             throw new BusinessRuleException(Messages.Validation_SchedulerHeatWeights_SumPositive);
+        if (request.DefaultEmployeePassword is { } defaultEmployeePassword)
+            settings.DefaultEmployeePassword = defaultEmployeePassword;
         settings.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return ToDto(settings);
+        return ToAdminDto(settings);
     }
+
+    private AdminCinemaSettingsDto ToAdminDto(CinemaSettings settings) =>
+        new(ToDto(settings), settings.DefaultEmployeePassword);
 
     private CinemaSettingsDto ToDto(CinemaSettings settings) =>
         settings.Adapt<CinemaSettingsDto>() with

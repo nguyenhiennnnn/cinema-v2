@@ -5176,6 +5176,87 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Export_ColSeatsTotal", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đã tạo nhân viên. Tài khoản dùng được ngay và sẽ phải đổi mật khẩu ở lần đăng nhập đầu tiên..
+        /// </summary>
+        public static string Success_EmployeeCreatedDirect {
+            get {
+                return ResourceManager.GetString("Success_EmployeeCreatedDirect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đã đặt lại mật khẩu nhân viên về mật khẩu mặc định. Nhân viên sẽ phải đổi mật khẩu khi đăng nhập..
+        /// </summary>
+        public static string Success_EmployeePasswordReset {
+            get {
+                return ResourceManager.GetString("Success_EmployeePasswordReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể tự đặt lại mật khẩu của chính mình bằng chức năng này..
+        /// </summary>
+        public static string Rule_CannotResetOwnPassword {
+            get {
+                return ResourceManager.GetString("Rule_CannotResetOwnPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chỉ có thể đặt lại mật khẩu cho tài khoản có role Employee..
+        /// </summary>
+        public static string Rule_OnlyEmployeePasswordCanBeReset {
+            get {
+                return ResourceManager.GetString("Rule_OnlyEmployeePasswordCanBeReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể đặt lại mật khẩu của nhân viên đã bị vô hiệu hóa..
+        /// </summary>
+        public static string Rule_CannotResetInactiveEmployeePassword {
+            get {
+                return ResourceManager.GetString("Rule_CannotResetInactiveEmployeePassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chưa cấu hình mật khẩu mặc định cho nhân viên trong cài đặt..
+        /// </summary>
+        public static string Rule_DefaultEmployeePasswordNotConfigured {
+            get {
+                return ResourceManager.GetString("Rule_DefaultEmployeePasswordNotConfigured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mật khẩu mới không được trùng với mật khẩu hiện tại..
+        /// </summary>
+        public static string Invalid_NewPasswordSameAsCurrent {
+            get {
+                return ResourceManager.GetString("Invalid_NewPasswordSameAsCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bạn cần đổi mật khẩu trước khi tiếp tục sử dụng hệ thống..
+        /// </summary>
+        public static string Forbidden_PasswordChangeRequired {
+            get {
+                return ResourceManager.GetString("Forbidden_PasswordChangeRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mật khẩu mặc định cho nhân viên tối đa 100 ký tự..
+        /// </summary>
+        public static string Validation_DefaultEmployeePassword_MaxLength100 {
+            get {
+                return ResourceManager.GetString("Validation_DefaultEmployeePassword_MaxLength100", resourceCulture);
+            }
+        }
     
     }
 }
