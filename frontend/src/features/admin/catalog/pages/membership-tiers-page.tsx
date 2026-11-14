@@ -11,7 +11,7 @@ import {
   useAdminMembershipTiers,
   useAdminDeleteMembershipTier,
 } from "../hooks/use-admin-membership-tier";
-import type { MembershipTierDto } from "../types";
+import type { MembershipTierDto } from "@/features/admin/catalog/types";
 import { createMembershipTierColumns } from "../components/columns/membership-tier-columns";
 import { MembershipTierCreateForm } from "../components/forms/membership-tiers/membership-tier-create-form";
 import { MembershipTierUpdateForm } from "../components/forms/membership-tiers/membership-tier-update-form";

@@ -11,7 +11,7 @@ import {
   useAdminSeatTypes,
   useAdminDeleteSeatType,
 } from "../hooks/use-admin-seat-type";
-import type { SeatTypeDto } from "../types";
+import type { SeatTypeDto } from "@/features/admin/catalog/types";
 import { createSeatTypeColumns } from "../components/columns/seat-type-columns";
 import { SeatTypeCreateForm } from "../components/forms/seat-types/seat-type-create-form";
 import { SeatTypeUpdateForm } from "../components/forms/seat-types/seat-type-update-form";

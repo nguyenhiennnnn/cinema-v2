@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
-import type { DashboardShowtimeItemDto } from "../types";
+import type { DashboardShowtimeItemDto } from "@/features/admin/dashboard/types";
 import { Film } from "lucide-react";
 import { formatShowtimeHour } from "@/lib/formatters";
 

@@ -14,7 +14,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import { formatCurrency } from "@/lib/formatters";
-import type { DashboardRevenueTrendItemDto } from "../types";
+import type { DashboardRevenueTrendItemDto } from "@/features/admin/dashboard/types";
 
 const chartConfig = {
   ticketRevenue: { label: "Doanh thu vé", color: "var(--chart-1)" },

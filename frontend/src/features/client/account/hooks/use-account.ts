@@ -3,7 +3,7 @@ import { accountApi } from "../api/account-api";
 import { queryKeys } from "@/api/query-keys";
 import { useAuthStore } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
-import type { MyReviewListParams, UpdateProfileRequest } from "../types";
+import type { MyReviewListParams, UpdateProfileRequest } from "@/features/client/account/types";
 import type { ChangePasswordRequest } from "@/features/auth/types";
 
 export function useMyProfile() {

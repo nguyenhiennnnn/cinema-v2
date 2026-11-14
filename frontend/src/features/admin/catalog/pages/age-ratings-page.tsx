@@ -11,7 +11,7 @@ import {
   useAdminAgeRatings,
   useAdminDeleteAgeRating,
 } from "../hooks/use-admin-age-rating";
-import type { AgeRatingDto } from "../types";
+import type { AgeRatingDto } from "@/features/admin/catalog/types";
 import { createAgeRatingColumns } from "../components/columns/age-rating-columns";
 import { AgeRatingCreateForm } from "../components/forms/age-ratings/age-rating-create-form";
 import { AgeRatingUpdateForm } from "../components/forms/age-ratings/age-rating-update-form";

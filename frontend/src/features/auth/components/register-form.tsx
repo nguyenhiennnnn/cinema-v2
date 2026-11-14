@@ -12,9 +12,9 @@ import { FormErrorAlert } from "@/components/common/form/form-error-alert";
 import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useRegister } from "../hooks/use-auth";
-import { passwordSchema } from "@/lib/validators";
+import { strongPasswordSchema } from "@/lib/validators";
 import type { RegisterRequest } from "../types";
-import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
+import { PasswordStrengthMeter } from "@/components/common/form/password-strength-meter";
 import { ROUTES } from "@/config/routes";
 
 const registerSchema = z
@@ -31,7 +31,7 @@ const registerSchema = z
         (v) => !v || /^0\d{9,10}$/.test(v),
         "Số điện thoại không hợp lệ.",
       ),
-    password: passwordSchema,
+    password: strongPasswordSchema,
     confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu."),
   })
   .refine((data) => data.password === data.confirmPassword, {

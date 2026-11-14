@@ -17,23 +17,13 @@ import { SeatGapRuleMode } from "@/types/enum";
 import { useAdminSettings, useAdminUpdateSettings } from "../hooks/use-admin-settings";
 import { FormImageField } from "@/components/common/form/form-upload-field";
 import { getCurrencyLabel } from "@/lib/regional-settings";
-import { strongPasswordSchema } from "@/lib/validators";
+import { defaultEmployeePasswordSchema } from "@/lib/validators";
 
 const SEAT_GAP_RULE_OPTIONS = [
   { value: SeatGapRuleMode.Strict, label: "Chặn mọi ghế lẻ" },
   { value: SeatGapRuleMode.AllowEdge, label: "Cho phép ghế lẻ sát mép hàng / lối đi" },
   { value: SeatGapRuleMode.Off, label: "Tắt quy tắc ghế lẻ" },
 ];
-
-const DEFAULT_EMPLOYEE_PASSWORD_MAX_LENGTH = 100;
-
-const defaultEmployeePasswordSchema = z
-  .string()
-  .max(
-    DEFAULT_EMPLOYEE_PASSWORD_MAX_LENGTH,
-    `Mật khẩu mặc định tối đa ${DEFAULT_EMPLOYEE_PASSWORD_MAX_LENGTH} ký tự.`,
-  )
-  .pipe(strongPasswordSchema);
 
 const settingsFormSchema = z.object({
   name: z.string().min(1, "Vui lòng nhập tên rạp."),

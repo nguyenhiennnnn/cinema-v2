@@ -7,7 +7,7 @@ import type {
   CreateEmployeeRequest,
   InviteEmployeeRequest,
   UpdateEmployeeRequest,
-} from "../types";
+} from "@/features/admin/employees/types";
 import { ENDPOINTS } from "@/api/endpoints";
 
 export const employeesAdminApi = {

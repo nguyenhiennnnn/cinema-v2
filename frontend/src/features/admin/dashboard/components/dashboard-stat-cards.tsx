@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/formatters";
-import type { DashboardSummaryDto } from "../types";
+import type { DashboardSummaryDto } from "@/features/admin/dashboard/types";
 import { Wallet, Ticket, CalendarCheck, Clock3, Percent, type LucideIcon } from "lucide-react";
 
 interface StatItem {

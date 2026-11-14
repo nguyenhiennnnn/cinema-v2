@@ -20,7 +20,7 @@ import {
   useAdminDeleteMovie,
   useAdminBulkDeleteMovies,
 } from "../hooks/use-admin-movies";
-import type { AdminMovieListItemDto } from "../types";
+import type { AdminMovieListItemDto } from "@/features/admin/movies/types";
 import { createMovieColumns } from "../components/movie-columns";
 import { createSelectionColumn } from "@/components/common/data-table/data-table-selection-column";
 import { MovieCreateForm } from "../components/forms/movie-create-form";

@@ -11,7 +11,7 @@ import {
   useAdminDeleteLanguage,
   useAdminLanguages,
 } from "../hooks/use-admin-language";
-import type { LanguageDto } from "../types";
+import type { LanguageDto } from "@/features/admin/catalog/types";
 import { createLanguageColumns } from "../components/columns/language-columns";
 import { LanguageCreateForm } from "../components/forms/languages/language-create-form";
 import { LanguageUpdateForm } from "../components/forms/languages/language-update-form";

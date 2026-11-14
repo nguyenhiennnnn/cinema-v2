@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { dashboardApi } from "../api/dashboard-api";
 import { queryKeys } from "@/api/query-keys";
-import type { DashboardInsightsParams } from "../types";
+import type { DashboardInsightsParams } from "@/features/admin/dashboard/types";
 import { DASHBOARD_REFETCH_INTERVAL_MS } from "@/config/default-constants";
 
 export function useDashboardSummary() {

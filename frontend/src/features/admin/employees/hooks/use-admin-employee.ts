@@ -6,7 +6,7 @@ import type {
   InviteEmployeeRequest,
   AdminEmployeeListParams,
   UpdateEmployeeRequest,
-} from "../types";
+} from "@/features/admin/employees/types";
 import { employeesAdminApi } from "../api/employee-api";
 
 export function useAdminEmployees(params: AdminEmployeeListParams = {}) {

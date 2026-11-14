@@ -16,7 +16,7 @@ import {
   useAdminDeleteDirector,
   useAdminBulkDeleteDirectors,
 } from "../hooks/use-admin-director";
-import type { DirectorDto } from "../types";
+import type { DirectorDto } from "@/features/admin/catalog/types";
 import { createDirectorColumns } from "../components/columns/director-columns";
 import { DirectorCreateForm } from "../components/forms/directors/director-create-form";
 import { DirectorUpdateForm } from "../components/forms/directors/director-update-form";

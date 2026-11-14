@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import type { CatalogListParams, UpsertSeatTypeRequest } from "../types";
+import type { CatalogListParams, UpsertSeatTypeRequest } from "@/features/admin/catalog/types";
 import { queryKeys } from "@/api/query-keys";
 import { seatTypesAdminApi } from "../api/catalog-api";
 

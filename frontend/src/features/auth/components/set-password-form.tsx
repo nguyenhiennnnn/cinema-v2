@@ -1,24 +1,21 @@
-import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { z } from "zod";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { FormErrorAlert } from "@/components/common/form/form-error-alert";
 import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
-import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
+import { PasswordStrengthMeter } from "@/components/common/form/password-strength-meter";
 
 import { useResetPassword } from "../hooks/use-auth";
-import { createSetPasswordSchema, type SetPasswordFormValues } from "../schemas/password-schemas";
+import { setPasswordSchema, type SetPasswordFormValues } from "../schemas/password-schemas";
 
 interface SetPasswordFormProps {
   token: string;
   submitLabel: string;
   newPasswordLabel?: string;
   confirmPasswordLabel?: string;
-  passwordRule?: z.ZodType<string>;
   skipSuccessToast?: boolean;
   onSuccess: () => void;
   onError?: (error: unknown) => void;
@@ -29,16 +26,14 @@ export const SetPasswordForm = ({
   submitLabel,
   newPasswordLabel = "Mật khẩu mới",
   confirmPasswordLabel = "Xác nhận mật khẩu mới",
-  passwordRule,
   skipSuccessToast,
   onSuccess,
   onError,
 }: SetPasswordFormProps) => {
   const { mutate: resetPassword, isPending, error } = useResetPassword({ skipSuccessToast });
-  const schema = useMemo(() => createSetPasswordSchema(passwordRule), [passwordRule]);
 
   const form = useForm<SetPasswordFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(setPasswordSchema),
     defaultValues: { newPassword: "", confirmPassword: "" },
   });
 

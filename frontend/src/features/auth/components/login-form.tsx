@@ -2,6 +2,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
+import { loginPasswordSchema } from "@/lib/validators";
 
 import { PasswordInput } from "@/components/ui/input";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -16,7 +17,7 @@ import { getSafeRedirect } from "@/lib/utils";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự."),
+  password: loginPasswordSchema,
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;

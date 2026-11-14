@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { toast } from "@/components/ui/toast";
 import { ROUTES } from "@/config/routes";
-import { strongPasswordSchema } from "@/lib/validators";
 import { InvalidLinkNotice } from "@/features/auth/components/invalid-link-notice";
 import { SetPasswordForm } from "@/features/auth/components/set-password-form";
 import { isInvalidResetTokenError } from "@/features/auth/utils/reset-token-error";
@@ -51,7 +50,6 @@ const AdminResetPasswordPage = () => {
         submitLabel="Đặt mật khẩu"
         newPasswordLabel="Mật khẩu"
         confirmPasswordLabel="Xác nhận mật khẩu"
-        passwordRule={strongPasswordSchema}
         skipSuccessToast
         onSuccess={() => {
           toast.add({

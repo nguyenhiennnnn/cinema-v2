@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import type { CatalogListParams, UpsertLanguageRequest } from "../types";
+import type { CatalogListParams, UpsertLanguageRequest } from "@/features/admin/catalog/types";
 import { queryKeys } from "@/api/query-keys";
 import { languagesAdminApi } from "../api/catalog-api";
 

@@ -16,7 +16,7 @@ import type {
   DeleteCategoryResponse,
   CatalogListParams,
   PersonListParams,
-} from "../types";
+} from "@/features/admin/catalog/types";
 import { ENDPOINTS } from "@/api/endpoints";
 
 export const genresAdminApi = {

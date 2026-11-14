@@ -13,7 +13,7 @@ import type { DataTableFeatures } from "@/components/common/data-table/data-tabl
 import { MovieStatusBadge } from "@/components/common/status-badge";
 import { formatDate } from "@/lib/formatters";
 
-import type { AdminMovieListItemDto } from "../types";
+import type { AdminMovieListItemDto } from "@/features/admin/movies/types";
 
 interface MovieColumnsOptions {
   onEdit?: (movie: AdminMovieListItemDto) => void;

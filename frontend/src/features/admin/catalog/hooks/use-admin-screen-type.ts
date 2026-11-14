@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import type { CatalogListParams, UpsertScreenTypeRequest } from "../types";
+import type { CatalogListParams, UpsertScreenTypeRequest } from "@/features/admin/catalog/types";
 import { queryKeys } from "@/api/query-keys";
 import { screenTypesAdminApi } from "../api/catalog-api";
 

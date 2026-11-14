@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { MailPlus, UserCheck, UserPlus } from "lucide-react";
 import type { RowSelectionState } from "@tanstack/react-table";
 
 import { PageHeader } from "@/components/common/page-header";
@@ -22,7 +22,9 @@ import {
 } from "../hooks/use-admin-employee";
 import type { AdminEmployeeDto } from "../types";
 import { createEmployeeColumns } from "../components/employee-columns";
-import { EmployeeAddTabs } from "../components/employee-add-tabs";
+import { EmployeeDirectForm } from "../components/forms/employee-direct-form";
+import { EmployeeFromAccountForm } from "../components/forms/employee-from-account-form";
+import { EmployeeInviteForm } from "../components/forms/employee-invite-form";
 import { EmployeeUpdateForm } from "../components/forms/employee-update-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { useAdminEmployeeParams } from "@/hooks/use-query-params";
@@ -44,11 +46,27 @@ const AdminEmployeesPage = () => {
   const closeDialog = useDialogClose();
   const openAlertDialog = useAlertDialogOpen();
 
-  const handleCreate = () => {
+  const handleCreateFromAccount = () => {
     openDialog({
-      title: "Thêm nhân viên mới",
-      description: "Tạo tài khoản trực tiếp, mời nhân viên qua email hoặc nâng cấp một tài khoản có sẵn.",
-      content: <EmployeeAddTabs onSuccess={closeDialog} />,
+      title: "Thêm nhân viên từ tài khoản có sẵn",
+      description: "Chọn một tài khoản đã có và nâng cấp thành nhân viên.",
+      content: <EmployeeFromAccountForm onSuccess={closeDialog} />,
+    });
+  };
+
+  const handleInvite = () => {
+    openDialog({
+      title: "Mời nhân viên qua email",
+      description: "Nhân viên nhận email mời để tự đặt mật khẩu và kích hoạt tài khoản.",
+      content: <EmployeeInviteForm onSuccess={closeDialog} />,
+    });
+  };
+
+  const handleCreateDirect = () => {
+    openDialog({
+      title: "Tạo nhân viên trực tiếp",
+      description: "Nhập thông tin và mật khẩu tạm để tạo tài khoản nhân viên ngay.",
+      content: <EmployeeDirectForm onSuccess={closeDialog} />,
     });
   };
 
@@ -138,10 +156,20 @@ const AdminEmployeesPage = () => {
         title="Nhân viên"
         description="Quản lý danh sách nhân viên, vị trí và trạng thái làm việc."
         action={
-          <Button onClick={handleCreate}>
-            <Plus className="size-4" />
-            <span>Thêm nhân viên</span>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={handleCreateFromAccount}>
+              <UserCheck className="size-4" />
+              <span>Từ tài khoản có sẵn</span>
+            </Button>
+            <Button variant="outline" onClick={handleInvite}>
+              <MailPlus className="size-4" />
+              <span>Mời qua email</span>
+            </Button>
+            <Button onClick={handleCreateDirect}>
+              <UserPlus className="size-4" />
+              <span>Tạo trực tiếp</span>
+            </Button>
+          </div>
         }
       />
 

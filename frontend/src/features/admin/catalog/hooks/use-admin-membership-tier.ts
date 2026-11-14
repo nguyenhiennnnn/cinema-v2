@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import type { CatalogListParams, UpsertMembershipTierRequest } from "../types";
+import type { CatalogListParams, UpsertMembershipTierRequest } from "@/features/admin/catalog/types";
 import { queryKeys } from "@/api/query-keys";
 import { membershipTiersAdminApi } from "../api/catalog-api";
 

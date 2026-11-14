@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import type { CatalogListParams, UpsertAgeRatingRequest } from "../types";
+import type { CatalogListParams, UpsertAgeRatingRequest } from "@/features/admin/catalog/types";
 import { queryKeys } from "@/api/query-keys";
 import { ageRatingsAdminApi } from "../api/catalog-api";
 

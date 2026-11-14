@@ -1,17 +1,16 @@
-import { useMemo, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { z } from "zod";
 
 import { FieldGroup } from "@/components/ui/field";
 import { FormInputField } from "@/components/common/form/form-input-field";
 import { SubmitButton } from "@/components/common/form/submit-button";
-import { PasswordStrengthMeter } from "@/features/client/account/components/password-strength-meter";
+import { PasswordStrengthMeter } from "@/components/common/form/password-strength-meter";
 import { useChangePassword } from "@/features/client/account/hooks/use-account";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 
 import {
-  createChangePasswordSchema,
+  changePasswordSchema,
   type ChangePasswordFormValues,
 } from "../schemas/password-schemas";
 
@@ -20,7 +19,6 @@ interface ChangePasswordFormProps {
   heading?: string;
   submitLabel: string;
   submitIcon?: ReactNode;
-  passwordRule?: z.ZodType<string>;
   skipSuccessToast?: boolean;
   onSuccess?: () => void;
 }
@@ -30,15 +28,13 @@ export const ChangePasswordForm = ({
   heading,
   submitLabel,
   submitIcon,
-  passwordRule,
   skipSuccessToast,
   onSuccess,
 }: ChangePasswordFormProps) => {
   const changePassword = useChangePassword({ skipSuccessToast });
-  const schema = useMemo(() => createChangePasswordSchema(passwordRule), [passwordRule]);
 
   const form = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
 

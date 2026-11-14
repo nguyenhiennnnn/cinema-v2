@@ -8,7 +8,7 @@ import type {
   DeleteMovieResponse,
   BulkDeleteMoviesRequest,
   BulkDeleteMoviesResponse,
-} from "../types";
+} from "@/features/admin/movies/types";
 import { ENDPOINTS } from "@/api/endpoints";
 
 export const moviesAdminApi = {

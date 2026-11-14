@@ -16,7 +16,7 @@ import {
   useAdminCombos,
   useAdminToggleCombo,
 } from "../hooks/use-admin-combo";
-import type { AdminComboDto } from "../types";
+import type { AdminComboDto } from "@/features/admin/combos/types";
 import { createComboColumns } from "../components/combo-columns";
 import { ComboCreateForm } from "../components/forms/combo-create-form";
 import { ComboUpdateForm } from "../components/forms/combo-update-form";

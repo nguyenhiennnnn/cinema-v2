@@ -11,7 +11,7 @@ import {
   useAdminPositions,
   useAdminDeletePosition,
 } from "../hooks/use-admin-position";
-import type { PositionDto } from "../types";
+import type { PositionDto } from "@/features/admin/catalog/types";
 import { createPositionColumns } from "../components/columns/position-columns";
 import { PositionCreateForm } from "../components/forms/positions/position-create-form";
 import { PositionUpdateForm } from "../components/forms/positions/position-update-form";

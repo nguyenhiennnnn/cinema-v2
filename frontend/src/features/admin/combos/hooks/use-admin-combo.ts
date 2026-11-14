@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import type { ComboListParams, UpsertComboRequest } from "../types";
+import type { ComboListParams, UpsertComboRequest } from "@/features/admin/combos/types";
 import type { BulkStatusRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
 import { combosAdminApi } from "../api/combos-api";

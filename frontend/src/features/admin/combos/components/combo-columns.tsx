@@ -13,7 +13,7 @@ import { DataTableColumnHeader } from "@/components/common/data-table/data-table
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 import { formatCurrency } from "@/lib/formatters";
 
-import type { AdminComboDto } from "../types";
+import type { AdminComboDto } from "@/features/admin/combos/types";
 
 interface ComboColumnsOptions {
   onEdit: (combo: AdminComboDto) => void;

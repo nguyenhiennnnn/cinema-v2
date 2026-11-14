@@ -27,7 +27,7 @@ import type {
   LanguageDto,
   PositionDto,
   ScreenTypeDto,
-} from "../types";
+} from "@/features/admin/catalog/types";
 
 const QUICK_CREATE_ROLE = Role.Admin;
 

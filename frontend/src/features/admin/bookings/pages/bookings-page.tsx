@@ -8,7 +8,7 @@ import { DataTable } from "@/components/common/data-table/data-table";
 
 import { useAdminBookingParams } from "@/hooks/use-query-params";
 import { useAdminBookings } from "../hooks/use-admin-booking";
-import type { AdminBookingListItemDto } from "../types";
+import type { AdminBookingListItemDto } from "@/features/admin/bookings/types";
 import { createBookingColumns } from "../components/booking-columns";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { stripNulls } from "@/lib/query-params";

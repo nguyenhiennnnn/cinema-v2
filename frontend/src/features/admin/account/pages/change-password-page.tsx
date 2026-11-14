@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { ROUTES, getAdminHomePath } from "@/config/routes";
 import { useLogoutConfirm } from "@/hooks/use-logout-confirm";
-import { strongPasswordSchema } from "@/lib/validators";
 import { useAuthStore } from "@/stores/auth-store";
 import { ChangePasswordForm } from "@/features/auth/components/change-password-form";
 
@@ -40,7 +39,6 @@ const AdminChangePasswordPage = () => {
         layout="stack"
         submitLabel="Đổi mật khẩu"
         submitIcon={<KeyRound className="size-4" />}
-        passwordRule={strongPasswordSchema}
         skipSuccessToast
         onSuccess={handleSuccess}
       />

@@ -10,7 +10,7 @@ import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
 import { useAdminDeleteGenre, useAdminGenres } from "../hooks/use-admin-genre";
-import type { GenreDto } from "../types";
+import type { GenreDto } from "@/features/admin/catalog/types";
 import { createGenreColumns } from "../components/columns/genre-columns";
 import { GenreCreateForm } from "../components/forms/genres/genre-create-form";
 import { GenreUpdateForm } from "../components/forms/genres/genre-update-form";

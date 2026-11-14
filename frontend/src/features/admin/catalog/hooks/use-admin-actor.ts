@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import type { PersonListParams, UpsertPersonRequest } from "../types";
+import type { PersonListParams, UpsertPersonRequest } from "@/features/admin/catalog/types";
 import type { BulkIdsRequest } from "@/types/bulk";
 import { queryKeys } from "@/api/query-keys";
 import { actorsAdminApi } from "../api/catalog-api";

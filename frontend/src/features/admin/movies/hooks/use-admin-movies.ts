@@ -4,7 +4,7 @@ import type {
   AdminMovieListParams,
   UpsertMovieRequest,
   BulkDeleteMoviesRequest,
-} from "../types";
+} from "@/features/admin/movies/types";
 import { moviesAdminApi } from "../api/movies-api";
 
 export function useAdminMovies(params: AdminMovieListParams) {

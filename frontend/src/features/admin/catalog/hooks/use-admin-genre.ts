@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
-import type { CatalogListParams, UpsertGenreRequest } from "../types";
+import type { CatalogListParams, UpsertGenreRequest } from "@/features/admin/catalog/types";
 import { genresAdminApi } from "../api/catalog-api";
 
 export function useAdminGenres(params?: CatalogListParams) {

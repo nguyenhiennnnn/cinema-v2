@@ -11,7 +11,7 @@ import {
   useAdminDeleteScreenType,
   useAdminScreenTypes,
 } from "../hooks/use-admin-screen-type";
-import type { ScreenTypeDto } from "../types";
+import type { ScreenTypeDto } from "@/features/admin/catalog/types";
 
 import { createScreenTypeColumns } from "../components/columns/screen-type-columns";
 

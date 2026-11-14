@@ -12,7 +12,7 @@ import type {
   ResendConfirmationEmailRequest,
   LoginUserDto,
   MeResponse,
-} from "../types";
+} from "@/features/auth/types";
 
 function mapLoginUserToAuthUser(dto: LoginUserDto): AuthUser {
   return {

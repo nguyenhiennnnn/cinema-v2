@@ -1,6 +1,6 @@
 import { apiGet, apiPost, apiPut } from "@/api/axios";
 import type { ApiResponse, CursorPageResult } from "@/types/api";
-import type { UserProfileDto, UpdateProfileRequest, UserMyReviewDto, MyReviewListParams } from "../types";
+import type { UserProfileDto, UpdateProfileRequest, UserMyReviewDto, MyReviewListParams } from "@/features/client/account/types";
 import type { ChangePasswordRequest, MessageResponse } from "@/features/auth/types";
 import { ENDPOINTS } from "@/api/endpoints";
 

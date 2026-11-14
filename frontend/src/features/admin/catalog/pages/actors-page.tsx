@@ -19,7 +19,7 @@ import {
   useAdminDeleteActor,
   useAdminBulkDeleteActors,
 } from "../hooks/use-admin-actor";
-import type { ActorDto } from "../types";
+import type { ActorDto } from "@/features/admin/catalog/types";
 import { createActorColumns } from "../components/columns/actor-columns";
 import { ActorCreateForm } from "../components/forms/actors/actor-create-form";
 import { ActorUpdateForm } from "../components/forms/actors/actor-update-form";

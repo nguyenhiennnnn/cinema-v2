@@ -15,7 +15,7 @@ import type { DataTableFeatures } from "@/components/common/data-table/data-tabl
 import { formatDate } from "@/lib/formatters";
 import { Role } from "@/types/enum";
 
-import type { AdminEmployeeDto } from "../types";
+import type { AdminEmployeeDto } from "@/features/admin/employees/types";
 
 interface EmployeeColumnsOptions {
   onEdit: (employee: AdminEmployeeDto) => void;

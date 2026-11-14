@@ -4,7 +4,7 @@ import type {
   DashboardSummaryDto,
   DashboardInsightsDto,
   DashboardInsightsParams,
-} from "../types";
+} from "@/features/admin/dashboard/types";
 import { ENDPOINTS } from "@/api/endpoints";
 
 export const dashboardApi = {

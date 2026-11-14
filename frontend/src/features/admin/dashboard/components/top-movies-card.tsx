@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
-import type { DashboardTopMovieDto } from "../types";
+import type { DashboardTopMovieDto } from "@/features/admin/dashboard/types";
 
 const chartConfig = {
   ticketsSold: { label: "Vé đã bán", color: "var(--chart-3)" },
