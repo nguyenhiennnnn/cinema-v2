@@ -15,6 +15,7 @@ namespace Cinema.Api.Controllers.Admin;
 [Authorize]
 public class AdminBookingsController(
     IBookingQueryService bookingQueryService,
+    IBookingTicketPdfService bookingTicketPdfService,
     IExportJobService exportJobService
 ) : AppControllerBase
 {
@@ -86,5 +87,19 @@ public class AdminBookingsController(
             cancellationToken
         );
         return Ok(result);
+    }
+
+    [HttpGet("{bookingId:int}/tickets/pdf")]
+    [Authorize(Policy = Policies.StaffOnly)]
+    public async Task<IActionResult> DownloadTicketsPdf(
+        int bookingId,
+        CancellationToken cancellationToken
+    )
+    {
+        var file = await bookingTicketPdfService.GenerateForStaffAsync(
+            bookingId,
+            cancellationToken
+        );
+        return File(file.Content, file.ContentType, file.FileName);
     }
 }

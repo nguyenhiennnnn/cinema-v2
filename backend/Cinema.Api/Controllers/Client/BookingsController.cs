@@ -17,7 +17,8 @@ public class BookingsController(
     IBookingHoldService bookingHoldService,
     IBookingQueryService bookingQueryService,
     IBookingCheckoutService bookingCheckoutService,
-    IBookingCancellationService bookingCancellationService
+    IBookingCancellationService bookingCancellationService,
+    IBookingTicketPdfService bookingTicketPdfService
 ) : AppControllerBase
 {
     [HttpPost("hold")]
@@ -65,6 +66,20 @@ public class BookingsController(
             cancellationToken
         );
         return Ok(result);
+    }
+
+    [HttpGet("{bookingId:int}/tickets/pdf")]
+    public async Task<IActionResult> DownloadTicketsPdf(
+        int bookingId,
+        CancellationToken cancellationToken
+    )
+    {
+        var file = await bookingTicketPdfService.GenerateForCustomerAsync(
+            CurrentUserId,
+            bookingId,
+            cancellationToken
+        );
+        return File(file.Content, file.ContentType, file.FileName);
     }
 
     [HttpPost("{bookingId:int}/checkout")]

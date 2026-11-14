@@ -33,6 +33,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Content Include="Fonts\**\*.ttf" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Watch Include="**/*" Exclude="logs/**;**/*.log;obj/**;bin/**" />
     </ItemGroup>
 </Project>

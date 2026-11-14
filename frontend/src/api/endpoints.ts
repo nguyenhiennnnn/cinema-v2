@@ -51,6 +51,7 @@ export const ENDPOINTS = {
     byId: (id: number) => `/bookings/${id}`,
     checkout: (id: number) => `/bookings/${id}/checkout`,
     cancel: (id: number) => `/bookings/${id}/cancel`,
+    ticketsPdf: (id: number) => `/bookings/${id}/tickets/pdf`,
   },
   admin: {
     settings: "/admin/settings",
@@ -88,6 +89,7 @@ export const ENDPOINTS = {
       export: "/admin/bookings/export",
       exportJobs: "/admin/bookings/export-jobs",
       byId: (id: number) => `/admin/bookings/${id}`,
+      ticketsPdf: (id: number) => `/admin/bookings/${id}/tickets/pdf`,
       counterHold: "/admin/bookings/counter-hold",
       counterCheckout: (id: number) => `/admin/bookings/${id}/counter-checkout`,
       counterCancel: (id: number) => `/admin/bookings/${id}/counter-cancel`,

@@ -6238,6 +6238,159 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Job_UnknownError", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không tìm thấy file font PDF '{0}' (Pdf:FontDirectory). Hãy thêm file font vào thư mục này..
+        /// </summary>
+        public static string Config_PdfFontNotFound {
+            get {
+                return ResourceManager.GetString("Config_PdfFontNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to format phải là xlsx, csv hoặc pdf..
+        /// </summary>
+        public static string Export_InvalidReportFormat {
+            get {
+                return ResourceManager.GetString("Export_InvalidReportFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Báo cáo doanh thu.
+        /// </summary>
+        public static string Export_PdfTitleRevenue {
+            get {
+                return ResourceManager.GetString("Export_PdfTitleRevenue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Báo cáo phim bán chạy.
+        /// </summary>
+        public static string Export_PdfTitleTopMovies {
+            get {
+                return ResourceManager.GetString("Export_PdfTitleTopMovies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Báo cáo hiệu suất nhân viên.
+        /// </summary>
+        public static string Export_PdfTitleEmployeePerformance {
+            get {
+                return ResourceManager.GetString("Export_PdfTitleEmployeePerformance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Từ ngày {0} đến ngày {1}.
+        /// </summary>
+        public static string Export_PdfPeriod {
+            get {
+                return ResourceManager.GetString("Export_PdfPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày xuất: {0}.
+        /// </summary>
+        public static string Export_PdfExportedAt {
+            get {
+                return ResourceManager.GetString("Export_PdfExportedAt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trang.
+        /// </summary>
+        public static string Export_PdfPage {
+            get {
+                return ResourceManager.GetString("Export_PdfPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không có dữ liệu trong khoảng thời gian này..
+        /// </summary>
+        public static string Export_PdfNoData {
+            get {
+                return ResourceManager.GetString("Export_PdfNoData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vé xem phim.
+        /// </summary>
+        public static string Export_PdfTicketTitle {
+            get {
+                return ResourceManager.GetString("Export_PdfTicketTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phim.
+        /// </summary>
+        public static string Export_PdfTicketMovie {
+            get {
+                return ResourceManager.GetString("Export_PdfTicketMovie", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Suất chiếu.
+        /// </summary>
+        public static string Export_PdfTicketShowtime {
+            get {
+                return ResourceManager.GetString("Export_PdfTicketShowtime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phòng.
+        /// </summary>
+        public static string Export_PdfTicketRoom {
+            get {
+                return ResourceManager.GetString("Export_PdfTicketRoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ghế.
+        /// </summary>
+        public static string Export_PdfTicketSeat {
+            get {
+                return ResourceManager.GetString("Export_PdfTicketSeat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã booking.
+        /// </summary>
+        public static string Export_PdfTicketBookingCode {
+            get {
+                return ResourceManager.GetString("Export_PdfTicketBookingCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vui lòng xuất trình mã QR này tại quầy soát vé..
+        /// </summary>
+        public static string Export_PdfTicketHint {
+            get {
+                return ResourceManager.GetString("Export_PdfTicketHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chỉ có thể tải vé PDF của booking đã thanh toán..
+        /// </summary>
+        public static string Rule_TicketPdfNotPaid {
+            get {
+                return ResourceManager.GetString("Rule_TicketPdfNotPaid", resourceCulture);
+            }
+        }
     
     }
 }

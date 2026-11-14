@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/common/page-header";
-import { ExportButton } from "@/components/common/export-button";
+import { ExportButton, type ExportFormat } from "@/components/common/export-button";
 import { ENDPOINTS } from "@/api/endpoints";
 import { getDefaultReportRange } from "../utils/default-range";
 import { useRevenueReport, useTopMoviesReport, useEmployeePerformanceReport } from "../hooks/use-reports";
@@ -10,6 +10,8 @@ import { RevenueReportChart } from "../components/revenue-report-chart";
 import { TopMoviesReportTable } from "../components/top-movies-report-table";
 import { EmployeePerformanceTable } from "../components/employee-performance-table";
 import { TOP_MOVIES_REPORT_LIMIT } from "@/config/default-constants";
+
+const REPORT_EXPORT_FORMATS: ExportFormat[] = ["xlsx", "csv", "pdf"];
 
 const AdminReportsPage = () => {
   const defaultRange = getDefaultReportRange();
@@ -62,6 +64,7 @@ const AdminReportsPage = () => {
           <ExportButton
             endpoint={ENDPOINTS.admin.reports.revenueExport}
             params={{ fromDate, toDate, groupBy }}
+            formats={REPORT_EXPORT_FORMATS}
             fallbackFilename="revenue"
             disabled={!hasValidRange}
           />
@@ -76,6 +79,7 @@ const AdminReportsPage = () => {
             <ExportButton
               endpoint={ENDPOINTS.admin.reports.topMoviesExport}
               params={{ fromDate, toDate, limit: TOP_MOVIES_REPORT_LIMIT }}
+              formats={REPORT_EXPORT_FORMATS}
               fallbackFilename="top-movies"
               disabled={!hasValidRange}
             />
@@ -88,6 +92,7 @@ const AdminReportsPage = () => {
             <ExportButton
               endpoint={ENDPOINTS.admin.reports.employeePerformanceExport}
               params={{ fromDate, toDate }}
+              formats={REPORT_EXPORT_FORMATS}
               fallbackFilename="employee-performance"
               disabled={!hasValidRange}
             />

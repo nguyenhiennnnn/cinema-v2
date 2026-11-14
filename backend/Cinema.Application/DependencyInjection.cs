@@ -71,6 +71,7 @@ public static class DependencyInjection
         services.AddScoped<IBookingHoldPolicy, CounterHoldPolicy>();
         services.AddScoped<IBookingQueryService, BookingQueryService>();
         services.AddScoped<IBookingExportService, BookingExportService>();
+        services.AddScoped<IBookingTicketPdfService, BookingTicketPdfService>();
         services.AddScoped<IBookingFulfillmentService, BookingFulfillmentService>();
         services.AddScoped<IBookingCancellationService, BookingCancellationService>();
         services.AddScoped<IBookingHoldService, BookingHoldService>();

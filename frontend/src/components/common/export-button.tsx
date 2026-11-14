@@ -20,14 +20,17 @@ import {
 } from "@/lib/download";
 import { cn } from "@/lib/utils";
 
-export type ExportFormat = "xlsx" | "csv";
+export type ExportFormat = "xlsx" | "csv" | "pdf";
 
 export type ExportParams = Record<string, string | number | boolean | null | undefined>;
 
-const FORMAT_OPTIONS: { value: ExportFormat; label: string }[] = [
-  { value: "xlsx", label: "Excel (.xlsx)" },
-  { value: "csv", label: "CSV (.csv)" },
-];
+const FORMAT_LABELS: Record<ExportFormat, string> = {
+  xlsx: "Excel (.xlsx)",
+  csv: "CSV (.csv)",
+  pdf: "PDF (.pdf)",
+};
+
+const DEFAULT_FORMATS: ExportFormat[] = ["xlsx", "csv"];
 
 const BACKGROUND_EXPORT_STATUS = 422;
 
@@ -35,6 +38,7 @@ interface ExportButtonProps {
   endpoint: string;
   jobEndpoint?: string;
   params?: ExportParams;
+  formats?: ExportFormat[];
   fallbackFilename: string;
   label?: string;
   disabled?: boolean;
@@ -46,6 +50,7 @@ export const ExportButton = ({
   endpoint,
   jobEndpoint,
   params,
+  formats = DEFAULT_FORMATS,
   fallbackFilename,
   label = "Xuất file",
   disabled = false,
@@ -104,9 +109,9 @@ export const ExportButton = ({
         <span>{isPending ? "Đang xuất" : label}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
-        {FORMAT_OPTIONS.map((option) => (
-          <DropdownMenuItem key={option.value} onClick={() => mutate(option.value)}>
-            {option.label}
+        {formats.map((format) => (
+          <DropdownMenuItem key={format} onClick={() => mutate(format)}>
+            {FORMAT_LABELS[format]}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

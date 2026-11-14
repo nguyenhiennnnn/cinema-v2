@@ -74,7 +74,7 @@ public class AdminReportsController(
         CancellationToken cancellationToken
     )
     {
-        var exportFormat = ExportFormats.Parse(format);
+        var exportFormat = ExportFormats.Parse(format, allowPdf: true);
         var file = await reportExportService.ExportRevenueAsync(
             fromDate,
             toDate,
@@ -94,7 +94,7 @@ public class AdminReportsController(
         CancellationToken cancellationToken
     )
     {
-        var exportFormat = ExportFormats.Parse(format);
+        var exportFormat = ExportFormats.Parse(format, allowPdf: true);
         var file = await reportExportService.ExportTopMoviesAsync(
             fromDate,
             toDate,
@@ -113,7 +113,7 @@ public class AdminReportsController(
         CancellationToken cancellationToken
     )
     {
-        var exportFormat = ExportFormats.Parse(format);
+        var exportFormat = ExportFormats.Parse(format, allowPdf: true);
         var file = await reportExportService.ExportEmployeePerformanceAsync(
             fromDate,
             toDate,

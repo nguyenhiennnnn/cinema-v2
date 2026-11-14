@@ -1,13 +1,21 @@
 using Cinema.Application.DTOs.Common;
+using Cinema.Application.DTOs.Pdf;
 using Cinema.Application.DTOs.Reports;
 using Cinema.Application.Interfaces;
+using Cinema.Application.Options;
 using Cinema.Application.Utils;
 using Cinema.Shared.Resources;
+using Microsoft.Extensions.Options;
 
 namespace Cinema.Application.Services.Reports;
 
-public class ReportExportService(IReportService reportService, IExportWriter exportWriter)
-    : IReportExportService
+public class ReportExportService(
+    IReportService reportService,
+    IExportWriter exportWriter,
+    IPdfGenerator pdfGenerator,
+    IAppDbContext db,
+    IOptions<BrandOptions> brandOptions
+) : IReportExportService
 {
     private const string RevenueModule = "revenue";
     private const string TopMoviesModule = "top-movies";
@@ -40,6 +48,9 @@ public class ReportExportService(IReportService reportService, IExportWriter exp
         return await WriteAsync(
             RevenueModule,
             Messages.Export_SheetRevenue,
+            Messages.Export_PdfTitleRevenue,
+            fromDate,
+            toDate,
             format,
             RevenueColumns(),
             report.Items,
@@ -66,6 +77,9 @@ public class ReportExportService(IReportService reportService, IExportWriter exp
         return await WriteAsync(
             TopMoviesModule,
             Messages.Export_SheetTopMovies,
+            Messages.Export_PdfTitleTopMovies,
+            fromDate,
+            toDate,
             format,
             TopMovieColumns(),
             movies,
@@ -90,6 +104,9 @@ public class ReportExportService(IReportService reportService, IExportWriter exp
         return await WriteAsync(
             EmployeePerformanceModule,
             Messages.Export_SheetEmployeePerformance,
+            Messages.Export_PdfTitleEmployeePerformance,
+            fromDate,
+            toDate,
             format,
             EmployeePerformanceColumns(),
             employees,
@@ -101,29 +118,103 @@ public class ReportExportService(IReportService reportService, IExportWriter exp
     private async Task<ExportFileDto> WriteAsync<T>(
         string module,
         string sheetName,
+        string pdfTitle,
+        DateOnly fromDate,
+        DateOnly toDate,
         ExportFormat format,
         IReadOnlyList<ExportColumn<T>> columns,
-        IEnumerable<T> rows,
+        IReadOnlyList<T> rows,
         IReadOnlyList<object?>? totalRow,
         CancellationToken cancellationToken
     )
     {
-        var content =
-            format == ExportFormat.Csv
-                ? await exportWriter.WriteCsvAsync(columns, rows, cancellationToken)
-                : await exportWriter.WriteXlsxAsync(
-                    sheetName,
-                    columns,
-                    rows,
-                    totalRow,
-                    cancellationToken
-                );
+        var content = format switch
+        {
+            ExportFormat.Pdf => await WritePdfAsync(
+                pdfTitle,
+                fromDate,
+                toDate,
+                columns,
+                rows,
+                totalRow,
+                cancellationToken
+            ),
+            ExportFormat.Csv => await exportWriter.WriteCsvAsync(columns, rows, cancellationToken),
+            _ => await exportWriter.WriteXlsxAsync(
+                sheetName,
+                columns,
+                rows,
+                totalRow,
+                cancellationToken
+            ),
+        };
 
         return new ExportFileDto(
             content,
             ExportFormats.ContentType(format),
             ExportFileName.Create(module, ExportFormats.Extension(format))
         );
+    }
+
+    private async Task<Stream> WritePdfAsync<T>(
+        string title,
+        DateOnly fromDate,
+        DateOnly toDate,
+        IReadOnlyList<ExportColumn<T>> columns,
+        IReadOnlyList<T> rows,
+        IReadOnlyList<object?>? totalRow,
+        CancellationToken cancellationToken
+    )
+    {
+        var settings = await db.LoadCinemaSettingsOrDefaultAsync(cancellationToken);
+        var cinemaName = string.IsNullOrWhiteSpace(settings.Name)
+            ? brandOptions.Value.Name
+            : settings.Name;
+
+        var pdfColumns = columns
+            .Select(c =>
+            {
+                var isNumeric = c.Type is ExportColumnType.Number or ExportColumnType.Money;
+                return new PdfTableColumn(c.Header, isNumeric, isNumeric ? 1 : 2);
+            })
+            .ToList();
+
+        var pdfRows = rows
+            .Select(row =>
+                (IReadOnlyList<string>)
+                    columns.Select(c => PdfCellFormatter.Format(c.Selector(row), c.Type)).ToList()
+            )
+            .ToList();
+
+        IReadOnlyList<string>? pdfTotalRow = totalRow is null
+            ? null
+            : columns
+                .Select(
+                    (c, i) =>
+                        PdfCellFormatter.Format(i < totalRow.Count ? totalRow[i] : null, c.Type)
+                )
+                .ToList();
+
+        var document = new PdfReportDocument(
+            title,
+            cinemaName,
+            string.Format(
+                Messages.Export_PdfPeriod,
+                PdfCellFormatter.FormatDate(fromDate),
+                PdfCellFormatter.FormatDate(toDate)
+            ),
+            string.Format(
+                Messages.Export_PdfExportedAt,
+                PdfCellFormatter.FormatDateTime(DateTime.UtcNow)
+            ),
+            Messages.Export_PdfPage,
+            Messages.Export_PdfNoData,
+            pdfColumns,
+            pdfRows,
+            pdfTotalRow
+        );
+
+        return pdfGenerator.GenerateReport(document);
     }
 
     private static IReadOnlyList<ExportColumn<RevenueReportItemDto>> RevenueColumns() =>

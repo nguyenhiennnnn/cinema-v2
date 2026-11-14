@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { BookingStatusBadge, PaymentMethodBadge, PaymentStatusBadge } from "@/components/common/status-badge";
 import { PerfoTicket } from "@/components/common/perfo-ticket";
+import { DownloadTicketsPdfButton } from "@/components/common/download-tickets-pdf-button";
 import { useBookingDetail, useCancelBooking } from "@/features/client/bookings/hooks/use-bookings";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 import { useCountdown } from "@/hooks/use-countdown";
@@ -12,6 +13,7 @@ import { BookingStatus } from "@/types/enum";
 import { useNow } from "@/hooks/use-now";
 import { useCinemaSettings } from "@/features/client/settings/hooks/use-settings";
 import { ROUTES } from "@/config/routes";
+import { ENDPOINTS } from "@/api/endpoints";
 
 const AccountTicketDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -170,7 +172,15 @@ const AccountTicketDetailPage = () => {
       )}
 
       <div>
-        <h2 className="font-heading text-base font-semibold text-foreground">Vé điện tử & Mã QR</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-heading text-base font-semibold text-foreground">Vé điện tử & Mã QR</h2>
+          {booking.status === BookingStatus.Confirmed && (
+            <DownloadTicketsPdfButton
+              endpoint={ENDPOINTS.bookings.ticketsPdf(booking.bookingId)}
+              fallbackFilename={`tickets-${booking.bookingCode}.pdf`}
+            />
+          )}
+        </div>
         <div className="mt-3 flex flex-col gap-4">
           {booking.tickets.map((ticket) => (
             <PerfoTicket

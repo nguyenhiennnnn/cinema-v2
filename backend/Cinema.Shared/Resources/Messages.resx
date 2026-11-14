@@ -2248,4 +2248,55 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
   <data name="Job_UnknownError" xml:space="preserve">
     <value>Tác vụ thất bại do lỗi không xác định.</value>
   </data>
+  <data name="Config_PdfFontNotFound" xml:space="preserve">
+    <value>Không tìm thấy file font PDF '{0}' (Pdf:FontDirectory). Hãy thêm file font vào thư mục này.</value>
+  </data>
+  <data name="Export_InvalidReportFormat" xml:space="preserve">
+    <value>format phải là xlsx, csv hoặc pdf.</value>
+  </data>
+  <data name="Export_PdfTitleRevenue" xml:space="preserve">
+    <value>Báo cáo doanh thu</value>
+  </data>
+  <data name="Export_PdfTitleTopMovies" xml:space="preserve">
+    <value>Báo cáo phim bán chạy</value>
+  </data>
+  <data name="Export_PdfTitleEmployeePerformance" xml:space="preserve">
+    <value>Báo cáo hiệu suất nhân viên</value>
+  </data>
+  <data name="Export_PdfPeriod" xml:space="preserve">
+    <value>Từ ngày {0} đến ngày {1}</value>
+  </data>
+  <data name="Export_PdfExportedAt" xml:space="preserve">
+    <value>Ngày xuất: {0}</value>
+  </data>
+  <data name="Export_PdfPage" xml:space="preserve">
+    <value>Trang</value>
+  </data>
+  <data name="Export_PdfNoData" xml:space="preserve">
+    <value>Không có dữ liệu trong khoảng thời gian này.</value>
+  </data>
+  <data name="Export_PdfTicketTitle" xml:space="preserve">
+    <value>Vé xem phim</value>
+  </data>
+  <data name="Export_PdfTicketMovie" xml:space="preserve">
+    <value>Phim</value>
+  </data>
+  <data name="Export_PdfTicketShowtime" xml:space="preserve">
+    <value>Suất chiếu</value>
+  </data>
+  <data name="Export_PdfTicketRoom" xml:space="preserve">
+    <value>Phòng</value>
+  </data>
+  <data name="Export_PdfTicketSeat" xml:space="preserve">
+    <value>Ghế</value>
+  </data>
+  <data name="Export_PdfTicketBookingCode" xml:space="preserve">
+    <value>Mã booking</value>
+  </data>
+  <data name="Export_PdfTicketHint" xml:space="preserve">
+    <value>Vui lòng xuất trình mã QR này tại quầy soát vé.</value>
+  </data>
+  <data name="Rule_TicketPdfNotPaid" xml:space="preserve">
+    <value>Chỉ có thể tải vé PDF của booking đã thanh toán.</value>
+  </data>
 </root>

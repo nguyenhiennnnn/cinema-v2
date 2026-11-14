@@ -5,11 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/common/page-header";
+import { DownloadTicketsPdfButton } from "@/components/common/download-tickets-pdf-button";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
 import { useAdminBookingDetail } from "../hooks/use-admin-booking";
 import { BookingStatusBadge } from "@/components/common/status-badge";
 import { ROUTES } from "@/config/routes";
+import { ENDPOINTS } from "@/api/endpoints";
+import { BookingStatus } from "@/types/enum";
 
 const AdminBookingDetailPage = () => {
   const { id } = useParams();
@@ -35,10 +38,19 @@ const AdminBookingDetailPage = () => {
         title={`Đơn ${b.bookingCode}`}
         description={`Đặt ngày ${formatDate(b.createdAt)} qua kênh ${b.channel}.`}
         action={
-          <Button variant="outline" onClick={() => navigate(ROUTES.admin.bookings)}>
-            <ArrowLeft className="size-4" />
-            <span>Quay lại</span>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {b.status === BookingStatus.Confirmed && (
+              <DownloadTicketsPdfButton
+                size="default"
+                endpoint={ENDPOINTS.admin.bookings.ticketsPdf(b.bookingId)}
+                fallbackFilename={`tickets-${b.bookingCode}.pdf`}
+              />
+            )}
+            <Button variant="outline" onClick={() => navigate(ROUTES.admin.bookings)}>
+              <ArrowLeft className="size-4" />
+              <span>Quay lại</span>
+            </Button>
+          </div>
         }
       />
 

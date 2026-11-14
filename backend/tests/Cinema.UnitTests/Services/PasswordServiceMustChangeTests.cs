@@ -37,7 +37,7 @@ public class PasswordServiceMustChangeTests(PostgresContainerFixture fixture)
         );
 
         ex.Errors!.ShouldContainKey("newPassword");
-        ex.Errors["newPassword"].ShouldContain(Messages.Invalid_NewPasswordSameAsCurrent);
+        ex.Errors!["newPassword"].ShouldContain(Messages.Invalid_NewPasswordSameAsCurrent);
         (await Db.Users.AsNoTracking().SingleAsync(u => u.UserId == user.UserId))
             .MustChangePassword.ShouldBeTrue();
     }

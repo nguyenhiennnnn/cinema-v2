@@ -6,11 +6,13 @@ using Cinema.Infrastructure.Export;
 using Cinema.Infrastructure.FileStorage;
 using Cinema.Infrastructure.Import;
 using Cinema.Infrastructure.Payments;
+using Cinema.Infrastructure.Pdf;
 using Cinema.Infrastructure.Persistence;
 using Cinema.Infrastructure.Realtime;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QuestPDF.Infrastructure;
 
 namespace Cinema.Infrastructure;
 
@@ -63,6 +65,9 @@ public static class DependencyInjection
         services.AddScoped<IFileStorage, CloudinaryFileStorage>();
         services.AddSingleton<IExportWriter, ExportWriter>();
         services.AddSingleton<IImportFileReader, ImportFileReader>();
+
+        QuestPDF.Settings.License = LicenseType.Community;
+        services.AddSingleton<IPdfGenerator, QuestPdfGenerator>();
 
         services.AddHttpClient("Resend");
         services.AddHttpClient(CloudinaryFileStorage.HttpClientName);
