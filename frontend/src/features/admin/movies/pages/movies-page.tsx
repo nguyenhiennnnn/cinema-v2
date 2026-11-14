@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import type { RowSelectionState } from "@tanstack/react-table";
 
 import { PageHeader } from "@/components/common/page-header";
@@ -26,6 +26,9 @@ import { createSelectionColumn } from "@/components/common/data-table/data-table
 import { MovieCreateForm } from "../components/forms/movie-create-form";
 import { MovieUpdateForm } from "../components/forms/movie-update-form";
 import { useSheetClose, useSheetOpen } from "@/stores/sheet-store";
+import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
+import { ImportWizard } from "@/components/common/import-wizard/import-wizard";
+import { movieImportConfig } from "../config/movie-import-config";
 import { useAuthRole } from "@/stores/auth-store";
 import { Role } from "@/types/enum";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -45,12 +48,24 @@ const AdminMoviesPage = () => {
   const openAlertDialog = useAlertDialogOpen();
   const openSheet = useSheetOpen();
   const closeSheet = useSheetClose();
+  const openDialog = useDialogOpen();
+  const closeDialog = useDialogClose();
 
   const handleCreate = () => {
     openSheet({
       title: "Thêm phim mới",
       description: "Nhập thông tin chi tiết của bộ phim.",
       content: <MovieCreateForm onSuccess={closeSheet} />,
+    });
+  };
+
+  const handleImport = () => {
+    openDialog({
+      title: movieImportConfig.title,
+      description: movieImportConfig.description,
+      size: "xl",
+      className: "sm:max-w-5xl",
+      content: <ImportWizard config={movieImportConfig} onClose={closeDialog} />,
     });
   };
 
@@ -113,10 +128,16 @@ const AdminMoviesPage = () => {
         description="Quản lý danh sách phim, trạng thái chiếu và thông tin chi tiết."
         action={
           canManage ? (
-            <Button onClick={handleCreate}>
-              <Plus className="size-4" />
-              <span>Thêm phim</span>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleImport}>
+                <Upload className="size-4" />
+                <span>Import</span>
+              </Button>
+              <Button onClick={handleCreate}>
+                <Plus className="size-4" />
+                <span>Thêm phim</span>
+              </Button>
+            </div>
           ) : undefined
         }
       />

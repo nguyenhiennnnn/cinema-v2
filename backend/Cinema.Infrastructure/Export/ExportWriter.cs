@@ -33,6 +33,51 @@ public class ExportWriter : IExportWriter
     )
     {
         using var workbook = new XLWorkbook();
+        await AddSheetAsync(workbook, sheetName, columns, rows, totalRow, cancellationToken);
+        return SaveWorkbook(workbook);
+    }
+
+    public async Task<Stream> WriteXlsxWorkbookAsync(
+        IReadOnlyList<ExportSheet> sheets,
+        CancellationToken cancellationToken = default
+    )
+    {
+        using var workbook = new XLWorkbook();
+
+        foreach (var exportSheet in sheets)
+        {
+            var columns = exportSheet
+                .Headers.Select(
+                    (header, index) =>
+                        new ExportColumn<IReadOnlyList<object?>>(
+                            header,
+                            row => index < row.Count ? row[index] : null
+                        )
+                )
+                .ToList();
+
+            await AddSheetAsync<IReadOnlyList<object?>>(
+                workbook,
+                exportSheet.Name,
+                columns,
+                ToAsyncEnumerable(exportSheet.Rows),
+                null,
+                cancellationToken
+            );
+        }
+
+        return SaveWorkbook(workbook);
+    }
+
+    private static async Task AddSheetAsync<T>(
+        XLWorkbook workbook,
+        string sheetName,
+        IReadOnlyList<ExportColumn<T>> columns,
+        IAsyncEnumerable<T> rows,
+        IReadOnlyList<object?>? totalRow,
+        CancellationToken cancellationToken
+    )
+    {
         var sheet = workbook.Worksheets.Add(SanitizeSheetName(sheetName));
         var hasFraction = new bool[columns.Count];
 
@@ -75,7 +120,10 @@ public class ExportWriter : IExportWriter
             if (column.Width > MaxColumnWidth)
                 column.Width = MaxColumnWidth;
         }
+    }
 
+    private static Stream SaveWorkbook(XLWorkbook workbook)
+    {
         var stream = new MemoryStream();
         workbook.SaveAs(stream);
         stream.Position = 0;

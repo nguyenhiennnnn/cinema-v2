@@ -16,6 +16,11 @@ export const ACCEPTED_VIDEO_TYPES = [
   "video/webm",
 ] as const;
 
+export const IMPORT_MAX_FILE_BYTES = 5 * 1024 * 1024;
+export const IMPORT_ACCEPTED_EXTENSIONS = [".xlsx", ".csv"] as const;
+export const IMPORT_ACCEPT = IMPORT_ACCEPTED_EXTENSIONS.join(",");
+export const IMPORT_PREVIEW_PAGE_SIZE = 20;
+
 export const ACCEPTED_IMAGE_ACCEPT = ACCEPTED_IMAGE_TYPES.join(",");
 export const ACCEPTED_VIDEO_ACCEPT = ACCEPTED_VIDEO_TYPES.join(",");
 
@@ -31,6 +36,7 @@ export const TOP_MOVIES_REPORT_LIMIT = 10;
 
 export const API_TIMEOUT_MS = 20_000;
 export const EXPORT_TIMEOUT_MS = 60_000;
+export const IMPORT_TIMEOUT_MS = 120_000;
 export const QUERY_STALE_TIME_MS = 30 * 1000;
 export const QUERY_GC_TIME_MS = 5 * 60 * 1000;
 export const QUERY_MAX_RETRIES = 2;

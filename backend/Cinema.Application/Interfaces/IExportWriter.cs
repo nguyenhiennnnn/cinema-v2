@@ -15,6 +15,12 @@ public sealed record ExportColumn<T>(
     ExportColumnType Type = ExportColumnType.Text
 );
 
+public sealed record ExportSheet(
+    string Name,
+    IReadOnlyList<string> Headers,
+    IReadOnlyList<IReadOnlyList<object?>> Rows
+);
+
 public interface IExportWriter
 {
     Task<Stream> WriteXlsxAsync<T>(
@@ -30,6 +36,11 @@ public interface IExportWriter
         IReadOnlyList<ExportColumn<T>> columns,
         IAsyncEnumerable<T> rows,
         IReadOnlyList<object?>? totalRow = null,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<Stream> WriteXlsxWorkbookAsync(
+        IReadOnlyList<ExportSheet> sheets,
         CancellationToken cancellationToken = default
     );
 

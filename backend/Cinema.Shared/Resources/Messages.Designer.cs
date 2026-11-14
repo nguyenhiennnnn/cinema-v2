@@ -5257,6 +5257,636 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Validation_DefaultEmployeePassword_MaxLength100", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phim.
+        /// </summary>
+        public static string Import_SheetMovies {
+            get {
+                return ResourceManager.GetString("Import_SheetMovies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hướng dẫn.
+        /// </summary>
+        public static string Import_SheetGuide {
+            get {
+                return ResourceManager.GetString("Import_SheetGuide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Danh mục.
+        /// </summary>
+        public static string Import_SheetCatalog {
+            get {
+                return ResourceManager.GetString("Import_SheetCatalog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cột.
+        /// </summary>
+        public static string Import_GuideColColumn {
+            get {
+                return ResourceManager.GetString("Import_GuideColColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bắt buộc / Tùy chọn.
+        /// </summary>
+        public static string Import_GuideColRequirement {
+            get {
+                return ResourceManager.GetString("Import_GuideColRequirement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mô tả.
+        /// </summary>
+        public static string Import_GuideColDescription {
+            get {
+                return ResourceManager.GetString("Import_GuideColDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Định dạng.
+        /// </summary>
+        public static string Import_GuideColFormat {
+            get {
+                return ResourceManager.GetString("Import_GuideColFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lưu ý.
+        /// </summary>
+        public static string Import_GuideNote {
+            get {
+                return ResourceManager.GetString("Import_GuideNote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bắt buộc.
+        /// </summary>
+        public static string Import_Required {
+            get {
+                return ResourceManager.GetString("Import_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tùy chọn.
+        /// </summary>
+        public static string Import_Optional {
+            get {
+                return ResourceManager.GetString("Import_Optional", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lý do lỗi.
+        /// </summary>
+        public static string Import_ColErrorReason {
+            get {
+                return ResourceManager.GetString("Import_ColErrorReason", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thể loại.
+        /// </summary>
+        public static string Import_LabelGenre {
+            get {
+                return ResourceManager.GetString("Import_LabelGenre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đạo diễn.
+        /// </summary>
+        public static string Import_LabelDirector {
+            get {
+                return ResourceManager.GetString("Import_LabelDirector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngôn ngữ.
+        /// </summary>
+        public static string Import_LabelLanguage {
+            get {
+                return ResourceManager.GetString("Import_LabelLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phân loại độ tuổi.
+        /// </summary>
+        public static string Import_LabelAgeRating {
+            get {
+                return ResourceManager.GetString("Import_LabelAgeRating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diễn viên.
+        /// </summary>
+        public static string Import_LabelActor {
+            get {
+                return ResourceManager.GetString("Import_LabelActor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tối đa {0} dòng dữ liệu và {1}MB mỗi file; chỉ nhận .xlsx hoặc .csv (CSV phải mã hoá UTF-8)..
+        /// </summary>
+        public static string Import_Note_Limits {
+            get {
+                return ResourceManager.GetString("Import_Note_Limits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phim đã tồn tại (trùng Title và ReleaseDate, không phân biệt hoa thường) sẽ được cập nhật; chưa có sẽ được tạo mới..
+        /// </summary>
+        public static string Import_Note_Upsert {
+            get {
+                return ResourceManager.GetString("Import_Note_Upsert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên Thể loại, Đạo diễn, Ngôn ngữ, Phân loại độ tuổi, Diễn viên phải khớp với sheet "Danh mục" (không phân biệt hoa thường); hệ thống không tự tạo mới..
+        /// </summary>
+        public static string Import_Note_Lookup {
+            get {
+                return ResourceManager.GetString("Import_Note_Lookup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hãy xóa các dòng ví dụ trong sheet "Phim" trước khi nhập dữ liệu thật..
+        /// </summary>
+        public static string Import_Note_Examples {
+            get {
+                return ResourceManager.GetString("Import_Note_Examples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên phim..
+        /// </summary>
+        public static string Import_Movie_Title_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Title_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Văn bản, tối đa 200 ký tự..
+        /// </summary>
+        public static string Import_Movie_Title_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Title_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên gốc của phim..
+        /// </summary>
+        public static string Import_Movie_OriginalTitle_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_OriginalTitle_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Văn bản, tối đa 200 ký tự..
+        /// </summary>
+        public static string Import_Movie_OriginalTitle_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_OriginalTitle_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mô tả nội dung phim..
+        /// </summary>
+        public static string Import_Movie_Description_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Description_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Văn bản tự do..
+        /// </summary>
+        public static string Import_Movie_Description_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Description_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên đạo diễn đã có trong hệ thống..
+        /// </summary>
+        public static string Import_Movie_Director_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Director_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chọn đúng tên trong sheet "Danh mục"..
+        /// </summary>
+        public static string Import_Movie_Director_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Director_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thời lượng phim tính bằng phút..
+        /// </summary>
+        public static string Import_Movie_DurationMinutes_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_DurationMinutes_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số nguyên từ 1 đến 600..
+        /// </summary>
+        public static string Import_Movie_DurationMinutes_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_DurationMinutes_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày khởi chiếu..
+        /// </summary>
+        public static string Import_Movie_ReleaseDate_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_ReleaseDate_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dd/MM/yyyy, ví dụ 21/07/2023..
+        /// </summary>
+        public static string Import_Movie_ReleaseDate_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_ReleaseDate_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngôn ngữ của phim..
+        /// </summary>
+        public static string Import_Movie_Language_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Language_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chọn đúng tên trong sheet "Danh mục"..
+        /// </summary>
+        public static string Import_Movie_Language_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Language_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngôn ngữ phụ đề..
+        /// </summary>
+        public static string Import_Movie_Subtitle_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Subtitle_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Văn bản, tối đa 50 ký tự..
+        /// </summary>
+        public static string Import_Movie_Subtitle_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Subtitle_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phân loại độ tuổi của phim..
+        /// </summary>
+        public static string Import_Movie_AgeRating_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_AgeRating_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã phân loại trong sheet "Danh mục", ví dụ T13..
+        /// </summary>
+        public static string Import_Movie_AgeRating_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_AgeRating_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đường dẫn ảnh poster..
+        /// </summary>
+        public static string Import_Movie_PosterUrl_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_PosterUrl_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to URL, tối đa 255 ký tự..
+        /// </summary>
+        public static string Import_Movie_PosterUrl_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_PosterUrl_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đường dẫn trailer..
+        /// </summary>
+        public static string Import_Movie_TrailerUrl_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_TrailerUrl_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to URL, tối đa 255 ký tự..
+        /// </summary>
+        public static string Import_Movie_TrailerUrl_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_TrailerUrl_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trạng thái của phim..
+        /// </summary>
+        public static string Import_Movie_Status_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Status_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Một trong các giá trị: {0}..
+        /// </summary>
+        public static string Import_Movie_Status_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Status_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Các thể loại của phim, cần ít nhất 1 thể loại..
+        /// </summary>
+        public static string Import_Movie_Genres_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Genres_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngăn cách bằng dấu chấm phẩy, ví dụ Hành động;Phiêu lưu..
+        /// </summary>
+        public static string Import_Movie_Genres_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Genres_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diễn viên và vai diễn; vai diễn có thể bỏ trống..
+        /// </summary>
+        public static string Import_Movie_Cast_Desc {
+            get {
+                return ResourceManager.GetString("Import_Movie_Cast_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên diễn viên:Vai; Tên diễn viên:Vai, ví dụ Cillian Murphy:Nhân vật chính; Robert Downey Jr..
+        /// </summary>
+        public static string Import_Movie_Cast_Format {
+            get {
+                return ResourceManager.GetString("Import_Movie_Cast_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không được ghi vì toàn bộ giao dịch đã được hoàn tác do dòng khác bị lỗi..
+        /// </summary>
+        public static string Import_RolledBack {
+            get {
+                return ResourceManager.GetString("Import_RolledBack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không tìm thấy {0} "{1}" trong danh mục..
+        /// </summary>
+        public static string Invalid_ImportReferenceNotFound {
+            get {
+                return ResourceManager.GetString("Invalid_ImportReferenceNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} "{1}" trùng tên với nhiều bản ghi nên không thể xác định..
+        /// </summary>
+        public static string Invalid_ImportReferenceAmbiguous {
+            get {
+                return ResourceManager.GetString("Invalid_ImportReferenceAmbiguous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá trị phải là số nguyên..
+        /// </summary>
+        public static string Invalid_ImportInteger {
+            get {
+                return ResourceManager.GetString("Invalid_ImportInteger", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày phải theo định dạng dd/MM/yyyy..
+        /// </summary>
+        public static string Invalid_ImportDateFormat {
+            get {
+                return ResourceManager.GetString("Invalid_ImportDateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diễn viên phải theo dạng "Tên diễn viên:Vai"..
+        /// </summary>
+        public static string Invalid_ImportCastFormat {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCastFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diễn viên "{0}" bị lặp trong cùng một dòng..
+        /// </summary>
+        public static string Invalid_ImportCastDuplicate {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCastDuplicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trùng Title và ReleaseDate với dòng {0} trong file..
+        /// </summary>
+        public static string Invalid_ImportDuplicateInFile {
+            get {
+                return ResourceManager.GetString("Invalid_ImportDuplicateInFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Có nhiều phim trùng Title và ReleaseDate trong hệ thống nên không thể xác định phim cần cập nhật..
+        /// </summary>
+        public static string Invalid_ImportMovieAmbiguous {
+            get {
+                return ResourceManager.GetString("Invalid_ImportMovieAmbiguous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File không có dòng dữ liệu nào..
+        /// </summary>
+        public static string Invalid_ImportNoDataRows {
+            get {
+                return ResourceManager.GetString("Invalid_ImportNoDataRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File vượt quá {0} dòng dữ liệu..
+        /// </summary>
+        public static string Invalid_ImportTooManyRows {
+            get {
+                return ResourceManager.GetString("Invalid_ImportTooManyRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File thiếu cột bắt buộc: {0}..
+        /// </summary>
+        public static string Invalid_ImportMissingColumns {
+            get {
+                return ResourceManager.GetString("Invalid_ImportMissingColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File có cột bị lặp: {0}..
+        /// </summary>
+        public static string Invalid_ImportDuplicateColumns {
+            get {
+                return ResourceManager.GetString("Invalid_ImportDuplicateColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nội dung file không hợp lệ hoặc đã bị hỏng..
+        /// </summary>
+        public static string Invalid_ImportFileContent {
+            get {
+                return ResourceManager.GetString("Invalid_ImportFileContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File CSV phải được lưu với mã hoá UTF-8..
+        /// </summary>
+        public static string Invalid_ImportCsvEncoding {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCsvEncoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không tìm thấy phiên xem trước hoặc phiên đã hết hạn..
+        /// </summary>
+        public static string NotFound_ImportPreview {
+            get {
+                return ResourceManager.GetString("NotFound_ImportPreview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Còn {0} dòng lỗi. Hãy sửa file hoặc chọn bỏ qua các dòng lỗi..
+        /// </summary>
+        public static string Rule_ImportHasInvalidRows {
+            get {
+                return ResourceManager.GetString("Rule_ImportHasInvalidRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không có dòng hợp lệ nào để nhập..
+        /// </summary>
+        public static string Rule_ImportNoValidRows {
+            get {
+                return ResourceManager.GetString("Rule_ImportNoValidRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File không có dòng lỗi..
+        /// </summary>
+        public static string Rule_ImportNoErrors {
+            get {
+                return ResourceManager.GetString("Rule_ImportNoErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phiên nhập dữ liệu này đang được xử lý..
+        /// </summary>
+        public static string Conflict_ImportApplyInProgress {
+            get {
+                return ResourceManager.GetString("Conflict_ImportApplyInProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to previewId không được để trống..
+        /// </summary>
+        public static string Validation_PreviewId_Required {
+            get {
+                return ResourceManager.GetString("Validation_PreviewId_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to previewId tối đa 64 ký tự..
+        /// </summary>
+        public static string Validation_PreviewId_MaxLength64 {
+            get {
+                return ResourceManager.GetString("Validation_PreviewId_MaxLength64", resourceCulture);
+            }
+        }
     
     }
 }

@@ -4,7 +4,7 @@ public record BulkIdsRequest(List<int> Ids);
 
 public record BulkStatusRequest(List<int> Ids, bool IsActive);
 
-public record BulkActionResultItem(int Id, bool Success, string? Reason);
+public record BulkActionResultItem(int Id, bool Success, string? Reason, int? RowNumber = null);
 
 public record BulkActionResponse(
     List<BulkActionResultItem> Results,

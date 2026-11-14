@@ -1,3 +1,4 @@
+using Cinema.Application.DTOs.Movies;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Services.Ai;
 using Cinema.Application.Services.Auth;
@@ -6,6 +7,7 @@ using Cinema.Application.Services.Catalog;
 using Cinema.Application.Services.Combos;
 using Cinema.Application.Services.Dashboard;
 using Cinema.Application.Services.Employees;
+using Cinema.Application.Services.Import;
 using Cinema.Application.Services.Movies;
 using Cinema.Application.Services.Notifications;
 using Cinema.Application.Services.Payments;
@@ -34,6 +36,10 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<ICatalogService, CatalogService>();
         services.AddScoped<IMovieService, MovieService>();
+        services.AddMemoryCache();
+        services.AddSingleton<IImportSessionStore, ImportSessionStore>();
+        services.AddScoped<IImportProcessor<MovieImportRow>, MovieImportProcessor>();
+        services.AddScoped(typeof(IImportService<>), typeof(ImportService<>));
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<ISeatExpirationService, SeatExpirationService>();
         services.AddScoped<IShowtimeService, ShowtimeService>();

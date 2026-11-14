@@ -1908,4 +1908,224 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
   <data name="Validation_DefaultEmployeePassword_MaxLength100" xml:space="preserve">
     <value>Mật khẩu mặc định cho nhân viên tối đa 100 ký tự.</value>
   </data>
+  <data name="Import_SheetMovies" xml:space="preserve">
+    <value>Phim</value>
+  </data>
+  <data name="Import_SheetGuide" xml:space="preserve">
+    <value>Hướng dẫn</value>
+  </data>
+  <data name="Import_SheetCatalog" xml:space="preserve">
+    <value>Danh mục</value>
+  </data>
+  <data name="Import_GuideColColumn" xml:space="preserve">
+    <value>Cột</value>
+  </data>
+  <data name="Import_GuideColRequirement" xml:space="preserve">
+    <value>Bắt buộc / Tùy chọn</value>
+  </data>
+  <data name="Import_GuideColDescription" xml:space="preserve">
+    <value>Mô tả</value>
+  </data>
+  <data name="Import_GuideColFormat" xml:space="preserve">
+    <value>Định dạng</value>
+  </data>
+  <data name="Import_GuideNote" xml:space="preserve">
+    <value>Lưu ý</value>
+  </data>
+  <data name="Import_Required" xml:space="preserve">
+    <value>Bắt buộc</value>
+  </data>
+  <data name="Import_Optional" xml:space="preserve">
+    <value>Tùy chọn</value>
+  </data>
+  <data name="Import_ColErrorReason" xml:space="preserve">
+    <value>Lý do lỗi</value>
+  </data>
+  <data name="Import_LabelGenre" xml:space="preserve">
+    <value>Thể loại</value>
+  </data>
+  <data name="Import_LabelDirector" xml:space="preserve">
+    <value>Đạo diễn</value>
+  </data>
+  <data name="Import_LabelLanguage" xml:space="preserve">
+    <value>Ngôn ngữ</value>
+  </data>
+  <data name="Import_LabelAgeRating" xml:space="preserve">
+    <value>Phân loại độ tuổi</value>
+  </data>
+  <data name="Import_LabelActor" xml:space="preserve">
+    <value>Diễn viên</value>
+  </data>
+  <data name="Import_Note_Limits" xml:space="preserve">
+    <value>Tối đa {0} dòng dữ liệu và {1}MB mỗi file; chỉ nhận .xlsx hoặc .csv (CSV phải mã hoá UTF-8).</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Import_Note_Limits, ...)</comment>
+  </data>
+  <data name="Import_Note_Upsert" xml:space="preserve">
+    <value>Phim đã tồn tại (trùng Title và ReleaseDate, không phân biệt hoa thường) sẽ được cập nhật; chưa có sẽ được tạo mới.</value>
+  </data>
+  <data name="Import_Note_Lookup" xml:space="preserve">
+    <value>Tên Thể loại, Đạo diễn, Ngôn ngữ, Phân loại độ tuổi, Diễn viên phải khớp với sheet "Danh mục" (không phân biệt hoa thường); hệ thống không tự tạo mới.</value>
+  </data>
+  <data name="Import_Note_Examples" xml:space="preserve">
+    <value>Hãy xóa các dòng ví dụ trong sheet "Phim" trước khi nhập dữ liệu thật.</value>
+  </data>
+  <data name="Import_Movie_Title_Desc" xml:space="preserve">
+    <value>Tên phim.</value>
+  </data>
+  <data name="Import_Movie_Title_Format" xml:space="preserve">
+    <value>Văn bản, tối đa 200 ký tự.</value>
+  </data>
+  <data name="Import_Movie_OriginalTitle_Desc" xml:space="preserve">
+    <value>Tên gốc của phim.</value>
+  </data>
+  <data name="Import_Movie_OriginalTitle_Format" xml:space="preserve">
+    <value>Văn bản, tối đa 200 ký tự.</value>
+  </data>
+  <data name="Import_Movie_Description_Desc" xml:space="preserve">
+    <value>Mô tả nội dung phim.</value>
+  </data>
+  <data name="Import_Movie_Description_Format" xml:space="preserve">
+    <value>Văn bản tự do.</value>
+  </data>
+  <data name="Import_Movie_Director_Desc" xml:space="preserve">
+    <value>Tên đạo diễn đã có trong hệ thống.</value>
+  </data>
+  <data name="Import_Movie_Director_Format" xml:space="preserve">
+    <value>Chọn đúng tên trong sheet "Danh mục".</value>
+  </data>
+  <data name="Import_Movie_DurationMinutes_Desc" xml:space="preserve">
+    <value>Thời lượng phim tính bằng phút.</value>
+  </data>
+  <data name="Import_Movie_DurationMinutes_Format" xml:space="preserve">
+    <value>Số nguyên từ 1 đến 600.</value>
+  </data>
+  <data name="Import_Movie_ReleaseDate_Desc" xml:space="preserve">
+    <value>Ngày khởi chiếu.</value>
+  </data>
+  <data name="Import_Movie_ReleaseDate_Format" xml:space="preserve">
+    <value>dd/MM/yyyy, ví dụ 21/07/2023.</value>
+  </data>
+  <data name="Import_Movie_Language_Desc" xml:space="preserve">
+    <value>Ngôn ngữ của phim.</value>
+  </data>
+  <data name="Import_Movie_Language_Format" xml:space="preserve">
+    <value>Chọn đúng tên trong sheet "Danh mục".</value>
+  </data>
+  <data name="Import_Movie_Subtitle_Desc" xml:space="preserve">
+    <value>Ngôn ngữ phụ đề.</value>
+  </data>
+  <data name="Import_Movie_Subtitle_Format" xml:space="preserve">
+    <value>Văn bản, tối đa 50 ký tự.</value>
+  </data>
+  <data name="Import_Movie_AgeRating_Desc" xml:space="preserve">
+    <value>Phân loại độ tuổi của phim.</value>
+  </data>
+  <data name="Import_Movie_AgeRating_Format" xml:space="preserve">
+    <value>Mã phân loại trong sheet "Danh mục", ví dụ T13.</value>
+  </data>
+  <data name="Import_Movie_PosterUrl_Desc" xml:space="preserve">
+    <value>Đường dẫn ảnh poster.</value>
+  </data>
+  <data name="Import_Movie_PosterUrl_Format" xml:space="preserve">
+    <value>URL, tối đa 255 ký tự.</value>
+  </data>
+  <data name="Import_Movie_TrailerUrl_Desc" xml:space="preserve">
+    <value>Đường dẫn trailer.</value>
+  </data>
+  <data name="Import_Movie_TrailerUrl_Format" xml:space="preserve">
+    <value>URL, tối đa 255 ký tự.</value>
+  </data>
+  <data name="Import_Movie_Status_Desc" xml:space="preserve">
+    <value>Trạng thái của phim.</value>
+  </data>
+  <data name="Import_Movie_Status_Format" xml:space="preserve">
+    <value>Một trong các giá trị: {0}.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Import_Movie_Status_Format, ...)</comment>
+  </data>
+  <data name="Import_Movie_Genres_Desc" xml:space="preserve">
+    <value>Các thể loại của phim, cần ít nhất 1 thể loại.</value>
+  </data>
+  <data name="Import_Movie_Genres_Format" xml:space="preserve">
+    <value>Ngăn cách bằng dấu chấm phẩy, ví dụ Hành động;Phiêu lưu.</value>
+  </data>
+  <data name="Import_Movie_Cast_Desc" xml:space="preserve">
+    <value>Diễn viên và vai diễn; vai diễn có thể bỏ trống.</value>
+  </data>
+  <data name="Import_Movie_Cast_Format" xml:space="preserve">
+    <value>Tên diễn viên:Vai; Tên diễn viên:Vai, ví dụ Cillian Murphy:Nhân vật chính; Robert Downey Jr.</value>
+  </data>
+  <data name="Import_RolledBack" xml:space="preserve">
+    <value>Không được ghi vì toàn bộ giao dịch đã được hoàn tác do dòng khác bị lỗi.</value>
+  </data>
+  <data name="Invalid_ImportReferenceNotFound" xml:space="preserve">
+    <value>Không tìm thấy {0} "{1}" trong danh mục.</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Invalid_ImportReferenceNotFound, ...)</comment>
+  </data>
+  <data name="Invalid_ImportReferenceAmbiguous" xml:space="preserve">
+    <value>{0} "{1}" trùng tên với nhiều bản ghi nên không thể xác định.</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Invalid_ImportReferenceAmbiguous, ...)</comment>
+  </data>
+  <data name="Invalid_ImportInteger" xml:space="preserve">
+    <value>Giá trị phải là số nguyên.</value>
+  </data>
+  <data name="Invalid_ImportDateFormat" xml:space="preserve">
+    <value>Ngày phải theo định dạng dd/MM/yyyy.</value>
+  </data>
+  <data name="Invalid_ImportCastFormat" xml:space="preserve">
+    <value>Diễn viên phải theo dạng "Tên diễn viên:Vai".</value>
+  </data>
+  <data name="Invalid_ImportCastDuplicate" xml:space="preserve">
+    <value>Diễn viên "{0}" bị lặp trong cùng một dòng.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportCastDuplicate, ...)</comment>
+  </data>
+  <data name="Invalid_ImportDuplicateInFile" xml:space="preserve">
+    <value>Trùng Title và ReleaseDate với dòng {0} trong file.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportDuplicateInFile, ...)</comment>
+  </data>
+  <data name="Invalid_ImportMovieAmbiguous" xml:space="preserve">
+    <value>Có nhiều phim trùng Title và ReleaseDate trong hệ thống nên không thể xác định phim cần cập nhật.</value>
+  </data>
+  <data name="Invalid_ImportNoDataRows" xml:space="preserve">
+    <value>File không có dòng dữ liệu nào.</value>
+  </data>
+  <data name="Invalid_ImportTooManyRows" xml:space="preserve">
+    <value>File vượt quá {0} dòng dữ liệu.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportTooManyRows, ...)</comment>
+  </data>
+  <data name="Invalid_ImportMissingColumns" xml:space="preserve">
+    <value>File thiếu cột bắt buộc: {0}.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportMissingColumns, ...)</comment>
+  </data>
+  <data name="Invalid_ImportDuplicateColumns" xml:space="preserve">
+    <value>File có cột bị lặp: {0}.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportDuplicateColumns, ...)</comment>
+  </data>
+  <data name="Invalid_ImportFileContent" xml:space="preserve">
+    <value>Nội dung file không hợp lệ hoặc đã bị hỏng.</value>
+  </data>
+  <data name="Invalid_ImportCsvEncoding" xml:space="preserve">
+    <value>File CSV phải được lưu với mã hoá UTF-8.</value>
+  </data>
+  <data name="NotFound_ImportPreview" xml:space="preserve">
+    <value>Không tìm thấy phiên xem trước hoặc phiên đã hết hạn.</value>
+  </data>
+  <data name="Rule_ImportHasInvalidRows" xml:space="preserve">
+    <value>Còn {0} dòng lỗi. Hãy sửa file hoặc chọn bỏ qua các dòng lỗi.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_ImportHasInvalidRows, ...)</comment>
+  </data>
+  <data name="Rule_ImportNoValidRows" xml:space="preserve">
+    <value>Không có dòng hợp lệ nào để nhập.</value>
+  </data>
+  <data name="Rule_ImportNoErrors" xml:space="preserve">
+    <value>File không có dòng lỗi.</value>
+  </data>
+  <data name="Conflict_ImportApplyInProgress" xml:space="preserve">
+    <value>Phiên nhập dữ liệu này đang được xử lý.</value>
+  </data>
+  <data name="Validation_PreviewId_Required" xml:space="preserve">
+    <value>previewId không được để trống.</value>
+  </data>
+  <data name="Validation_PreviewId_MaxLength64" xml:space="preserve">
+    <value>previewId tối đa 64 ký tự.</value>
+  </data>
 </root>

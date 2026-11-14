@@ -105,6 +105,7 @@ export const ENDPOINTS = {
       root: "/admin/movies",
       byId: (id: number) => `/admin/movies/${id}`,
       bulk: "/admin/movies/bulk",
+      import: "/admin/movies/import",
     },
     payments: {
       root: "/admin/payments",

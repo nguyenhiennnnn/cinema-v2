@@ -11,6 +11,7 @@ export interface BulkActionResultItem {
   id: number;
   success: boolean;
   reason?: string | null;
+  rowNumber?: number | null;
 }
 
 export interface BulkActionResponse {

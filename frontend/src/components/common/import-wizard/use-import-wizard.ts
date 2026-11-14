@@ -1,0 +1,97 @@
+import { useMutation } from "@tanstack/react-query";
+import { apiClient, apiPost, apiUpload } from "@/api/axios";
+import { EXPORT_TIMEOUT_MS, IMPORT_TIMEOUT_MS } from "@/config/default-constants";
+import {
+  getFilenameFromContentDisposition,
+  normalizeBlobError,
+  saveBlob,
+} from "@/lib/download";
+import type { ApiResponse } from "@/types/api";
+import type {
+  ImportApplyRequest,
+  ImportApplyResponse,
+  ImportPreviewResponse,
+} from "@/types/import";
+import type { ImportWizardConfig } from "./import-wizard-types";
+
+async function downloadFile(url: string, fallbackFilename: string) {
+  try {
+    const response = await apiClient.get<Blob>(url, {
+      responseType: "blob",
+      timeout: EXPORT_TIMEOUT_MS,
+    });
+    const filename =
+      getFilenameFromContentDisposition(
+        response.headers["content-disposition"],
+      ) ?? fallbackFilename;
+    saveBlob(response.data, filename);
+  } catch (error) {
+    throw await normalizeBlobError(error);
+  }
+}
+
+export function useImportTemplate(config: ImportWizardConfig) {
+  return useMutation({
+    meta: { errorTitle: "Không thể tải file mẫu", skipSuccessToast: true },
+    mutationFn: () =>
+      downloadFile(`${config.baseUrl}/template`, config.templateFilename),
+  });
+}
+
+export function useImportErrorFile(
+  config: ImportWizardConfig,
+  previewId: string,
+) {
+  return useMutation({
+    meta: { errorTitle: "Không thể tải file lỗi", skipSuccessToast: true },
+    mutationFn: () =>
+      downloadFile(
+        `${config.baseUrl}/errors/${encodeURIComponent(previewId)}`,
+        config.errorsFilename,
+      ),
+  });
+}
+
+export function useImportPreview(config: ImportWizardConfig) {
+  return useMutation({
+    meta: { skipErrorToast: true, skipSuccessToast: true },
+    mutationFn: async ({
+      file,
+      onProgress,
+    }: {
+      file: File;
+      onProgress: (percent: number) => void;
+    }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await apiUpload<ApiResponse<ImportPreviewResponse>>(
+        `${config.baseUrl}/preview`,
+        formData,
+        {
+          timeout: IMPORT_TIMEOUT_MS,
+          onUploadProgress: (event) =>
+            onProgress(Math.round((event.progress ?? 0) * 100)),
+        },
+      );
+      return res.data;
+    },
+  });
+}
+
+export function useImportApply(config: ImportWizardConfig) {
+  return useMutation({
+    meta: {
+      invalidates: config.invalidates,
+      skipSuccessToast: true,
+      errorTitle: "Không thể nhập dữ liệu",
+    },
+    mutationFn: async (body: ImportApplyRequest) => {
+      const res = await apiPost<ApiResponse<ImportApplyResponse>>(
+        `${config.baseUrl}/apply`,
+        body,
+        { timeout: IMPORT_TIMEOUT_MS },
+      );
+      return res.data;
+    },
+  });
+}
