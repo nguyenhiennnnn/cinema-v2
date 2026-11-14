@@ -58,6 +58,7 @@ public static class DependencyInjection
             sp.GetRequiredService<IPaymentExportService>()
         ));
         services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<ISeatLayoutImportService, SeatLayoutImportService>();
         services.AddScoped<ISeatExpirationService, SeatExpirationService>();
         services.AddScoped<IShowtimeService, ShowtimeService>();
         services.AddScoped<IShowtimeCancellationService, ShowtimeCancellationService>();

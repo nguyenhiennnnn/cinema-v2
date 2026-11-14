@@ -1,4 +1,7 @@
-import { Eye, EyeOff, ListChecks, Save } from "lucide-react";
+import { Eye, EyeOff, ListChecks, Save, Upload } from "lucide-react";
+import { ENDPOINTS } from "@/api/endpoints";
+import { ExportButton } from "@/components/common/export-button";
+import { ImportWizard } from "@/components/common/import-wizard/import-wizard";
 import { Button } from "@/components/ui/button";
 import type { SeatTypeDto } from "@/features/admin/catalog/types";
 import type { AutoGenerateOptions, SeatEditorBrush } from "../types/seat-editor";
@@ -7,12 +10,15 @@ import { SeatEditorBrushTools } from "./seat-editor-brush-tools";
 import { SeatEditorCopyRowBar } from "./seat-editor-copy-row-bar";
 import { SeatEditorHistoryButtons } from "./seat-editor-history-buttons";
 import { SeatEditorSizeInputs } from "./seat-editor-size-inputs";
+import { createSeatLayoutImportConfig } from "../config/seat-layout-import-config";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
 
 import { FORM_PENDING_LABEL } from "@/config/default-constants";
 
 interface SeatEditorToolbarProps {
+  roomId: number;
+  onImported: () => void;
   seatTypes: SeatTypeDto[] | undefined;
   brush: SeatEditorBrush;
   onBrushChange: (brush: SeatEditorBrush) => void;
@@ -46,6 +52,8 @@ interface SeatEditorToolbarProps {
 }
 
 export const SeatEditorToolbar = ({
+  roomId,
+  onImported,
   seatTypes,
   brush,
   onBrushChange,
@@ -107,6 +115,34 @@ export const SeatEditorToolbar = ({
     });
   };
 
+  const openImport = () => {
+    const config = createSeatLayoutImportConfig(roomId);
+    openDialog({
+      title: config.title,
+      description: config.description,
+      size: "xl",
+      className: "sm:max-w-5xl",
+      content: (
+        <ImportWizard config={config} onClose={closeDialog} onCompleted={onImported} />
+      ),
+    });
+  };
+
+  const handleImport = () => {
+    if (!isDirty) {
+      openImport();
+      return;
+    }
+    openAlert({
+      title: "Nhập sơ đồ ghế từ file?",
+      description:
+        "Sơ đồ trong file sẽ thay thế sơ đồ hiện tại của phòng. Các thay đổi chưa lưu trong trình chỉnh sửa sẽ bị mất.",
+      variant: "destructive",
+      confirmText: "Tiếp tục",
+      onConfirm: openImport,
+    });
+  };
+
   return (
     <>
       <div className="sticky top-16 z-20 flex flex-wrap items-end gap-4 bg-card p-4 shadow-sm">
@@ -142,6 +178,23 @@ export const SeatEditorToolbar = ({
           <ListChecks className="size-4" />
           <span>Kiểm tra layout</span>
         </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          disabled={editingDisabled}
+          onClick={handleImport}
+        >
+          <Upload className="size-4" />
+          <span>Import</span>
+        </Button>
+
+        <ExportButton
+          endpoint={ENDPOINTS.admin.rooms.seatLayoutExport(roomId)}
+          fallbackFilename="seat-layout"
+          label="Export"
+          size="default"
+        />
 
         <div className="ml-auto flex items-center gap-3">
           {isDirty && (

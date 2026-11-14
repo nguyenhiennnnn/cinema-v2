@@ -7,15 +7,20 @@ import {
 } from "@/components/common/modal-guard";
 import { trackImportExportJob } from "@/features/admin/import-export/lib/job-sync";
 import { cn } from "@/lib/utils";
-import type { ImportApplyResponse, ImportPreviewResponse } from "@/types/import";
+import type {
+  ImportApplyResponse,
+  ImportPreviewResponse,
+  ImportSummary,
+} from "@/types/import";
 
 import { ImportBackgroundStep } from "./import-background-step";
 import { ImportFileStep } from "./import-file-step";
 import { ImportPreviewStep } from "./import-preview-step";
 import { ImportResultStep } from "./import-result-step";
+import { ImportSummaryStep } from "./import-summary-step";
 import type { ImportWizardConfig } from "./import-wizard-types";
 
-type WizardStep = "file" | "preview" | "result" | "background";
+type WizardStep = "file" | "preview" | "result" | "summary" | "background";
 
 const STEPS: { id: WizardStep; label: string }[] = [
   { id: "file", label: "Chọn file" },
@@ -28,12 +33,18 @@ const EXPIRED_NOTICE = "Phiên xem trước đã hết hạn. Vui lòng chọn l
 interface ImportWizardProps {
   config: ImportWizardConfig;
   onClose: () => void;
+  onCompleted?: () => void;
 }
 
-export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
+export const ImportWizard = ({
+  config,
+  onClose,
+  onCompleted,
+}: ImportWizardProps) => {
   const [step, setStep] = useState<WizardStep>("file");
   const [preview, setPreview] = useState<ImportPreviewResponse | null>(null);
   const [result, setResult] = useState<ImportApplyResponse | null>(null);
+  const [summary, setSummary] = useState<ImportSummary | null>(null);
   const [backgroundJobId, setBackgroundJobId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -44,13 +55,15 @@ export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
   const restart = (nextNotice: string | null = null) => {
     setPreview(null);
     setResult(null);
+    setSummary(null);
     setBackgroundJobId(null);
     setNotice(nextNotice);
     setStep("file");
   };
 
   const currentIndex = STEPS.findIndex(
-    (item) => item.id === (step === "background" ? "result" : step),
+    (item) =>
+      item.id === (step === "background" || step === "summary" ? "result" : step),
   );
 
   return (
@@ -116,8 +129,14 @@ export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
               void trackImportExportJob(outcome.jobId);
               return;
             }
-            setResult(outcome.result);
-            setStep("result");
+            if (outcome.mode === "summary") {
+              setSummary(outcome.summary);
+              setStep("summary");
+            } else {
+              setResult(outcome.result);
+              setStep("result");
+            }
+            onCompleted?.();
           }}
           onExpired={() => restart(EXPIRED_NOTICE)}
           onBack={() => confirmDiscard(() => restart())}
@@ -128,6 +147,14 @@ export const ImportWizard = ({ config, onClose }: ImportWizardProps) => {
         <ImportResultStep
           config={config}
           result={result}
+          onRestart={() => restart()}
+          onClose={onClose}
+        />
+      )}
+
+      {step === "summary" && summary && (
+        <ImportSummaryStep
+          summary={summary}
           onRestart={() => restart()}
           onClose={onClose}
         />

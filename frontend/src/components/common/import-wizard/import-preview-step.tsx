@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, TriangleAlert } from "lucide-react";
 import { useTable, type ColumnDef, type PaginationState } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +91,7 @@ export const ImportPreviewStep = ({
   useBlockDialogClose(apply.isPending);
 
   const hasInvalidRows = preview.invalidRows > 0;
+  const warnings = preview.warnings ?? [];
   const rows = onlyErrors
     ? preview.rows.filter((row) => row.errors.length > 0)
     : preview.rows;
@@ -132,6 +133,20 @@ export const ImportPreviewStep = ({
           {preview.invalidRows} lỗi
         </Badge>
       </div>
+
+      {warnings.length > 0 && (
+        <div role="status" className="cut-sm space-y-1.5 bg-warning/10 px-3 py-2 text-sm text-warning">
+          <p className="flex items-center gap-2 font-medium">
+            <TriangleAlert className="size-4 shrink-0" />
+            <span>Lưu ý trước khi nhập</span>
+          </p>
+          <ul className="list-disc space-y-0.5 pl-6">
+            {warnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {hasInvalidRows && (
         <div className="flex flex-col gap-3 border border-border p-3 sm:flex-row sm:items-center sm:justify-between">

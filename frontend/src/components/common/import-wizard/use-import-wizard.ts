@@ -92,6 +92,8 @@ export function useImportApply(config: ImportWizardConfig) {
         ApiResponse<ImportApplyResponse | ImportExportJobAccepted>
       >(`${config.baseUrl}/apply`, body, { timeout: IMPORT_TIMEOUT_MS });
       const data = res.data.data;
+      if (config.summarizeApply)
+        return { mode: "summary", summary: config.summarizeApply(data) };
       return "jobId" in data
         ? { mode: "background", jobId: data.jobId }
         : { mode: "completed", result: data };

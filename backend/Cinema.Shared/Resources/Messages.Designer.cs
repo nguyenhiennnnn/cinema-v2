@@ -6391,6 +6391,312 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Rule_TicketPdfNotPaid", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sơ đồ ghế.
+        /// </summary>
+        public static string Import_SheetSeatLayout {
+            get {
+                return ResourceManager.GetString("Import_SheetSeatLayout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loại ghế.
+        /// </summary>
+        public static string Import_LabelSeatType {
+            get {
+                return ResourceManager.GetString("Import_LabelSeatType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hệ số giá.
+        /// </summary>
+        public static string Import_LabelPriceMultiplier {
+            get {
+                return ResourceManager.GetString("Import_LabelPriceMultiplier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nhãn hàng ghế trong phòng..
+        /// </summary>
+        public static string Import_SeatLayout_SeatRow_Desc {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_SeatRow_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chữ cái A-Z, tối đa 5 ký tự, ví dụ A, B, AA. Không vượt quá số hàng của phòng..
+        /// </summary>
+        public static string Import_SeatLayout_SeatRow_Format {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_SeatRow_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số thứ tự ghế trong hàng..
+        /// </summary>
+        public static string Import_SeatLayout_SeatNumber_Desc {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_SeatNumber_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số nguyên từ 1 đến số cột của phòng, ví dụ 1, 2, 3..
+        /// </summary>
+        public static string Import_SeatLayout_SeatNumber_Format {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_SeatNumber_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên loại ghế, lấy từ sheet Danh mục..
+        /// </summary>
+        public static string Import_SeatLayout_SeatType_Desc {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_SeatType_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên đúng như trong sheet Danh mục. Có thể để trống với ô lối đi..
+        /// </summary>
+        public static string Import_SeatLayout_SeatType_Format {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_SeatType_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ghế có đang được bán hay không..
+        /// </summary>
+        public static string Import_SeatLayout_IsActive_Desc {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_IsActive_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Có hoặc Không. Để trống là Có..
+        /// </summary>
+        public static string Import_SeatLayout_IsActive_Format {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_IsActive_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đánh dấu ô là lối đi, không phải ghế ngồi..
+        /// </summary>
+        public static string Import_SeatLayout_IsAisle_Desc {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_IsAisle_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Có hoặc Không. Để trống là Không..
+        /// </summary>
+        public static string Import_SeatLayout_IsAisle_Format {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_IsAisle_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã nhóm ghế đôi. Hai ghế cùng mã sẽ thành một ghế đôi..
+        /// </summary>
+        public static string Import_SeatLayout_CoupleGroup_Desc {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_CoupleGroup_Desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Văn bản tối đa 50 ký tự, ví dụ C1. Mỗi mã gồm đúng 2 ghế liền kề cùng hàng. Để trống nếu không phải ghế đôi..
+        /// </summary>
+        public static string Import_SeatLayout_CoupleGroup_Format {
+            get {
+                return ResourceManager.GetString("Import_SeatLayout_CoupleGroup_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phòng này có {0} hàng và {1} cột; hàng và số ghế không được vượt quá giới hạn đó..
+        /// </summary>
+        public static string Import_Note_SeatLayout_Bounds {
+            get {
+                return ResourceManager.GetString("Import_Note_SeatLayout_Bounds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File thay thế toàn bộ sơ đồ ghế của phòng: ghế không có trong file sẽ bị gỡ, hoặc vô hiệu hoá nếu đã từng có suất chiếu..
+        /// </summary>
+        public static string Import_Note_SeatLayout_Replace {
+            get {
+                return ResourceManager.GetString("Import_Note_SeatLayout_Replace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số ghế trong mỗi hàng phải liên tục từ 1. Vị trí nào để trống giữa hàng phải có một dòng đánh dấu IsAisle là Có..
+        /// </summary>
+        public static string Import_Note_SeatLayout_Contiguous {
+            get {
+                return ResourceManager.GetString("Import_Note_SeatLayout_Contiguous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ghế đôi: điền cùng một mã CoupleGroup cho đúng 2 ghế liền kề cùng hàng, không phải lối đi..
+        /// </summary>
+        public static string Import_Note_SeatLayout_Couple {
+            get {
+                return ResourceManager.GetString("Import_Note_SeatLayout_Couple", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hàng ghế chỉ gồm chữ cái A-Z và tối đa {0} ký tự..
+        /// </summary>
+        public static string Invalid_ImportSeatRowFormat {
+            get {
+                return ResourceManager.GetString("Invalid_ImportSeatRowFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hàng ghế vượt quá số hàng của phòng ({0} hàng)..
+        /// </summary>
+        public static string Invalid_ImportSeatRowOutOfRange {
+            get {
+                return ResourceManager.GetString("Invalid_ImportSeatRowOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số ghế phải từ 1 đến {0} (số cột của phòng)..
+        /// </summary>
+        public static string Invalid_ImportSeatNumberOutOfRange {
+            get {
+                return ResourceManager.GetString("Invalid_ImportSeatNumberOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trùng vị trí ghế với dòng {0} trong file..
+        /// </summary>
+        public static string Invalid_ImportSeatDuplicateInFile {
+            get {
+                return ResourceManager.GetString("Invalid_ImportSeatDuplicateInFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hàng {0} đang bỏ trống ghế số {1} trước vị trí này. Hãy thêm dòng cho vị trí đó hoặc đánh dấu là lối đi..
+        /// </summary>
+        public static string Invalid_ImportSeatGap {
+            get {
+                return ResourceManager.GetString("Invalid_ImportSeatGap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mã nhóm ghế đôi tối đa {0} ký tự..
+        /// </summary>
+        public static string Invalid_ImportCoupleGroupTooLong {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCoupleGroupTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ô lối đi không thể thuộc nhóm ghế đôi..
+        /// </summary>
+        public static string Invalid_ImportCoupleOnAisle {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCoupleOnAisle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nhóm ghế đôi "{0}" phải có đúng 2 ghế (hiện có {1})..
+        /// </summary>
+        public static string Invalid_ImportCoupleGroupSize {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCoupleGroupSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hai ghế của nhóm "{0}" phải cùng một hàng..
+        /// </summary>
+        public static string Invalid_ImportCoupleGroupRow {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCoupleGroupRow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hai ghế của nhóm "{0}" phải liền kề nhau..
+        /// </summary>
+        public static string Invalid_ImportCoupleGroupAdjacent {
+            get {
+                return ResourceManager.GetString("Invalid_ImportCoupleGroupAdjacent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bỏ qua các dòng lỗi sẽ để trống số ghế giữa hàng. Hãy sửa file hoặc đánh dấu các vị trí đó là lối đi..
+        /// </summary>
+        public static string Rule_ImportSeatLayoutSkipBreaksRows {
+            get {
+                return ResourceManager.GetString("Rule_ImportSeatLayoutSkipBreaksRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ghế sẽ thay đổi hoặc bị gỡ đang có vé đã đặt hoặc đang giữ chỗ ở {1} suất chiếu sắp tới (ví dụ {2}). Hệ thống sẽ từ chối áp dụng cho đến khi các vé này được xử lý..
+        /// </summary>
+        public static string Import_Warn_SeatLayoutLiveSeats {
+            get {
+                return ResourceManager.GetString("Import_Warn_SeatLayoutLiveSeats", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ghế hiện có không nằm trong file và sẽ bị xoá khỏi sơ đồ..
+        /// </summary>
+        public static string Import_Warn_SeatLayoutRemoved {
+            get {
+                return ResourceManager.GetString("Import_Warn_SeatLayoutRemoved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ghế hiện có không nằm trong file đã từng gắn với suất chiếu nên sẽ được vô hiệu hoá thay vì xoá..
+        /// </summary>
+        public static string Import_Warn_SeatLayoutDeactivated {
+            get {
+                return ResourceManager.GetString("Import_Warn_SeatLayoutDeactivated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phòng có {0} suất chiếu sắp tới; ghế thay đổi sẽ được đồng bộ vào các suất này, giá ghế tính lại theo loại ghế mới..
+        /// </summary>
+        public static string Import_Warn_SeatLayoutFutureShowtimes {
+            get {
+                return ResourceManager.GetString("Import_Warn_SeatLayoutFutureShowtimes", resourceCulture);
+            }
+        }
     
     }
 }

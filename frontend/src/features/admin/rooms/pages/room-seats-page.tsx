@@ -32,10 +32,12 @@ const SeatEditorReady = ({
   room,
   seats,
   seatTypes,
+  onImported,
 }: {
   room: AdminRoomDto;
   seats: SeatDto[];
   seatTypes: SeatTypeDto[];
+  onImported: () => void;
 }) => {
   const navigate = useNavigate();
   const updateSeatLayout = useAdminUpdateSeatLayout(room.roomId);
@@ -212,6 +214,8 @@ const SeatEditorReady = ({
   return (
     <div className="flex flex-col gap-4">
       <SeatEditorToolbar
+        roomId={room.roomId}
+        onImported={onImported}
         seatTypes={seatTypes}
         brush={brush}
         onBrushChange={setBrush}
@@ -289,6 +293,7 @@ const SeatEditorReady = ({
 };
 
 const SeatEditorLoader = ({ room }: { room: AdminRoomDto }) => {
+  const [layoutVersion, setLayoutVersion] = useState(0);
   const roomSeats = useAdminRoomSeats(room.roomId);
   const seatTypes = useAdminSeatTypes();
 
@@ -305,7 +310,13 @@ const SeatEditorLoader = ({ room }: { room: AdminRoomDto }) => {
   }
 
   return (
-    <SeatEditorReady room={room} seats={roomSeats.data ?? []} seatTypes={seatTypes.data?.items ?? []} />
+    <SeatEditorReady
+      key={layoutVersion}
+      room={room}
+      seats={roomSeats.data ?? []}
+      seatTypes={seatTypes.data?.items ?? []}
+      onImported={() => setLayoutVersion((version) => version + 1)}
+    />
   );
 };
 

@@ -15,7 +15,8 @@ public record ImportPreviewResponse(
     int TotalRows,
     int ValidRows,
     int InvalidRows,
-    List<ImportPreviewRow> Rows
+    List<ImportPreviewRow> Rows,
+    IReadOnlyList<string>? Warnings = null
 );
 
 public record ImportApplyRequest(string PreviewId, bool SkipInvalidRows);

@@ -2299,4 +2299,120 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
   <data name="Rule_TicketPdfNotPaid" xml:space="preserve">
     <value>Chỉ có thể tải vé PDF của booking đã thanh toán.</value>
   </data>
+  <data name="Import_SheetSeatLayout" xml:space="preserve">
+    <value>Sơ đồ ghế</value>
+  </data>
+  <data name="Import_LabelSeatType" xml:space="preserve">
+    <value>Loại ghế</value>
+  </data>
+  <data name="Import_LabelPriceMultiplier" xml:space="preserve">
+    <value>Hệ số giá</value>
+  </data>
+  <data name="Import_SeatLayout_SeatRow_Desc" xml:space="preserve">
+    <value>Nhãn hàng ghế trong phòng.</value>
+  </data>
+  <data name="Import_SeatLayout_SeatRow_Format" xml:space="preserve">
+    <value>Chữ cái A-Z, tối đa 5 ký tự, ví dụ A, B, AA. Không vượt quá số hàng của phòng.</value>
+  </data>
+  <data name="Import_SeatLayout_SeatNumber_Desc" xml:space="preserve">
+    <value>Số thứ tự ghế trong hàng.</value>
+  </data>
+  <data name="Import_SeatLayout_SeatNumber_Format" xml:space="preserve">
+    <value>Số nguyên từ 1 đến số cột của phòng, ví dụ 1, 2, 3.</value>
+  </data>
+  <data name="Import_SeatLayout_SeatType_Desc" xml:space="preserve">
+    <value>Tên loại ghế, lấy từ sheet Danh mục.</value>
+  </data>
+  <data name="Import_SeatLayout_SeatType_Format" xml:space="preserve">
+    <value>Tên đúng như trong sheet Danh mục. Có thể để trống với ô lối đi.</value>
+  </data>
+  <data name="Import_SeatLayout_IsActive_Desc" xml:space="preserve">
+    <value>Ghế có đang được bán hay không.</value>
+  </data>
+  <data name="Import_SeatLayout_IsActive_Format" xml:space="preserve">
+    <value>Có hoặc Không. Để trống là Có.</value>
+  </data>
+  <data name="Import_SeatLayout_IsAisle_Desc" xml:space="preserve">
+    <value>Đánh dấu ô là lối đi, không phải ghế ngồi.</value>
+  </data>
+  <data name="Import_SeatLayout_IsAisle_Format" xml:space="preserve">
+    <value>Có hoặc Không. Để trống là Không.</value>
+  </data>
+  <data name="Import_SeatLayout_CoupleGroup_Desc" xml:space="preserve">
+    <value>Mã nhóm ghế đôi. Hai ghế cùng mã sẽ thành một ghế đôi.</value>
+  </data>
+  <data name="Import_SeatLayout_CoupleGroup_Format" xml:space="preserve">
+    <value>Văn bản tối đa 50 ký tự, ví dụ C1. Mỗi mã gồm đúng 2 ghế liền kề cùng hàng. Để trống nếu không phải ghế đôi.</value>
+  </data>
+  <data name="Import_Note_SeatLayout_Bounds" xml:space="preserve">
+    <value>Phòng này có {0} hàng và {1} cột; hàng và số ghế không được vượt quá giới hạn đó.</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Import_Note_SeatLayout_Bounds, ...)</comment>
+  </data>
+  <data name="Import_Note_SeatLayout_Replace" xml:space="preserve">
+    <value>File thay thế toàn bộ sơ đồ ghế của phòng: ghế không có trong file sẽ bị gỡ, hoặc vô hiệu hoá nếu đã từng có suất chiếu.</value>
+  </data>
+  <data name="Import_Note_SeatLayout_Contiguous" xml:space="preserve">
+    <value>Số ghế trong mỗi hàng phải liên tục từ 1. Vị trí nào để trống giữa hàng phải có một dòng đánh dấu IsAisle là Có.</value>
+  </data>
+  <data name="Import_Note_SeatLayout_Couple" xml:space="preserve">
+    <value>Ghế đôi: điền cùng một mã CoupleGroup cho đúng 2 ghế liền kề cùng hàng, không phải lối đi.</value>
+  </data>
+  <data name="Invalid_ImportSeatRowFormat" xml:space="preserve">
+    <value>Hàng ghế chỉ gồm chữ cái A-Z và tối đa {0} ký tự.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportSeatRowFormat, ...)</comment>
+  </data>
+  <data name="Invalid_ImportSeatRowOutOfRange" xml:space="preserve">
+    <value>Hàng ghế vượt quá số hàng của phòng ({0} hàng).</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportSeatRowOutOfRange, ...)</comment>
+  </data>
+  <data name="Invalid_ImportSeatNumberOutOfRange" xml:space="preserve">
+    <value>Số ghế phải từ 1 đến {0} (số cột của phòng).</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportSeatNumberOutOfRange, ...)</comment>
+  </data>
+  <data name="Invalid_ImportSeatDuplicateInFile" xml:space="preserve">
+    <value>Trùng vị trí ghế với dòng {0} trong file.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportSeatDuplicateInFile, ...)</comment>
+  </data>
+  <data name="Invalid_ImportSeatGap" xml:space="preserve">
+    <value>Hàng {0} đang bỏ trống ghế số {1} trước vị trí này. Hãy thêm dòng cho vị trí đó hoặc đánh dấu là lối đi.</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Invalid_ImportSeatGap, ...)</comment>
+  </data>
+  <data name="Invalid_ImportCoupleGroupTooLong" xml:space="preserve">
+    <value>Mã nhóm ghế đôi tối đa {0} ký tự.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportCoupleGroupTooLong, ...)</comment>
+  </data>
+  <data name="Invalid_ImportCoupleOnAisle" xml:space="preserve">
+    <value>Ô lối đi không thể thuộc nhóm ghế đôi.</value>
+  </data>
+  <data name="Invalid_ImportCoupleGroupSize" xml:space="preserve">
+    <value>Nhóm ghế đôi "{0}" phải có đúng 2 ghế (hiện có {1}).</value>
+    <comment>Có 2 tham số: dùng string.Format(Messages.Invalid_ImportCoupleGroupSize, ...)</comment>
+  </data>
+  <data name="Invalid_ImportCoupleGroupRow" xml:space="preserve">
+    <value>Hai ghế của nhóm "{0}" phải cùng một hàng.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportCoupleGroupRow, ...)</comment>
+  </data>
+  <data name="Invalid_ImportCoupleGroupAdjacent" xml:space="preserve">
+    <value>Hai ghế của nhóm "{0}" phải liền kề nhau.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportCoupleGroupAdjacent, ...)</comment>
+  </data>
+  <data name="Rule_ImportSeatLayoutSkipBreaksRows" xml:space="preserve">
+    <value>Bỏ qua các dòng lỗi sẽ để trống số ghế giữa hàng. Hãy sửa file hoặc đánh dấu các vị trí đó là lối đi.</value>
+  </data>
+  <data name="Import_Warn_SeatLayoutLiveSeats" xml:space="preserve">
+    <value>{0} ghế sẽ thay đổi hoặc bị gỡ đang có vé đã đặt hoặc đang giữ chỗ ở {1} suất chiếu sắp tới (ví dụ {2}). Hệ thống sẽ từ chối áp dụng cho đến khi các vé này được xử lý.</value>
+    <comment>Có 3 tham số: dùng string.Format(Messages.Import_Warn_SeatLayoutLiveSeats, ...)</comment>
+  </data>
+  <data name="Import_Warn_SeatLayoutRemoved" xml:space="preserve">
+    <value>{0} ghế hiện có không nằm trong file và sẽ bị xoá khỏi sơ đồ.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Import_Warn_SeatLayoutRemoved, ...)</comment>
+  </data>
+  <data name="Import_Warn_SeatLayoutDeactivated" xml:space="preserve">
+    <value>{0} ghế hiện có không nằm trong file đã từng gắn với suất chiếu nên sẽ được vô hiệu hoá thay vì xoá.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Import_Warn_SeatLayoutDeactivated, ...)</comment>
+  </data>
+  <data name="Import_Warn_SeatLayoutFutureShowtimes" xml:space="preserve">
+    <value>Phòng có {0} suất chiếu sắp tới; ghế thay đổi sẽ được đồng bộ vào các suất này, giá ghế tính lại theo loại ghế mới.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Import_Warn_SeatLayoutFutureShowtimes, ...)</comment>
+  </data>
 </root>

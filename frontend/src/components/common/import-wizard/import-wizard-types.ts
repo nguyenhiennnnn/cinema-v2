@@ -1,4 +1,5 @@
 import type { InvalidationName } from "@/api/query-invalidation";
+import type { ImportSummary } from "@/types/import";
 
 export interface ImportColumnConfig {
   key: string;
@@ -14,4 +15,5 @@ export interface ImportWizardConfig {
   errorsFilename: string;
   columns: ImportColumnConfig[];
   invalidates: InvalidationName;
+  summarizeApply?: (data: unknown) => ImportSummary;
 }

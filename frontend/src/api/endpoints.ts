@@ -130,6 +130,8 @@ export const ENDPOINTS = {
       root: "/admin/rooms",
       byId: (id: number) => `/admin/rooms/${id}`,
       seats: (id: number) => `/admin/rooms/${id}/seats`,
+      seatLayoutExport: (id: number) => `/admin/rooms/${id}/seat-layout/export`,
+      seatLayoutImport: (id: number) => `/admin/rooms/${id}/seat-layout/import`,
     },
     showtimes: {
       root: "/admin/showtimes",

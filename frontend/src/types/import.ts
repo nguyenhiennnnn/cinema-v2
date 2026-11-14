@@ -17,6 +17,7 @@ export interface ImportPreviewResponse {
   validRows: number;
   invalidRows: number;
   rows: ImportPreviewRow[];
+  warnings?: string[] | null;
 }
 
 export interface ImportApplyRequest {
@@ -26,6 +27,17 @@ export interface ImportApplyRequest {
 
 export type ImportApplyResponse = BulkActionResponse;
 
+export interface ImportResultMetric {
+  label: string;
+  value: number;
+}
+
+export interface ImportSummary {
+  message: string;
+  metrics: ImportResultMetric[];
+}
+
 export type ImportApplyOutcome =
   | { mode: "completed"; result: ImportApplyResponse }
+  | { mode: "summary"; summary: ImportSummary }
   | { mode: "background"; jobId: string };
