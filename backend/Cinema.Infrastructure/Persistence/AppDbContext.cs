@@ -42,6 +42,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserVerificationToken> UserVerificationTokens => Set<UserVerificationToken>();
+    public DbSet<ImportExportJob> ImportExportJobs => Set<ImportExportJob>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

@@ -10,11 +10,20 @@ public class ImportSessionStore(IMemoryCache cache) : IImportSessionStore
 {
     public ImportSession<TRow> Create<TRow>(
         int userId,
+        string? fileName,
+        ImportFileFormat format,
         IReadOnlyList<string> headers,
         IReadOnlyList<ImportRow<TRow>> rows
     )
     {
-        var session = new ImportSession<TRow>(Guid.NewGuid().ToString("N"), userId, headers, rows);
+        var session = new ImportSession<TRow>(
+            Guid.NewGuid().ToString("N"),
+            userId,
+            fileName,
+            format,
+            headers,
+            rows
+        );
         cache.Set(
             CacheKey(session.PreviewId),
             session,

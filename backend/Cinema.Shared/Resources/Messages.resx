@@ -2217,4 +2217,35 @@ QUY TẮC DÙNG HÀM (FUNCTION CALLING):
     <value>Trùng khung giờ chiếu trong cùng phòng với dòng {0} trong file.</value>
     <comment>Có 1 tham số: dùng string.Format(Messages.Invalid_ImportShowtimeOverlapInFile, ...)</comment>
   </data>
+  <data name="Success_ExportJobQueued" xml:space="preserve">
+    <value>Yêu cầu xuất dữ liệu đã được tiếp nhận và đang xử lý nền.</value>
+  </data>
+  <data name="Success_ImportJobQueued" xml:space="preserve">
+    <value>Yêu cầu nhập dữ liệu đã được tiếp nhận và đang xử lý nền.</value>
+  </data>
+  <data name="Rule_ExportUseBackgroundJob" xml:space="preserve">
+    <value>Dữ liệu xuất vượt {0} dòng. Hãy dùng chức năng xuất nền để tạo file.</value>
+    <comment>Có 1 tham số: dùng string.Format(Messages.Rule_ExportUseBackgroundJob, ...)</comment>
+  </data>
+  <data name="NotFound_ImportExportJob" xml:space="preserve">
+    <value>Không tìm thấy tác vụ nhập/xuất dữ liệu.</value>
+  </data>
+  <data name="Rule_ImportExportJobNoFile" xml:space="preserve">
+    <value>Tác vụ này không có file để tải xuống.</value>
+  </data>
+  <data name="Rule_ImportExportJobNotReady" xml:space="preserve">
+    <value>File chưa sẵn sàng vì tác vụ chưa hoàn tất.</value>
+  </data>
+  <data name="Rule_ImportExportFileExpired" xml:space="preserve">
+    <value>File đã hết hạn và đã bị xoá. Hãy tạo lại yêu cầu xuất dữ liệu.</value>
+  </data>
+  <data name="Rule_ImportExportFileDownloadFailed" xml:space="preserve">
+    <value>Không thể tải file từ kho lưu trữ. Vui lòng thử lại sau.</value>
+  </data>
+  <data name="Invalid_ImportExportJobFilter" xml:space="preserve">
+    <value>Giá trị bộ lọc không hợp lệ.</value>
+  </data>
+  <data name="Job_UnknownError" xml:space="preserve">
+    <value>Tác vụ thất bại do lỗi không xác định.</value>
+  </data>
 </root>

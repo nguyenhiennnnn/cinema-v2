@@ -373,6 +373,7 @@ public class ShowtimeImportProcessor(
 
     public override async Task<BulkActionResponse> ApplyRowsAsync(
         IReadOnlyList<ImportRow<ShowtimeImportRow>> rows,
+        IJobProgressReporter? progress,
         CancellationToken cancellationToken
     )
     {
@@ -418,6 +419,9 @@ public class ShowtimeImportProcessor(
 
                 break;
             }
+
+            if (progress is not null)
+                await progress.ReportAsync(i + 1, cancellationToken);
         }
 
         return BulkOperation.Build(results);

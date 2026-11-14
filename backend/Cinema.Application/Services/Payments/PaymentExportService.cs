@@ -2,6 +2,7 @@ using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,21 @@ namespace Cinema.Application.Services.Payments;
 public class PaymentExportService(IAppDbContext db, IExportWriter exportWriter)
     : IPaymentExportService
 {
-    private const string Module = "payments";
+    public string Module => ImportExportModules.Payments;
 
-    public async Task<ExportFileDto> ExportPaymentsAsync(
+    public Task<int> CountAsync(
+        AdminPaymentListFilter filter,
+        CancellationToken cancellationToken
+    ) =>
+        ExportLimits.CountAsync(
+            db.Payments.AsNoTracking().ApplyAdminFilter(filter),
+            cancellationToken
+        );
+
+    public async Task<ExportFileDto> ExportAsync(
         AdminPaymentListFilter filter,
         ExportFormat format,
+        IJobProgressReporter? progress,
         CancellationToken cancellationToken
     )
     {
@@ -45,7 +56,8 @@ public class PaymentExportService(IAppDbContext db, IExportWriter exportWriter)
             format,
             Columns(),
             rows,
-            cancellationToken
+            cancellationToken,
+            progress
         );
     }
 

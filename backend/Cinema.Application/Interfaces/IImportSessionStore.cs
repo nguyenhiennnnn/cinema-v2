@@ -6,6 +6,8 @@ public interface IImportSessionStore
 {
     ImportSession<TRow> Create<TRow>(
         int userId,
+        string? fileName,
+        ImportFileFormat format,
         IReadOnlyList<string> headers,
         IReadOnlyList<ImportRow<TRow>> rows
     );

@@ -27,6 +27,7 @@ public abstract class ImportProcessorBase<TRow>(IImportFileReader fileReader)
 
     public abstract Task<BulkActionResponse> ApplyRowsAsync(
         IReadOnlyList<ImportRow<TRow>> rows,
+        IJobProgressReporter? progress,
         CancellationToken cancellationToken
     );
 

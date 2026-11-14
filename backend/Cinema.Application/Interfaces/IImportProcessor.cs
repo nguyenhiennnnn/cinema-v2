@@ -45,6 +45,7 @@ public interface IImportProcessor<TRow>
 
     Task<BulkActionResponse> ApplyRowsAsync(
         IReadOnlyList<ImportRow<TRow>> rows,
+        IJobProgressReporter? progress,
         CancellationToken cancellationToken
     );
 }

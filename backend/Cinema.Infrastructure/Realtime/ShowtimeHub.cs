@@ -1,3 +1,4 @@
+using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -8,6 +9,17 @@ namespace Cinema.Infrastructure.Realtime;
 public class ShowtimeHub : Hub
 {
     private static string GroupName(int showtimeId) => $"showtime-{showtimeId}";
+
+    private static string UserGroupName(int userId) => $"user-{userId}";
+
+    public override async Task OnConnectedAsync()
+    {
+        var rawUserId = Context.User?.FindFirst(AppClaimTypes.UserId)?.Value;
+        if (int.TryParse(rawUserId, out var userId))
+            await Groups.AddToGroupAsync(Context.ConnectionId, UserGroupName(userId));
+
+        await base.OnConnectedAsync();
+    }
 
     public async Task JoinShowtime(int showtimeId)
     {

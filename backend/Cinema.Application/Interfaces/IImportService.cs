@@ -14,9 +14,17 @@ public interface IImportService<TRow>
         CancellationToken cancellationToken
     );
 
-    Task<BulkActionResponse> ApplyAsync(
+    Task<ImportApplyOutcome> ApplyAsync(
         int userId,
         ImportApplyRequest request,
+        CancellationToken cancellationToken
+    );
+
+    Task<BulkActionResponse> RunQueuedApplyAsync(
+        int userId,
+        string previewId,
+        bool skipInvalidRows,
+        IJobProgressReporter progress,
         CancellationToken cancellationToken
     );
 

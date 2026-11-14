@@ -65,6 +65,7 @@ public static class DependencyInjection
         services.AddSingleton<IImportFileReader, ImportFileReader>();
 
         services.AddHttpClient("Resend");
+        services.AddHttpClient(CloudinaryFileStorage.HttpClientName);
         services.AddScoped<ResendEmailService>();
         services.AddScoped<MailKitEmailService>();
         services.AddScoped<IEmailService, FallbackEmailService>();

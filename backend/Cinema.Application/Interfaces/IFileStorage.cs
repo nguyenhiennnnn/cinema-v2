@@ -20,6 +20,16 @@ public interface IFileStorage
         CancellationToken cancellationToken = default
     );
 
+    Task<FileUploadResult> UploadRawAsync(
+        Stream fileStream,
+        string fileName,
+        string contentType,
+        string folder,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<Stream> OpenReadAsync(string url, CancellationToken cancellationToken = default);
+
     Task DeleteAsync(
         string publicId,
         string resourceType = "image",

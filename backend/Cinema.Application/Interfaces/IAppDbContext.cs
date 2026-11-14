@@ -39,6 +39,7 @@ public interface IAppDbContext
     DbSet<Payment> Payments { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<UserVerificationToken> UserVerificationTokens { get; }
+    DbSet<ImportExportJob> ImportExportJobs { get; }
 }
 
 public static class AppDbContextExtensions

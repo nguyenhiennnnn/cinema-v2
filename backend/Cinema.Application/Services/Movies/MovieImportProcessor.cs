@@ -492,6 +492,7 @@ public class MovieImportProcessor(
 
     public override async Task<BulkActionResponse> ApplyRowsAsync(
         IReadOnlyList<ImportRow<MovieImportRow>> rows,
+        IJobProgressReporter? progress,
         CancellationToken cancellationToken
     )
     {
@@ -508,6 +509,8 @@ public class MovieImportProcessor(
                     : await movieService.CreateMovieAsync(request, cancellationToken);
 
                 results.Add(new BulkActionResultItem(detail.MovieId, true, null, row.RowNumber));
+                if (progress is not null)
+                    await progress.ReportAsync(results.Count, cancellationToken);
             }
             catch (AppException ex)
             {

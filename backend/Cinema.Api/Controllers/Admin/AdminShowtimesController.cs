@@ -1,5 +1,6 @@
 using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Import;
+using Cinema.Application.DTOs.ImportExport;
 using Cinema.Application.DTOs.Showtimes;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
@@ -20,7 +21,7 @@ public class AdminShowtimesController(
     IShowtimeBatchService showtimeBatchService,
     IShowtimeAutoScheduleService showtimeAutoScheduleService,
     IShowtimeQueryService showtimeQueryService,
-    IShowtimeExportService showtimeExportService,
+    IExportJobService exportJobService,
     IImportService<ShowtimeImportRow> showtimeImportService
 ) : AppControllerBase
 {
@@ -47,13 +48,34 @@ public class AdminShowtimesController(
     )
     {
         var exportFormat = ExportFormats.Parse(format);
-        var file = await showtimeExportService.ExportShowtimesAsync(
+        var file = await exportJobService.ExportNowAsync(
+            CurrentUserId,
+            ImportExportModules.Showtimes,
             filter,
             exportFormat,
             cancellationToken
         );
         return File(file.Content, file.ContentType, file.FileName);
     }
+
+    [HttpPost("export-jobs")]
+    [SuccessMessage(nameof(Messages.Success_ExportJobQueued))]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> CreateExportJob(
+        [FromQuery] AdminShowtimeListFilter filter,
+        [FromQuery] string? format,
+        CancellationToken cancellationToken
+    ) =>
+        StatusCode(
+            StatusCodes.Status202Accepted,
+            await exportJobService.EnqueueAsync(
+                CurrentUserId,
+                ImportExportModules.Showtimes,
+                filter,
+                ExportFormats.Parse(format),
+                cancellationToken
+            )
+        );
 
     [HttpGet("calendar")]
     [Authorize(Policy = Policies.StaffOnly)]
@@ -178,7 +200,17 @@ public class AdminShowtimesController(
     public async Task<IActionResult> ApplyImport(
         [FromBody] ImportApplyRequest request,
         CancellationToken cancellationToken
-    ) => Ok(await showtimeImportService.ApplyAsync(CurrentUserId, request, cancellationToken));
+    )
+    {
+        var outcome = await showtimeImportService.ApplyAsync(
+            CurrentUserId,
+            request,
+            cancellationToken
+        );
+        return outcome.JobId is { } jobId
+            ? StatusCode(StatusCodes.Status202Accepted, new ImportExportJobAcceptedDto(jobId))
+            : Ok(outcome.Result);
+    }
 
     [HttpGet("import/errors/{previewId}")]
     [Authorize(Policy = Policies.AdminOnly)]

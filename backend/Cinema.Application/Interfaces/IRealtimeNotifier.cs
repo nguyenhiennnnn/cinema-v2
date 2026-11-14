@@ -1,3 +1,5 @@
+using Cinema.Application.DTOs.ImportExport;
+
 namespace Cinema.Application.Interfaces;
 
 public interface IRealtimeNotifier
@@ -26,6 +28,24 @@ public interface IRealtimeNotifier
         int showtimeId,
         int bookingId,
         List<int> seatIds,
+        CancellationToken cancellationToken
+    );
+
+    Task NotifyImportExportJobProgressAsync(
+        int userId,
+        ImportExportJobDto job,
+        CancellationToken cancellationToken
+    );
+
+    Task NotifyImportExportJobCompletedAsync(
+        int userId,
+        ImportExportJobDto job,
+        CancellationToken cancellationToken
+    );
+
+    Task NotifyImportExportJobFailedAsync(
+        int userId,
+        ImportExportJobDto job,
         CancellationToken cancellationToken
     );
 }

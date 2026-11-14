@@ -6148,6 +6148,96 @@ namespace Cinema.Shared.Resources {
                 return ResourceManager.GetString("Invalid_ImportShowtimeOverlapInFile", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yêu cầu xuất dữ liệu đã được tiếp nhận và đang xử lý nền..
+        /// </summary>
+        public static string Success_ExportJobQueued {
+            get {
+                return ResourceManager.GetString("Success_ExportJobQueued", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yêu cầu nhập dữ liệu đã được tiếp nhận và đang xử lý nền..
+        /// </summary>
+        public static string Success_ImportJobQueued {
+            get {
+                return ResourceManager.GetString("Success_ImportJobQueued", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dữ liệu xuất vượt {0} dòng. Hãy dùng chức năng xuất nền để tạo file..
+        /// </summary>
+        public static string Rule_ExportUseBackgroundJob {
+            get {
+                return ResourceManager.GetString("Rule_ExportUseBackgroundJob", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không tìm thấy tác vụ nhập/xuất dữ liệu..
+        /// </summary>
+        public static string NotFound_ImportExportJob {
+            get {
+                return ResourceManager.GetString("NotFound_ImportExportJob", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tác vụ này không có file để tải xuống..
+        /// </summary>
+        public static string Rule_ImportExportJobNoFile {
+            get {
+                return ResourceManager.GetString("Rule_ImportExportJobNoFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File chưa sẵn sàng vì tác vụ chưa hoàn tất..
+        /// </summary>
+        public static string Rule_ImportExportJobNotReady {
+            get {
+                return ResourceManager.GetString("Rule_ImportExportJobNotReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File đã hết hạn và đã bị xoá. Hãy tạo lại yêu cầu xuất dữ liệu..
+        /// </summary>
+        public static string Rule_ImportExportFileExpired {
+            get {
+                return ResourceManager.GetString("Rule_ImportExportFileExpired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể tải file từ kho lưu trữ. Vui lòng thử lại sau..
+        /// </summary>
+        public static string Rule_ImportExportFileDownloadFailed {
+            get {
+                return ResourceManager.GetString("Rule_ImportExportFileDownloadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá trị bộ lọc không hợp lệ..
+        /// </summary>
+        public static string Invalid_ImportExportJobFilter {
+            get {
+                return ResourceManager.GetString("Invalid_ImportExportJobFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tác vụ thất bại do lỗi không xác định..
+        /// </summary>
+        public static string Job_UnknownError {
+            get {
+                return ResourceManager.GetString("Job_UnknownError", resourceCulture);
+            }
+        }
     
     }
 }

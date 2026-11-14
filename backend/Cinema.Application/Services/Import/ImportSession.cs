@@ -5,6 +5,8 @@ namespace Cinema.Application.Services.Import;
 public sealed class ImportSession<TRow>(
     string previewId,
     int userId,
+    string? fileName,
+    ImportFileFormat format,
     IReadOnlyList<string> headers,
     IReadOnlyList<ImportRow<TRow>> rows
 )
@@ -13,6 +15,8 @@ public sealed class ImportSession<TRow>(
 
     public string PreviewId { get; } = previewId;
     public int UserId { get; } = userId;
+    public string? FileName { get; } = fileName;
+    public ImportFileFormat Format { get; } = format;
     public IReadOnlyList<string> Headers { get; } = headers;
     public IReadOnlyList<ImportRow<TRow>> Rows { get; } = rows;
 

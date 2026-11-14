@@ -1,5 +1,6 @@
 using Cinema.Api.Filters;
 using Cinema.Application.DTOs.Import;
+using Cinema.Application.DTOs.ImportExport;
 using Cinema.Application.DTOs.Movies;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
@@ -119,7 +120,17 @@ public class AdminMoviesController(
     public async Task<IActionResult> ApplyImport(
         [FromBody] ImportApplyRequest request,
         CancellationToken cancellationToken
-    ) => Ok(await movieImportService.ApplyAsync(CurrentUserId, request, cancellationToken));
+    )
+    {
+        var outcome = await movieImportService.ApplyAsync(
+            CurrentUserId,
+            request,
+            cancellationToken
+        );
+        return outcome.JobId is { } jobId
+            ? StatusCode(StatusCodes.Status202Accepted, new ImportExportJobAcceptedDto(jobId))
+            : Ok(outcome.Result);
+    }
 
     [HttpGet("import/errors/{previewId}")]
     [Authorize(Policy = Policies.AdminOnly)]

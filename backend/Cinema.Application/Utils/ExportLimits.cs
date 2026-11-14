@@ -9,12 +9,18 @@ public static class ExportLimits
 {
     public const int MaxRows = 20_000;
 
+    public static Task<int> CountAsync<T>(
+        IQueryable<T> query,
+        CancellationToken cancellationToken
+    ) => query.Take(MaxRows + 1).CountAsync(cancellationToken);
+
     public static async Task EnsureWithinLimitAsync<T>(
         IQueryable<T> query,
         CancellationToken cancellationToken
-    )
+    ) => EnsureWithinLimit(await CountAsync(query, cancellationToken));
+
+    public static void EnsureWithinLimit(int count)
     {
-        var count = await query.Take(MaxRows + 1).CountAsync(cancellationToken);
         if (count <= MaxRows)
             return;
 

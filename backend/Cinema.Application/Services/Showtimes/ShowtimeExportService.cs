@@ -2,6 +2,7 @@ using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,21 @@ namespace Cinema.Application.Services.Showtimes;
 public class ShowtimeExportService(IAppDbContext db, IExportWriter exportWriter)
     : IShowtimeExportService
 {
-    private const string Module = "showtimes";
+    public string Module => ImportExportModules.Showtimes;
 
-    public async Task<ExportFileDto> ExportShowtimesAsync(
+    public Task<int> CountAsync(
+        AdminShowtimeListFilter filter,
+        CancellationToken cancellationToken
+    ) =>
+        ExportLimits.CountAsync(
+            db.Showtimes.AsNoTracking().ApplyAdminFilter(filter),
+            cancellationToken
+        );
+
+    public async Task<ExportFileDto> ExportAsync(
         AdminShowtimeListFilter filter,
         ExportFormat format,
+        IJobProgressReporter? progress,
         CancellationToken cancellationToken
     )
     {
@@ -45,7 +56,8 @@ public class ShowtimeExportService(IAppDbContext db, IExportWriter exportWriter)
             format,
             Columns(),
             rows,
-            cancellationToken
+            cancellationToken,
+            progress
         );
     }
 

@@ -2,7 +2,9 @@ using Cinema.Application.DTOs.Bookings;
 using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
+using Cinema.Api.Filters;
 using Cinema.Shared.Constants;
+using Cinema.Shared.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +15,7 @@ namespace Cinema.Api.Controllers.Admin;
 [Authorize]
 public class AdminBookingsController(
     IBookingQueryService bookingQueryService,
-    IBookingExportService bookingExportService
+    IExportJobService exportJobService
 ) : AppControllerBase
 {
     [HttpGet]
@@ -43,13 +45,34 @@ public class AdminBookingsController(
     )
     {
         var exportFormat = ExportFormats.Parse(format);
-        var file = await bookingExportService.ExportBookingsAsync(
+        var file = await exportJobService.ExportNowAsync(
+            CurrentUserId,
+            ImportExportModules.Bookings,
             filter,
             exportFormat,
             cancellationToken
         );
         return File(file.Content, file.ContentType, file.FileName);
     }
+
+    [HttpPost("export-jobs")]
+    [SuccessMessage(nameof(Messages.Success_ExportJobQueued))]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> CreateExportJob(
+        [FromQuery] AdminBookingListFilter filter,
+        [FromQuery] string? format,
+        CancellationToken cancellationToken
+    ) =>
+        StatusCode(
+            StatusCodes.Status202Accepted,
+            await exportJobService.EnqueueAsync(
+                CurrentUserId,
+                ImportExportModules.Bookings,
+                filter,
+                ExportFormats.Parse(format),
+                cancellationToken
+            )
+        );
 
     [HttpGet("{bookingId:int}")]
     [Authorize(Policy = Policies.StaffOnly)]

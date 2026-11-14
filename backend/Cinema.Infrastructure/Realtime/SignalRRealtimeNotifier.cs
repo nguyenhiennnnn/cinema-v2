@@ -1,3 +1,4 @@
+using Cinema.Application.DTOs.ImportExport;
 using Cinema.Application.Interfaces;
 using Cinema.Shared.Constants;
 using Microsoft.AspNetCore.SignalR;
@@ -7,6 +8,8 @@ namespace Cinema.Infrastructure.Realtime;
 public class SignalRRealtimeNotifier(IHubContext<ShowtimeHub> hubContext) : IRealtimeNotifier
 {
     private static string GroupName(int showtimeId) => $"showtime-{showtimeId}";
+
+    private static string UserGroupName(int userId) => $"user-{userId}";
 
     public Task NotifyHoldExpiredAsync(
         int showtimeId,
@@ -65,4 +68,31 @@ public class SignalRRealtimeNotifier(IHubContext<ShowtimeHub> hubContext) : IRea
         hubContext
             .Clients.Group(GroupName(showtimeId))
             .SendAsync(SignalREvents.SeatReleased, new { showtimeId, seatIds }, cancellationToken);
+
+    public Task NotifyImportExportJobProgressAsync(
+        int userId,
+        ImportExportJobDto job,
+        CancellationToken cancellationToken
+    ) =>
+        hubContext
+            .Clients.Group(UserGroupName(userId))
+            .SendAsync(SignalREvents.ImportExportJobProgress, job, cancellationToken);
+
+    public Task NotifyImportExportJobCompletedAsync(
+        int userId,
+        ImportExportJobDto job,
+        CancellationToken cancellationToken
+    ) =>
+        hubContext
+            .Clients.Group(UserGroupName(userId))
+            .SendAsync(SignalREvents.ImportExportJobCompleted, job, cancellationToken);
+
+    public Task NotifyImportExportJobFailedAsync(
+        int userId,
+        ImportExportJobDto job,
+        CancellationToken cancellationToken
+    ) =>
+        hubContext
+            .Clients.Group(UserGroupName(userId))
+            .SendAsync(SignalREvents.ImportExportJobFailed, job, cancellationToken);
 }

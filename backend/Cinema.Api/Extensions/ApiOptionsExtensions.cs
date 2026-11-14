@@ -31,7 +31,8 @@ public static class ApiOptionsExtensions
             .AddSection<GoogleOptions>(configuration, GoogleOptions.SectionName)
             .AddSection<BrandOptions>(configuration, BrandOptions.SectionName)
             .AddSection<SchedulerOptions>(configuration, SchedulerOptions.SectionName)
-            .AddSection<BackgroundJobOptions>(configuration, BackgroundJobOptions.SectionName);
+            .AddSection<BackgroundJobOptions>(configuration, BackgroundJobOptions.SectionName)
+            .AddSection<ImportExportOptions>(configuration, ImportExportOptions.SectionName);
     }
 
     public static T BindSection<T>(this IConfiguration configuration, string sectionName)

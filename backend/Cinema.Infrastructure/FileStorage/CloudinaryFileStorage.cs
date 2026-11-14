@@ -10,12 +10,19 @@ namespace Cinema.Infrastructure.FileStorage;
 
 public class CloudinaryFileStorage : IFileStorage
 {
+    public const string HttpClientName = "CloudinaryDownload";
+
     private readonly Cloudinary _cloudinary;
     private readonly CloudinaryOptions _options;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public CloudinaryFileStorage(IOptions<CloudinaryOptions> options)
+    public CloudinaryFileStorage(
+        IOptions<CloudinaryOptions> options,
+        IHttpClientFactory httpClientFactory
+    )
     {
         _options = options.Value;
+        _httpClientFactory = httpClientFactory;
         var account = new Account(_options.CloudName, _options.ApiKey, _options.ApiSecret);
         _cloudinary = new Cloudinary(account) { Api = { Secure = true } };
     }
@@ -106,6 +113,51 @@ public class CloudinaryFileStorage : IFileStorage
         return new FileUploadResult(result.SecureUrl.ToString(), result.PublicId);
     }
 
+    public async Task<FileUploadResult> UploadRawAsync(
+        Stream fileStream,
+        string fileName,
+        string contentType,
+        string folder,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var uploadParams = new ImageUploadParams
+        {
+            File = new FileDescription(fileName, fileStream),
+            Folder = folder,
+            UseFilename = true,
+            UniqueFilename = true,
+            Overwrite = false,
+        };
+
+        var result = await _cloudinary.UploadAsync(uploadParams, cancellationToken);
+        if (result.Error is not null)
+            throw new BusinessRuleException(
+                string.Format(Messages.Rule_CloudinaryUploadFailed, result.Error.Message)
+            );
+
+        return new FileUploadResult(result.SecureUrl.ToString(), result.PublicId);
+    }
+
+    public async Task<Stream> OpenReadAsync(
+        string url,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var client = _httpClientFactory.CreateClient(HttpClientName);
+        using var response = await client.GetAsync(
+            url,
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+
+        var buffer = new MemoryStream();
+        await response.Content.CopyToAsync(buffer, cancellationToken);
+        buffer.Position = 0;
+        return buffer;
+    }
+
     public async Task DeleteAsync(
         string publicId,
         string resourceType = "image",
@@ -114,11 +166,17 @@ public class CloudinaryFileStorage : IFileStorage
     {
         var deleteParams = new DeletionParams(publicId)
         {
-            ResourceType = resourceType.Equals("video", StringComparison.OrdinalIgnoreCase)
-                ? ResourceType.Video
-                : ResourceType.Image,
+            ResourceType = ResolveResourceType(resourceType),
         };
 
         await _cloudinary.DestroyAsync(deleteParams);
     }
+
+    private static ResourceType ResolveResourceType(string resourceType) =>
+        resourceType.ToLowerInvariant() switch
+        {
+            "video" => ResourceType.Video,
+            "raw" => ResourceType.Raw,
+            _ => ResourceType.Image,
+        };
 }

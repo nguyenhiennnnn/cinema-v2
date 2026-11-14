@@ -2,6 +2,7 @@ using Cinema.Application.DTOs.Common;
 using Cinema.Application.Interfaces;
 using Cinema.Application.Utils;
 using Cinema.Domain.Enums;
+using Cinema.Shared.Constants;
 using Cinema.Shared.Resources;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,21 @@ namespace Cinema.Application.Services.Bookings;
 public class BookingExportService(IAppDbContext db, IExportWriter exportWriter)
     : IBookingExportService
 {
-    private const string Module = "bookings";
+    public string Module => ImportExportModules.Bookings;
 
-    public async Task<ExportFileDto> ExportBookingsAsync(
+    public Task<int> CountAsync(
+        AdminBookingListFilter filter,
+        CancellationToken cancellationToken
+    ) =>
+        ExportLimits.CountAsync(
+            db.Bookings.AsNoTracking().ApplyAdminFilter(filter),
+            cancellationToken
+        );
+
+    public async Task<ExportFileDto> ExportAsync(
         AdminBookingListFilter filter,
         ExportFormat format,
+        IJobProgressReporter? progress,
         CancellationToken cancellationToken
     )
     {
@@ -56,7 +67,8 @@ public class BookingExportService(IAppDbContext db, IExportWriter exportWriter)
             format,
             Columns(),
             rows,
-            cancellationToken
+            cancellationToken,
+            progress
         );
     }
 

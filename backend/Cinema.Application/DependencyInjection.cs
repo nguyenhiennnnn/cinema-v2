@@ -9,6 +9,7 @@ using Cinema.Application.Services.Combos;
 using Cinema.Application.Services.Dashboard;
 using Cinema.Application.Services.Employees;
 using Cinema.Application.Services.Import;
+using Cinema.Application.Services.ImportExport;
 using Cinema.Application.Services.Movies;
 using Cinema.Application.Services.Notifications;
 using Cinema.Application.Services.Payments;
@@ -42,6 +43,20 @@ public static class DependencyInjection
         services.AddScoped<IImportProcessor<MovieImportRow>, MovieImportProcessor>();
         services.AddScoped<IImportProcessor<ShowtimeImportRow>, ShowtimeImportProcessor>();
         services.AddScoped(typeof(IImportService<>), typeof(ImportService<>));
+        services.AddScoped<IImportApplyModule, ImportApplyModule<MovieImportRow>>();
+        services.AddScoped<IImportApplyModule, ImportApplyModule<ShowtimeImportRow>>();
+        services.AddScoped<IImportExportJobTracker, ImportExportJobTracker>();
+        services.AddScoped<IImportExportJobService, ImportExportJobService>();
+        services.AddScoped<IExportJobService, ExportJobService>();
+        services.AddScoped<IExportModule>(sp => new ExportModule<AdminShowtimeListFilter>(
+            sp.GetRequiredService<IShowtimeExportService>()
+        ));
+        services.AddScoped<IExportModule>(sp => new ExportModule<AdminBookingListFilter>(
+            sp.GetRequiredService<IBookingExportService>()
+        ));
+        services.AddScoped<IExportModule>(sp => new ExportModule<AdminPaymentListFilter>(
+            sp.GetRequiredService<IPaymentExportService>()
+        ));
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<ISeatExpirationService, SeatExpirationService>();
         services.AddScoped<IShowtimeService, ShowtimeService>();
