@@ -1,10 +1,10 @@
 import { Star, Clock, Languages, CalendarDays, PlayCircle, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgeRatingBadge } from "@/components/common/status-badge";
-import { useDialogOpen } from "@/stores/dialog-store";
-import { toEmbedUrl } from "@/features/client/movies/utils/embed-url";
+import { TrailerPlayer } from "@/features/client/movies/components/trailer-player";
 import { formatDuration } from "@/lib/cinema-format";
 import { formatDate } from "@/lib/formatters";
+import { useDialogOpen } from "@/stores/dialog-store";
 import type { MovieDetailDto } from "@/features/client/movies/types";
 
 interface MovieHeroProps {
@@ -14,23 +14,12 @@ interface MovieHeroProps {
 export const MovieHero = ({ movie }: MovieHeroProps) => {
   const openDialog = useDialogOpen();
 
-  const handleOpenTrailer = () => {
+  const openTrailer = () => {
     if (!movie.trailerUrl) return;
     openDialog({
-      title: movie.title,
       size: "xl",
-      className: "overflow-hidden border-none bg-scrim p-0",
-      content: (
-        <div className="aspect-video w-full">
-          <iframe
-            src={toEmbedUrl(movie.trailerUrl)}
-            title={movie.title}
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="h-full w-full"
-          />
-        </div>
-      ),
+      flush: true,
+      content: <TrailerPlayer trailerUrl={movie.trailerUrl} title={movie.title} />,
     });
   };
 
@@ -101,7 +90,7 @@ export const MovieHero = ({ movie }: MovieHeroProps) => {
               <span>Đặt vé</span>
             </Button>
             {movie.trailerUrl && (
-              <Button variant="outline" size="lg" onClick={handleOpenTrailer}>
+              <Button variant="outline" size="lg" onClick={openTrailer}>
                 <PlayCircle className="size-4" />
                 <span>Xem trailer</span>
               </Button>

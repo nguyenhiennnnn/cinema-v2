@@ -9,6 +9,7 @@ interface DialogOptions {
   content: ReactNode;
   size?: DialogSize;
   className?: string;
+  flush?: boolean;
 }
 
 interface DialogStore extends DialogOptions {
@@ -31,7 +32,8 @@ export const useDialogStore = create<DialogStore>((set) => ({
   content: null,
   size: "md",
   className: undefined,
-  open: ({ title, description, content, size = "md", className }) =>
+  flush: false,
+  open: ({ title, description, content, size = "md", className, flush = false }) =>
     set({
       isOpen: true,
       isDirty: false,
@@ -41,6 +43,7 @@ export const useDialogStore = create<DialogStore>((set) => ({
       content,
       size,
       className,
+      flush,
     }),
   close: () => set({ isOpen: false, isDirty: false, dismissLocks: 0 }),
   setDirty: (dirty) => set({ isDirty: dirty }),
@@ -64,6 +67,7 @@ export const useDialogState = () =>
       content: s.content,
       size: s.size,
       className: s.className,
+      flush: s.flush,
       dismissible: s.dismissLocks === 0,
     })),
   );
