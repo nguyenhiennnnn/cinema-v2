@@ -23,7 +23,8 @@ public class UserEmployeeMappingConfig : IRegister
                 dest => dest.IsPendingActivation,
                 src => src.User.PasswordHash == User.PendingPasswordHash
             )
-            .Map(dest => dest.MustChangePassword, src => src.User.MustChangePassword);
+            .Map(dest => dest.MustChangePassword, src => src.User.MustChangePassword)
+            .Map(dest => dest.RoleName, src => src.User.Role != null ? src.User.Role.RoleName : null);
 
         config.NewConfig<MembershipTier, MembershipTierBriefDto>();
     }

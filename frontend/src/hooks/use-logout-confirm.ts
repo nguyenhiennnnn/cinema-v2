@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 
 import { FORM_CANCEL_LABEL } from "@/config/default-constants";
 
-export function useLogoutConfirm() {
+export function useLogoutConfirm(redirectTo = "/") {
   const { mutate: logout } = useLogout();
   const navigate = useNavigate();
   const openAlertDialog = useAlertDialogOpen();
@@ -19,8 +19,8 @@ export function useLogoutConfirm() {
       variant: "destructive",
       onConfirm: () => {
         logout();
-        navigate("/", { replace: true });
+        navigate(redirectTo, { replace: true });
       },
     });
-  }, [logout, openAlertDialog, navigate]);
+  }, [logout, openAlertDialog, navigate, redirectTo]);
 }

@@ -357,6 +357,7 @@ public class EmployeeService(
     {
         var employee = await db
             .Employees.Include(e => e.User)
+                .ThenInclude(u => u.Role)
             .Include(e => e.Position)
             .FirstAsync(e => e.EmployeeId == employeeId, cancellationToken);
         return employee.Adapt<AdminEmployeeDto>();

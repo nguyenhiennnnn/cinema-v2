@@ -12,10 +12,12 @@ import { toastBulkResult } from "@/lib/bulk";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDialogClose, useDialogOpen } from "@/stores/dialog-store";
 import { useAlertDialogOpen } from "@/stores/alert-dialog-store";
+import { toast } from "@/components/ui/toast";
 
 import {
   useAdminEmployees,
   useAdminResendEmployeeInvite,
+  useAdminResetEmployeePassword,
   useAdminUpdateEmployee,
 } from "../hooks/use-admin-employee";
 import type { AdminEmployeeDto } from "../types";
@@ -33,6 +35,7 @@ const AdminEmployeesPage = () => {
   const employees = useAdminEmployees(stripNulls(params));
   const updateEmployee = useAdminUpdateEmployee();
   const resendInvite = useAdminResendEmployeeInvite();
+  const resetPassword = useAdminResetEmployeePassword();
   const currentUserId = useAuthStore((s) => s.user?.userId);
   const bulkUpdateStatus = useAdminBulkUpdateUserStatus();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -44,7 +47,7 @@ const AdminEmployeesPage = () => {
   const handleCreate = () => {
     openDialog({
       title: "Thêm nhân viên mới",
-      description: "Mời nhân viên mới qua email hoặc nâng cấp một tài khoản có sẵn.",
+      description: "Tạo tài khoản trực tiếp, mời nhân viên qua email hoặc nâng cấp một tài khoản có sẵn.",
       content: <EmployeeAddTabs onSuccess={closeDialog} />,
     });
   };
@@ -92,6 +95,23 @@ const AdminEmployeesPage = () => {
     });
   };
 
+  const handleResetPassword = (employee: AdminEmployeeDto) => {
+    openAlertDialog({
+      title: `Đặt lại mật khẩu cho "${employee.fullName}"?`,
+      description:
+        "Mật khẩu sẽ được đặt về mật khẩu mặc định trong Cấu hình rạp. Nhân viên bị đăng xuất khỏi mọi thiết bị và phải đổi mật khẩu ở lần đăng nhập kế tiếp.",
+      confirmText: "Đặt lại mật khẩu",
+      onConfirm: async () => {
+        await resetPassword.mutateAsync(employee.employeeId);
+        toast.add({
+          title: `Đã đặt lại mật khẩu cho ${employee.fullName}`,
+          description: "Hãy báo mật khẩu mặc định cho nhân viên để họ đăng nhập và đổi mật khẩu.",
+          type: "success",
+        });
+      },
+    });
+  };
+
   const handleBulkSetActive = async (selectedUserIds: string[], isActive: boolean) => {
     const res = await bulkUpdateStatus.mutateAsync({
       ids: selectedUserIds.map(Number),
@@ -107,6 +127,7 @@ const AdminEmployeesPage = () => {
       onEdit: handleEdit,
       onToggle: handleToggle,
       onResendInvite: handleResendInvite,
+      onResetPassword: handleResetPassword,
       currentUserId,
     }),
   ];

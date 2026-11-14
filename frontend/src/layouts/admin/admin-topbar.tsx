@@ -105,6 +105,9 @@ export const AdminTopbar = ({ onToggle }: { onToggle: () => void }) => {
               <Link to={ROUTES.admin.settings}>Cài đặt hệ thống</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem render={<Link to={ROUTES.admin.changePassword} />}>
+              Đổi mật khẩu
+            </DropdownMenuItem>
             <DropdownMenuItem className="text-destructive" onClick={confirmLogout}>
               Đăng xuất
             </DropdownMenuItem>

@@ -3,6 +3,7 @@ import type { ApiResponse, OffsetPageResult } from "@/types/api";
 import type {
   AdminEmployeeListParams,
   AdminEmployeeDto,
+  CreateEmployeeDirectRequest,
   CreateEmployeeRequest,
   InviteEmployeeRequest,
   UpdateEmployeeRequest,
@@ -18,6 +19,12 @@ export const employeesAdminApi = {
 
   inviteEmployee: (body: InviteEmployeeRequest) =>
     apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.invite, body),
+
+  createEmployeeDirect: (body: CreateEmployeeDirectRequest) =>
+    apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.direct, body),
+
+  resetPassword: (id: number) =>
+    apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.resetPassword(id)),
 
   resendInvite: (id: number) =>
     apiPost<ApiResponse<AdminEmployeeDto>>(ENDPOINTS.admin.employees.resendInvite(id)),

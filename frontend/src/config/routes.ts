@@ -33,6 +33,8 @@ export const ROUTES = {
   admin: {
     root: "/admin",
     login: "/admin/login",
+    resetPassword: "/admin/reset-password",
+    changePassword: "/admin/change-password",
     dashboard: "/admin/dashboard",
     bookingCounter: "/admin/bookings/counter",
     checkin: "/admin/checkin",

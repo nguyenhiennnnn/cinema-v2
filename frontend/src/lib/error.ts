@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "@/components/ui/toast";
 import { ENV } from "@/config/env";
+import { API_ERROR_CODES } from "@/config/api-error-codes";
 import {
   ERROR_MESSAGES,
   ERROR_TOAST_DEDUPE_MS,
@@ -13,6 +14,7 @@ export interface ApiErrorShape {
   message: string;
   errors?: Record<string, string[]>;
   statusCode?: number;
+  errorCode?: string;
 }
 
 export function extractApiError(error: unknown): ApiErrorShape {
@@ -22,12 +24,19 @@ export function extractApiError(error: unknown): ApiErrorShape {
       message: data?.message ?? error.message ?? "Đã có lỗi xảy ra",
       errors: data?.errors ?? undefined,
       statusCode: error.response?.status,
+      errorCode: typeof data?.errorCode === "string" ? data.errorCode : undefined,
     };
   }
   if (error instanceof Error) {
     return { message: error.message };
   }
   return { message: ERROR_MESSAGES.unknown };
+}
+
+/** 403 do backend chặn vì tài khoản phải đổi mật khẩu trước. */
+export function isPasswordChangeRequiredError(error: unknown): boolean {
+  const { statusCode, errorCode } = extractApiError(error);
+  return statusCode === 403 && errorCode === API_ERROR_CODES.passwordChangeRequired;
 }
 
 export function logDevError(error: unknown, context?: string): void {
@@ -118,6 +127,7 @@ export function showApiErrorToast(
   opts?: { title?: string },
 ): void {
   if (isCancelledError(error)) return;
+  if (isPasswordChangeRequiredError(error)) return;
 
   const { statusCode } = extractApiError(error);
   if (statusCode && SILENT_TOAST_STATUSES.includes(statusCode)) return;
@@ -126,7 +136,6 @@ export function showApiErrorToast(
   const description = getDisplayMessage(error);
 
   const key = `${title}|${description}`;
-  // Date.now() ở đây chỉ để chống trùng toast (debounce), không so với mốc server.
   const now = Date.now();
   if (key === lastToast.key && now - lastToast.at < ERROR_TOAST_DEDUPE_MS)
     return;

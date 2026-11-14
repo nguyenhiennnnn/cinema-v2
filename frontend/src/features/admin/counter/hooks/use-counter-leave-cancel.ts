@@ -2,17 +2,9 @@ import { useCallback, useEffect, useRef } from "react";
 import { bookingsAdminApi } from "@/features/admin/bookings/api/bookings-admin-api";
 
 interface UseCounterLeaveCancelParams {
-  /** Gọi khi trang được khôi phục từ bfcache sau khi đơn đã bị hủy lúc rời trang. */
   onRestoredAfterCancel: () => void;
 }
 
-/**
- * Hủy đơn quầy đang Pending khi nhân viên rời luồng mà chưa thanh toán:
- * - Chuyển trang trong admin (unmount): gọi API qua apiClient, lỗi được nuốt.
- * - Đóng tab, tải lại, đóng trình duyệt (pagehide): fetch keepalive kèm token và header CSRF.
- * Server chỉ hủy đơn còn Pending, đơn đã thanh toán sẽ bị từ chối và không bị đụng tới.
- * Mất mạng hoặc trình duyệt crash: không gửi được, đơn tự hết hạn theo thời hạn giữ.
- */
 export function useCounterLeaveCancel({
   onRestoredAfterCancel,
 }: UseCounterLeaveCancelParams) {
@@ -61,8 +53,6 @@ export function useCounterLeaveCancel({
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener("pageshow", onPageShow);
       mountedRef.current = false;
-      // Hoãn một nhịp để effect chạy hai lần (StrictMode, Fast Refresh) không hủy nhầm:
-      // lần mount lại sẽ đặt mountedRef về true trước khi timer chạy.
       window.setTimeout(() => {
         if (mountedRef.current) return;
         const id = cancellableIdRef.current;

@@ -102,11 +102,6 @@ function getBusinessParts(instant: Date) {
   };
 }
 
-/**
- * Dựng "wall date" (giờ treo tường của múi giờ nghiệp vụ) bằng Date theo múi giờ trình duyệt.
- * Giới hạn đã biết: nếu giờ nghiệp vụ rơi vào khoảng nhảy DST của trình duyệt (khác múi giờ
- * nghiệp vụ) thì JS đẩy tới +1 giờ. Trường hợp hiếm nên chấp nhận.
- */
 export function instantToBusinessWall(instant: Date): Date {
   const p = getBusinessParts(instant);
   return new Date(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);

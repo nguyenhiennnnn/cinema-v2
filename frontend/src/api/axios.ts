@@ -7,7 +7,7 @@ import axios, {
 } from "axios";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { sessionHint } from "@/lib/session-hint";
-import { logDevError } from "@/lib/error";
+import { isPasswordChangeRequiredError, logDevError } from "@/lib/error";
 import { syncServerClock } from "@/lib/server-clock";
 import { ENV } from "@/config/env";
 import { ROUTES } from "@/config/routes";
@@ -162,10 +162,26 @@ function redirectToLogin() {
     : `${ROUTES.auth.login}?redirect=${encodeURIComponent(currentPath)}`;
 }
 
+function redirectToChangePassword() {
+  const { user, updateUser } = useAuthStore.getState();
+  // Bật cờ trong store: AdminProtectedRoute tự chuyển mọi đường dẫn admin sang trang đổi mật khẩu.
+  if (user && !user.mustChangePassword) updateUser({ mustChangePassword: true });
+  // Ngoài khu admin không có guard nào bắt cờ, nên chuyển thẳng.
+  const { pathname } = window.location;
+  if (!pathname.startsWith(ROUTES.admin.root)) {
+    window.location.assign(ROUTES.admin.changePassword);
+  }
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryableConfig | undefined;
+
+    if (isPasswordChangeRequiredError(error)) {
+      redirectToChangePassword();
+      return Promise.reject(error);
+    }
 
     if (
       error.response?.status === 401 &&
@@ -253,13 +269,6 @@ export async function apiUpload<T>(
   return data;
 }
 
-/**
- * Gửi POST không chờ phản hồi, sống sót khi trang đang đóng hoặc tải lại (pagehide).
- * Dùng fetch keepalive thay cho sendBeacon vì sendBeacon không đặt được header
- * Authorization và X-Requested-With, nên sẽ không qua được xác thực và CSRF.
- * Không có bước refresh token ở đây: nếu access token đã hết hạn thì request bị
- * từ chối và server dựa vào thời hạn giữ để tự nhả.
- */
 export function apiPostKeepalive(url: string): void {
   const { accessToken } = useAuthStore.getState();
   if (!accessToken) return;

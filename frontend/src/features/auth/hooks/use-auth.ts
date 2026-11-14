@@ -24,6 +24,7 @@ function mapLoginUserToAuthUser(dto: LoginUserDto): AuthUser {
     membershipTierName: dto.membershipTierName ?? null,
     points: dto.points ?? undefined,
     isEmailConfirmed: dto.isEmailConfirmed,
+    mustChangePassword: dto.mustChangePassword ?? false,
   };
 }
 
@@ -34,6 +35,7 @@ function applyMeToAuthUser(me: MeResponse): Partial<AuthUser> {
     avatar: me.avatar ?? null,
     role: me.role,
     isEmailConfirmed: true,
+    mustChangePassword: me.mustChangePassword ?? false,
   };
 }
 
@@ -107,9 +109,9 @@ export function useForgotPassword() {
   });
 }
 
-export function useResetPassword() {
+export function useResetPassword(options?: { skipSuccessToast?: boolean }) {
   return useMutation({
-    meta: { skipErrorToast: true },
+    meta: { skipErrorToast: true, skipSuccessToast: options?.skipSuccessToast },
     mutationFn: (body: ResetPasswordRequest) => authApi.resetPassword(body),
   });
 }

@@ -139,6 +139,10 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
   },
 ];
 
+export const ADMIN_ACCOUNT_PATHS: { to: string; roles: Role[] }[] = [
+  { to: ROUTES.admin.changePassword, roles: [Role.Admin, Role.Employee] },
+];
+
 export const filterNavGroupsByRole = (
   groups: AdminNavGroup[],
   role: string | undefined,
@@ -151,7 +155,7 @@ export const filterNavGroupsByRole = (
     .filter((group) => group.items.length > 0);
 
 export const canAccessAdminPath = (pathname: string, role: string | undefined): boolean => {
-  const item = ADMIN_NAV_GROUPS.flatMap((group) => group.items)
+  const item = [...ADMIN_NAV_GROUPS.flatMap((group) => group.items), ...ADMIN_ACCOUNT_PATHS]
     .filter((nav) => pathname === nav.to || pathname.startsWith(`${nav.to}/`))
     .sort((a, b) => b.to.length - a.to.length)[0];
   return !item || (!!role && item.roles.includes(role as Role));

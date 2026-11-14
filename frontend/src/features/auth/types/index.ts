@@ -35,6 +35,7 @@ export interface LoginUserDto {
   membershipTierName?: string | null;
   points?: number | null;
   isEmailConfirmed: boolean;
+  mustChangePassword?: boolean;
 }
 
 export interface LoginResponse {
@@ -79,6 +80,7 @@ export interface MeResponse {
   phone?: string | null;
   avatar?: string | null;
   role: Role;
+  mustChangePassword?: boolean;
 }
 
 export interface MessageResponse {

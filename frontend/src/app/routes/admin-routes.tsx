@@ -11,6 +11,8 @@ import { ROUTES } from "@/config/routes";
 import { lazyRoute } from "./lazy-route";
 
 const AdminLoginPage = lazyRoute(() => import("@/features/admin/login/pages/login-page"));
+const AdminResetPasswordPage = lazyRoute(() => import("@/features/admin/login/pages/reset-password-page"));
+const AdminChangePasswordPage = lazyRoute(() => import("@/features/admin/account/pages/change-password-page"));
 const AdminDashboardPage = lazyRoute(() => import("@/features/admin/dashboard/pages/dashboard-page"));
 const AdminShowtimesPage = lazyRoute(() => import("@/features/admin/showtimes/pages/showtimes-page"));
 const AdminCounterPage = lazyRoute(() => import("@/features/admin/counter/pages/counter-page"));
@@ -50,10 +52,20 @@ export const adminRoutes: RouteObject[] = [
     ],
   },
   {
+    path: ROUTES.admin.resetPassword,
+    element: <AdminAuthLayout />,
+    children: [{ index: true, lazy: AdminResetPasswordPage }],
+  },
+  {
     path: "/admin",
     element: <AdminProtectedRoute />,
     children: [
       { index: true, element: <AdminIndexRedirect /> },
+      {
+        path: "change-password",
+        element: <AdminAuthLayout />,
+        children: [{ index: true, lazy: AdminChangePasswordPage }],
+      },
       {
         element: <AdminLayout />,
         children: [

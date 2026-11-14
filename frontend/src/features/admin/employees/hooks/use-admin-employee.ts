@@ -1,6 +1,7 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/query-keys";
 import type {
+  CreateEmployeeDirectRequest,
   CreateEmployeeRequest,
   InviteEmployeeRequest,
   AdminEmployeeListParams,
@@ -29,6 +30,21 @@ export function useAdminInviteEmployee() {
   return useMutation({
     meta: { invalidates: "employeeChanged" },
     mutationFn: (body: InviteEmployeeRequest) => employeesAdminApi.inviteEmployee(body),
+  });
+}
+
+export function useAdminCreateEmployeeDirect() {
+  return useMutation({
+    meta: { invalidates: "employeeChanged" },
+    mutationFn: (body: CreateEmployeeDirectRequest) =>
+      employeesAdminApi.createEmployeeDirect(body),
+  });
+}
+
+export function useAdminResetEmployeePassword() {
+  return useMutation({
+    meta: { invalidates: "employeeChanged", skipSuccessToast: true },
+    mutationFn: (id: number) => employeesAdminApi.resetPassword(id),
   });
 }
 

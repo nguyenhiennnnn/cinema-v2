@@ -10,7 +10,7 @@ import { SubmitButton } from "@/components/common/form/submit-button";
 import { useServerFieldErrors } from "@/hooks/use-server-field-errors";
 import { useAdminLogin } from "@/features/auth/hooks/use-auth";
 import { BRAND } from "@/config/brand";
-import { getAdminHomePath } from "@/config/routes";
+import { ROUTES, getAdminHomePath } from "@/config/routes";
 import { getSafeRedirect } from "@/lib/utils";
 
 const adminLoginSchema = z.object({
@@ -35,6 +35,10 @@ export const AdminLoginForm = () => {
   const onSubmit = (data: AdminLoginFormValues) => {
     adminLogin(data, {
       onSuccess: (res) => {
+        if (res.data.user.mustChangePassword) {
+          navigate(ROUTES.admin.changePassword, { replace: true });
+          return;
+        }
         navigate(
           getSafeRedirect(searchParams.get("redirect"), getAdminHomePath(res.data.user.role)),
           { replace: true },

@@ -33,6 +33,10 @@ export interface CinemaSettingsDto {
   currencySymbol?: string;
 }
 
+export interface AdminCinemaSettingsDto extends CinemaSettingsDto {
+  defaultEmployeePassword: string;
+}
+
 export interface UpdateSettingsRequest {
   name: string;
   address: string;
@@ -47,6 +51,7 @@ export interface UpdateSettingsRequest {
   cancelDeadlineHours: number;
   stopSellingMinutesBefore: number;
   seatGapRuleMode: SeatGapRuleMode;
+  defaultEmployeePassword?: string | null;
   roomBufferMinutes?: number;
   maxSeatsPerBooking?: number;
   maxComboQuantity?: number;

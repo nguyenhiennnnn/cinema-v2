@@ -1,5 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { MailPlus, MoreHorizontal, Pencil, Power, PowerOff } from "lucide-react";
+import { KeyRound, MailPlus, MoreHorizontal, Pencil, Power, PowerOff } from "lucide-react";
 
 import { EmployeeStatusBadge, PositionBadge } from "@/components/common/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import {
 import { DataTableColumnHeader } from "@/components/common/data-table/data-table-column-header";
 import type { DataTableFeatures } from "@/components/common/data-table/data-table-features";
 import { formatDate } from "@/lib/formatters";
+import { Role } from "@/types/enum";
 
 import type { AdminEmployeeDto } from "../types";
 
@@ -20,12 +21,19 @@ interface EmployeeColumnsOptions {
   onEdit: (employee: AdminEmployeeDto) => void;
   onToggle: (employee: AdminEmployeeDto) => void;
   onResendInvite: (employee: AdminEmployeeDto) => void;
+  onResetPassword: (employee: AdminEmployeeDto) => void;
   currentUserId?: number;
 }
 
 const columnHelper = createColumnHelper<DataTableFeatures, AdminEmployeeDto>();
 
-export const createEmployeeColumns = ({ onEdit, onToggle, onResendInvite, currentUserId }: EmployeeColumnsOptions) =>
+export const createEmployeeColumns = ({
+  onEdit,
+  onToggle,
+  onResendInvite,
+  onResetPassword,
+  currentUserId,
+}: EmployeeColumnsOptions) =>
   columnHelper.columns([
     columnHelper.accessor("employeeId", {
       header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
@@ -64,7 +72,10 @@ export const createEmployeeColumns = ({ onEdit, onToggle, onResendInvite, curren
         row.original.isPendingActivation ? (
           <Badge variant="warning">Chờ kích hoạt</Badge>
         ) : (
-          <EmployeeStatusBadge isActive={row.original.isActive} />
+          <div className="flex flex-wrap items-center gap-1.5">
+            <EmployeeStatusBadge isActive={row.original.isActive} />
+            {row.original.mustChangePassword && <Badge variant="warning">Chưa đổi mật khẩu</Badge>}
+          </div>
         ),
       enableSorting: false,
     }),
@@ -87,6 +98,13 @@ export const createEmployeeColumns = ({ onEdit, onToggle, onResendInvite, curren
               {row.original.isPendingActivation && (
                 <DropdownMenuItem onClick={() => onResendInvite(row.original)}>
                   <MailPlus /> Gửi lại lời mời
+                </DropdownMenuItem>
+              )}
+              {row.original.roleName === Role.Employee
+                && row.original.isActive
+                && row.original.userId !== currentUserId && (
+                <DropdownMenuItem onClick={() => onResetPassword(row.original)}>
+                  <KeyRound /> Đặt lại mật khẩu
                 </DropdownMenuItem>
               )}
               {row.original.isActive ? (

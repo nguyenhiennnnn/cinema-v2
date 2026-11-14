@@ -22,4 +22,9 @@ export const passwordSchema = z
     },
   );
 
+
+export const strongPasswordSchema = passwordSchema.refine((v) => /\d/.test(v), {
+  message: "Mật khẩu phải có ít nhất 1 chữ số.",
+});
+
 export const isValidVnPhone = (value: string) => VN_PHONE_REGEX.test(value);

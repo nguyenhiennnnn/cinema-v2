@@ -17,12 +17,23 @@ import { SeatGapRuleMode } from "@/types/enum";
 import { useAdminSettings, useAdminUpdateSettings } from "../hooks/use-admin-settings";
 import { FormImageField } from "@/components/common/form/form-upload-field";
 import { getCurrencyLabel } from "@/lib/regional-settings";
+import { strongPasswordSchema } from "@/lib/validators";
 
 const SEAT_GAP_RULE_OPTIONS = [
   { value: SeatGapRuleMode.Strict, label: "Chặn mọi ghế lẻ" },
   { value: SeatGapRuleMode.AllowEdge, label: "Cho phép ghế lẻ sát mép hàng / lối đi" },
   { value: SeatGapRuleMode.Off, label: "Tắt quy tắc ghế lẻ" },
 ];
+
+const DEFAULT_EMPLOYEE_PASSWORD_MAX_LENGTH = 100;
+
+const defaultEmployeePasswordSchema = z
+  .string()
+  .max(
+    DEFAULT_EMPLOYEE_PASSWORD_MAX_LENGTH,
+    `Mật khẩu mặc định tối đa ${DEFAULT_EMPLOYEE_PASSWORD_MAX_LENGTH} ký tự.`,
+  )
+  .pipe(strongPasswordSchema);
 
 const settingsFormSchema = z.object({
   name: z.string().min(1, "Vui lòng nhập tên rạp."),
@@ -38,6 +49,15 @@ const settingsFormSchema = z.object({
   cancelDeadlineHours: z.coerce.number().min(0, "Giá trị không được âm."),
   stopSellingMinutesBefore: z.coerce.number().min(0, "Giá trị không được âm.").max(SETTINGS_FIELD_MAX.stopSellingMinutesBefore, `Tối đa ${SETTINGS_FIELD_MAX.stopSellingMinutesBefore} phút.`),
   seatGapRuleMode: z.enum([SeatGapRuleMode.Strict, SeatGapRuleMode.AllowEdge, SeatGapRuleMode.Off]),
+  // Để trống nghĩa là chưa cấu hình hoặc giữ nguyên giá trị hiện tại.
+  defaultEmployeePassword: z.string().superRefine((value, ctx) => {
+    if (value === "") return;
+    const result = defaultEmployeePasswordSchema.safeParse(value);
+    if (result.success) return;
+    result.error.issues.forEach((issue) =>
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: issue.message }),
+    );
+  }),
   roomBufferMinutes: z.coerce.number().min(0, "Tối thiểu 0.").max(SETTINGS_FIELD_MAX.roomBufferMinutes, `Tối đa ${SETTINGS_FIELD_MAX.roomBufferMinutes}.`),
   maxSeatsPerBooking: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.maxSeatsPerBooking, `Tối đa ${SETTINGS_FIELD_MAX.maxSeatsPerBooking}.`),
   maxComboQuantity: z.coerce.number().min(1, "Tối thiểu 1.").max(SETTINGS_FIELD_MAX.maxComboQuantity, `Tối đa ${SETTINGS_FIELD_MAX.maxComboQuantity}.`),
@@ -94,6 +114,7 @@ const AdminSettingsPage = () => {
       cancelDeadlineHours: 0,
       stopSellingMinutesBefore: 0,
       seatGapRuleMode: SeatGapRuleMode.Strict,
+      defaultEmployeePassword: "",
       roomBufferMinutes: 15,
       maxSeatsPerBooking: 10,
       maxComboQuantity: 10,
@@ -127,6 +148,7 @@ const AdminSettingsPage = () => {
         cancelDeadlineHours: settings.data.cancelDeadlineHours,
         stopSellingMinutesBefore: settings.data.stopSellingMinutesBefore,
         seatGapRuleMode: settings.data.seatGapRuleMode,
+        defaultEmployeePassword: settings.data.defaultEmployeePassword ?? "",
         roomBufferMinutes: settings.data.roomBufferMinutes,
         maxSeatsPerBooking: settings.data.maxSeatsPerBooking,
         maxComboQuantity: settings.data.maxComboQuantity,
@@ -159,6 +181,7 @@ const AdminSettingsPage = () => {
         cancelDeadlineHours: values.cancelDeadlineHours,
         stopSellingMinutesBefore: values.stopSellingMinutesBefore,
         seatGapRuleMode: values.seatGapRuleMode,
+        defaultEmployeePassword: values.defaultEmployeePassword || null,
         roomBufferMinutes: values.roomBufferMinutes,
         maxSeatsPerBooking: values.maxSeatsPerBooking,
         maxComboQuantity: values.maxComboQuantity,
@@ -358,6 +381,22 @@ const AdminSettingsPage = () => {
             min={0}
             max={10}
           />
+        </SettingsSection>
+
+        <SettingsSection title="Tài khoản nhân viên" disabled={updateSettings.isPending}>
+          <div className="space-y-1.5 sm:col-span-2">
+            <FormInputField
+              name="defaultEmployeePassword"
+              control={form.control}
+              label="Mật khẩu mặc định khi reset cho nhân viên"
+              type="password"
+              autoComplete="new-password"
+            />
+            <p className="text-xs text-muted-foreground">
+              Chỉ dùng khi admin đặt lại mật khẩu nhân viên. Nhân viên phải đổi mật khẩu ngay ở lần đăng nhập kế
+              tiếp. Đổi cấu hình này không ảnh hưởng tới các tài khoản đã được đặt lại trước đó.
+            </p>
+          </div>
         </SettingsSection>
 
         <div className="flex justify-end">

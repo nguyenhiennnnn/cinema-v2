@@ -39,7 +39,8 @@ public record AdminEmployeeDto(
     DateOnly? HireDate,
     bool IsActive,
     bool IsPendingActivation = false,
-    bool MustChangePassword = false
+    bool MustChangePassword = false,
+    string? RoleName = null
 );
 
 public record CreateEmployeeRequest(
